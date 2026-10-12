@@ -1,0 +1,651 @@
+/* ============================================================
+   Fuentes personalizadas
+   ============================================================ */
+@font-face {
+  font-family: "Erstoria";
+  src: url("fonts/Erstoria.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Kalista";
+  src: url("fonts/Kalista Script Regular.woff2") format("woff2"),
+    url("fonts/Kalista Script Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 1.25rem;
+  font-family: "Montserrat", sans-serif;
+  background-color: #f9f9f3;
+  color: #b98d7a;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+.contenido {
+  width: 100%;
+  max-width: 1500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1,
+h2,
+h3,
+h4,
+h6 {
+  font-family: "Erstoria", serif;
+  color: #a47864;
+  margin-bottom: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+h1 {
+  font-size: 4.5rem;
+}
+h2 {
+  font-size: 3.5rem;
+}
+h3 {
+  font-size: 2.5rem;
+}
+h4 {
+  font-size: 2.2rem;
+}
+
+p {
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+section {
+  width: 100%;
+  margin: 5rem auto;
+  text-align: center;
+}
+
+button {
+  padding: 0.625rem 1.25rem;
+  background-color: #b98d7a;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #a47764;
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   Modal de bienvenida
+   ============================================================ */
+.modal-bienvenida {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background-image: url("assets/photos/backgrond3.jpg");
+  background-size: cover;
+  background-position: center;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  font-family: "Montserrat", sans-serif;
+  color: #a47764;
+  letter-spacing: 0.2rem;
+}
+
+.modal-bienvenida-body {
+  width: 37.5rem;
+  max-width: 90vw;
+  background-color: #f3f3f3;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-intro-img img {
+  width: 16rem;
+  height: 16rem;
+  object-fit: cover;
+  border-radius: 16rem 16rem 0 0;
+  border: 0.313rem solid #f1efee;
+  box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+}
+
+.modal-bienvenida h1 {
+  font-family: "Kalista", cursive;
+  font-size: 3.5rem;
+  color: #a47764;
+  margin-bottom: 0.5rem;
+}
+
+.modal-lateral-fecha {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.25rem;
+}
+
+.modal-bienvenida p {
+  font-weight: bold;
+}
+
+#btn-ingresar {
+  width: 9.375rem;
+  margin-top: 1.25rem;
+}
+
+/* ============================================================
+   Panel fijo: música + modo oscuro
+   ============================================================ */
+.fixed-panel {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-musica {
+  background-color: #a47764;
+  border-radius: 50%;
+  width: 3.75rem;
+  height: 3.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.2);
+}
+
+.icono-silencio,
+.icono-sonando {
+  width: 1.5rem;
+  height: 1.5rem;
+  background-size: cover;
+}
+
+.icono-silencio {
+  background-image: url("assets/icons/silencio.png");
+}
+
+.icono-sonando {
+  background-image: url("assets/icons/sonido.png");
+}
+
+/* ============================================================
+   Encabezado
+   ============================================================ */
+header.inicio {
+  position: sticky;
+  top: 0;
+  background-color: #f9f9f3;
+  padding: 1rem;
+  width: 100%;
+  z-index: 1000;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+header.inicio h1 {
+  font-family: "Kalista", cursive;
+  font-size: 4.5rem;
+  color: #a47764;
+  margin: 0;
+}
+
+/* ============================================================
+   Animaciones de aparición al hacer scroll
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   Foto principal y sección de nombres
+   ============================================================ */
+.foto img,
+.Nombres img {
+  max-width: 80%;
+  height: auto;
+  border-radius: 0.9rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Frase
+   ============================================================ */
+.Intro blockquote {
+  font-style: italic;
+  text-align: justify;
+  padding: 1.8rem;
+  color: #a47764;
+  line-height: 2.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   Cuenta regresiva
+   ============================================================ */
+.Fecha .fecha-texto {
+  display: inline-block;
+  background-color: #a47764;
+  color: #f9f9f3;
+  font-size: 1.8rem;
+  line-height: 1.8;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+}
+
+#p1 {
+  color: #a47764;
+  font-size: 1.8rem;
+  font-weight: bold;
+  letter-spacing: 0.3rem;
+}
+
+.cuenta-regresiva {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.caja {
+  background-color: #a47764;
+  color: #f3f3f3;
+  min-width: 6.5rem;
+  padding: 1rem 0.75rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
+}
+
+.caja-num {
+  display: block;
+  font-size: 3rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.caja-label {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.msg-post {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #a47764;
+}
+
+/* ============================================================
+   Lugares
+   ============================================================ */
+.card-lugar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.card-lugar p {
+  font-size: 1.35rem;
+}
+
+.icono-lugar {
+  width: 6.2rem;
+  max-width: 50%;
+  height: auto;
+  margin: 1rem auto;
+  display: block;
+}
+
+/* ============================================================
+   Itinerario (línea de tiempo)
+   ============================================================ */
+.timeline-section {
+  padding: 50px 20px;
+  border-radius: 16px;
+  font-weight: bold;
+}
+
+h6 {
+  font-family: "Erstoria", serif;
+  font-weight: bold;
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 6.25rem;
+  color: #a47864;
+}
+
+.timeline {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 5.6rem;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #a47864;
+  z-index: 0;
+  animation: moveline 20s linear forwards;
+}
+
+@keyframes moveline {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.event {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 7.5rem;
+  margin: 0 10px;
+}
+
+.event img {
+  width: 4.3rem;
+  margin-bottom: 1.25rem;
+}
+
+.time {
+  font-size: 1.8rem;
+  margin: 5px 0;
+  color: #a47864;
+  font-weight: normal;
+}
+
+.label {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #a47864;
+  text-align: center;
+  letter-spacing: 3px;
+}
+
+/* ============================================================
+   Confirmación
+   ============================================================ */
+.Confirmacion .reserva {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.Confirmacion form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 31.25rem;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.Confirmacion label {
+  margin-bottom: -0.4rem;
+}
+
+.Confirmacion input,
+.Confirmacion textarea {
+  padding: 0.75rem;
+  border: 1px solid #a47764;
+  border-radius: 0.5rem;
+  font-size: 1em;
+  font-family: "Montserrat", sans-serif;
+  width: 100%;
+}
+
+.Confirmacion textarea {
+  min-height: 6.2rem;
+  resize: vertical;
+}
+
+/* ============================================================
+   Mesa de regalos
+   ============================================================ */
+.mesaregalos ul {
+  list-style: none;
+  padding: 0;
+  text-align: center;
+}
+
+.mesaregalos li {
+  margin-bottom: 0.9rem;
+}
+
+img.wishlist {
+  border-radius: 0.5rem;
+  width: 50% !important;
+  height: auto !important;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Hoteles
+   ============================================================ */
+.hoteles img {
+  width: 50%;
+  max-width: 6.25rem;
+  height: auto;
+  margin: 10px auto;
+  display: block;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Galería
+   ============================================================ */
+.galeria {
+  width: 90vw;
+  max-width: 1200px;
+}
+
+.galeria .carousel-inner img {
+  border-radius: 1.5rem;
+}
+
+/* ============================================================
+   Notificación (copiar cuenta)
+   ============================================================ */
+#notificacion {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #a47764;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+footer {
+  text-align: center;
+  color: #b98d7a;
+  padding: 1rem;
+  width: 100%;
+}
+
+footer a {
+  color: #806201;
+  text-decoration: none;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+  }
+  h3 {
+    font-size: 2rem;
+  }
+  h4 {
+    font-size: 1.8rem;
+  }
+  h6 {
+    font-size: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .modal-intro-img img {
+    width: 12rem;
+    height: 12rem;
+  }
+  .modal-bienvenida h1 {
+    font-size: 2.5rem;
+  }
+  .modal-lateral-fecha {
+    font-size: 1.125rem;
+  }
+
+  header.inicio h1 {
+    font-size: 3rem;
+  }
+
+  .timeline {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .timeline::before {
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+  }
+
+  .event {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 300px;
+    margin: 20px 0;
+    text-align: left;
+    gap: 1rem;
+  }
+
+  .event img {
+    width: 3.5rem;
+    margin: 0;
+  }
+
+  .time,
+  .label {
+    text-align: left;
+  }
+
+  .caja {
+    min-width: 5rem;
+    padding: 0.8rem 0.5rem;
+  }
+  .caja-num {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .fixed-panel {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .btn-musica {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .icono-silencio,
+  .icono-sonando {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .fecha-texto {
+    font-size: 1.4rem !important;
+  }
+}

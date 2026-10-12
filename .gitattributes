@@ -1,2 +1,10 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Finales de línea LF en todo el proyecto (sitio estático servido tal cual)
+* text=auto eol=lf
+
+# Binarios que no deben tocarse
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp3 binary
+*.woff binary
+*.woff2 binary

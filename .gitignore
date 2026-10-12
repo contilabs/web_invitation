@@ -1,0 +1,9 @@
+# Herramientas locales: IDE y paquetes de skills de agentes (no son parte del sitio)
+.idea/
+.agents/
+skills/
+skills-lock.json
+
+# Basura del sistema
+Thumbs.db
+desktop.ini
