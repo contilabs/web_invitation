@@ -14,18 +14,43 @@ and fonts from `../invitacionk-g`**. Plain HTML + CSS + vanilla JS + Bootstrap 5
 
 Fire is the couple's own metaphor for their love, so the whole palette is ember-driven:
 
-- **Día** (light) = ivory paper (`--papel`), espresso ink (`--tinta`), ember copper (`--ember`).
+- **Día** (light) = paper ivory (`--paper`), espresso ink (`--ink`), ember copper (`--ember`).
 - **Noche** (dark) = candlelit night: near-black warm browns, brighter ember.
 
 Both themes are driven **only** by CSS custom properties: the `:root` block in `styles.css` (day)
 and the `html.dark-mode` block in `darkMode.css` (night). Never hard-code a colour in a rule —
 add/override a token instead, in both files.
 
+The visual language is deliberately **minimal and editorial** (scope of the "más minimalista y
+elegante" pass, Oct 2026):
+
+- **Two type families with clear roles.** Erstoria (display serif) carries the couple's names and
+  every heading; Montserrat (sans) carries body copy and UI. Kalista (script) is still loaded and
+  declared but no longer used: the single switch is the token `--fuente-nombres`, today
+  `var(--fuente-titulo)`. Set it to `var(--fuente-script)` to bring the calligraphy back on the
+  names (hero, header, modal, footer) — nothing else needs to change.
+- **Nothing decorates but a 1 px hairline or empty space.** Cards, inputs, buttons, the carousel
+  and the photos use `--radio`/`--radio-grande` and hairlines; **surfaces carry no box-shadow**
+  (only the modal, the copy notification and the floating controls keep `--sombra`/`--sombra-suave`).
+  Every `h2` gets one 2.5 rem hairline via `h2::after`.
+- **One dark moment.** The countdown band (`.Fecha`) is a single flat `--banda-1` — no gradient,
+  glow or glass. Its four units are separated by air alone (`gap: 1.75rem 2.75rem`); `.caja` has no
+  box.
+- **`--ember` is an accent, not a surface.** Filled ember only on the primary actions; the rest is
+  ink text, hairlines, or a `·`+ember detail (e.g. the `.chip` time). `--tracking-dato` (0.18em) is
+  the one tracked-caps voice for dates/labels.
+- **Calm motion.** The ambient photo zooms became one-shot settles (`heroAcerca` 2.6 s,
+  `portadaAcerca` 3.2 s); no hover `translateY`; hover zoom on gallery thumbnails is 1.03.
+  `prefers-reduced-motion` still removes all of it.
+
+> Constraints any restyle must respect: `verificar.js` asserts every ink/paper contrast pair is
+> ≥ 4.5 in both themes, and that the rendered icon tint equals the theme's `--ember`.
+
 ## Structure
 
 ```
 index.html        # All invitation content (single page, sections commented ES: 1–14)
-styles.css        # Day theme tokens + layout/component styles (Montserrat + @font-face Erstoria/Kalista)
+styles.css        # Day theme tokens + layout/component styles (Erstoria display + Montserrat; @font-face for Erstoria and Kalista)
 darkMode.css      # Night theme tokens + the theme-switch control
 script.js         # Countdown, music, scroll reveal, guest personalization, gallery/lightbox, copy bank data
 darkMode.js       # Theme-switch handler (toggles the class on <html>)
@@ -105,4 +130,10 @@ or a framework without asking.
   are painted on `background-color: var(--paper)` with `z-index: 1` (the icon already did the same with its
   `box-shadow` ring). If that section ever gets a background other than `--paper`, the veil will show as a
   rectangle. `--riel-y` is now only the *desktop* rail's `top` offset.
+- **The countdown band is flat and the four `.caja` have no chrome by design.** Do not reintroduce a
+  gradient/glow on `.Fecha` (`background-image: none`) nor a border/background on `.caja`; the tests
+  only require four `.caja`, each with a `.caja-num` and a `.caja-label`.
+- **`--fuente-nombres` is the one switch between the display serif and the calligraphic script** for
+  the couple's names. Kalista's `@font-face` and `--fuente-script` stay defined so the revert is a
+  one-token change (the font is only downloaded when actually used).
 - Keep all user-facing copy in **Spanish**, including new sections.

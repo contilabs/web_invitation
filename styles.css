@@ -31,11 +31,11 @@
    1. Tokens de diseño
    ============================================================ */
 :root {
-  /* Superficies */
-  --paper: #faf4ec;
-  --paper-2: #f3e9dc;
-  --superficie: #fffdfa;
-  --papel-velo: rgba(250, 244, 236, 0.82);
+  /* Superficies: papel marfil, apenas cálido */
+  --paper: #fbf8f2;
+  --paper-2: #f5efe6;
+  --superficie: #fffefb;
+  --papel-velo: rgba(251, 248, 242, 0.82);
 
   /* Tinta */
   --ink: #2b211c;
@@ -46,7 +46,7 @@
   --ember: #b4501f;
   --ember-2: #8c3a12;
   --glow: #e9a46b;
-  --ember-suave: rgba(180, 80, 31, 0.1);
+  --ember-suave: rgba(180, 80, 31, 0.08);
   /* Texto que va encima de --ember (de noche la brasa es más clara) */
   --sobre-ember: #ffffff;
 
@@ -59,41 +59,40 @@
   --filtro-ico: brightness(0) invert(46%) sepia(74%) saturate(800%)
     hue-rotate(340deg) brightness(71%) contrast(98%);
 
-  /* Líneas y sombras */
-  --linea: rgba(43, 33, 28, 0.13);
-  --linea-fuerte: rgba(43, 33, 28, 0.28);
-  --sombra-suave: 0 1px 2px rgba(43, 33, 28, 0.04),
-    0 12px 28px -18px rgba(43, 33, 28, 0.4);
-  --sombra: 0 24px 60px -28px rgba(43, 33, 28, 0.55);
+  /* Líneas y sombras: casi planas, solo para lo que flota */
+  --linea: rgba(43, 33, 28, 0.14);
+  --linea-fuerte: rgba(43, 33, 28, 0.26);
+  --sombra-suave: 0 1px 2px rgba(43, 33, 28, 0.05);
+  --sombra: 0 20px 44px -26px rgba(43, 33, 28, 0.5);
 
-  /* Banda de brasa (cuenta regresiva) */
-  --banda-1: #241610;
-  --banda-2: #7c3416;
-  --banda-3: #b4501f;
+  /* Banda de brasa (cuenta regresiva): un tono profundo, sin degradado */
+  --banda-1: #1e130d;
   --banda-texto: #fdf3e8;
-  --banda-linea: rgba(253, 243, 232, 0.24);
-  --banda-cristal: rgba(253, 243, 232, 0.08);
 
-  /* Tipografías */
+  /* Tipografías: una serif de display para títulos y nombres y una sans
+     neutra para el resto. La caligrafía sigue cargada y disponible: para
+     volver a ella basta --fuente-nombres: var(--fuente-script). */
   --fuente-titulo: "Erstoria", "Iowan Old Style", Georgia, serif;
   --fuente-script: "Kalista", "Segoe Script", cursive;
   --fuente-texto: "Montserrat", system-ui, sans-serif;
+  --fuente-nombres: var(--fuente-titulo);
 
   /* Escala tipográfica */
-  --fs-xs: 0.75rem;
-  --fs-sm: 0.875rem;
-  --fs-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
-  --fs-lead: clamp(1.15rem, 1rem + 0.7vw, 1.45rem);
-  --fs-h3: clamp(1.3rem, 1.1rem + 0.9vw, 1.6rem);
-  --fs-h2: clamp(1.9rem, 1.2rem + 2.8vw, 2.9rem);
-  --fs-display: clamp(2.75rem, 8.5vw, 6.25rem);
+  --fs-xs: 0.72rem;
+  --fs-sm: 0.85rem;
+  --fs-base: clamp(1rem, 0.96rem + 0.2vw, 1.05rem);
+  --fs-lead: clamp(1.2rem, 1.05rem + 0.7vw, 1.5rem);
+  --fs-h3: clamp(1.35rem, 1.15rem + 0.8vw, 1.6rem);
+  --fs-h2: clamp(2rem, 1.3rem + 2.6vw, 3rem);
+  --fs-display: clamp(2.5rem, 7.5vw, 5rem);
 
   /* Medidas */
   --ancho: 1120px;
-  --ancho-estrecho: 680px;
-  --radio: 1rem;
-  --radio-grande: 1.35rem;
-  --espacio-seccion: clamp(4.5rem, 9vw, 7.5rem);
+  --ancho-estrecho: 660px;
+  --radio: 0.4rem;
+  --radio-grande: 0.6rem;
+  --espacio-seccion: clamp(5rem, 10vw, 8rem);
+  --tracking-dato: 0.18em;
   --panel-alto: 5rem;
 
   color-scheme: light;
@@ -118,7 +117,7 @@ body {
   margin: 0;
   font-family: var(--fuente-texto);
   font-size: var(--fs-base);
-  line-height: 1.7;
+  line-height: 1.75;
   background-color: var(--paper);
   color: var(--ink-2);
   overflow-x: hidden;
@@ -173,13 +172,24 @@ h3 {
   color: var(--ink);
   text-align: center;
   text-wrap: balance;
-  line-height: 1.15;
+  line-height: 1.12;
   margin: 0 0 1rem;
-  letter-spacing: 0.005em;
+  letter-spacing: 0;
 }
 
 h2 {
   font-size: var(--fs-h2);
+}
+
+/* Un solo filete de 1 px bajo cada título: repite el ritmo de la página
+   sin añadir adornos. */
+h2::after {
+  content: "";
+  display: block;
+  width: 2.5rem;
+  height: 1px;
+  margin: 1.15rem auto 0;
+  background-color: var(--linea-fuerte);
 }
 
 h3 {
@@ -203,8 +213,9 @@ p:last-child {
 /* Etiqueta de datos: solo para unidades y fechas */
 .etiqueta-dato {
   font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
   color: var(--ink-2);
 }
 
@@ -216,30 +227,28 @@ p:last-child {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.85rem 1.75rem;
+  padding: 0.8rem 1.6rem;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radio);
   font-family: var(--fuente-texto);
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   line-height: 1.2;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.25s ease, color 0.25s ease,
-    border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+    border-color 0.25s ease;
 }
 
 .boton-solido {
   background-color: var(--ember);
   color: var(--sobre-ember);
-  box-shadow: 0 14px 30px -16px rgba(140, 58, 18, 0.9);
 }
 
 .boton-solido:hover {
   background-color: var(--ember-2);
-  transform: translateY(-2px);
-  box-shadow: 0 18px 34px -16px rgba(140, 58, 18, 0.95);
 }
 
 .boton-linea {
@@ -251,8 +260,6 @@ p:last-child {
 .boton-linea:hover {
   border-color: var(--ember);
   color: var(--ember);
-  background-color: var(--ember-suave);
-  transform: translateY(-2px);
 }
 
 /* ============================================================
@@ -293,7 +300,7 @@ p:last-child {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  animation: portadaAcerca 20s ease-out forwards;
+  animation: portadaAcerca 3.2s ease-out forwards;
 }
 
 .portada-velo {
@@ -309,7 +316,7 @@ p:last-child {
 
 @keyframes portadaAcerca {
   from {
-    transform: scale(1.08);
+    transform: scale(1.05);
   }
   to {
     transform: scale(1);
@@ -318,13 +325,14 @@ p:last-child {
 
 .modal-bienvenida-body {
   position: relative;
-  width: min(100%, 26rem);
+  width: min(100%, 25rem);
   margin: auto;
   padding: 2.25rem 1.75rem 2rem;
   text-align: center;
   background-color: var(--paper);
+  border: 1px solid var(--linea);
   border-radius: var(--radio-grande);
-  box-shadow: var(--sombra), 0 0 0 1px rgba(253, 243, 232, 0.14) inset;
+  box-shadow: var(--sombra);
   animation: portadaEntra 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
@@ -344,25 +352,24 @@ p:last-child {
   height: 14.5rem;
   object-fit: cover;
   object-position: 50% 22%;
-  border-radius: 6rem 6rem 0.4rem 0.4rem;
+  border-radius: var(--radio);
   margin: 0 auto 1.5rem;
   display: block;
-  box-shadow: 0 18px 40px -22px rgba(43, 33, 28, 0.8);
 }
 
 .modal-bienvenida h1 {
-  font-family: var(--fuente-script);
-  font-size: clamp(2.5rem, 9vw, 3.4rem);
+  font-family: var(--fuente-nombres);
+  font-size: clamp(2.2rem, 8vw, 3rem);
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.05;
   color: var(--ink);
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.6rem;
 }
 
 .modal-fecha {
   font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.26em;
+  font-weight: 500;
+  letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
   color: var(--ember);
   margin: 0;
@@ -370,10 +377,10 @@ p:last-child {
 
 .filete {
   display: block;
-  width: 6rem;
+  width: 5rem;
   height: 1px;
   margin: 1.5rem auto;
-  background: linear-gradient(90deg, transparent, var(--ember), transparent);
+  background-color: var(--linea-fuerte);
 }
 
 .modal-invitacion {
@@ -387,20 +394,19 @@ p:last-child {
   width: 100%;
   padding: 0.95rem 1.5rem;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radio);
   background-color: var(--ember);
   color: var(--sobre-ember);
   font-family: var(--fuente-texto);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background-color 0.25s ease, transform 0.25s ease;
+  transition: background-color 0.25s ease;
 }
 
 #btn-ingresar:hover {
   background-color: var(--ember-2);
-  transform: translateY(-2px);
 }
 
 /* ============================================================
@@ -430,14 +436,12 @@ p:last-child {
   place-items: center;
   cursor: pointer;
   box-shadow: var(--sombra-suave);
-  transition: border-color 0.25s ease, background-color 0.25s ease,
-    transform 0.25s ease;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
 .btn-musica:hover {
   border-color: var(--ember);
   background-color: var(--ember-suave);
-  transform: translateY(-2px);
 }
 
 .icono-silencio,
@@ -488,8 +492,8 @@ p:last-child {
 
 .inicio-titulo {
   margin: 0;
-  font-family: var(--fuente-script);
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-family: var(--fuente-nombres);
+  font-size: clamp(1.4rem, 3.4vw, 1.75rem);
   line-height: 1;
   color: var(--ink);
 }
@@ -524,12 +528,12 @@ p:last-child {
 }
 
 body.portada-cerrada .hero-img {
-  animation: heroAcerca 16s cubic-bezier(0.16, 0.6, 0.3, 1) forwards;
+  animation: heroAcerca 2.6s cubic-bezier(0.16, 0.6, 0.3, 1) forwards;
 }
 
 @keyframes heroAcerca {
   from {
-    transform: scale(1.07);
+    transform: scale(1.04);
   }
   to {
     transform: scale(1);
@@ -574,18 +578,17 @@ body.portada-cerrada .hero-texto {
 
 .hero-nombres {
   margin: 0;
-  font-family: var(--fuente-script);
+  font-family: var(--fuente-nombres);
   font-size: var(--fs-display);
-  line-height: 0.98;
+  line-height: 1;
   color: #fff;
-  text-shadow: 0 4px 40px rgba(24, 14, 9, 0.5);
 }
 
 .hero-fecha {
   margin: 1.25rem 0 0;
   font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.34em;
+  font-weight: 500;
+  letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
   color: rgba(253, 243, 232, 0.88);
 }
@@ -647,21 +650,13 @@ body.portada-cerrada .hero-texto {
 }
 
 /* ============================================================
-   11. Cuenta regresiva: el momento de brasa de la invitación
+   11. Cuenta regresiva: el único bloque oscuro de la invitación
    ============================================================ */
 .Fecha {
-  position: relative;
-  padding: clamp(4.5rem, 10vw, 7.5rem) 1.25rem;
+  padding: clamp(4rem, 9vw, 6.5rem) 1.25rem;
   text-align: center;
   color: var(--banda-texto);
   background-color: var(--banda-1);
-  background-image: radial-gradient(
-      115% 80% at 50% 118%,
-      rgba(233, 164, 107, 0.5) 0%,
-      rgba(233, 164, 107, 0) 60%
-    ),
-    linear-gradient(158deg, var(--banda-1) 0%, var(--banda-2) 58%, var(--banda-3) 100%);
-  overflow: hidden;
 }
 
 .banda-contenido {
@@ -679,9 +674,9 @@ body.portada-cerrada .hero-texto {
 
 .faltan {
   font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.28em;
-  color: rgba(253, 243, 232, 0.72);
+  font-weight: 500;
+  letter-spacing: var(--tracking-dato);
+  color: rgba(253, 243, 232, 0.8);
   margin: 0;
 }
 
@@ -689,24 +684,19 @@ body.portada-cerrada .hero-texto {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
-  margin-top: 2.25rem;
+  gap: 1.75rem 2.75rem;
+  margin-top: 2.5rem;
 }
 
+/* Sin cajas ni cristal: los números se separan con aire. */
 .caja {
-  min-width: 5.25rem;
-  padding: 1.1rem 0.75rem 1rem;
-  border: 1px solid var(--banda-linea);
-  border-radius: var(--radio);
-  background-color: var(--banda-cristal);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  min-width: 4rem;
 }
 
 .caja-num {
   display: block;
-  font-size: clamp(1.9rem, 4.6vw, 2.6rem);
-  font-weight: 600;
+  font-size: clamp(2.1rem, 5vw, 2.9rem);
+  font-weight: 400;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--banda-texto);
@@ -714,12 +704,12 @@ body.portada-cerrada .hero-texto {
 
 .caja-label {
   display: block;
-  margin-top: 0.6rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  margin-top: 0.55rem;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
-  color: rgba(253, 243, 232, 0.7);
+  color: rgba(253, 243, 232, 0.84);
 }
 
 .msg-post {
@@ -750,10 +740,8 @@ body.portada-cerrada .hero-texto {
   gap: 0.35rem;
   padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 3vw, 2rem);
   text-align: center;
-  background-color: var(--superficie);
   border: 1px solid var(--linea);
-  border-radius: var(--radio-grande);
-  box-shadow: var(--sombra-suave);
+  border-radius: var(--radio);
 }
 
 .card-lugar h3 {
@@ -770,17 +758,19 @@ body.portada-cerrada .hero-texto {
   margin: 0;
 }
 
+/* La hora del lugar: sin píldora, un punto que separa y la brasa justa. */
 .chip {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  background-color: var(--ember-suave);
   color: var(--ember);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.chip::before {
+  content: "·";
+  margin: 0 0.45rem 0 0.15rem;
+  color: var(--ink-2);
 }
 
 /* ============================================================
@@ -879,7 +869,7 @@ body.portada-cerrada .hero-texto {
 .time {
   margin: 1.15rem 0 0.2rem;
   font-size: 1.1875rem;
-  font-weight: 600;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
@@ -887,7 +877,7 @@ body.portada-cerrada .hero-texto {
 .label {
   margin: 0;
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink-2);
 }
 
@@ -904,9 +894,8 @@ body.portada-cerrada .hero-texto {
 
 .confirmar-foto {
   margin: 0;
-  border-radius: var(--radio-grande);
+  border-radius: var(--radio);
   overflow: hidden;
-  box-shadow: var(--sombra);
 }
 
 .confirmar-foto img {
@@ -946,7 +935,7 @@ body.portada-cerrada .hero-texto {
 
 .campo label {
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink);
 }
 
@@ -957,10 +946,10 @@ body.portada-cerrada .hero-texto {
   font-family: var(--fuente-texto);
   font-size: 1rem;
   color: var(--ink);
-  background-color: var(--superficie);
+  background-color: transparent;
   border: 1px solid var(--linea-fuerte);
-  border-radius: 0.75rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  border-radius: var(--radio);
+  transition: border-color 0.2s ease;
 }
 
 .campo input::placeholder,
@@ -972,7 +961,6 @@ body.portada-cerrada .hero-texto {
 .campo textarea:focus {
   outline: none;
   border-color: var(--ember);
-  box-shadow: 0 0 0 3px var(--ember-suave);
 }
 
 .campo textarea {
@@ -1000,10 +988,8 @@ body.portada-cerrada .hero-texto {
   gap: 0.4rem;
   padding: clamp(1.75rem, 4vw, 2.5rem) clamp(1.25rem, 3vw, 2rem);
   text-align: center;
-  background-color: var(--superficie);
   border: 1px solid var(--linea);
-  border-radius: var(--radio-grande);
-  box-shadow: var(--sombra-suave);
+  border-radius: var(--radio);
 }
 
 .logo-regalo {
@@ -1025,7 +1011,7 @@ body.portada-cerrada .hero-texto {
 .regalo-cuenta {
   margin: 0 0 1.5rem;
   font-size: clamp(1.05rem, 2.4vw, 1.3rem);
-  font-weight: 600;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   color: var(--ember);
@@ -1046,16 +1032,13 @@ body.portada-cerrada .hero-texto {
   text-align: center;
   text-decoration: none;
   color: inherit;
-  background-color: var(--superficie);
   border: 1px solid var(--linea);
-  border-radius: var(--radio-grande);
-  box-shadow: var(--sombra-suave);
-  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: var(--radio);
+  transition: border-color 0.25s ease;
 }
 
 .card-hotel:hover {
   border-color: var(--ember);
-  transform: translateY(-3px);
 }
 
 .card-hotel .ico {
@@ -1072,7 +1055,7 @@ body.portada-cerrada .hero-texto {
 
 .hotel-enlace {
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ember);
 }
 
@@ -1087,10 +1070,9 @@ body.portada-cerrada .hero-texto {
 .galeria-carrusel {
   width: min(100% - 2.5rem, var(--ancho));
   margin: 2.5rem auto 0.85rem;
-  border-radius: var(--radio-grande);
+  border-radius: var(--radio);
   overflow: hidden;
   background-color: var(--superficie);
-  box-shadow: var(--sombra);
 }
 
 .galeria-carrusel .carousel-item img {
@@ -1135,7 +1117,7 @@ body.portada-cerrada .hero-texto {
   -webkit-backdrop-filter: blur(4px);
   color: rgba(253, 243, 232, 0.92);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.06em;
 }
@@ -1150,11 +1132,11 @@ body.portada-cerrada .hero-texto {
   display: block;
   padding: 0;
   border: 0;
-  border-radius: 0.9rem;
+  border-radius: var(--radio);
   overflow: hidden;
   background: none;
   cursor: zoom-in;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  transition: box-shadow 0.35s ease;
 }
 
 .foto-mini img {
@@ -1162,17 +1144,17 @@ body.portada-cerrada .hero-texto {
   width: 100%;
   aspect-ratio: 3 / 2;
   object-fit: cover;
-  transition: transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .foto-mini:hover img,
 .foto-mini:focus-visible img {
-  transform: scale(1.06);
+  transform: scale(1.03);
 }
 
 .foto-mini:hover,
 .foto-mini:focus-visible {
-  box-shadow: 0 0 0 2px var(--ember), var(--sombra-suave);
+  box-shadow: 0 0 0 1px var(--ember);
 }
 
 /* Visor a pantalla completa */
@@ -1217,7 +1199,7 @@ body.portada-cerrada .hero-texto {
   text-align: center;
   color: rgba(253, 243, 232, 0.75);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1279,15 +1261,18 @@ footer {
 
 .footer-nombres {
   margin: 0;
-  font-family: var(--fuente-script);
-  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-family: var(--fuente-nombres);
+  font-size: clamp(1.75rem, 5vw, 2.4rem);
   line-height: 1;
   color: var(--ink);
 }
 
 .footer-fecha {
-  margin: 0.85rem 0 0;
-  font-size: var(--fs-sm);
+  margin: 1rem 0 0;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
   color: var(--ink-2);
 }
 
@@ -1328,8 +1313,8 @@ footer a:hover {
    ============================================================ */
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: translateY(16px);
+  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .reveal.visible {

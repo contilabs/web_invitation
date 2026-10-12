@@ -14,6 +14,11 @@ torno a la brasa:
 Ambos temas se controlan **solo con variables CSS** (`:root` en `styles.css` para el día,
 `html.dark-mode` en `darkMode.css` para la noche), y el interruptor recuerda la elección.
 
+El estilo es **minimalista y editorial**: dos tipografías (Erstoria para nombres y títulos,
+Montserrat para el texto), superficies de línea de 1 px sin sombras, un único bloque oscuro (la
+cuenta regresiva) y la brasa reservada como acento. La caligrafía Kalista sigue disponible para los
+nombres cambiando un solo token (`--fuente-nombres`).
+
 ## ▶️ Cómo verla
 
 No hay build ni dependencias. Opciones:
@@ -28,7 +33,7 @@ Verifica manualmente en el navegador (no hay tests ni lint).
 
 ```
 index.html        # Todo el contenido de la invitación (secciones 1–14 comentadas)
-styles.css        # Estilos del tema día (Montserrat + tipografías Erstoria/Kalista)
+styles.css        # Estilos del tema día (Erstoria para nombres/títulos + Montserrat)
 darkMode.css      # Estilos del tema noche + interruptor de tema
 script.js         # Cuenta regresiva, música, aparición al hacer scroll, galería/visor,
                   # personalización por invitado y copiar datos bancarios
