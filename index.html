@@ -4,6 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Invitación de Boda | Karina &amp; Gerardo</title>
+    <meta
+      name="description"
+      content="Karina y Gerardo te invitan a celebrar su boda el 1 de noviembre de 2027 en Guadalajara. Confirma tu asistencia."
+    />
+    <meta name="theme-color" content="#faf4ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16110e" media="(prefers-color-scheme: dark)" />
+
+    <!-- Cómo se ve el enlace al compartirlo por WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Karina &amp; Gerardo — 01 de noviembre de 2027" />
+    <meta
+      property="og:description"
+      content="Tenemos el placer de invitarlos a nuestra boda en Guadalajara."
+    />
+    <meta property="og:image" content="assets/photos/opt/foto2-1800.jpg" />
+
+    <link rel="icon" href="assets/icons/sello.png" type="image/png" />
+
+    <!-- Tema (día / noche) antes de pintar, para que no parpadee -->
+    <script>
+      (function () {
+        var tema = null;
+        try {
+          tema = localStorage.getItem("kg-tema");
+        } catch (e) {}
+        if (tema !== "dia" && tema !== "noche") {
+          tema = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "noche"
+            : "dia";
+        }
+        if (tema === "noche") document.documentElement.classList.add("dark-mode");
+        document.documentElement.dataset.tema = tema;
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Bootstrap 5 CSS -->
     <link
@@ -13,42 +54,88 @@
       crossorigin="anonymous"
     />
 
-    <link rel="icon" href="assets/icons/sello.png" type="image/png" />
     <link rel="stylesheet" href="styles.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="darkMode.css" />
   </head>
 
   <body>
-    <!-- ===== 1. Modal de bienvenida ===== -->
-    <div class="modal-bienvenida">
+    <!-- Si no hay JavaScript, la portada no debe secuestrar la página -->
+    <noscript>
+      <style>
+        .modal-bienvenida {
+          display: none !important;
+        }
+      </style>
+    </noscript>
+
+    <!-- ===== 1. Portada (modal de bienvenida) ===== -->
+    <div
+      class="modal-bienvenida"
+      id="portada"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-portada"
+    >
+      <img
+        class="portada-fondo"
+        src="assets/photos/opt/backgrond3-2400.jpg"
+        srcset="
+          assets/photos/opt/backgrond3-1400.jpg 1400w,
+          assets/photos/opt/backgrond3-2400.jpg 2400w
+        "
+        sizes="100vw"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="portada-velo" aria-hidden="true"></div>
+
       <div class="modal-bienvenida-body">
         <div class="modal-intro-img">
-          <img src="assets/photos/foto20.jpg" alt="Foto de los novios" />
+          <img
+            src="assets/photos/opt/foto20-1400.jpg"
+            srcset="
+              assets/photos/opt/foto20-700.jpg   700w,
+              assets/photos/opt/foto20-1400.jpg 1400w
+            "
+            sizes="14rem"
+            alt="Karina y Gerardo"
+          />
         </div>
-        <h1>Karina &amp; Gerardo</h1>
-        <div class="modal-lateral-fecha">01 Noviembre 2027</div>
-        <p>Tenemos el placer de <br />invitarlos a nuestra Boda</p>
+
+        <h1 id="titulo-portada">Karina <span class="amp">&amp;</span> Gerardo</h1>
+
+        <p class="modal-fecha">01 de noviembre de 2027</p>
+
+        <span class="filete" aria-hidden="true"></span>
+
+        <p class="modal-invitacion">
+          Tenemos el placer de invitarlos<br />a nuestra boda
+        </p>
+
         <button type="button" id="btn-ingresar" onclick="cerrarModalWelcome()">
-          INGRESAR
+          Ingresar
         </button>
       </div>
     </div>
 
-    <!-- ===== 2. Panel fijo: música + modo oscuro ===== -->
+    <!-- ===== 2. Panel fijo: modo claro/oscuro + música ===== -->
     <div class="fixed-panel">
-      <button id="darkModeToggle" class="toggle-btn" aria-label="Cambiar tema claro/oscuro">
-        <span class="toggle-thumb"></span>
-        <span class="icons">
-          <span class="moon">🌙</span>
-          <span class="sun">☀️</span>
+      <button id="darkModeToggle" class="toggle-btn" aria-label="Cambiar entre tema claro y oscuro">
+        <span class="toggle-thumb" aria-hidden="true"></span>
+        <span class="icons" aria-hidden="true">
+          <svg class="sun" viewBox="0 0 24 24" focusable="false">
+            <circle cx="12" cy="12" r="4.4" />
+            <path
+              d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.7 4.7l1.9 1.9M17.4 17.4l1.9 1.9M19.3 4.7l-1.9 1.9M6.6 17.4l-1.9 1.9"
+            />
+          </svg>
+          <svg class="moon" viewBox="0 0 24 24" focusable="false">
+            <path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a8.6 8.6 0 1 0 10.8 10.8Z" />
+          </svg>
         </span>
       </button>
 
-      <button class="btn-musica" aria-label="Reproducir o pausar música">
+      <button class="btn-musica" aria-label="Reproducir o pausar la música">
         <div class="icono-silencio"></div>
       </button>
     </div>
@@ -58,270 +145,423 @@
     </audio>
 
     <div class="contenido">
-      <!-- ===== 3. Encabezado ===== -->
-      <header class="inicio">
-        <h1>Karina &amp; Gerardo</h1>
+      <!-- ===== 3. Nombres fijos al bajar (aparecen tras la portada) ===== -->
+      <header class="inicio" id="encabezado">
+        <p class="inicio-titulo">Karina <span class="amp">&amp;</span> Gerardo</p>
       </header>
 
-      <!-- ===== 4. Foto principal ===== -->
-      <section class="foto reveal">
-        <img src="assets/photos/foto1.jpg" alt="Foto de los novios" />
+      <!-- ===== 4. Portada principal ===== -->
+      <section class="hero" id="inicio">
+        <img
+          class="hero-img"
+          src="assets/photos/opt/foto1-1800.jpg"
+          srcset="
+            assets/photos/opt/foto1-900.jpg   900w,
+            assets/photos/opt/foto1-1800.jpg 1800w
+          "
+          sizes="100vw"
+          alt="Karina y Gerardo"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <div class="hero-velo" aria-hidden="true"></div>
+
+        <div class="hero-texto">
+          <p class="hero-nombres">Karina <span class="amp">&amp;</span> Gerardo</p>
+          <p class="hero-fecha">01 de noviembre de 2027</p>
+        </div>
+
+        <a class="hero-flecha" href="#frase" aria-label="Continuar con la invitación">
+          <span aria-hidden="true"></span>
+        </a>
       </section>
 
-      <!-- ===== 5. Frase ===== -->
-      <section class="Intro reveal">
-        <blockquote class="blockquote">
-          <p>
-            "Hoy por fin uniremos nuestras vidas en matrimonio, sellamos nuestras
-            promesas con el elemento que distingue nuestro amor, el fuego, ese que ha
-            mantenido viva la intensidad y la luz que nos dirige al futuro compartido
-            en el que queremos vivir. Por eso nos encantaría que nos acompañaran en
-            este día tan especial."
-          </p>
-        </blockquote>
+      <!-- ===== 5. Frase de la pareja ===== -->
+      <section class="Intro reveal" id="frase">
+        <div class="wrap-estrecho">
+          <blockquote>
+            <p>
+              Hoy por fin uniremos nuestras vidas en matrimonio, sellamos nuestras
+              promesas con el elemento que distingue nuestro amor, el fuego, ese que ha
+              mantenido viva la intensidad y la luz que nos dirige al futuro compartido
+              en el que queremos vivir. Por eso nos encantaría que nos acompañaran en
+              este día tan especial.
+            </p>
+          </blockquote>
+        </div>
       </section>
 
       <!-- ===== 6. Cuenta regresiva ===== -->
-      <section class="Fecha reveal">
-        <p class="fecha-texto"><strong>01 de Noviembre del 2027</strong></p>
-        <p id="p1">FALTAN:</p>
-        <div id="cuenta-regresiva" class="cuenta-regresiva"></div>
+      <section class="Fecha reveal" id="fecha">
+        <div class="banda-contenido">
+          <p class="fecha-dia">01 de noviembre de 2027</p>
+          <p class="faltan">Faltan</p>
+          <div id="cuenta-regresiva" class="cuenta-regresiva"></div>
+        </div>
       </section>
 
-      <!-- ===== 7. Nombres ===== -->
-      <section class="Nombres reveal">
-        <img src="assets/photos/foto9.png" alt="Manos de los novios" />
+      <!-- ===== 7. Retrato de los novios ===== -->
+      <section class="Nombres reveal" aria-hidden="true">
+        <img
+          src="assets/photos/opt/foto9-1280.jpg"
+          srcset="
+            assets/photos/opt/foto9-900.jpg   900w,
+            assets/photos/opt/foto9-1280.jpg 1280w
+          "
+          sizes="100vw"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
       </section>
 
-      <!-- ===== 8. Lugares ===== -->
-      <section class="Lugares container reveal">
-        <div class="row">
-          <div class="col-12 col-md-6 my-4 card-lugar">
-            <h3>Ceremonia Religiosa</h3>
-            <img src="assets/icons/iglesia.png" alt="Iglesia" class="icono-lugar" />
-            <p>
-              Parroquia Santa María de Guadalupe<br />
-              16:30 hrs
-            </p>
-            <a
-              href="https://maps.app.goo.gl/yaqaGNKWtBXKPh6aA"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <button type="button">Cómo llegar</button>
-            </a>
-          </div>
-          <div class="col-12 col-md-6 my-4 card-lugar">
-            <h3>Recepción / Evento</h3>
-            <img src="assets/icons/mansion.png" alt="Salón de evento" class="icono-lugar" />
-            <p>
-              Los Agaves Eventos<br />
-              19:00 hrs
-            </p>
-            <a
-              href="https://maps.app.goo.gl/ugybqq1hNqykeFQJ8"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <button type="button">Cómo llegar</button>
-            </a>
+      <!-- ===== 8. Ceremonia y recepción ===== -->
+      <section class="Lugares reveal" id="lugares">
+        <div class="wrap">
+          <h2>Dónde será</h2>
+
+          <div class="rejilla-2">
+            <article class="card-lugar">
+              <img class="ico" src="assets/icons/iglesia.png" alt="" loading="lazy" decoding="async" />
+              <h3>Ceremonia religiosa</h3>
+              <p class="lugar-dato">
+                Parroquia Santa María de Guadalupe
+                <span class="chip">16:30 h</span>
+              </p>
+              <a
+                class="boton boton-linea"
+                href="https://maps.app.goo.gl/yaqaGNKWtBXKPh6aA"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Cómo llegar
+              </a>
+            </article>
+
+            <article class="card-lugar">
+              <img class="ico" src="assets/icons/mansion.png" alt="" loading="lazy" decoding="async" />
+              <h3>Recepción</h3>
+              <p class="lugar-dato">
+                Los Agaves Eventos
+                <span class="chip">19:00 h</span>
+              </p>
+              <a
+                class="boton boton-linea"
+                href="https://maps.app.goo.gl/ugybqq1hNqykeFQJ8"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Cómo llegar
+              </a>
+            </article>
           </div>
         </div>
       </section>
 
       <!-- ===== 9. Itinerario ===== -->
-      <section class="timeline-section reveal">
-        <h6>Itinerario de la Boda</h6>
-        <div class="timeline">
-          <div class="event">
-            <img src="assets/icons/iglesia.png" alt="Ceremonia" />
-            <p class="time">16.30</p>
-            <p class="label">CEREMONIA</p>
-          </div>
-          <div class="event">
-            <img src="assets/icons/mansion.png" alt="Recepción" />
-            <p class="time">19.00</p>
-            <p class="label">RECEPCIÓN</p>
-          </div>
-          <div class="event">
-            <img src="assets/icons/copas.png" alt="Cóctel" />
-            <p class="time">19.30</p>
-            <p class="label">CÓCTEL</p>
-          </div>
-          <div class="event">
-            <img src="assets/icons/comida.png" alt="Cena" />
-            <p class="time">20.00</p>
-            <p class="label">CENA</p>
-          </div>
-          <div class="event">
-            <img src="assets/icons/disco.png" alt="Baile" />
-            <p class="time">21.30</p>
-            <p class="label">BAILE</p>
-          </div>
+      <section class="timeline-section reveal" id="itinerario">
+        <div class="wrap">
+          <h2>Itinerario de la boda</h2>
+
+          <ul class="timeline">
+            <li class="event">
+              <span class="event-ico"><img class="ico" src="assets/icons/iglesia.png" alt="" loading="lazy" decoding="async" /></span>
+              <p class="time">16:30</p>
+              <p class="label">Ceremonia</p>
+            </li>
+            <li class="event">
+              <span class="event-ico"><img class="ico" src="assets/icons/mansion.png" alt="" loading="lazy" decoding="async" /></span>
+              <p class="time">19:00</p>
+              <p class="label">Recepción</p>
+            </li>
+            <li class="event">
+              <span class="event-ico"
+                ><img class="ico" src="assets/icons/copas.png" alt="" loading="lazy" decoding="async"
+              /></span>
+              <p class="time">19:30</p>
+              <p class="label">Cóctel</p>
+            </li>
+            <li class="event">
+              <span class="event-ico"
+                ><img class="ico" src="assets/icons/comida.png" alt="" loading="lazy" decoding="async"
+              /></span>
+              <p class="time">20:00</p>
+              <p class="label">Cena</p>
+            </li>
+            <li class="event">
+              <span class="event-ico"
+                ><img class="ico" src="assets/icons/disco.png" alt="" loading="lazy" decoding="async"
+              /></span>
+              <p class="time">21:30</p>
+              <p class="label">Baile</p>
+            </li>
+          </ul>
         </div>
       </section>
 
       <!-- ===== 10. Confirmación ===== -->
-      <section class="Confirmacion reveal">
-        <h2>Confirma tu Asistencia</h2>
-        <p class="reserva">
-          Hemos reservado <span id="numero">un lugar</span> en tu honor
-        </p>
-        <form
-          action="https://formsubmit.co/karina.ldb18@gmail.com"
-          method="POST"
-          accept-charset="UTF-8"
-        >
-          <input type="hidden" name="_subject" value="Confirmación asistencia" />
+      <section class="Confirmacion reveal" id="confirmar">
+        <div class="wrap">
+          <h2>Confirma tu asistencia</h2>
 
-          <label for="nombre">Tu nombre</label>
-          <input
-            type="text"
-            id="nombre"
-            name="nombre"
-            placeholder="Tu nombre"
-            required
-          />
+          <div class="confirmar-rejilla">
+            <figure class="confirmar-foto">
+              <img
+                src="assets/photos/opt/foto7-900.jpg"
+                srcset="
+                  assets/photos/opt/foto7-900.jpg   900w,
+                  assets/photos/opt/foto7-1800.jpg 1800w
+                "
+                sizes="(max-width: 860px) 90vw, 34vw"
+                alt="Karina y Gerardo"
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
 
-          <label for="mensaje">Comentarios o número de acompañantes</label>
-          <textarea
-            id="mensaje"
-            name="mensaje"
-            placeholder="Comentarios o número de acompañantes"
-            rows="3"
-            required
-          ></textarea>
+            <div class="confirmar-panel">
+              <p class="reserva">
+                Hemos reservado <span id="numero">un lugar</span> en tu honor
+              </p>
 
-          <button type="submit">Enviar Confirmación</button>
-        </form>
+              <form
+                action="https://formsubmit.co/karina.ldb18@gmail.com"
+                method="POST"
+                accept-charset="UTF-8"
+              >
+                <input type="hidden" name="_subject" value="Confirmación asistencia" />
+
+                <div class="campo">
+                  <label for="nombre">Tu nombre</label>
+                  <input
+                    type="text"
+                    id="nombre"
+                    name="nombre"
+                    placeholder="Escribe tu nombre"
+                    autocomplete="name"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label for="mensaje">Comentarios o número de acompañantes</label>
+                  <textarea
+                    id="mensaje"
+                    name="mensaje"
+                    placeholder="Comentarios o número de acompañantes"
+                    rows="3"
+                    required
+                  ></textarea>
+                </div>
+
+                <button type="submit" class="boton boton-solido">Enviar confirmación</button>
+              </form>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ===== 11. Mesa de regalos ===== -->
-      <section class="mesaregalos reveal">
-        <h3>
-          El regalo es opcional,<br />pero si quieres tener un detalle con nosotros
-          te damos algunas ideas:
-        </h3>
-        <div class="row">
-          <div class="col-12 col-md-6 my-4">
-            <ul class="list-unstyled">
-              <li>
-                <a href="#" onclick="copyInfo(); return false;">
-                  <img
-                    src="assets/icons/bbva.png"
-                    alt="Depósito BBVA"
-                    class="img-fluid wishlist"
-                  />
-                </a>
-                <div id="notificacion"></div>
-              </li>
-            </ul>
-          </div>
-          <div class="col-12 col-md-6 my-4">
-            <ul class="list-unstyled">
-              <li>
-                <a
-                  href="https://mesaderegalos.liverpool.com.mx/milistaderegalos/51688096"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src="assets/icons/liverpool.png"
-                    alt="Mesa de regalos Liverpool"
-                    class="img-fluid wishlist"
-                  />
-                </a>
-              </li>
-            </ul>
+      <section class="mesaregalos reveal" id="regalos">
+        <div class="wrap">
+          <h2>Mesa de regalos</h2>
+          <p class="mesa-nota">
+            El regalo es opcional, pero si quieres tener un detalle con nosotros te damos
+            algunas ideas:
+          </p>
+
+          <div class="rejilla-2">
+            <article class="card-regalo">
+              <img
+                class="logo-regalo"
+                src="assets/icons/bbva.png"
+                alt="BBVA"
+                loading="lazy"
+                decoding="async"
+              />
+              <h3>Transferencia</h3>
+              <p class="regalo-titular" data-banco-titular></p>
+              <p class="regalo-cuenta" data-banco-cuenta></p>
+              <button type="button" class="boton boton-solido" onclick="copyInfo()">
+                Copiar cuenta
+              </button>
+            </article>
+
+            <article class="card-regalo">
+              <img
+                class="logo-regalo"
+                src="assets/icons/liverpool.png"
+                alt="Liverpool"
+                loading="lazy"
+                decoding="async"
+              />
+              <h3>Mesa de regalos</h3>
+              <p class="regalo-titular">Liverpool</p>
+              <p class="regalo-cuenta">Evento 51688096</p>
+              <a
+                class="boton boton-solido"
+                href="https://mesaderegalos.liverpool.com.mx/milistaderegalos/51688096"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver mesa de regalos
+              </a>
+            </article>
           </div>
         </div>
       </section>
 
       <!-- ===== 12. Hospedaje ===== -->
-      <section class="hoteles reveal">
-        <h4>Sugerencias de Hospedaje</h4>
-        <div class="row">
-          <div class="col-12 col-md-4 my-4">
-            <h5>Hotel Encore</h5>
+      <section class="hoteles reveal" id="hospedaje">
+        <div class="wrap">
+          <h2>Sugerencias de hospedaje</h2>
+
+          <div class="rejilla-3">
             <a
+              class="card-hotel"
               href="https://encoreguadalajara.com/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="assets/icons/hotel.png" alt="Hotel Encore" class="img-fluid" />
+              <img class="ico" src="assets/icons/hotel.png" alt="" loading="lazy" decoding="async" />
+              <span class="hotel-nombre">Hotel Encore</span>
+              <span class="hotel-enlace">Ver hotel</span>
             </a>
-          </div>
-          <div class="col-12 col-md-4 my-4">
-            <h5>Micro Hotel</h5>
+
             <a
+              class="card-hotel"
               href="https://microtelgdlsur.com/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="assets/icons/hotel.png" alt="Micro Hotel" class="img-fluid" />
+              <img class="ico" src="assets/icons/hotel.png" alt="" loading="lazy" decoding="async" />
+              <span class="hotel-nombre">Micro Hotel</span>
+              <span class="hotel-enlace">Ver hotel</span>
             </a>
-          </div>
-          <div class="col-12 col-md-4 my-4">
-            <h5>City Express</h5>
+
             <a
+              class="card-hotel"
               href="https://www.marriott.com/es/hotels/gdljp-city-express-junior-guadalajara-periferico-sur/overview/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img src="assets/icons/hotel.png" alt="City Express" class="img-fluid" />
+              <img class="ico" src="assets/icons/hotel.png" alt="" loading="lazy" decoding="async" />
+              <span class="hotel-nombre">City Express</span>
+              <span class="hotel-enlace">Ver hotel</span>
             </a>
           </div>
         </div>
       </section>
 
-      <!-- ===== 13. Galería de fotos ===== -->
-      <section class="galeria reveal">
-        <h2>Nuestra Historia</h2>
-        <div id="galeria" class="carousel slide" data-bs-ride="carousel">
+      <!-- ===== 13. Galería: destacadas + cuadrícula ===== -->
+      <section class="galeria reveal" id="galeria-seccion">
+        <div class="wrap">
+          <h2>Nuestra historia</h2>
+        </div>
+
+        <!-- 13.a Destacadas (carrusel Bootstrap) -->
+        <div id="galeria" class="carousel slide carousel-fade galeria-carrusel" data-bs-ride="carousel">
           <div class="carousel-inner">
             <div class="carousel-item active">
-              <img src="assets/photos/foto2.jpg" class="d-block w-100" alt="Foto 2" />
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto2-1800.jpg"
+                srcset="
+                  assets/photos/opt/foto2-900.jpg   900w,
+                  assets/photos/opt/foto2-1800.jpg 1800w
+                "
+                sizes="(max-width: 1180px) 100vw, 1120px"
+                alt="Karina y Gerardo, foto 2"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="carousel-item">
-              <img src="assets/photos/foto3.jpg" class="d-block w-100" alt="Foto 3" />
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto4-1800.jpg"
+                srcset="
+                  assets/photos/opt/foto4-900.jpg   900w,
+                  assets/photos/opt/foto4-1800.jpg 1800w
+                "
+                sizes="(max-width: 1180px) 100vw, 1120px"
+                alt="Karina y Gerardo, foto 4"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="carousel-item">
-              <img src="assets/photos/foto4.jpg" class="d-block w-100" alt="Foto 4" />
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto6-1800.jpg"
+                srcset="
+                  assets/photos/opt/foto6-900.jpg   900w,
+                  assets/photos/opt/foto6-1800.jpg 1800w
+                "
+                sizes="(max-width: 1180px) 100vw, 1120px"
+                alt="Karina y Gerardo, foto 6"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="carousel-item">
-              <img src="assets/photos/foto5.jpg" class="d-block w-100" alt="Foto 5" />
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto10-1800.jpg"
+                srcset="
+                  assets/photos/opt/foto10-900.jpg   900w,
+                  assets/photos/opt/foto10-1800.jpg 1800w
+                "
+                sizes="(max-width: 1180px) 100vw, 1120px"
+                alt="Karina y Gerardo, foto 10"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="carousel-item">
-              <img src="assets/photos/foto6.jpg" class="d-block w-100" alt="Foto 6" />
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto13-1800.jpg"
+                srcset="
+                  assets/photos/opt/foto13-900.jpg   900w,
+                  assets/photos/opt/foto13-1800.jpg 1800w
+                "
+                sizes="(max-width: 1180px) 100vw, 1120px"
+                alt="Karina y Gerardo, foto 13"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="carousel-item">
-              <img src="assets/photos/foto7.jpg" class="d-block w-100" alt="Foto 7" />
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto16-1800.jpg"
+                srcset="
+                  assets/photos/opt/foto16-900.jpg   900w,
+                  assets/photos/opt/foto16-1800.jpg 1800w
+                "
+                sizes="(max-width: 1180px) 100vw, 1120px"
+                alt="Karina y Gerardo, foto 16"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="carousel-item">
-              <img src="assets/photos/foto8.jpg" class="d-block w-100" alt="Foto 8" />
-            </div>
-            <div class="carousel-item">
-              <img src="assets/photos/foto10.jpg" class="d-block w-100" alt="Foto 10" />
-            </div>
-            <div class="carousel-item">
-              <img src="assets/photos/foto11.jpg" class="d-block w-100" alt="Foto 11" />
-            </div>
-            <div class="carousel-item">
-              <img src="assets/photos/foto12.jpg" class="d-block w-100" alt="Foto 12" />
-            </div>
-            <div class="carousel-item">
-              <img src="assets/photos/foto13.jpg" class="d-block w-100" alt="Foto 13" />
-            </div>
-            <div class="carousel-item">
-              <img src="assets/photos/foto14.jpg" class="d-block w-100" alt="Foto 14" />
-            </div>
-            <div class="carousel-item">
-              <img src="assets/photos/foto16.jpg" class="d-block w-100" alt="Foto 16" />
-            </div>
-            <div class="carousel-item">
-              <img src="assets/photos/foto19.jpg" class="d-block w-100" alt="Foto 19" />
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto19-1800.jpg"
+                srcset="
+                  assets/photos/opt/foto19-900.jpg   900w,
+                  assets/photos/opt/foto19-1800.jpg 1800w
+                "
+                sizes="(max-width: 1180px) 100vw, 1120px"
+                alt="Karina y Gerardo, foto 19"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
+
           <button
             class="carousel-control-prev"
             type="button"
@@ -329,7 +569,7 @@
             data-bs-slide="prev"
           >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Anterior</span>
+            <span class="visually-hidden">Foto anterior</span>
           </button>
           <button
             class="carousel-control-next"
@@ -338,23 +578,138 @@
             data-bs-slide="next"
           >
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Siguiente</span>
+            <span class="visually-hidden">Foto siguiente</span>
           </button>
+
+          <p class="galeria-contador" aria-live="off">
+            <span id="galeria-actual">1</span> /
+            <span id="galeria-total">7</span>
+          </p>
+        </div>
+
+        <!-- 13.b Resto de las fotos -->
+        <div class="wrap">
+          <div class="galeria-rejilla">
+            <button type="button" class="foto-mini">
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto3-900.jpg"
+                srcset="
+                  assets/photos/opt/foto3-900.jpg   900w,
+                  assets/photos/opt/foto3-1800.jpg 1800w
+                "
+                sizes="(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw"
+                alt="Karina y Gerardo, foto 3"
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+            <button type="button" class="foto-mini">
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto5-900.jpg"
+                srcset="
+                  assets/photos/opt/foto5-900.jpg   900w,
+                  assets/photos/opt/foto5-1800.jpg 1800w
+                "
+                sizes="(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw"
+                alt="Karina y Gerardo, foto 5"
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+            <button type="button" class="foto-mini">
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto8-900.jpg"
+                srcset="
+                  assets/photos/opt/foto8-900.jpg   900w,
+                  assets/photos/opt/foto8-1800.jpg 1800w
+                "
+                sizes="(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw"
+                alt="Karina y Gerardo, foto 8"
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+            <button type="button" class="foto-mini">
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto11-900.jpg"
+                srcset="
+                  assets/photos/opt/foto11-900.jpg   900w,
+                  assets/photos/opt/foto11-1800.jpg 1800w
+                "
+                sizes="(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw"
+                alt="Karina y Gerardo, foto 11"
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+            <button type="button" class="foto-mini">
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto12-900.jpg"
+                srcset="
+                  assets/photos/opt/foto12-900.jpg   900w,
+                  assets/photos/opt/foto12-1800.jpg 1800w
+                "
+                sizes="(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw"
+                alt="Karina y Gerardo, foto 12"
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+            <button type="button" class="foto-mini">
+              <img
+                class="js-foto"
+                src="assets/photos/opt/foto14-900.jpg"
+                srcset="
+                  assets/photos/opt/foto14-900.jpg   900w,
+                  assets/photos/opt/foto14-1800.jpg 1800w
+                "
+                sizes="(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw"
+                alt="Karina y Gerardo, foto 14"
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+          </div>
         </div>
       </section>
 
-      <!-- ===== 14. Footer ===== -->
+      <!-- ===== 14. Pie ===== -->
       <footer>
-        Diseño de Invitación Digital<br />
-        <a
-          href="https://wa.me/524494144122?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20invitaci%C3%B3n%20digital"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Más información aquí
-        </a>
+        <p class="footer-nombres">Karina <span class="amp">&amp;</span> Gerardo</p>
+        <p class="footer-fecha">01 de noviembre de 2027 · Guadalajara</p>
+        <p class="footer-credito">
+          Diseño de Invitación Digital ·
+          <a
+            href="https://wa.me/524494144122?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20invitaci%C3%B3n%20digital"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Más información aquí
+          </a>
+        </p>
       </footer>
     </div>
+
+    <!-- Visor de fotos a pantalla completa -->
+    <dialog id="lightbox" class="lightbox" aria-label="Galería de fotos">
+      <!-- Sin atributo src: un src vacío pediría la propia página al servidor -->
+      <img id="lightbox-img" alt="" />
+      <p class="lightbox-contador" aria-live="polite"></p>
+      <button type="button" class="lightbox-cerrar" aria-label="Cerrar">&times;</button>
+      <button type="button" class="lightbox-nav lightbox-prev" aria-label="Foto anterior">
+        &#8249;
+      </button>
+      <button type="button" class="lightbox-nav lightbox-next" aria-label="Foto siguiente">
+        &#8250;
+      </button>
+    </dialog>
+
+    <div id="notificacion" role="status"></div>
 
     <!-- Bootstrap 5 JS -->
     <script
