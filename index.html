@@ -234,7 +234,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Cómo llegar
+                Cómo llegar &rarr;
               </a>
             </article>
 
@@ -251,7 +251,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Cómo llegar
+                Cómo llegar &rarr;
               </a>
             </article>
           </div>
@@ -330,6 +330,21 @@
                 accept-charset="UTF-8"
               >
                 <input type="hidden" name="_subject" value="Confirmación asistencia" />
+
+                <!-- Elección clara de asistencia, como en las invitaciones de referencia -->
+                <div class="campo asistencia" role="radiogroup" aria-labelledby="asistencia-titulo">
+                  <p class="asistencia-titulo" id="asistencia-titulo">¿Nos acompañarás?</p>
+                  <div class="asistencia-opciones">
+                    <label class="asistencia-opcion">
+                      <input type="radio" name="asistencia" value="Sí, asistiré" required />
+                      <span>Sí, asistiré</span>
+                    </label>
+                    <label class="asistencia-opcion">
+                      <input type="radio" name="asistencia" value="No podré asistir" required />
+                      <span>No podré asistir</span>
+                    </label>
+                  </div>
+                </div>
 
                 <div class="campo">
                   <label for="nombre">Tu nombre</label>

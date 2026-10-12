@@ -29,10 +29,16 @@ elegante" pass, Oct 2026):
   declared but no longer used: the single switch is the token `--fuente-nombres`, today
   `var(--fuente-titulo)`. Set it to `var(--fuente-script)` to bring the calligraphy back on the
   names (hero, header, modal, footer) — nothing else needs to change.
-- **Nothing decorates but a 1 px hairline or empty space.** Cards, inputs, buttons, the carousel
-  and the photos use `--radio`/`--radio-grande` and hairlines; **surfaces carry no box-shadow**
-  (only the modal, the copy notification and the floating controls keep `--sombra`/`--sombra-suave`).
-  Every `h2` gets one 2.5 rem hairline via `h2::after`.
+- **Nothing decorates but a 1 px hairline, one ember diamond, or empty space.** Cards, inputs,
+  buttons, the carousel and the photos use `--radio`/`--radio-grande` and hairlines; **surfaces
+  carry no box-shadow** (only the modal, the copy notification and the floating controls keep
+  `--sombra`/`--sombra-suave`). Every `h2` shares one section header: a 6 px `--ember` diamond
+  (`h2::before`, rotated 45°, opacity 0.55) over the title and one 2.5 rem hairline (`h2::after`)
+  under it — the repeated ornament borrowed from the reference invitation `vowpost.com/i/grace-noah`.
+- **Section detail, borrowed from the same reference:** venue links read `Cómo llegar →`, and the
+  RSVP opens with two hairline choices (`Sí, asistiré` / `No podré asistir`) as a
+  `role="radiogroup"` of `.asistencia-opcion` labels (selected = ember border + `--ember-suave`),
+  which collapses to one column on narrow screens (`minmax(12rem, 1fr)`).
 - **One dark moment.** The countdown band (`.Fecha`) is a single flat `--banda-1` — no gradient,
   glow or glass. Its four units are separated by air alone (`gap: 1.75rem 2.75rem`); `.caja` has no
   box.

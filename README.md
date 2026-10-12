@@ -16,8 +16,10 @@ Ambos temas se controlan **solo con variables CSS** (`:root` en `styles.css` par
 
 El estilo es **minimalista y editorial**: dos tipografías (Erstoria para nombres y títulos,
 Montserrat para el texto), superficies de línea de 1 px sin sombras, un único bloque oscuro (la
-cuenta regresiva) y la brasa reservada como acento. La caligrafía Kalista sigue disponible para los
-nombres cambiando un solo token (`--fuente-nombres`).
+cuenta regresiva) y la brasa reservada como acento. Cada sección abre con el mismo gesto —un rombo
+de brasa sobre el título y un filete debajo— y el formulario ofrece la asistencia como dos opciones
+claras, detalles tomados de la invitación de referencia `vowpost.com/i/grace-noah`. La caligrafía
+Kalista sigue disponible para los nombres cambiando un solo token (`--fuente-nombres`).
 
 ## ▶️ Cómo verla
 
