@@ -8,90 +8,93 @@ export const INVITATION_TYPES = {
   UNKNOWN: "desconocida",
 };
 
-const LIMITE_REUTILIZABLE_MIN = 1;
-const LIMITE_REUTILIZABLE_MAX = 10;
-const CLAVES_CODIGO = ["codigo", "code", "inv"];
+const REUSABLE_MIN_LIMIT = 1;
+const REUSABLE_MAX_LIMIT = 10;
+const CODE_KEYS = ["codigo", "code", "inv"];
 
-export function readInvitationCode(parametros) {
-  if (!parametros) return null;
-  const get = typeof parametros.get === "function" ? (k) => parametros.get(k) : (k) => parametros[k];
-  for (const clave of CLAVES_CODIGO) {
-    const valor = get(clave);
-    if (valor !== null && valor !== undefined) {
-      const s = String(valor).trim().toLowerCase();
-      if (s) return s;
+export function readInvitationCode(params) {
+  if (!params) return null;
+  const get = typeof params.get === "function" ? (k) => params.get(k) : (k) => params[k];
+  for (const key of CODE_KEYS) {
+    const value = get(key);
+    if (value !== null && value !== undefined) {
+      const code = String(value).trim().toLowerCase();
+      if (code) return code;
     }
   }
   return null;
 }
 
-function normalizarCodigo(codigo) {
-  if (codigo === null || codigo === undefined) return null;
-  const s = String(codigo).trim().toLowerCase();
-  return s || null;
+function normalizeCode(code) {
+  if (code === null || code === undefined) return null;
+  const normalized = String(code).trim().toLowerCase();
+  return normalized || null;
 }
 
-export function resolveInvitation(invitaciones, codigo) {
-  const c = normalizarCodigo(codigo);
-  if (!c) return { tipo: INVITATION_TYPES.UNKNOWN };
-  if (!Array.isArray(invitaciones)) return { tipo: INVITATION_TYPES.UNKNOWN };
-  const ficha = invitaciones.find((f) => normalizarCodigo(f?.codigo) === c);
-  if (!ficha) return { tipo: INVITATION_TYPES.UNKNOWN };
-  const tipo = ficha.tipo;
-  if (tipo === INVITATION_TYPES.REUSABLE) {
-    const limite = Number(ficha.limite);
-    if (!Number.isInteger(limite) || limite < LIMITE_REUTILIZABLE_MIN || limite > LIMITE_REUTILIZABLE_MAX) {
-      return { tipo: INVITATION_TYPES.UNKNOWN };
+export function resolveInvitation(guestCards, code) {
+  const wanted = normalizeCode(code);
+  if (!wanted) return { type: INVITATION_TYPES.UNKNOWN };
+  if (!Array.isArray(guestCards)) return { type: INVITATION_TYPES.UNKNOWN };
+  const card = guestCards.find((item) => normalizeCode(item?.codigo) === wanted);
+  if (!card) return { type: INVITATION_TYPES.UNKNOWN };
+  const type = card.tipo;
+  if (type === INVITATION_TYPES.REUSABLE) {
+    if (
+      !Number.isInteger(card.limite) ||
+      card.limite < REUSABLE_MIN_LIMIT ||
+      card.limite > REUSABLE_MAX_LIMIT
+    ) {
+      return { type: INVITATION_TYPES.UNKNOWN };
     }
-    return { tipo, limite, ficha };
+    return { type, limit: card.limite, card };
   }
-  if (tipo === INVITATION_TYPES.PERSONALIZED) {
-    return { tipo, invitado: ficha, ficha };
+  if (type === INVITATION_TYPES.PERSONALIZED) {
+    return { type, guest: card, card };
   }
-  if (tipo === INVITATION_TYPES.GENERIC) {
-    return { tipo, ficha };
+  if (type === INVITATION_TYPES.GENERIC) {
+    return { type, card };
   }
-  return { tipo: INVITATION_TYPES.UNKNOWN };
+  return { type: INVITATION_TYPES.UNKNOWN };
 }
 
-export function reservedSeats(invitacion) {
-  if (!invitacion || invitacion.tipo !== INVITATION_TYPES.PERSONALIZED) return null;
-  const ficha = invitacion.ficha ?? invitacion.invitado;
-  if (!ficha) return null;
-  if (Number.isInteger(ficha.lugaresReservados) && ficha.lugaresReservados > 0) {
-    return ficha.lugaresReservados;
+export function reservedSeats(invitation) {
+  if (!invitation || invitation.type !== INVITATION_TYPES.PERSONALIZED) return null;
+  const card = invitation.card ?? invitation.guest;
+  if (!card) return null;
+  if (Number.isInteger(card.lugaresReservados) && card.lugaresReservados > 0) {
+    return card.lugaresReservados;
   }
-  const adultos = Number(ficha.adultsGuests ?? 0) || 0;
-  const ninos = Number(ficha.childGuests ?? 0) || 0;
-  const total = adultos + ninos;
+  const adults = Number(card.adultsGuests ?? 0) || 0;
+  const children = Number(card.childGuests ?? 0) || 0;
+  const total = adults + children;
   return total > 0 ? total : null;
 }
 
-export function guestLimit(invitacion, boda) {
-  const maximoBoda = Number(boda?.confirmacion?.maximoBoda);
-  const maxBoda = Number.isFinite(maximoBoda) && maximoBoda > 0 ? maximoBoda : Infinity;
-  if (!invitacion || invitacion.tipo === INVITATION_TYPES.UNKNOWN) return maxBoda;
-  if (invitacion.tipo === INVITATION_TYPES.REUSABLE) {
-    return Math.min(invitacion.limite, maxBoda);
+export function guestLimit(invitation, wedding) {
+  const weddingMax = Number(wedding?.confirmacion?.maximoBoda);
+  const cap = Number.isFinite(weddingMax) && weddingMax > 0 ? weddingMax : Infinity;
+  if (!invitation || invitation.type === INVITATION_TYPES.UNKNOWN) return cap;
+  if (invitation.type === INVITATION_TYPES.REUSABLE) {
+    return Math.min(invitation.limit, cap);
   }
-  if (invitacion.tipo === INVITATION_TYPES.PERSONALIZED) {
-    const reservados = reservedSeats(invitacion);
-    if (reservados !== null) return Math.min(reservados, maxBoda);
-    return maxBoda;
+  if (invitation.type === INVITATION_TYPES.PERSONALIZED) {
+    const reserved = reservedSeats(invitation);
+    if (reserved !== null) return Math.min(reserved, cap);
+    return cap;
   }
   // genérica
-  return maxBoda;
+  return cap;
 }
 
-export function isWithinGuestLimit(cantidad, limite) {
-  const n = Number(cantidad);
-  if (!Number.isFinite(n)) return false;
-  if (limite === Infinity) return true;
-  return n <= limite;
+export function isWithinGuestLimit(count, limit) {
+  const value = Number(count);
+  if (!Number.isFinite(value)) return false;
+  if (limit === Infinity) return true;
+  return value <= limit;
 }
 
 export function formatSeats(total) {
-  const n = Number(total);
-  if (!Number.isFinite(n) || n <= 0) return "un lugar";
-  return n === 1 ? "1 lugar" : `${n} lugares`;
+  const count = Number(total);
+  if (!Number.isFinite(count) || count <= 0) return "un lugar";
+  return count === 1 ? "1 lugar" : `${count} lugares`;
 }

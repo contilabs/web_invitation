@@ -15,7 +15,7 @@ export function Hero({ pareja, fechaTexto }) {
       <img
         className="hero-img"
         {...photoFor(structuralPhotos.hero, "", photoSizes.fullWidth)}
-        alt={nombres.paraMostrar}
+        alt={nombres.display}
         fetchPriority="low"
         decoding="async"
       />
@@ -23,7 +23,7 @@ export function Hero({ pareja, fechaTexto }) {
 
       <div className="hero-texto">
         <h1 className="hero-nombres">
-          {nombres.primera} <span className="amp">&amp;</span> {nombres.segunda}
+          {nombres.first} <span className="amp">&amp;</span> {nombres.second}
         </h1>
         <p className="hero-fecha">{fechaTexto}</p>
       </div>
@@ -200,7 +200,7 @@ export function Pie({ pareja, fechaTexto, lugar, credito }) {
   return (
     <footer>
       <p className="footer-nombres">
-        {nombres.primera} <span className="amp">&amp;</span> {nombres.segunda}
+        {nombres.first} <span className="amp">&amp;</span> {nombres.second}
       </p>
       <p className="footer-fecha">
         {fechaTexto}

@@ -1,11 +1,11 @@
 // Galería (T24/T26, RF-7): carrusel de las fotos destacadas con contador, más la rejilla
 // con el resto; cualquier foto se abre en el visor a pantalla completa. Las fotos y su
 // corte salen del registro (`galeria.imagenes` y `galeria.destacadas`); la mecánica (qué
-// foto se ve, el avance) la lleva `useGaleria`; el fundido cruzado y el botón de cada
+// foto se ve, el avance) la lleva `useGallery`; el fundido cruzado y el botón de cada
 // diapositiva (para el teclado) son del rediseño.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useGaleria } from "../hooks/useGaleria.js";
+import { useGallery } from "../hooks/useGallery.js";
 import { useTemplate } from "../hooks/useTemplate.js";
 import { galleryPhotos } from "../services/photos.js";
 import { nextIndex } from "../utils/gallery.js";
@@ -18,7 +18,7 @@ export function Galeria({ galeria }) {
     [galeria, photoSizes],
   );
   const totalDestacadas = destacadas.length;
-  const { indice, siguiente, anterior, pausar, reanudar } = useGaleria(totalDestacadas);
+  const { index, next, previous, pause, resume } = useGallery(totalDestacadas);
   const [anticipar, setAnticipar] = useState(false);
   const [visor, setVisor] = useState(null); // posición en TODAS, o null si está cerrado
   const contenedorRef = useRef(null);
@@ -29,15 +29,15 @@ export function Galeria({ galeria }) {
   const abrirVisor = useCallback(
     (posicion) => {
       setVisor(posicion);
-      pausar();
+      pause();
     },
-    [pausar],
+    [pause],
   );
 
   const cerrarVisor = useCallback(() => {
     setVisor(null);
-    reanudar();
-  }, [reanudar]);
+    resume();
+  }, [resume]);
 
   const moverVisor = useCallback(
     (paso) => setVisor((actual) => nextIndex(actual, todas.length, paso)),
@@ -70,7 +70,7 @@ export function Galeria({ galeria }) {
       {totalDestacadas > 0 && (
         <div className="galeria-carrusel" id="galeria" ref={contenedorRef}>
           {destacadas.map((foto, posicion) => {
-            const activa = posicion === indice;
+            const activa = posicion === index;
             return (
               <div
                 className={`diapositiva${activa ? " activa" : ""}`}
@@ -97,21 +97,21 @@ export function Galeria({ galeria }) {
             );
           })}
 
-          <button type="button" className="carrusel-flecha" onClick={anterior}>
+          <button type="button" className="carrusel-flecha" onClick={previous}>
             <span className="carrusel-flecha-icono" aria-hidden="true"></span>
             <span className="visually-hidden">Foto anterior</span>
           </button>
           <button
             type="button"
             className="carrusel-flecha carrusel-flecha-siguiente"
-            onClick={siguiente}
+            onClick={next}
           >
             <span className="carrusel-flecha-icono" aria-hidden="true"></span>
             <span className="visually-hidden">Foto siguiente</span>
           </button>
 
           <p className="galeria-contador" aria-live="off">
-            <span id="galeria-actual">{indice + 1}</span> /{" "}
+            <span id="galeria-actual">{index + 1}</span> /{" "}
             <span id="galeria-total">{totalDestacadas}</span>
           </p>
         </div>

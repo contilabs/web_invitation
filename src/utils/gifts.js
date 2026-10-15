@@ -6,76 +6,76 @@ export const GIFT_TYPES = {
   CASH: "efectivo",
 };
 
-function normalizarTipo(tipo) {
-  const t = String(tipo ?? "").trim().toLowerCase();
-  if (t === "tienda" || t === "mesa" || t === "tienda/mesa") return GIFT_TYPES.STORE;
-  if (t === "transferencia" || t === "transfer") return GIFT_TYPES.TRANSFER;
-  if (t === "efectivo" || t === "cash") return GIFT_TYPES.CASH;
-  return t;
+function normalizeGiftType(type) {
+  const value = String(type ?? "").trim().toLowerCase();
+  if (value === "tienda" || value === "mesa" || value === "tienda/mesa") return GIFT_TYPES.STORE;
+  if (value === "transferencia" || value === "transfer") return GIFT_TYPES.TRANSFER;
+  if (value === "efectivo" || value === "cash") return GIFT_TYPES.CASH;
+  return value;
 }
 
-function urlValida(url) {
+function validUrl(url) {
   if (url === null || url === undefined) return null;
-  const s = String(url).trim();
-  return s || null;
+  const value = String(url).trim();
+  return value || null;
 }
 
-function normalizarDato(d) {
-  if (!d || typeof d !== "object") return null;
-  const etiqueta = String(d.etiqueta ?? d.label ?? "").trim();
-  const valor = d.valor ?? d.value;
-  if (!etiqueta || valor === null || valor === undefined) return null;
-  const v = String(valor).trim();
-  if (!v) return null;
+function normalizeField(field) {
+  if (!field || typeof field !== "object") return null;
+  const label = String(field.etiqueta ?? field.label ?? "").trim();
+  const raw = field.valor ?? field.value;
+  if (!label || raw === null || raw === undefined) return null;
+  const value = String(raw).trim();
+  if (!value) return null;
   // `copiar` marca el dato que el botón único de la opción pone en el portapapeles (RF-10).
-  return { etiqueta, valor: v, copiar: d.copiar === true || d.copy === true };
+  return { label, value, copy: field.copiar === true || field.copy === true };
 }
 
-export function copyableFields(opcion) {
-  if (!opcion || typeof opcion !== "object") return [];
-  const fuente = opcion.datosCopiables ?? opcion.datos ?? [];
-  if (!Array.isArray(fuente)) return [];
-  return fuente
-    .map(normalizarDato)
+export function copyableFields(option) {
+  if (!option || typeof option !== "object") return [];
+  const source = option.datosCopiables ?? option.datos ?? [];
+  if (!Array.isArray(source)) return [];
+  return source
+    .map(normalizeField)
     .filter(Boolean)
-    .map(({ etiqueta, valor }) => ({ etiqueta, valor }));
+    .map(({ label, value }) => ({ label, value }));
 }
 
 // Dato que copia el botón de la opción: el que el registro marca con `copiar: true`. Si la
 // opción solo trae un dato copiable, ese. Si hay varios sin marca (o más de una marca), no hay
 // botón: no se adivina cuál es la cuenta.
-export function copyableField(opcion) {
-  if (!opcion || typeof opcion !== "object") return null;
-  const fuente = opcion.datosCopiables ?? opcion.datos ?? [];
-  if (!Array.isArray(fuente)) return null;
-  const datos = fuente.map(normalizarDato).filter(Boolean);
-  const marcados = datos.filter((d) => d.copiar);
-  if (marcados.length === 1) return { etiqueta: marcados[0].etiqueta, valor: marcados[0].valor };
-  if (marcados.length === 0 && datos.length === 1) {
-    return { etiqueta: datos[0].etiqueta, valor: datos[0].valor };
+export function copyableField(option) {
+  if (!option || typeof option !== "object") return null;
+  const source = option.datosCopiables ?? option.datos ?? [];
+  if (!Array.isArray(source)) return null;
+  const fields = source.map(normalizeField).filter(Boolean);
+  const marked = fields.filter((field) => field.copy);
+  if (marked.length === 1) return { label: marked[0].label, value: marked[0].value };
+  if (marked.length === 0 && fields.length === 1) {
+    return { label: fields[0].label, value: fields[0].value };
   }
   return null;
 }
 
-export function giftOptions(regalos) {
-  const opciones = regalos?.opciones;
-  if (!Array.isArray(opciones)) return [];
-  return opciones.map((o) => {
-    const tipo = normalizarTipo(o?.tipo);
-    const opcion = {
-      tipo,
-      etiqueta: String(o?.etiqueta ?? o?.titulo ?? "").trim(),
-      descripcion: o?.descripcion ? String(o.descripcion).trim() : null,
-      url: urlValida(o?.url ?? o?.enlace),
+export function giftOptions(gifts) {
+  const options = gifts?.opciones;
+  if (!Array.isArray(options)) return [];
+  return options.map((item) => {
+    const type = normalizeGiftType(item?.tipo);
+    const option = {
+      type,
+      label: String(item?.etiqueta ?? item?.titulo ?? "").trim(),
+      description: item?.descripcion ? String(item.descripcion).trim() : null,
+      url: validUrl(item?.url ?? item?.enlace),
     };
-    if (tiposConDatos(tipo)) {
-      opcion.copyableFields = copyableFields(o);
-      opcion.copyableField = copyableField(o);
+    if (isCopyableType(type)) {
+      option.copyableFields = copyableFields(item);
+      option.copyableField = copyableField(item);
     }
-    return opcion;
+    return option;
   });
 }
 
-function tiposConDatos(tipo) {
-  return tipo === GIFT_TYPES.TRANSFER || tipo === GIFT_TYPES.CASH;
+function isCopyableType(type) {
+  return type === GIFT_TYPES.TRANSFER || type === GIFT_TYPES.CASH;
 }

@@ -20,16 +20,16 @@ const REGALOS = {
 };
 
 test("normaliza los tres tipos", () => {
-  const [tienda, transfer, efectivo] = giftOptions(REGALOS);
-  assert.equal(tienda.tipo, GIFT_TYPES.STORE);
-  assert.equal(transfer.tipo, GIFT_TYPES.TRANSFER);
-  assert.equal(efectivo.tipo, GIFT_TYPES.CASH);
+  const [store, transfer, cash] = giftOptions(REGALOS);
+  assert.equal(store.type, GIFT_TYPES.STORE);
+  assert.equal(transfer.type, GIFT_TYPES.TRANSFER);
+  assert.equal(cash.type, GIFT_TYPES.CASH);
 });
 
 test("la transferencia trae varios datos copiables", () => {
   const transfer = giftOptions(REGALOS)[1];
   assert.equal(transfer.copyableFields.length, 2);
-  assert.equal(transfer.copyableFields[1].valor, "0123");
+  assert.equal(transfer.copyableFields[1].value, "0123");
 });
 
 test("el efectivo sin datos copiables devuelve array vacío", () => {
@@ -49,13 +49,13 @@ test("sin opciones devuelve lista vacía", () => {
 
 test("copyableField devuelve el dato marcado con `copiar`", () => {
   const transfer = giftOptions(REGALOS)[1];
-  assert.deepEqual(transfer.copyableField, { etiqueta: "Cuenta", valor: "0123" });
+  assert.deepEqual(transfer.copyableField, { label: "Cuenta", value: "0123" });
 });
 
 test("copyableField cae al único dato cuando no hay marca", () => {
   assert.deepEqual(copyableField({ datosCopiables: [{ etiqueta: "CLABE", valor: "999" }] }), {
-    etiqueta: "CLABE",
-    valor: "999",
+    label: "CLABE",
+    value: "999",
   });
 });
 

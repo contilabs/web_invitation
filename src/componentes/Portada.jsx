@@ -65,7 +65,7 @@ export function Portada({ portada, pareja, fechaTexto, onIngresar }) {
         )}
 
         <h1 id="titulo-portada">
-          {nombres.primera} <span className="amp">&amp;</span> {nombres.segunda}
+          {nombres.first} <span className="amp">&amp;</span> {nombres.second}
         </h1>
 
         <p className="modal-fecha">{fechaTexto}</p>

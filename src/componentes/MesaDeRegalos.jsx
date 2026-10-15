@@ -25,14 +25,14 @@ export function MesaDeRegalos({ regalos }) {
 
         <div className="rejilla-2">
           {opciones.map((opcion, i) => {
-            const logo = LOGOS[opcion.tipo] ?? null;
+            const logo = LOGOS[opcion.type] ?? null;
             const copiables = Array.isArray(opcion.copyableFields)
               ? opcion.copyableFields
               : [];
             const copiable = opcion.copyableField ?? null;
 
             return (
-              <article className="card-regalo" key={`${opcion.tipo ?? "regalo"}-${i}`}>
+              <article className="card-regalo" key={`${opcion.type ?? "regalo"}-${i}`}>
                 {logo && (
                   <img
                     className="logo-regalo"
@@ -43,16 +43,16 @@ export function MesaDeRegalos({ regalos }) {
                   />
                 )}
 
-                <h3>{opcion.etiqueta}</h3>
-                {opcion.descripcion && <p className="regalo-titular">{opcion.descripcion}</p>}
+                <h3>{opcion.label}</h3>
+                {opcion.description && <p className="regalo-titular">{opcion.description}</p>}
 
                 {copiables.length > 0 && (
                   <ul className="regalo-datos">
                     {copiables.map((dato, j) => (
-                      <li className="regalo-dato" key={`${dato.etiqueta}-${j}`}>
+                      <li className="regalo-dato" key={`${dato.label}-${j}`}>
                         <span className="regalo-dato-texto">
-                          <span className="regalo-titular">{dato.etiqueta}</span>
-                          <span className="regalo-cuenta">{dato.valor}</span>
+                          <span className="regalo-titular">{dato.label}</span>
+                          <span className="regalo-cuenta">{dato.value}</span>
                         </span>
                       </li>
                     ))}
@@ -61,9 +61,9 @@ export function MesaDeRegalos({ regalos }) {
 
                 {copiable && (
                   <BotonCopiar
-                    valor={copiable.valor}
-                    etiqueta={copiable.etiqueta}
-                    textoBoton={`Copiar ${copiable.etiqueta.toLowerCase()}`}
+                    valor={copiable.value}
+                    etiqueta={copiable.label}
+                    textoBoton={`Copiar ${copiable.label.toLowerCase()}`}
                   />
                 )}
 

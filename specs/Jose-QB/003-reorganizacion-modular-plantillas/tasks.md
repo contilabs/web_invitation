@@ -74,10 +74,12 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 4 — Hooks
 
-- [ ] **T13 · Mover los hooks a `hooks/` con nombres en inglés.** _RF: RF-1, RF-5._
+- [x] **T13 · Mover los hooks a `hooks/` con nombres en inglés.** _RF: RF-1, RF-3, RF-5._
   Hecho cuando: existen `useTheme`, `useMusic`, `useInvitation`, `useCountdown`, `useConfirmation`,
-  `useReveal`, `useHeader` y `useGallery` (más `useTemplate`), y tema, música, cuenta regresiva y
-  galería se comportan igual (comprobado a mano).
+  `useReveal`, `useHeader` y `useGallery` (más `useTemplate`), **toda la nomenclatura interna de
+  `hooks/` y `utils/` (variables, parámetros y constantes locales) está en inglés** (RF-3/RNF-6; se
+  conservan en español los comentarios, los textos y las claves de datos), y tema, música, cuenta
+  regresiva y galería se comportan igual (comprobado a mano).
 
 ## Fase 5 — Componentes (aún sin tocar nombres de clase)
 
@@ -135,10 +137,12 @@ contradicción con el código (principio 2, «spec = código»).
   Hecho cuando: apunta a las rutas nuevas y **ninguna** de sus comprobaciones se ha relajado (script del
   tema antes del primer estilo, `kg-tema`, `dark-mode`, `<noscript>` en español, sin `?invitados=N`, sin
   originales de fotos y sin Bootstrap).
-- [ ] **T25 · Limpieza y verificación básica.** _RF: RF-1, RNF-2._
+- [ ] **T25 · Limpieza y verificación básica.** _RF: RF-1, RF-3, RNF-2._
   Hecho cuando: no quedan huérfanos (`src/logica/`, `src/datos/`, `src/componentes/`, `styles.css` y
-  `darkMode.css` en la raíz no existen), `npm test` pasa con las mismas pruebas lógicas que al empezar
-  (solo renombradas) y `npm run build` termina sin errores.
+  `darkMode.css` en la raíz no existen), **toda la nomenclatura de `src/` y de `test/` está en inglés**
+  (salvo claves de datos y contratos, textos visibles, títulos de prueba y comentarios, que siguen en
+  español), `npm test` pasa con las mismas pruebas lógicas que al empezar (solo renombradas) y
+  `npm run build` termina sin errores.
 - [ ] **T26 · Paridad automática contra la referencia congelada.** _RF: RNF-1, RNF-2._
   Hecho cuando: la matriz (tres tipos de invitación × día/noche × 320/375/768/1024/1440 px, registro
   inválido, sección omitida, aviso de plantilla y confirmación cerrada) no muestra diferencias en

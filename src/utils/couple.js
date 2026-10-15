@@ -1,50 +1,49 @@
-// Lógica pura: composición de nombres de la pareja (RF-2)
+// Lógica pura: nombres de la pareja (RF-2)
 
-export function composePersonName(persona) {
-  if (!persona || typeof persona !== "object") return "";
-  const partes = [];
-  if (persona.nombre) {
-    const v = String(persona.nombre).trim();
-    if (v) partes.push(v);
+export function composePersonName(person) {
+  if (!person || typeof person !== "object") return "";
+  const parts = [];
+  if (person.nombre) {
+    const value = String(person.nombre).trim();
+    if (value) parts.push(value);
   }
-  if (persona.nombreIntermedio) {
-    const v = String(persona.nombreIntermedio).trim();
-    if (v) partes.push(v);
+  if (person.nombreIntermedio) {
+    const value = String(person.nombreIntermedio).trim();
+    if (value) parts.push(value);
   }
-  if (persona.apellidos) {
-    const v = String(persona.apellidos).trim();
-    if (v) partes.push(v);
+  if (person.apellidos) {
+    const value = String(person.apellidos).trim();
+    if (value) parts.push(value);
   }
-  if (persona.apellido1) {
-    const v = String(persona.apellido1).trim();
-    if (v) partes.push(v);
+  if (person.apellido1) {
+    const value = String(person.apellido1).trim();
+    if (value) parts.push(value);
   }
-  if (persona.apellido2) {
-    const v = String(persona.apellido2).trim();
-    if (v) partes.push(v);
+  if (person.apellido2) {
+    const value = String(person.apellido2).trim();
+    if (value) parts.push(value);
   }
-  return partes.join(" ");
+  return parts.join(" ");
 }
 
-export function coupleNames(pareja) {
-  if (!pareja || typeof pareja !== "object") {
-    return { primera: "", segunda: "", paraMostrar: "" };
+export function coupleNames(pair) {
+  if (!pair || typeof pair !== "object") {
+    return { first: "", second: "", display: "" };
   }
-  const p1 = pareja.nombre1 ?? pareja.primera ?? pareja.persona1 ?? pareja[0];
-  const p2 = pareja.nombre2 ?? pareja.segunda ?? pareja.persona2 ?? pareja[1];
-  let primera = "";
-  let segunda = "";
-  if (typeof p1 === "string") primera = p1.trim();
-  else primera = composePersonName(p1);
-  if (typeof p2 === "string") segunda = p2.trim();
-  else segunda = composePersonName(p2);
-  const nombreParaMostrarBruto = pareja.nombreParaMostrar ?? pareja.paraMostrar ?? null;
-  let paraMostrar = "";
-  if (nombreParaMostrarBruto && String(nombreParaMostrarBruto).trim()) {
-    paraMostrar = String(nombreParaMostrarBruto).trim();
+  const p1 = pair.nombre1 ?? pair.primera ?? pair.persona1 ?? pair[0];
+  const p2 = pair.nombre2 ?? pair.segunda ?? pair.persona2 ?? pair[1];
+  let first = "";
+  let second = "";
+  if (typeof p1 === "string") first = p1.trim();
+  else first = composePersonName(p1);
+  if (typeof p2 === "string") second = p2.trim();
+  else second = composePersonName(p2);
+  const rawDisplay = pair.nombreParaMostrar ?? pair.paraMostrar ?? null;
+  let display = "";
+  if (rawDisplay && String(rawDisplay).trim()) {
+    display = String(rawDisplay).trim();
   } else {
-    const base = `${primera} y ${segunda}`.trim();
-    paraMostrar = base;
+    display = `${first} y ${second}`.trim();
   }
-  return { primera, segunda, paraMostrar };
+  return { first, second, display };
 }

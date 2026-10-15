@@ -30,9 +30,9 @@ test("composePersonName ignora campos vacíos", () => {
 
 test("coupleNames compone paraMostrar cuando no se define", () => {
   const res = coupleNames({ nombre1: "Karina", nombre2: "Gerardo" });
-  assert.equal(res.primera, "Karina");
-  assert.equal(res.segunda, "Gerardo");
-  assert.equal(res.paraMostrar, "Karina y Gerardo");
+  assert.equal(res.first, "Karina");
+  assert.equal(res.second, "Gerardo");
+  assert.equal(res.display, "Karina y Gerardo");
 });
 
 test("coupleNames usa nombreParaMostrar si existe", () => {
@@ -41,7 +41,7 @@ test("coupleNames usa nombreParaMostrar si existe", () => {
     nombre2: { nombre: "Gerardo", apellidos: "Flores" },
     nombreParaMostrar: "Karina & Gerardo",
   });
-  assert.equal(res.paraMostrar, "Karina & Gerardo");
+  assert.equal(res.display, "Karina & Gerardo");
 });
 
 test("coupleNames usa paraMostrar alternativo", () => {
@@ -50,5 +50,5 @@ test("coupleNames usa paraMostrar alternativo", () => {
     segunda: { nombre: "B" },
     paraMostrar: "A y B",
   });
-  assert.equal(res.paraMostrar, "A y B");
+  assert.equal(res.display, "A y B");
 });

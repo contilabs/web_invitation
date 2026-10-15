@@ -38,9 +38,9 @@ import {
   Restricciones,
   Retrato,
 } from "./componentes/Secciones.jsx";
-import { useMusica } from "./hooks/useMusica.js";
+import { useMusic } from "./hooks/useMusic.js";
 import { useReveal } from "./hooks/useReveal.js";
-import { useTema } from "./hooks/useTema.js";
+import { useTheme } from "./hooks/useTheme.js";
 
 // Todo lo que se deriva del registro se calcula una sola vez (el registro no cambia en
 // tiempo de ejecución). La validación pura decide el aviso visible (RF-15, RF-20).
@@ -57,22 +57,22 @@ const PANEL_VISIBLE = NAVEGACION.panelFlotanteVisible !== false;
 const PIE_VISIBLE = NAVEGACION.pieVisible !== false;
 
 const MUSICA_HABILITADA = boda.ajustes?.musica?.habilitada !== false;
-const PORTADA_VISIBLE = SECCIONES.some((seccion) => seccion.clave === "portada");
+const PORTADA_VISIBLE = SECCIONES.some((seccion) => seccion.key === "portada");
 
 // La plantilla activa sale del registro; si no está implementada, la de por defecto (RF-2).
 const TEMPLATE = resolveTemplate(
-  templateStatus(boda.plantilla) === "implementada" ? boda.plantilla : DEFAULT_TEMPLATE_ID,
+  templateStatus(boda.plantilla) === "implemented" ? boda.plantilla : DEFAULT_TEMPLATE_ID,
 );
 
 // Falla al arrancar si falta alguna variante optimizada (claves del registro y de la plantilla).
 assertPhotoKeys(Object.values(TEMPLATE.structuralPhotos));
 
-const CLAVES_CON_PORTADA = (seccion) => seccion.clave !== "portada";
+const CLAVES_CON_PORTADA = (seccion) => seccion.key !== "portada";
 
 // Cada clave del catálogo se pinta con su componente; el bloque `pareja` agrupa el hero, la
 // cuenta regresiva y el retrato.
-function pintarSeccion({ clave, datos }) {
-  switch (clave) {
+function pintarSeccion({ key, data }) {
+  switch (key) {
     case "pareja":
       return (
         <Fragment key="pareja">
@@ -82,21 +82,21 @@ function pintarSeccion({ clave, datos }) {
         </Fragment>
       );
     case "cita":
-      return <Cita key="cita" cita={datos} />;
+      return <Cita key="cita" cita={data} />;
     case "historia":
-      return <Historia key="historia" historia={datos} />;
+      return <Historia key="historia" historia={data} />;
     case "ubicaciones":
-      return <Lugares key="ubicaciones" ubicaciones={datos} />;
+      return <Lugares key="ubicaciones" ubicaciones={data} />;
     case "itinerario":
-      return <Itinerario key="itinerario" itinerario={datos} />;
+      return <Itinerario key="itinerario" itinerario={data} />;
     case "galeria":
-      return <Galeria key="galeria" galeria={datos} />;
+      return <Galeria key="galeria" galeria={data} />;
     case "regalos":
-      return <MesaDeRegalos key="regalos" regalos={datos} />;
+      return <MesaDeRegalos key="regalos" regalos={data} />;
     case "hoteles":
-      return <Hoteles key="hoteles" hoteles={datos} />;
+      return <Hoteles key="hoteles" hoteles={data} />;
     case "restricciones":
-      return <Restricciones key="restricciones" restricciones={datos} />;
+      return <Restricciones key="restricciones" restricciones={data} />;
     case "confirmacion":
       return <Confirmacion key="confirmacion" boda={boda} />;
     default:
@@ -105,9 +105,9 @@ function pintarSeccion({ clave, datos }) {
 }
 
 export function App() {
-  const { oscuro, alternar: alternarTema } = useTema();
-  const { audioRef, sonando, alternar: alternarMusica, reproducir } = useMusica({
-    habilitada: MUSICA_HABILITADA,
+  const { dark, toggle: toggleTheme } = useTheme();
+  const { audioRef, playing, toggle: toggleMusic, play } = useMusic({
+    enabled: MUSICA_HABILITADA,
   });
   const [portadaAbierta, setPortadaAbierta] = useState(PORTADA_VISIBLE);
   const contenidoRef = useRef(null);
@@ -140,8 +140,8 @@ export function App() {
   const ingresar = useCallback(() => {
     setPortadaAbierta(false);
     window.scrollTo({ top: 0, behavior: "auto" });
-    reproducir();
-  }, [reproducir]);
+    play();
+  }, [play]);
 
   return (
     <TemplateProvider template={TEMPLATE}>
@@ -158,8 +158,8 @@ export function App() {
 
       {PANEL_VISIBLE && (
         <div className="fixed-panel" inert={portadaAbierta}>
-          <ControlTema oscuro={oscuro} alternar={alternarTema} />
-          {MUSICA_HABILITADA && <ControlMusica sonando={sonando} alternar={alternarMusica} />}
+          <ControlTema oscuro={dark} alternar={toggleTheme} />
+          {MUSICA_HABILITADA && <ControlMusica sonando={playing} alternar={toggleMusic} />}
         </div>
       )}
 

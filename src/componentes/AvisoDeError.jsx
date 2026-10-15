@@ -12,8 +12,8 @@ export function AvisoDeError({ errores = [], avisos = [] }) {
           <p className="aviso-titulo">Hay datos inválidos en el registro de la boda</p>
           <ul>
             {errores.map((error, i) => (
-              <li key={`error-${error.campo}-${i}`}>
-                <strong>{error.campo}</strong>: {error.mensaje}
+              <li key={`error-${error.field}-${i}`}>
+                <strong>{error.field}</strong>: {error.message}
               </li>
             ))}
           </ul>
@@ -25,8 +25,8 @@ export function AvisoDeError({ errores = [], avisos = [] }) {
           <p className="aviso-titulo">Avisos del registro</p>
           <ul>
             {avisos.map((aviso, i) => (
-              <li key={`aviso-${aviso.campo}-${i}`}>
-                <strong>{aviso.campo}</strong>: {aviso.mensaje}
+              <li key={`aviso-${aviso.field}-${i}`}>
+                <strong>{aviso.field}</strong>: {aviso.message}
               </li>
             ))}
           </ul>

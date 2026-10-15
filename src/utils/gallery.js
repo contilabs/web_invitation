@@ -5,42 +5,42 @@
 // ancho objetivo; descarta las entradas sin ancho (`w`), que son las que apuntarían
 // al archivo original de cámara. Si no hay objetivo, devuelve la variante mayor.
 
-export function nextIndex(actual, total, paso = 1) {
+export function nextIndex(current, total, step = 1) {
   if (!Number.isInteger(total) || total <= 0) return 0;
 
-  const base = Number.isInteger(actual) ? actual : 0;
-  const salto = Number.isInteger(paso) ? paso : 1;
-  return (((base + salto) % total) + total) % total;
+  const base = Number.isInteger(current) ? current : 0;
+  const jump = Number.isInteger(step) ? step : 1;
+  return (((base + jump) % total) + total) % total;
 }
 
-export function pickVariant(srcset, anchoObjetivo) {
+export function pickVariant(srcset, targetWidth) {
   if (typeof srcset !== "string") return null;
 
-  const candidatos = srcset
+  const candidates = srcset
     .split(",")
-    .map((entrada) => entrada.trim())
-    .filter((entrada) => entrada.length > 0)
-    .map((entrada) => {
-      const [url, descriptor] = entrada.split(/\s+/);
-      const ancho =
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+    .map((entry) => {
+      const [url, descriptor] = entry.split(/\s+/);
+      const width =
         descriptor && descriptor.endsWith("w") ? parseInt(descriptor, 10) : null;
-      return { url, ancho };
+      return { url, width };
     })
-    .filter((candidato) => Number.isInteger(candidato.ancho) && candidato.ancho > 0);
+    .filter((candidate) => Number.isInteger(candidate.width) && candidate.width > 0);
 
-  if (candidatos.length === 0) return null;
+  if (candidates.length === 0) return null;
 
-  if (!Number.isFinite(anchoObjetivo)) {
-    return candidatos.reduce((mayor, candidato) =>
-      candidato.ancho > mayor.ancho ? candidato : mayor,
+  if (!Number.isFinite(targetWidth)) {
+    return candidates.reduce((largest, candidate) =>
+      candidate.width > largest.width ? candidate : largest,
     ).url;
   }
 
-  return candidatos.reduce((mejor, candidato) => {
-    const distancia = Math.abs(candidato.ancho - anchoObjetivo);
-    const distanciaMejor = Math.abs(mejor.ancho - anchoObjetivo);
-    if (distancia < distanciaMejor) return candidato;
-    if (distancia === distanciaMejor && candidato.ancho > mejor.ancho) return candidato;
-    return mejor;
+  return candidates.reduce((best, candidate) => {
+    const distance = Math.abs(candidate.width - targetWidth);
+    const bestDistance = Math.abs(best.width - targetWidth);
+    if (distance < bestDistance) return candidate;
+    if (distance === bestDistance && candidate.width > best.width) return candidate;
+    return best;
   }).url;
 }

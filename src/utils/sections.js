@@ -2,63 +2,63 @@
 
 import { SECTION_ORDER } from "../constants/sections.js";
 
-function esTextoNoVacio(valor) {
-  return typeof valor === "string" && valor.trim().length > 0;
+function isNonEmptyText(value) {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
-function esNoVacio(valor) {
-  if (valor === null || valor === undefined) return false;
-  if (Array.isArray(valor)) return valor.length > 0;
-  if (typeof valor === "string") return valor.trim().length > 0;
-  if (typeof valor === "object") {
-    // `titulo` es solo rótulo: por sí solo no hace visible una sección.
-    return Object.entries(valor).some(([clave, v]) => clave !== "titulo" && esNoVacio(v));
+function isNonEmpty(value) {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "string") return value.trim().length > 0;
+  // Un objeto con solo `titulo` no cuenta: un rótulo no muestra la sección.
+  if (typeof value === "object") {
+    return Object.entries(value).some(([key, item]) => key !== "titulo" && isNonEmpty(item));
   }
   return true;
 }
 
-export function hasContent(clave, seccion) {
-  if (!seccion) return false;
-  if (clave === "galeria") {
-    const imgs = seccion?.imagenes ?? [];
-    return Array.isArray(imgs) && imgs.length > 0;
+export function hasContent(key, data) {
+  if (!data) return false;
+  if (key === "galeria") {
+    const images = data?.imagenes ?? [];
+    return Array.isArray(images) && images.length > 0;
   }
-  if (clave === "itinerario" || clave === "hoteles") {
+  if (key === "itinerario" || key === "hoteles") {
     // Forma nueva: `{ titulo, momentos }` / `{ titulo, lista }`. Se acepta la lista suelta
     // por compatibilidad con registros sencillos y con las pruebas de la fase 2.
-    const lista = Array.isArray(seccion)
-      ? seccion
-      : seccion?.momentos ?? seccion?.lista ?? seccion?.hoteles;
-    return Array.isArray(lista) && lista.length > 0;
+    const list = Array.isArray(data)
+      ? data
+      : data?.momentos ?? data?.lista ?? data?.hoteles;
+    return Array.isArray(list) && list.length > 0;
   }
-  if (clave === "regalos") {
-    return Array.isArray(seccion?.opciones) && seccion.opciones.length > 0;
+  if (key === "regalos") {
+    return Array.isArray(data?.opciones) && data.opciones.length > 0;
   }
-  if (clave === "historia") {
-    return Array.isArray(seccion?.parrafos) && seccion.parrafos.length > 0;
+  if (key === "historia") {
+    return Array.isArray(data?.parrafos) && data.parrafos.length > 0;
   }
-  if (clave === "cita") {
-    return esTextoNoVacio(seccion?.texto);
+  if (key === "cita") {
+    return isNonEmptyText(data?.texto);
   }
-  return esNoVacio(seccion);
+  return isNonEmpty(data);
 }
 
-export function visibleSections(boda) {
-  if (!boda || typeof boda !== "object") return [];
-  const ajustes = boda.ajustes || {};
-  const visibilidad = ajustes.secciones || {};
-  const resultado = [];
-  for (const clave of SECTION_ORDER) {
-    if (clave === "confirmacion") {
+export function visibleSections(wedding) {
+  if (!wedding || typeof wedding !== "object") return [];
+  const settings = wedding.ajustes || {};
+  const visibility = settings.secciones || {};
+  const result = [];
+  for (const key of SECTION_ORDER) {
+    if (key === "confirmacion") {
       // Siempre presente (RF-18)
-      resultado.push({ clave, datos: boda.confirmacion ?? null });
+      result.push({ key, data: wedding.confirmacion ?? null });
       continue;
     }
-    if (visibilidad[`${clave}Visible`] === false) continue;
-    const datos = boda[clave] ?? null;
-    if (!datos) continue;
-    if (!hasContent(clave, datos)) continue;
-    resultado.push({ clave, datos });
+    if (visibility[`${key}Visible`] === false) continue;
+    const data = wedding[key] ?? null;
+    if (!data) continue;
+    if (!hasContent(key, data)) continue;
+    result.push({ key, data });
   }
-  return resultado;
+  return result;
 }

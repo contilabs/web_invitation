@@ -3,31 +3,31 @@
 // para que los navegadores estrictos (Safari) lo permitan.
 import { useCallback, useRef, useState } from "react";
 
-export function useMusica({ fuente = null, habilitada = true } = {}) {
+export function useMusic({ source = null, enabled = true } = {}) {
   const audioRef = useRef(null);
-  const [sonando, setSonando] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
-  const reproducir = useCallback(() => {
-    if (!habilitada) return;
+  const play = useCallback(() => {
+    if (!enabled) return;
     const audio = audioRef.current;
-    setSonando(true);
+    setPlaying(true);
     if (!audio) return;
 
     audio.play().catch((error) => {
       console.log("No se pudo reproducir la música automáticamente:", error);
-      setSonando(false);
+      setPlaying(false);
     });
-  }, [habilitada]);
+  }, [enabled]);
 
-  const pausar = useCallback(() => {
+  const pause = useCallback(() => {
     audioRef.current?.pause();
-    setSonando(false);
+    setPlaying(false);
   }, []);
 
-  const alternar = useCallback(() => {
-    if (sonando) pausar();
-    else reproducir();
-  }, [sonando, pausar, reproducir]);
+  const toggle = useCallback(() => {
+    if (playing) pause();
+    else play();
+  }, [playing, pause, play]);
 
-  return { audioRef, sonando, reproducir, pausar, alternar, habilitada };
+  return { audioRef, playing, play, pause, toggle, enabled };
 }

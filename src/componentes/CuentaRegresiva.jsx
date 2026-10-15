@@ -1,7 +1,7 @@
 // Cuenta regresiva (T13/T28, RF-3). Muestra días, horas, minutos y segundos, y el mensaje
 // posterior al evento cuando ya pasó (lo decide el módulo puro). El instante y el texto de
 // la fecha llegan desde el registro (App los resuelve con `utils/event.js`).
-import { useCuentaRegresiva } from "../hooks/useCuentaRegresiva.js";
+import { useCountdown } from "../hooks/useCountdown.js";
 
 const dosCifras = (numero) => String(numero).padStart(2, "0");
 
@@ -15,7 +15,7 @@ function Caja({ numero, etiqueta }) {
 }
 
 export function CuentaRegresiva({ instanteMs, fechaTexto }) {
-  const { dias, horas, minutos, segundos, terminado } = useCuentaRegresiva(instanteMs);
+  const { days, hours, minutes, seconds, done } = useCountdown(instanteMs);
 
   return (
     <section className="Fecha reveal" id="fecha">
@@ -24,14 +24,14 @@ export function CuentaRegresiva({ instanteMs, fechaTexto }) {
         <p className="faltan">Faltan</p>
 
         <div id="cuenta-regresiva" className="cuenta-regresiva">
-          {terminado ? (
+          {done ? (
             <p className="msg-post">¡Gracias por celebrar con nosotros!</p>
           ) : (
             <>
-              <Caja numero={dias} etiqueta="Días" />
-              <Caja numero={dosCifras(horas)} etiqueta="Horas" />
-              <Caja numero={dosCifras(minutos)} etiqueta="Min" />
-              <Caja numero={dosCifras(segundos)} etiqueta="Seg" />
+              <Caja numero={days} etiqueta="Días" />
+              <Caja numero={dosCifras(hours)} etiqueta="Horas" />
+              <Caja numero={dosCifras(minutes)} etiqueta="Min" />
+              <Caja numero={dosCifras(seconds)} etiqueta="Seg" />
             </>
           )}
         </div>

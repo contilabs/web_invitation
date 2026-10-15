@@ -48,6 +48,14 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
   portada y galería). Es un guardarraíl a propósito, pero acopla el registro con
   `assets/photos/opt/`: al cambiar fotos o claves hay que mantener las variantes (revisar si
   conviene un error visible en vez de uno de arranque).
+- **Nomenclatura en inglés (spec 003, T13).** Dudas para confirmar con el usuario antes de T14–T17:
+  (a) **`data-tema` no se renombra a `data-theme`** (el plan §9 lo lista como contrato preservado y la
+  decisión D5 previa decía lo contrario); (b) **`src/data/wedding.js` sigue exportando `boda`** y
+  `src/data/guest-cards.js` sigue exportando `invitaciones` (el plan §5.2 dice «contenido y claves
+  idénticos; solo cambia archivo y ruta»). Decidir si se renombran en una tarea posterior.
+- **Comentario desactualizado en `src/templates/classic/classic.css:518`.** Menciona el hook
+  `useEncabezado` (renombrado a `useHeader` en T13); se corregirá al tocar el CSS en T18–T20 (cambiar
+  solo el comentario altera el hash del CSS, así que se deja para entonces).
 - Autoalojar **Montserrat y Source Serif 4**: hoy se cargan desde el CDN de Google Fonts
   (`preconnect` + hoja externa). Se mantiene por ser preexistente y conservar la tipografía
   (RF-11), pero autoalojarlas reduciría peticiones a terceros (RNF-7). Requiere los archivos.

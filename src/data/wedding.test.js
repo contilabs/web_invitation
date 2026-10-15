@@ -40,9 +40,9 @@ test("la plantilla del registro es la clásica (RF-15)", () => {
 
 test("conserva los nombres de la pareja (RF-2, RF-22)", () => {
   assert.deepEqual(coupleNames(boda.pareja), {
-    primera: "Karina",
-    segunda: "Gerardo",
-    paraMostrar: "Karina y Gerardo",
+    first: "Karina",
+    second: "Gerardo",
+    display: "Karina y Gerardo",
   });
 });
 
@@ -89,8 +89,8 @@ test("la transferencia expone un único dato copiable: la cuenta (RF-10)", () =>
   const transferencia = boda.regalos.opciones.find((opcion) => opcion.tipo === "transferencia");
   const copiable = copyableField(transferencia);
   assert.ok(copiable, "la transferencia no expone ningún dato copiable");
-  assert.equal(copiable.etiqueta, "Cuenta");
-  assert.equal(copiable.valor, "012320015636927951");
+  assert.equal(copiable.label, "Cuenta");
+  assert.equal(copiable.value, "012320015636927951");
 
   const marcados = transferencia.datosCopiables.filter((dato) => dato.copiar === true);
   assert.equal(marcados.length, 1, "debe haber exactamente un dato marcado como copiable");
@@ -119,7 +119,7 @@ test("conserva todos los enlaces de la boda en https (RF-5, RF-11, RF-14, RF-22)
 
 test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () => {
   assert.deepEqual(
-    visibleSections(boda).map((seccion) => seccion.clave),
+    visibleSections(boda).map((section) => section.key),
     [
       "portada",
       "pareja",

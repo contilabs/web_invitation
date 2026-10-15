@@ -4,10 +4,10 @@
 
 export const THEME_ARIA_LABEL = "Cambiar entre tema claro y oscuro";
 
-export function musicLabel(sonando) {
-  return sonando ? "Pausar la música" : "Reproducir la música";
+export function musicLabel(playing) {
+  return playing ? "Pausar la música" : "Reproducir la música";
 }
 
-export function themeLabel(tema) {
-  return tema === "noche" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
+export function themeLabel(theme) {
+  return theme === "noche" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
 }

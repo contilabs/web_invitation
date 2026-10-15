@@ -5,9 +5,9 @@
 // vienen de la ficha y no se editan.
 import { useState } from "react";
 
-import { invitaciones as invitacionesPorDefecto } from "../data/guest-cards.js";
-import { useConfirmacion } from "../hooks/useConfirmacion.js";
-import { useInvitacion } from "../hooks/useInvitacion.js";
+import { invitaciones as defaultGuestCards } from "../data/guest-cards.js";
+import { useConfirmation } from "../hooks/useConfirmation.js";
+import { useInvitation } from "../hooks/useInvitation.js";
 import { useTemplate } from "../hooks/useTemplate.js";
 import { photoFor } from "../services/photos.js";
 import { confirmationFields, deadlineMs } from "../utils/confirmation.js";
@@ -15,8 +15,8 @@ import { formatDate, eventTimeZone } from "../utils/event.js";
 import { INVITATION_TYPES } from "../utils/invitation.js";
 
 export function Confirmacion({ boda }) {
-  const { abierta } = useConfirmacion(boda);
-  const invitacion = useInvitacion(invitacionesPorDefecto, boda);
+  const { open } = useConfirmation(boda);
+  const invitacion = useInvitation(defaultGuestCards, boda);
   const { structuralPhotos, photoSizes } = useTemplate();
 
   const confirmacion = boda?.confirmacion ?? {};
@@ -24,13 +24,13 @@ export function Confirmacion({ boda }) {
   const campos = confirmationFields(confirmacion);
   const tieneCampo = (campo) => campos.includes(campo);
 
-  const esPersonalizada = invitacion.tipo === INVITATION_TYPES.PERSONALIZED;
-  const ficha = invitacion.ficha ?? null;
+  const esPersonalizada = invitacion.type === INVITATION_TYPES.PERSONALIZED;
+  const ficha = invitacion.card ?? null;
   const nombreFicha = esPersonalizada ? String(ficha?.guestName ?? "").trim() : "";
   const acompanante = esPersonalizada ? String(ficha?.partnerName ?? "").trim() : "";
   const reservados = invitacion.reservedSeats;
-  const limite = Number.isFinite(invitacion.limiteAsistentes)
-    ? invitacion.limiteAsistentes
+  const limite = Number.isFinite(invitacion.guestLimit)
+    ? invitacion.guestLimit
     : null;
 
   const [asistentes, setAsistentes] = useState(() =>
@@ -49,7 +49,7 @@ export function Confirmacion({ boda }) {
       <div className="wrap">
         {confirmacion.titulo && <h2>{confirmacion.titulo}</h2>}
 
-        {!abierta ? (
+        {!open ? (
           <div className="confirmacion-cerrada" role="status">
             <p className="mesa-nota">El plazo para confirmar tu asistencia ya terminó.</p>
             {fechaLimite && (
@@ -68,7 +68,7 @@ export function Confirmacion({ boda }) {
 
             <div className="confirmar-panel">
               <p className="reserva">
-                Hemos reservado <span id="numero">{invitacion.lugaresTexto}</span> en tu honor
+                Hemos reservado <span id="numero">{invitacion.seatsText}</span> en tu honor
               </p>
 
               <form
