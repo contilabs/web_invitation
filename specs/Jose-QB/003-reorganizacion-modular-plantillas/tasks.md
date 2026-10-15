@@ -151,7 +151,7 @@ contradicción con el código (principio 2, «spec = código»).
   Hecho cuando: móvil y escritorio, tema, música tras «Ingresar», cuenta regresiva, galería y visor con
   teclado, copiado y **envío real** del RSVP funcionan, y el resultado queda anotado en la sección
   «Verificación» de `AGENTS.md`.
-- [ ] **T28 · Actualizar `README.md`, `AGENTS.md` y `MEMORY.md`.** _RF: RF-1, RNF-6 (spec §10)._
+- [x] **T28 · Actualizar `README.md`, `AGENTS.md` y `MEMORY.md`.** _RF: RF-1, RNF-6 (spec §10)._
   Hecho cuando: describen la estructura nueva y la convención de nombres, el «único origen» y el
   inventario de `AGENTS.md` apuntan a `data/`, `utils/`, `services/` y `templates/`, y no queda ninguna
   referencia a las rutas viejas.

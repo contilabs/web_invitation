@@ -2,7 +2,7 @@
 
 Invitación de boda web construida con **React + Vite**. El build genera un sitio **estático**
 en `dist/`, listo para servir en cualquier subruta. No hay backend ni panel: toda la boda vive en
-un **registro único** (`src/datos/boda.js`) y las invitaciones en `src/datos/invitaciones.js`; la
+un **registro único** (`src/data/wedding.js`) y las invitaciones en `src/data/guest-cards.js`; la
 interfaz solo lee y pinta.
 
 ## 🔥 Concepto: «Fuego cálido: día y noche»
@@ -18,8 +18,8 @@ bloque oscuro (la cuenta regresiva) y la brasa reservada como acento. Cada secci
 mismo gesto —un rombo de brasa sobre el título y un filete debajo— y el formulario ofrece la
 asistencia como dos opciones claras.
 
-Ambos temas se controlan **solo con variables CSS** (`:root` en `styles.css` para el día,
-`html.dark-mode` en `darkMode.css` para la noche), y el interruptor recuerda la elección.
+Ambos temas se controlan **solo con variables CSS** (`:root` en `classic.css` para el día,
+`html.dark-mode` en `classic-dark.css` para la noche), y el interruptor recuerda la elección.
 
 ## ▶️ Cómo verla
 
@@ -36,17 +36,34 @@ npm test          # pruebas de la lógica pura (node --test, sin instalar nada)
 - **React 19** + **Vite 8** con `@vitejs/plugin-react`. Nada de librerías de UI, CSS o
   animación: los estilos son propios y el estado vive en hooks.
 
+## 🗂️ Organización y convención de nombres
+
+El proyecto separa **qué se muestra** (datos y secciones), **cómo se comporta** (lógica pura,
+hooks y servicios) y **cómo se ve** (la **capa de plantilla**). La presentación (estilos,
+iconos, tamaños de imagen y fotos estructurales) queda concentrada en `src/templates/`, de modo
+que otra plantilla pueda añadirse sin tocar la lógica ni los datos. Hoy solo existe la plantilla
+`clasica` y **no hay ninguna forma de elegir otra** (ni control, ni parámetro, ni ajuste).
+
+La **nomenclatura del código** (archivos, módulos, componentes, hooks, funciones, variables y
+clases de estilo) va en **inglés**. Se quedan en **español** los **textos visibles**, los
+**datos** (incluidas sus claves), los **comentarios** y esta **documentación**. Los **ids de
+ancla** de la página (`#inicio`, `#fecha`…) también se conservan porque son enlaces ya
+compartibles.
+
 ## 📁 Estructura
 
 ```
 index.html          # Shell de Vite (<div id="root">) + script de tema anti-parpadeo + metas
-src/main.jsx        # Monta React
-src/App.jsx         # Compone la invitación y orquesta portada, música e inert
-src/datos/          # El registro de la boda y las fichas de invitación (solo datos)
-src/logica/         # Funciones puras + pruebas (sin React, sin DOM, sin reloj)
-src/hooks/          # Estado con efecto: tema, cuenta regresiva, música, galería, invitación…
-src/componentes/    # Presentación (JSX en español)
-test/               # Prueba de andamiaje (ESM, shell, Bootstrap retirado, fotos optimizadas)
+src/app/            # main.jsx (monta React), App.jsx (compone) y sectionRenderers.jsx (mapa clave → componente)
+src/constants/      # Constantes compartidas: orden de secciones, tema y plantillas
+src/data/           # Registro de la boda (wedding.js) y fichas de invitación (guest-cards.js) + pruebas
+src/utils/          # Funciones puras + pruebas (sin React, sin DOM, sin reloj)
+src/hooks/          # Estado con efecto: tema, música, invitación, cuenta regresiva, galería…
+src/components/     # Presentación: layout/ (estructura), sections/ (contenido) y ui/ (piezas reutilizables)
+src/providers/      # TemplateProvider (publica la plantilla activa)
+src/services/       # photos.js (resuelve las rutas de las fotos con Vite)
+src/templates/      # Capa de presentación: index.js (registro) y classic/ (CSS, iconos, tamaños)
+test/               # Andamiaje (andamiaje.test.js) y contratos (contracts.test.js)
 assets/             # Fotos originales, iconos y audio
 assets/photos/opt/  # Derivados JPEG optimizados: lo que la página carga de verdad
 fonts/              # Erstoria + Kalista (locales)
@@ -54,8 +71,8 @@ fonts/              # Erstoria + Kalista (locales)
 
 ## 🎨 Personalización (datos de la pareja y del evento)
 
-Todo eso se edita en **`src/datos/boda.js`** (registro único de la boda). Las **fichas de
-invitación** viven aparte, en **`src/datos/invitaciones.js`**. No hay textos de contenido en los
+Todo eso se edita en **`src/data/wedding.js`** (registro único de la boda). Las **fichas de
+invitación** viven aparte, en **`src/data/guest-cards.js`**. No hay textos de contenido en los
 componentes: la interfaz solo lee el registro y pinta.
 
 | Qué | Clave en el registro |
@@ -78,7 +95,7 @@ mismas claves y anchos en `assets/photos/opt/` y vuelve a publicar.
 ### Enlaces de invitación
 
 La invitación se resuelve por **código de enlace** (no por `?invitados=N`). Hay tres tipos de
-ficha en `src/datos/invitaciones.js`:
+ficha en `src/data/guest-cards.js`:
 
 ```text
 index.html?codigo=karina-gerardo-inv-001   # personalizada: nombre, boletos y lugares reservados
@@ -115,14 +132,15 @@ reducido** (las animaciones se desactivan y el carrusel deja de avanzar solo).
 
 Las fotos de `assets/photos/` son las originales (sin tocar, ~83 MB). La página **no** las carga
 directamente: usa las versiones optimizadas de `assets/photos/opt/` (dos anchos por foto,
-declarados con `srcset` y `sizes`).
+declarados con `srcset` y `sizes`). Las rutas se resuelven con `src/services/photos.js` a partir
+de la **clave** (la base del nombre, p. ej. `foto5`).
 
 > ⚠️ Si cambias una foto original, vuelve a generar sus derivados con los mismos nombres y anchos
 > (por ejemplo `foto5-900.jpg` y `foto5-1800.jpg`). Si no, el `srcset` pedirá archivos que no existen.
 
 > ⚠️ Rutas sensibles a mayúsculas: en macOS/Linux/GitHub Pages los nombres de archivo deben
-> coincidir exactamente (por ejemplo `foto1.jpg`, no `Foto1.JPG`). Nota: los originales incluyen
-> `foto9.png` (no `.jpg`) y `backgrond3.jpg` (con esa grafía).
+> coincidir exactamente (por ejemplo `foto1.jpg`, no `Foto1.JPG`). Nota: en `opt/` todas son
+> `.jpg` (p. ej. `foto9-900.jpg`), aunque el original de `assets/photos/` sea de otra extensión.
 
 ## 🚀 Despliegue
 
