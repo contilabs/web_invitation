@@ -970,7 +970,7 @@ body.cover-closed .hero-text {
 /* ============================================================
    15. Confirmación
    ============================================================ */
-.confirmar-rejilla {
+.rsvp-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
   gap: clamp(1.5rem, 4vw, 3.5rem);
@@ -978,13 +978,13 @@ body.cover-closed .hero-text {
   margin-top: 2.5rem;
 }
 
-.confirmar-foto {
+.rsvp-photo {
   margin: 0;
   border-radius: var(--radio);
   overflow: hidden;
 }
 
-.confirmar-foto img {
+.rsvp-photo img {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 4;
@@ -992,11 +992,11 @@ body.cover-closed .hero-text {
   object-position: 50% 40%;
 }
 
-.confirmar-panel {
+.rsvp-panel {
   text-align: left;
 }
 
-.reserva {
+.rsvp-lead {
   font-family: var(--fuente-titulo);
   font-size: clamp(1.3rem, 3vw, 1.7rem);
   line-height: 1.35;
@@ -1009,17 +1009,17 @@ body.cover-closed .hero-text {
   color: var(--ember);
 }
 
-.confirmar-panel form {
+.rsvp-panel form {
   display: grid;
   gap: 1.1rem;
 }
 
-.campo {
+.field {
   display: grid;
   gap: 0.45rem;
 }
 
-.campo label {
+.field label {
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -1028,8 +1028,8 @@ body.cover-closed .hero-text {
   color: var(--ink-2);
 }
 
-.campo input,
-.campo textarea {
+.field input,
+.field textarea {
   width: 100%;
   padding: 0.8rem 1rem;
   font-family: var(--fuente-texto);
@@ -1041,24 +1041,24 @@ body.cover-closed .hero-text {
   transition: border-color 0.2s ease;
 }
 
-.campo input::placeholder,
-.campo textarea::placeholder {
+.field input::placeholder,
+.field textarea::placeholder {
   color: var(--smoke);
 }
 
-.campo input:focus,
-.campo textarea:focus {
+.field input:focus,
+.field textarea:focus {
   border-color: var(--ember);
 }
 
-.campo textarea {
+.field textarea {
   min-height: 6.5rem;
   resize: vertical;
 }
 
 /* Elección clara de asistencia: dos opciones dentro de un filete, como en
    las invitaciones de referencia. */
-.asistencia-titulo {
+.attendance-title {
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -1067,13 +1067,13 @@ body.cover-closed .hero-text {
   color: var(--ink-2);
 }
 
-.asistencia-opciones {
+.attendance-options {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: 0.6rem;
 }
 
-.asistencia-opcion {
+.attendance-option {
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -1086,7 +1086,7 @@ body.cover-closed .hero-text {
   transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
-.asistencia-opcion input {
+.attendance-option input {
   flex: none;
   width: 1.05rem;
   height: 1.05rem;
@@ -1095,13 +1095,13 @@ body.cover-closed .hero-text {
   accent-color: var(--ember);
 }
 
-.asistencia-opcion:has(input:checked) {
+.attendance-option:has(input:checked) {
   border-color: var(--ember);
   background-color: var(--ember-suave);
   color: var(--ember);
 }
 
-.confirmar-panel .button {
+.rsvp-panel .button {
   justify-self: start;
 }
 
@@ -1525,7 +1525,7 @@ footer a:hover {
 /* ============================================================
    22. Aviso (copiar cuenta)
    ============================================================ */
-.copia-aviso {
+.copy-notice {
   display: none;
   position: fixed;
   left: 50%;
@@ -1603,7 +1603,7 @@ footer a:hover {
   overflow-wrap: anywhere;
 }
 
-.boton-copiar {
+.copy-button {
   flex: none;
 }
 
@@ -1616,13 +1616,13 @@ footer a:hover {
   color: var(--ember);
 }
 
-.ayuda {
+.help-text {
   margin: 0;
   font-size: var(--fs-sm);
   color: var(--ink-2);
 }
 
-.confirmacion-cerrada {
+.rsvp-closed {
   padding: clamp(1.5rem, 4vw, 2.5rem) 0;
 }
 
@@ -1712,25 +1712,25 @@ footer a:hover {
 }
 
 @media (max-width: 860px) {
-  .confirmar-rejilla {
+  .rsvp-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
 
-  .confirmar-foto img {
+  .rsvp-photo img {
     aspect-ratio: 16 / 10;
     object-position: 50% 32%;
   }
 
-  .confirmar-panel {
+  .rsvp-panel {
     text-align: center;
   }
 
-  .reserva {
+  .rsvp-lead {
     text-align: center;
   }
 
-  .confirmar-panel .button {
+  .rsvp-panel .button {
     justify-self: stretch;
   }
 }

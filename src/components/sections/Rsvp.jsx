@@ -43,20 +43,20 @@ export function Rsvp({ wedding }) {
     : "Confirmación de asistencia";
 
   return (
-    <section className="Confirmacion reveal" id="confirmar">
+    <section className="rsvp reveal" id="confirmar">
       <div className="wrap">
         {confirmation.titulo && <h2>{confirmation.titulo}</h2>}
 
         {!open ? (
-          <div className="confirmacion-cerrada" role="status">
+          <div className="rsvp-closed" role="status">
             <p className="section-note">El plazo para confirmar tu asistencia ya terminó.</p>
             {deadlineText && (
-              <p className="ayuda">La confirmación cerró el {deadlineText}.</p>
+              <p className="help-text">La confirmación cerró el {deadlineText}.</p>
             )}
           </div>
         ) : (
-          <div className="confirmar-rejilla">
-            <figure className="confirmar-foto">
+          <div className="rsvp-grid">
+            <figure className="rsvp-photo">
               <img
                 {...photoFor(structuralPhotos.confirmation, "", photoSizes.confirmation)}
                 loading="lazy"
@@ -64,8 +64,8 @@ export function Rsvp({ wedding }) {
               />
             </figure>
 
-            <div className="confirmar-panel">
-              <p className="reserva">
+            <div className="rsvp-panel">
+              <p className="rsvp-lead">
                 Hemos reservado <span id="numero">{invitation.seatsText}</span> en tu honor
               </p>
 
@@ -80,19 +80,19 @@ export function Rsvp({ wedding }) {
                 <input type="hidden" name="_subject" value={subject} />
 
                 <div
-                  className="campo asistencia"
+                  className="field attendance"
                   role="radiogroup"
                   aria-labelledby="asistencia-titulo"
                 >
-                  <p className="asistencia-titulo" id="asistencia-titulo">
+                  <p className="attendance-title" id="asistencia-titulo">
                     ¿Nos acompañarás?
                   </p>
-                  <div className="asistencia-opciones">
-                    <label className="asistencia-opcion">
+                  <div className="attendance-options">
+                    <label className="attendance-option">
                       <input type="radio" name="asistencia" value="Sí, asistiré" required />
                       <span>Sí, asistiré</span>
                     </label>
-                    <label className="asistencia-opcion">
+                    <label className="attendance-option">
                       <input type="radio" name="asistencia" value="No podré asistir" required />
                       <span>No podré asistir</span>
                     </label>
@@ -100,7 +100,7 @@ export function Rsvp({ wedding }) {
                 </div>
 
                 {hasField("nombre") && (
-                  <div className="campo">
+                  <div className="field">
                     <label htmlFor="nombre">Tu nombre</label>
                     <input
                       type="text"
@@ -117,7 +117,7 @@ export function Rsvp({ wedding }) {
 
                 {partner && (
                   <>
-                    <p className="ayuda">
+                    <p className="help-text">
                       Te acompañará <strong>{partner}</strong>.
                     </p>
                     <input type="hidden" name="acompanante" value={partner} />
@@ -125,7 +125,7 @@ export function Rsvp({ wedding }) {
                 )}
 
                 {hasField("asistentes") && (
-                  <div className="campo">
+                  <div className="field">
                     <label htmlFor="asistentes">Número de asistentes</label>
                     <input
                       type="number"
@@ -140,7 +140,7 @@ export function Rsvp({ wedding }) {
                       required
                     />
                     {attendeeLimit !== null && (
-                      <p className="ayuda">
+                      <p className="help-text">
                         {exceeded
                           ? `El máximo reservado son ${attendeeLimit === 1 ? "1 lugar" : `${attendeeLimit} lugares`}.`
                           : `Tienes ${attendeeLimit === 1 ? "1 lugar" : `${attendeeLimit} lugares`} disponibles.`}
@@ -150,7 +150,7 @@ export function Rsvp({ wedding }) {
                 )}
 
                 {hasField("alergias") && (
-                  <div className="campo">
+                  <div className="field">
                     <label htmlFor="alergias">Alergias o restricciones alimentarias</label>
                     <input
                       type="text"
@@ -163,7 +163,7 @@ export function Rsvp({ wedding }) {
                 )}
 
                 {hasField("mensaje") && (
-                  <div className="campo">
+                  <div className="field">
                     <label htmlFor="mensaje">Mensaje para los novios</label>
                     <textarea
                       id="mensaje"

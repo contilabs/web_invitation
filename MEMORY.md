@@ -7,16 +7,17 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil. Registro único
   (`src/data/wedding.js`) + fichas (`src/data/guest-cards.js`); interfaz dirigida por el registro
   (`App.jsx` compone `visibleSections(boda)`); `npm test` → **110/110** y build OK.
-- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T20 hechas** (fases 0–6 parciales) y
+- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T21 hechas** (fases 0–6 hechas) y
   marcadas en `tasks.md`: `constants/`, `utils/` (T4–T7), `data/` (T8) y plantilla clásica (T9–T10);
   **capa de plantilla** (T11–T12: `templates/`, `providers/`, `hooks/useTemplate.js`,
   `services/photos.js`); `hooks/` (T13); **todos los componentes** reubicados y en inglés —
   `components/ui/` (T14), `components/layout/` (T15) y `components/sections/` (T16–T17); y las **clases
   CSS** de estructura y controles (T18), de las secciones de contenido y utilidades compartidas
-  (`button*`, `icon`, `grid-*`, `wrap-narrow`, T19) y de la galería y el visor (T20: `slide`,
-  `slide-active`, `gallery-strip`, `gallery-arrow`, `gallery-counter`), sin tocar ids, textos ni `name`.
-  `src/componentes/` ya no existe. `npm test` → **110/110**, build OK y **paridad 30/30**. Faltan
-  T21–T28 (clases de la confirmación, `app/`, pruebas y cierre).
+  (`button*`, `icon`, `grid-*`, `wrap-narrow`, T19), la galería y el visor (T20: `slide`,
+  `slide-active`, `gallery-strip`, `gallery-arrow`, `gallery-counter`) y la confirmación y el aviso de
+  copiar (T21: `rsvp*`, `field`, `attendance*`, `copy-button`, `copy-notice`), sin tocar ids, textos ni
+  `name`. `src/componentes/` ya no existe. `npm test` → **110/110**, build OK y **paridad 30/30**.
+  Faltan T22–T28 (`app/`, pruebas, rendimiento y cierre).
 - Documentación: `docs/constitution.md` (6 principios), `specs/001-*`…`003-*`, `PENDING_TASKS.md`.
 ## Decisiones (y por qué)
 - **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue
@@ -73,11 +74,11 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   documentos. La paridad **manda** sobre reutilizar.
 - **Spec 003 · arnés de paridad (fuera del repo, `…\003-referencia\parity.mjs`):** 3 tipos × día/noche
   × 5 anchos (30 casos) de estructura, textos, atributos, geometría y estilos efectivos; **excluye las
-  clases** (T18–T21 las renombran) y **omite la cuenta regresiva** (depende del reloj). Exige
+  clases** (T18–T21, ya hechas) y **omite la cuenta regresiva** (depende del reloj). Exige
   `prefers-reduced-motion`, esperar las fuentes, recorrer la página y medir hasta dos instantáneas
   idénticas. Hoy **30/30**.
 ## Próximos pasos
 - **Spec 002 · T33:** pasada manual (otro registro, portapapeles, audio, **RSVP real**, móvil físico).
-- **Spec 003 · T21–T28:** clases de la confirmación, `app/` (con `renderSection`), `test/contracts.test.js`,
-  limpieza de `services/` e internos de tests, rendimiento y pasada manual final.
+- **Spec 003 · T22–T28:** `app/` (con `renderSection`), `test/contracts.test.js`, limpieza de
+  `services/` e internos de tests, rendimiento y pasada manual final.
 - Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas…): ver `PENDING_TASKS.md`.

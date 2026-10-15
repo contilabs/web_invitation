@@ -115,7 +115,7 @@ contradicción con el código (principio 2, «spec = código»).
   Hecho cuando: `slide`/`slide-active`, `gallery-strip`, `gallery-arrow` y `gallery-counter` sustituyen a
   las clases españolas en JSX y CSS, `useReveal` y `useGallery` apuntan a las nuevas, y el carrusel, el
   contador y el visor funcionan igual (avance, pausa, cierre y teclado).
-- [ ] **T21 · Renombrar clases de la confirmación y del aviso del registro.** _RF: RF-3, RNF-6, RNF-1._
+- [x] **T21 · Renombrar clases de la confirmación y del aviso del registro.** _RF: RF-3, RNF-6, RNF-1._
   Hecho cuando: el formulario, los avisos y los datos copiables usan clases en inglés, los `name` de los
   campos enviados (`asistencia`, `nombre`, `acompanante`, `asistentes`, `alergias`, `mensaje`, `_subject`)
   **no** cambian y la paridad de la confirmación (abierta y cerrada) no muestra diferencias.
