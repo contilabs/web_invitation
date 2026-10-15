@@ -1,20 +1,6 @@
 // Lógica pura: secciones visibles (RF-4, RF-6, RF-7, RF-8, RF-9, RF-11, RF-14, RF-18)
 
-// Orden de presentación de las secciones. La galería **cierra** la invitación: va al final,
-// justo antes del pie (T36). El orden visual vive solo aquí; los componentes no lo declaran.
-const ORDEN_SECCIONES = [
-  "portada",
-  "pareja",
-  "cita",
-  "historia",
-  "ubicaciones",
-  "itinerario",
-  "regalos",
-  "hoteles",
-  "restricciones",
-  "confirmacion",
-  "galeria",
-];
+import { SECTION_ORDER } from "../constants/sections.js";
 
 function esTextoNoVacio(valor) {
   return typeof valor === "string" && valor.trim().length > 0;
@@ -62,7 +48,7 @@ export function seccionesVisibles(boda) {
   const ajustes = boda.ajustes || {};
   const visibilidad = ajustes.secciones || {};
   const resultado = [];
-  for (const clave of ORDEN_SECCIONES) {
+  for (const clave of SECTION_ORDER) {
     if (clave === "confirmacion") {
       // Siempre presente (RF-18)
       resultado.push({ clave, datos: boda.confirmacion ?? null });

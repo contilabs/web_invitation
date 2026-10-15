@@ -2,16 +2,15 @@
 // Devuelve ERRORES (requeridos inválidos, conflictos) y AVISOS (datos válidos pero
 // no implementados, como una plantilla distinta de la clásica).
 
+import { IMPLEMENTED_TEMPLATE_IDS } from "../constants/templates.js";
 import { instanteDelEvento } from "./evento.js";
 import { hayConflictoDeNinos } from "./restricciones.js";
-
-const PLANTILLA_IMPLEMENTADA = "clasica";
 
 export function plantillaImplementada(plantilla) {
   if (plantilla === null || plantilla === undefined) return "desconocida";
   const s = String(plantilla).trim().toLowerCase();
   if (!s) return "desconocida";
-  return s === PLANTILLA_IMPLEMENTADA ? "implementada" : "no-implementada";
+  return IMPLEMENTED_TEMPLATE_IDS.includes(s) ? "implementada" : "no-implementada";
 }
 
 function textoNoVacio(v) {
