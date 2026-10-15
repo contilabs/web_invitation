@@ -143,7 +143,7 @@ contradicción con el código (principio 2, «spec = código»).
   (salvo claves de datos y contratos, textos visibles, títulos de prueba y comentarios, que siguen en
   español), `npm test` pasa con las mismas pruebas lógicas que al empezar (solo renombradas) y
   `npm run build` termina sin errores.
-- [ ] **T26 · Paridad automática contra la referencia congelada.** _RF: RNF-1, RNF-2._
+- [x] **T26 · Paridad automática contra la referencia congelada.** _RF: RNF-1, RNF-2._
   Hecho cuando: la matriz (tres tipos de invitación × día/noche × 320/375/768/1024/1440 px, registro
   inválido, sección omitida, aviso de plantilla y confirmación cerrada) no muestra diferencias en
   estructura visible, textos, atributos, geometría ni estilos efectivos.
