@@ -29,7 +29,7 @@ test("las pruebas usan el runner integrado de Node", () => {
 test("index.html monta la app de React", () => {
   const html = leer("../index.html");
   assert.match(html, /id="root"/);
-  assert.match(html, /src="\/src\/main\.jsx"/);
+  assert.match(html, /src="\/src\/app\/main\.jsx"/);
 });
 
 // El script del <head> resuelve el tema antes de pintar (RF-4): si se mueve detrás del
@@ -57,7 +57,7 @@ test("sin JavaScript se avisa en español", () => {
 
 // T25: el punto de referencia principal y el enlace para saltar a él.
 test("la app ofrece un enlace para saltar al contenido dentro de <main>", () => {
-  const app = leer("../src/App.jsx");
+  const app = leer("../src/app/App.jsx");
   assert.match(app, /<main\b/, "no hay <main> en App.jsx");
   assert.match(app, /<SkipLink\s*\/>/, "App no pinta el enlace «saltar al contenido»");
 

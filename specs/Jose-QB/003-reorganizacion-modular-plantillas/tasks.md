@@ -122,7 +122,7 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 7 — App y shell
 
-- [ ] **T22 · Mover la entrada y la composición a `app/`.** _RF: RF-1, RF-4._
+- [x] **T22 · Mover la entrada y la composición a `app/`.** _RF: RF-1, RF-4._
   Hecho cuando: existen `app/main.jsx`, `app/App.jsx` y `app/sectionRenderers.jsx`; `index.html` apunta a
   `/src/app/main.jsx`, la prueba de andamiaje apunta a `app/App.jsx`, el orden de eventos al entrar
   (cerrar portada → devolver el foco a `#inicio` → arrancar la música) se conserva y el build pasa.

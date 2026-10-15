@@ -7,7 +7,7 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil. Registro único
   (`src/data/wedding.js`) + fichas (`src/data/guest-cards.js`); interfaz dirigida por el registro
   (`App.jsx` compone `visibleSections(boda)`); `npm test` → **110/110** y build OK.
-- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T21 hechas** (fases 0–6 hechas) y
+- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T22 hechas** (fases 0–7) y
   marcadas en `tasks.md`: `constants/`, `utils/` (T4–T7), `data/` (T8) y plantilla clásica (T9–T10);
   **capa de plantilla** (T11–T12: `templates/`, `providers/`, `hooks/useTemplate.js`,
   `services/photos.js`); `hooks/` (T13); **todos los componentes** reubicados y en inglés —
@@ -16,8 +16,10 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   (`button*`, `icon`, `grid-*`, `wrap-narrow`, T19), la galería y el visor (T20: `slide`,
   `slide-active`, `gallery-strip`, `gallery-arrow`, `gallery-counter`) y la confirmación y el aviso de
   copiar (T21: `rsvp*`, `field`, `attendance*`, `copy-button`, `copy-notice`), sin tocar ids, textos ni
-  `name`. `src/componentes/` ya no existe. `npm test` → **110/110**, build OK y **paridad 30/30**.
-  Faltan T22–T28 (`app/`, pruebas, rendimiento y cierre).
+  `name`. La raíz vive en `src/app/` (T22: `main.jsx`, `App.jsx` y `sectionRenderers.jsx`, el mapa
+  `clave → componente` que antes era el `switch` de `App`); `src/componentes/` ya no existe. `npm test`
+  → **110/110**, build OK y **paridad 30/30**. Faltan T23–T28 (pruebas de contratos y andamiaje,
+  limpieza, paridad, pasada manual y documentación).
 - Documentación: `docs/constitution.md` (6 principios), `specs/001-*`…`003-*`, `PENDING_TASKS.md`.
 ## Decisiones (y por qué)
 - **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue
@@ -79,6 +81,6 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   idénticas. Hoy **30/30**.
 ## Próximos pasos
 - **Spec 002 · T33:** pasada manual (otro registro, portapapeles, audio, **RSVP real**, móvil físico).
-- **Spec 003 · T22–T28:** `app/` (con `renderSection`), `test/contracts.test.js`, limpieza de
-  `services/` e internos de tests, rendimiento y pasada manual final.
+- **Spec 003 · T23–T28:** `test/contracts.test.js`, repaso de `test/andamiaje.test.js`, limpieza de
+  `services/` e internos de tests, paridad, pasada manual y documentación final.
 - Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas…): ver `PENDING_TASKS.md`.
