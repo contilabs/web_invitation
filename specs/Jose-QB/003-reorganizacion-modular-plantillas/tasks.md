@@ -137,7 +137,7 @@ contradicción con el código (principio 2, «spec = código»).
   Hecho cuando: apunta a las rutas nuevas y **ninguna** de sus comprobaciones se ha relajado (script del
   tema antes del primer estilo, `kg-tema`, `dark-mode`, `<noscript>` en español, sin `?invitados=N`, sin
   originales de fotos y sin Bootstrap).
-- [ ] **T25 · Limpieza y verificación básica.** _RF: RF-1, RF-3, RNF-2._
+- [x] **T25 · Limpieza y verificación básica.** _RF: RF-1, RF-3, RNF-2._
   Hecho cuando: no quedan huérfanos (`src/logica/`, `src/datos/`, `src/componentes/`, `styles.css` y
   `darkMode.css` en la raíz no existen), **toda la nomenclatura de `src/` y de `test/` está en inglés**
   (salvo claves de datos y contratos, textos visibles, títulos de prueba y comentarios, que siguen en

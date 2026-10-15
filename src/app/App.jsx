@@ -8,8 +8,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import audioUrl from "../../assets/audio.mp3";
 
-import { boda } from "../data/wedding.js";
-import { invitaciones } from "../data/guest-cards.js";
+import { wedding } from "../data/wedding.js";
+import { guestCards } from "../data/guest-cards.js";
 import { DEFAULT_TEMPLATE_ID } from "../constants/templates.js";
 import { resolveTemplate } from "../templates/index.js";
 import { TemplateProvider } from "../providers/TemplateProvider.jsx";
@@ -32,24 +32,24 @@ import { renderSection } from "./sectionRenderers.jsx";
 
 // Todo lo que se deriva del registro se calcula una sola vez (el registro no cambia en
 // tiempo de ejecución). La validación pura decide el aviso visible (RF-15, RF-20).
-const SECTIONS = visibleSections(boda);
-const ERRORS = registryErrors(boda, invitaciones);
-const WARNINGS = registryWarnings(boda);
+const SECTIONS = visibleSections(wedding);
+const ERRORS = registryErrors(wedding, guestCards);
+const WARNINGS = registryWarnings(wedding);
 
-const EVENT_INSTANT = eventInstant(boda.evento);
-const DATE_TEXT = formatDate(EVENT_INSTANT, eventTimeZone(boda.evento));
+const EVENT_INSTANT = eventInstant(wedding.evento);
+const DATE_TEXT = formatDate(EVENT_INSTANT, eventTimeZone(wedding.evento));
 
-const NAVIGATION = boda.ajustes?.navegacion ?? {};
+const NAVIGATION = wedding.ajustes?.navegacion ?? {};
 const HEADER_VISIBLE = NAVIGATION.encabezadoVisible !== false;
 const PANEL_VISIBLE = NAVIGATION.panelFlotanteVisible !== false;
 const FOOTER_VISIBLE = NAVIGATION.pieVisible !== false;
 
-const MUSIC_ENABLED = boda.ajustes?.musica?.habilitada !== false;
+const MUSIC_ENABLED = wedding.ajustes?.musica?.habilitada !== false;
 const COVER_VISIBLE = SECTIONS.some((section) => section.key === "portada");
 
 // La plantilla activa sale del registro; si no está implementada, la de por defecto (RF-2).
 const TEMPLATE = resolveTemplate(
-  templateStatus(boda.plantilla) === "implemented" ? boda.plantilla : DEFAULT_TEMPLATE_ID,
+  templateStatus(wedding.plantilla) === "implemented" ? wedding.plantilla : DEFAULT_TEMPLATE_ID,
 );
 
 // Falla al arrancar si falta alguna variante optimizada (claves del registro y de la plantilla).
@@ -58,7 +58,7 @@ assertPhotoKeys(Object.values(TEMPLATE.structuralPhotos));
 const KEYS_WITH_COVER = (section) => section.key !== "portada";
 
 // La portada no se pinta dentro de <main>: el resto de secciones recibe aquí sus datos.
-const SECTION_CONTEXT = { wedding: boda, dateText: DATE_TEXT, eventInstant: EVENT_INSTANT };
+const SECTION_CONTEXT = { wedding, dateText: DATE_TEXT, eventInstant: EVENT_INSTANT };
 
 export function App() {
   const { dark, toggle: toggleTheme } = useTheme();
@@ -72,28 +72,28 @@ export function App() {
 
   // El título de la pestaña y la descripción salen del registro (T28, RF-19).
   useEffect(() => {
-    document.title = boda.marca?.nombre ?? boda.evento?.titulo ?? document.title;
+    document.title = wedding.marca?.nombre ?? wedding.evento?.titulo ?? document.title;
 
-    const descripcion = boda.evento?.descripcion;
-    if (!descripcion) return;
+    const description = wedding.evento?.descripcion;
+    if (!description) return;
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
       meta.setAttribute("name", "description");
       document.head.appendChild(meta);
     }
-    meta.setAttribute("content", descripcion);
+    meta.setAttribute("content", description);
   }, []);
 
   // Al cerrar la portada, el foco pasa al inicio de la invitación (RF-1).
   useEffect(() => {
     if (coverOpen) return;
-    const destino = document.getElementById("inicio") ?? contentRef.current;
-    destino?.focus();
+    const target = document.getElementById("inicio") ?? contentRef.current;
+    target?.focus();
   }, [coverOpen]);
 
   // Cerrar la portada es un gesto: la música arranca aquí (RF-5).
-  const ingresar = useCallback(() => {
+  const enter = useCallback(() => {
     setCoverOpen(false);
     window.scrollTo({ top: 0, behavior: "auto" });
     play();
@@ -105,10 +105,10 @@ export function App() {
 
       {coverOpen && (
         <Cover
-          cover={boda.portada}
-          couple={boda.pareja}
+          cover={wedding.portada}
+          couple={wedding.pareja}
           dateText={DATE_TEXT}
-          onEnter={ingresar}
+          onEnter={enter}
         />
       )}
 
@@ -132,16 +132,16 @@ export function App() {
       <main className="site-content" ref={contentRef} tabIndex={-1} inert={coverOpen}>
         <SkipLink />
 
-        {HEADER_VISIBLE && <Header couple={boda.pareja} />}
+        {HEADER_VISIBLE && <Header couple={wedding.pareja} />}
 
         {SECTIONS.filter(KEYS_WITH_COVER).map((section) => renderSection(section, SECTION_CONTEXT))}
 
         {FOOTER_VISIBLE && (
           <Footer
-            couple={boda.pareja}
+            couple={wedding.pareja}
             dateText={DATE_TEXT}
-            place={boda.evento?.lugar}
-            credit={boda.marca?.enlaces?.credito}
+            place={wedding.evento?.lugar}
+            credit={wedding.marca?.enlaces?.credito}
           />
         )}
       </main>

@@ -9,6 +9,6 @@ const TEMPLATES = { clasica: classic };
 // Devuelve el descriptor de la plantilla pedida; si no existe (o no es un id válido), la de
 // por defecto, para que la invitación siempre tenga una plantilla con la que pintarse.
 export function resolveTemplate(id) {
-  const clave = typeof id === "string" ? id.trim().toLowerCase() : "";
-  return TEMPLATES[clave] ?? TEMPLATES[DEFAULT_TEMPLATE_ID];
+  const key = typeof id === "string" ? id.trim().toLowerCase() : "";
+  return TEMPLATES[key] ?? TEMPLATES[DEFAULT_TEMPLATE_ID];
 }

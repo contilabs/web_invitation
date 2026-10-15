@@ -35,9 +35,9 @@ test("eventInstant sin fecha devuelve NaN", () => {
 
 test("formatDate y formatTime en español", () => {
   const ms = eventInstant({ fechaInicio: "2027-11-01T16:30:00", zonaHoraria: "America/Mexico_City" });
-  const fecha = formatDate(ms, "America/Mexico_City", "es-MX");
-  const hora = formatTime(ms, "America/Mexico_City", "es-MX");
-  assert.ok(fecha.includes("2027"));
-  assert.ok(hora.includes("16"));
-  assert.ok(hora.includes("h"));
+  const dateText = formatDate(ms, "America/Mexico_City", "es-MX");
+  const timeText = formatTime(ms, "America/Mexico_City", "es-MX");
+  assert.ok(dateText.includes("2027"));
+  assert.ok(timeText.includes("16"));
+  assert.ok(timeText.includes("h"));
 });

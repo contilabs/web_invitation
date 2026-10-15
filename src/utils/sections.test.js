@@ -15,37 +15,37 @@ const base = () => ({
 });
 
 test("omite secciones opcionales ausentes", () => {
-  const boda = { confirmacion: {} };
-  const visibles = visibleSections(boda);
-  assert.deepEqual(visibles.map((s) => s.key), ["confirmacion"]);
+  const wedding = { confirmacion: {} };
+  const visible = visibleSections(wedding);
+  assert.deepEqual(visible.map((s) => s.key), ["confirmacion"]);
 });
 
 test("omite secciones opcionales vacías", () => {
-  const boda = { ...base(), cita: { texto: "   ", autor: null }, galeria: { imagenes: [] } };
-  const visibles = visibleSections(boda).map((s) => s.key);
-  assert.ok(!visibles.includes("cita"));
-  assert.ok(!visibles.includes("galeria"));
+  const wedding = { ...base(), cita: { texto: "   ", autor: null }, galeria: { imagenes: [] } };
+  const visible = visibleSections(wedding).map((s) => s.key);
+  assert.ok(!visible.includes("cita"));
+  assert.ok(!visible.includes("galeria"));
 });
 
 test("incluye secciones con contenido", () => {
-  const visibles = visibleSections(base()).map((s) => s.key);
-  assert.ok(visibles.includes("cita"));
-  assert.ok(visibles.includes("hoteles"));
-  assert.ok(visibles.includes("itinerario"));
+  const visible = visibleSections(base()).map((s) => s.key);
+  assert.ok(visible.includes("cita"));
+  assert.ok(visible.includes("hoteles"));
+  assert.ok(visible.includes("itinerario"));
 });
 
 test("respeta el apagado por ajuste", () => {
-  const boda = base();
-  boda.ajustes.secciones.historiaVisible = false;
-  const visibles = visibleSections(boda).map((s) => s.key);
-  assert.ok(!visibles.includes("historia"));
+  const wedding = base();
+  wedding.ajustes.secciones.historiaVisible = false;
+  const visible = visibleSections(wedding).map((s) => s.key);
+  assert.ok(!visible.includes("historia"));
 });
 
 test("la confirmación siempre está presente aunque se apague", () => {
-  const boda = base();
-  boda.ajustes.secciones.confirmacionVisible = false;
-  const visibles = visibleSections(boda).map((s) => s.key);
-  assert.ok(visibles.includes("confirmacion"));
+  const wedding = base();
+  wedding.ajustes.secciones.confirmacionVisible = false;
+  const visible = visibleSections(wedding).map((s) => s.key);
+  assert.ok(visible.includes("confirmacion"));
 });
 
 test("hasContent detecta listas y párrafos vacíos", () => {

@@ -4,7 +4,7 @@
 // (src/data/guest-cards.js). Solo datos (sin React, sin DOM, sin lógica): también los
 // textos de cada sección, que la interfaz no incrusta (RNF-1).
 
-export const boda = {
+export const wedding = {
   plantilla: "clasica",
 
   pareja: {

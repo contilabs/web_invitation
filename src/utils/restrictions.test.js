@@ -19,9 +19,9 @@ test("no hay conflicto si la boda permite niños", () => {
 });
 
 test("conflicto cuando la ficha trae niños y la boda no los permite", () => {
-  const boda = { restricciones: { permiteNinos: false } };
-  assert.equal(hasChildrenConflict(boda, { childGuests: 2 }), true);
-  assert.equal(hasChildrenConflict(boda, { childGuests: 0 }), false);
+  const wedding = { restricciones: { permiteNinos: false } };
+  assert.equal(hasChildrenConflict(wedding, { childGuests: 2 }), true);
+  assert.equal(hasChildrenConflict(wedding, { childGuests: 0 }), false);
 });
 
 test("mensajes de restricciones en español", () => {

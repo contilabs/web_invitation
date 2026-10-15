@@ -5,7 +5,7 @@
 // vienen de la ficha y no se editan.
 import { useState } from "react";
 
-import { invitaciones as defaultGuestCards } from "../../data/guest-cards.js";
+import { guestCards as defaultGuestCards } from "../../data/guest-cards.js";
 import { useConfirmation } from "../../hooks/useConfirmation.js";
 import { useInvitation } from "../../hooks/useInvitation.js";
 import { useTemplate } from "../../hooks/useTemplate.js";

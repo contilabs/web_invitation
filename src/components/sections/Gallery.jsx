@@ -13,8 +13,7 @@ import { GalleryViewer } from "../ui/GalleryViewer.jsx";
 
 export function Gallery({ gallery }) {
   const { photoSizes } = useTemplate();
-  // El servicio todavía nombra sus claves en español; se aliasan aquí (T25 las unifica).
-  const { destacadas: featured, rejilla: grid } = useMemo(
+  const { featured, grid } = useMemo(
     () => galleryPhotos(gallery, photoSizes),
     [gallery, photoSizes],
   );

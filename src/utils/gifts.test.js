@@ -3,7 +3,7 @@ import { strict as assert } from "node:assert";
 import test from "node:test";
 import { giftOptions, copyableFields, copyableField, GIFT_TYPES } from "./gifts.js";
 
-const REGALOS = {
+const GIFTS = {
   opciones: [
     { tipo: "tienda", etiqueta: "Liverpool", descripcion: "Mesa", url: "https://liverpool.com" },
     {
@@ -20,21 +20,21 @@ const REGALOS = {
 };
 
 test("normaliza los tres tipos", () => {
-  const [store, transfer, cash] = giftOptions(REGALOS);
+  const [store, transfer, cash] = giftOptions(GIFTS);
   assert.equal(store.type, GIFT_TYPES.STORE);
   assert.equal(transfer.type, GIFT_TYPES.TRANSFER);
   assert.equal(cash.type, GIFT_TYPES.CASH);
 });
 
 test("la transferencia trae varios datos copiables", () => {
-  const transfer = giftOptions(REGALOS)[1];
+  const transfer = giftOptions(GIFTS)[1];
   assert.equal(transfer.copyableFields.length, 2);
   assert.equal(transfer.copyableFields[1].value, "0123");
 });
 
 test("el efectivo sin datos copiables devuelve array vacío", () => {
-  const efectivo = giftOptions(REGALOS)[2];
-  assert.deepEqual(efectivo.copyableFields, []);
+  const cashOption = giftOptions(GIFTS)[2];
+  assert.deepEqual(cashOption.copyableFields, []);
 });
 
 test("distingue enlace ausente de enlace vacío", () => {
@@ -48,7 +48,7 @@ test("sin opciones devuelve lista vacía", () => {
 });
 
 test("copyableField devuelve el dato marcado con `copiar`", () => {
-  const transfer = giftOptions(REGALOS)[1];
+  const transfer = giftOptions(GIFTS)[1];
   assert.deepEqual(transfer.copyableField, { label: "Cuenta", value: "0123" });
 });
 
@@ -60,17 +60,17 @@ test("copyableField cae al único dato cuando no hay marca", () => {
 });
 
 test("copyableField no adivina si hay varios datos sin marca", () => {
-  const varios = {
+  const several = {
     datosCopiables: [
       { etiqueta: "Banco", valor: "BBVA" },
       { etiqueta: "Cuenta", valor: "0123" },
     ],
   };
-  assert.equal(copyableField(varios), null);
+  assert.equal(copyableField(several), null);
 });
 
 test("copyableField sin datos copiables devuelve null", () => {
   assert.equal(copyableField({ datosCopiables: [] }), null);
   assert.equal(copyableField(null), null);
-  assert.equal(giftOptions(REGALOS)[2].copyableField, null);
+  assert.equal(giftOptions(GIFTS)[2].copyableField, null);
 });

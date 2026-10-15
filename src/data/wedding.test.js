@@ -7,8 +7,8 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import { boda } from "./wedding.js";
-import { invitaciones } from "./guest-cards.js";
+import { wedding } from "./wedding.js";
+import { guestCards } from "./guest-cards.js";
 import {
   confirmationFields,
   isConfirmationOpen,
@@ -27,19 +27,19 @@ import { visibleSections } from "../utils/sections.js";
 import { registryWarnings, registryErrors } from "../utils/validation.js";
 
 // Instante con offset explícito: el formato esperado no depende de la zona de la máquina.
-const INSTANTE_FECHA = new Date("2027-11-01T16:30:00-06:00").getTime();
+const EVENT_INSTANT = new Date("2027-11-01T16:30:00-06:00").getTime();
 
 test("el registro de ejemplo es coherente (RF-20)", () => {
-  assert.deepEqual(registryErrors(boda, invitaciones), []);
-  assert.deepEqual(registryWarnings(boda), []);
+  assert.deepEqual(registryErrors(wedding, guestCards), []);
+  assert.deepEqual(registryWarnings(wedding), []);
 });
 
 test("la plantilla del registro es la clásica (RF-15)", () => {
-  assert.equal(boda.plantilla, "clasica");
+  assert.equal(wedding.plantilla, "clasica");
 });
 
 test("conserva los nombres de la pareja (RF-2, RF-22)", () => {
-  assert.deepEqual(coupleNames(boda.pareja), {
+  assert.deepEqual(coupleNames(wedding.pareja), {
     first: "Karina",
     second: "Gerardo",
     display: "Karina y Gerardo",
@@ -47,19 +47,19 @@ test("conserva los nombres de la pareja (RF-2, RF-22)", () => {
 });
 
 test("conserva la fecha, la hora y la zona del evento (RF-3, RF-22)", () => {
-  assert.equal(boda.evento.fechaInicio, "2027-11-01T16:30:00");
-  assert.equal(eventTimeZone(boda.evento), "America/Mexico_City");
-  assert.equal(boda.evento.lugar, "Guadalajara");
+  assert.equal(wedding.evento.fechaInicio, "2027-11-01T16:30:00");
+  assert.equal(eventTimeZone(wedding.evento), "America/Mexico_City");
+  assert.equal(wedding.evento.lugar, "Guadalajara");
   assert.ok(
-    Number.isFinite(eventInstant(boda.evento)),
+    Number.isFinite(eventInstant(wedding.evento)),
     "la fecha del registro no da un instante válido",
   );
-  assert.equal(formatDate(INSTANTE_FECHA, "America/Mexico_City"), "01 de noviembre de 2027");
-  assert.equal(formatTime(INSTANTE_FECHA, "America/Mexico_City"), "16:30 h");
+  assert.equal(formatDate(EVENT_INSTANT, "America/Mexico_City"), "01 de noviembre de 2027");
+  assert.equal(formatTime(EVENT_INSTANT, "America/Mexico_City"), "16:30 h");
 });
 
 test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
-  const { ceremonia, recepcion } = boda.ubicaciones;
+  const { ceremonia, recepcion } = wedding.ubicaciones;
   assert.equal(ceremonia.nombre, "Ceremonia religiosa");
   assert.equal(ceremonia.lugar, "Parroquia Santa María de Guadalupe");
   assert.equal(ceremonia.hora, "16:30 h");
@@ -70,56 +70,56 @@ test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
 });
 
 test("conserva la mesa de regalos con su cuenta copiable (RF-10, RF-22)", () => {
-  const transferencia = boda.regalos.opciones.find((opcion) => opcion.tipo === "transferencia");
-  assert.ok(transferencia, "falta la opción de transferencia");
+  const transfer = wedding.regalos.opciones.find((option) => option.tipo === "transferencia");
+  assert.ok(transfer, "falta la opción de transferencia");
 
-  const etiquetas = transferencia.datosCopiables.map((dato) => dato.etiqueta);
-  assert.ok(etiquetas.some((etiqueta) => /Banco/i.test(etiqueta)));
-  assert.ok(etiquetas.some((etiqueta) => /Titular/i.test(etiqueta)));
-  assert.ok(etiquetas.some((etiqueta) => /Cuenta|CLABE/i.test(etiqueta)));
+  const labels = transfer.datosCopiables.map((item) => item.etiqueta);
+  assert.ok(labels.some((label) => /Banco/i.test(label)));
+  assert.ok(labels.some((label) => /Titular/i.test(label)));
+  assert.ok(labels.some((label) => /Cuenta|CLABE/i.test(label)));
 
-  const banco = transferencia.datosCopiables.find((dato) => /Banco/i.test(dato.etiqueta));
-  assert.equal(banco.valor, "BBVA");
-  for (const dato of transferencia.datosCopiables) {
-    assert.ok(String(dato.valor ?? "").trim(), `dato copiable vacío: ${dato.etiqueta}`);
+  const bank = transfer.datosCopiables.find((item) => /Banco/i.test(item.etiqueta));
+  assert.equal(bank.valor, "BBVA");
+  for (const item of transfer.datosCopiables) {
+    assert.ok(String(item.valor ?? "").trim(), `dato copiable vacío: ${item.etiqueta}`);
   }
 });
 
 test("la transferencia expone un único dato copiable: la cuenta (RF-10)", () => {
-  const transferencia = boda.regalos.opciones.find((opcion) => opcion.tipo === "transferencia");
-  const copiable = copyableField(transferencia);
-  assert.ok(copiable, "la transferencia no expone ningún dato copiable");
-  assert.equal(copiable.label, "Cuenta");
-  assert.equal(copiable.value, "012320015636927951");
+  const transfer = wedding.regalos.opciones.find((option) => option.tipo === "transferencia");
+  const copyable = copyableField(transfer);
+  assert.ok(copyable, "la transferencia no expone ningún dato copiable");
+  assert.equal(copyable.label, "Cuenta");
+  assert.equal(copyable.value, "012320015636927951");
 
-  const marcados = transferencia.datosCopiables.filter((dato) => dato.copiar === true);
-  assert.equal(marcados.length, 1, "debe haber exactamente un dato marcado como copiable");
+  const marked = transfer.datosCopiables.filter((item) => item.copiar === true);
+  assert.equal(marked.length, 1, "debe haber exactamente un dato marcado como copiable");
 });
 
 test("conserva todos los enlaces de la boda en https (RF-5, RF-11, RF-14, RF-22)", () => {
-  const enlaces = [];
-  for (const ubicacion of Object.values(boda.ubicaciones)) {
-    if (ubicacion?.mapaUrl) enlaces.push(["ubicaciones.mapaUrl", ubicacion.mapaUrl]);
+  const links = [];
+  for (const location of Object.values(wedding.ubicaciones)) {
+    if (location?.mapaUrl) links.push(["ubicaciones.mapaUrl", location.mapaUrl]);
   }
-  for (const hotel of boda.hoteles.lista) {
-    if (hotel.bookingUrl) enlaces.push(["hoteles.bookingUrl", hotel.bookingUrl]);
-    if (hotel.mapaUrl) enlaces.push(["hoteles.mapaUrl", hotel.mapaUrl]);
+  for (const hotel of wedding.hoteles.lista) {
+    if (hotel.bookingUrl) links.push(["hoteles.bookingUrl", hotel.bookingUrl]);
+    if (hotel.mapaUrl) links.push(["hoteles.mapaUrl", hotel.mapaUrl]);
   }
-  for (const opcion of boda.regalos.opciones) {
-    if (opcion.url) enlaces.push(["regalos.url", opcion.url]);
+  for (const option of wedding.regalos.opciones) {
+    if (option.url) links.push(["regalos.url", option.url]);
   }
-  enlaces.push(["marca.enlaces.credito", boda.marca.enlaces.credito]);
-  enlaces.push(["marca.enlaces.rsvp", boda.marca.enlaces.rsvp]);
+  links.push(["marca.enlaces.credito", wedding.marca.enlaces.credito]);
+  links.push(["marca.enlaces.rsvp", wedding.marca.enlaces.rsvp]);
 
-  for (const [campo, url] of enlaces) {
-    assert.match(String(url), /^https:\/\//, `${campo} no es https: ${url}`);
+  for (const [field, url] of links) {
+    assert.match(String(url), /^https:\/\//, `${field} no es https: ${url}`);
   }
-  assert.match(boda.marca.enlaces.rsvp, /formsubmit\.co/);
+  assert.match(wedding.marca.enlaces.rsvp, /formsubmit\.co/);
 });
 
 test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () => {
   assert.deepEqual(
-    visibleSections(boda).map((section) => section.key),
+    visibleSections(wedding).map((section) => section.key),
     [
       "portada",
       "pareja",
@@ -136,33 +136,33 @@ test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () =>
 });
 
 test("conserva la galería y la portada del registro (RF-9, RF-22)", () => {
-  assert.equal(boda.galeria.destacadas, 7);
-  assert.equal(boda.galeria.imagenes.length, 13);
-  for (const [i, imagen] of boda.galeria.imagenes.entries()) {
-    assert.ok(String(imagen.clave ?? "").trim(), `la imagen ${i + 1} de la galería no tiene clave`);
-    assert.ok(String(imagen.alt ?? "").trim(), `la imagen ${i + 1} de la galería no tiene alt`);
+  assert.equal(wedding.galeria.destacadas, 7);
+  assert.equal(wedding.galeria.imagenes.length, 13);
+  for (const [i, image] of wedding.galeria.imagenes.entries()) {
+    assert.ok(String(image.clave ?? "").trim(), `la imagen ${i + 1} de la galería no tiene clave`);
+    assert.ok(String(image.alt ?? "").trim(), `la imagen ${i + 1} de la galería no tiene alt`);
   }
-  assert.equal(boda.portada.imagenes.length, 2);
-  for (const imagen of boda.portada.imagenes) {
-    assert.ok(String(imagen.clave ?? "").trim(), "la portada trae una imagen sin clave");
+  assert.equal(wedding.portada.imagenes.length, 2);
+  for (const image of wedding.portada.imagenes) {
+    assert.ok(String(image.clave ?? "").trim(), "la portada trae una imagen sin clave");
   }
 });
 
 test("conserva el plazo, los campos y el máximo de la confirmación (RF-18, RF-22)", () => {
-  assert.equal(boda.confirmacion.maximoBoda, 100);
-  assert.deepEqual(confirmationFields(boda.confirmacion), [
+  assert.equal(wedding.confirmacion.maximoBoda, 100);
+  assert.deepEqual(confirmationFields(wedding.confirmacion), [
     "nombre",
     "asistentes",
     "alergias",
     "mensaje",
   ]);
 
-  const limite = deadlineMs(boda);
-  assert.ok(Number.isFinite(limite), "la fecha límite del registro no es válida");
-  assert.equal(isConfirmationOpen(boda, limite - 1_000), true, "debería estar abierta antes del plazo");
-  assert.equal(isConfirmationOpen(boda, limite + 1_000), false, "debería estar cerrada tras el plazo");
+  const limit = deadlineMs(wedding);
+  assert.ok(Number.isFinite(limit), "la fecha límite del registro no es válida");
+  assert.equal(isConfirmationOpen(wedding, limit - 1_000), true, "debería estar abierta antes del plazo");
+  assert.equal(isConfirmationOpen(wedding, limit + 1_000), false, "debería estar cerrada tras el plazo");
 });
 
 test("los niños están permitidos cuando la boda no lo indica (RF-12)", () => {
-  assert.equal(allowsChildren(boda), true);
+  assert.equal(allowsChildren(wedding), true);
 });

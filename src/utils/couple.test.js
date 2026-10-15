@@ -4,51 +4,51 @@ import test from "node:test";
 import { composePersonName, coupleNames } from "./couple.js";
 
 test("composePersonName une solo campos presentes", () => {
-  const nombre = composePersonName({ nombre: "Karina", apellidos: "Delgado Benítez" });
-  assert.equal(nombre, "Karina Delgado Benítez");
+  const name = composePersonName({ nombre: "Karina", apellidos: "Delgado Benítez" });
+  assert.equal(name, "Karina Delgado Benítez");
 });
 
 test("composePersonName sin apellidos", () => {
-  const nombre = composePersonName({ nombre: "Gerardo" });
-  assert.equal(nombre, "Gerardo");
+  const name = composePersonName({ nombre: "Gerardo" });
+  assert.equal(name, "Gerardo");
 });
 
 test("composePersonName con nombre intermedio", () => {
-  const nombre = composePersonName({
+  const name = composePersonName({
     nombre: "María",
     nombreIntermedio: "José",
     apellido1: "López",
     apellido2: "García",
   });
-  assert.equal(nombre, "María José López García");
+  assert.equal(name, "María José López García");
 });
 
 test("composePersonName ignora campos vacíos", () => {
-  const nombre = composePersonName({ nombre: "   ", apellidos: "Pérez" });
-  assert.equal(nombre, "Pérez");
+  const name = composePersonName({ nombre: "   ", apellidos: "Pérez" });
+  assert.equal(name, "Pérez");
 });
 
 test("coupleNames compone paraMostrar cuando no se define", () => {
-  const res = coupleNames({ nombre1: "Karina", nombre2: "Gerardo" });
-  assert.equal(res.first, "Karina");
-  assert.equal(res.second, "Gerardo");
-  assert.equal(res.display, "Karina y Gerardo");
+  const result = coupleNames({ nombre1: "Karina", nombre2: "Gerardo" });
+  assert.equal(result.first, "Karina");
+  assert.equal(result.second, "Gerardo");
+  assert.equal(result.display, "Karina y Gerardo");
 });
 
 test("coupleNames usa nombreParaMostrar si existe", () => {
-  const res = coupleNames({
+  const result = coupleNames({
     nombre1: { nombre: "Karina", apellidos: "Delgado" },
     nombre2: { nombre: "Gerardo", apellidos: "Flores" },
     nombreParaMostrar: "Karina & Gerardo",
   });
-  assert.equal(res.display, "Karina & Gerardo");
+  assert.equal(result.display, "Karina & Gerardo");
 });
 
 test("coupleNames usa paraMostrar alternativo", () => {
-  const res = coupleNames({
+  const result = coupleNames({
     primera: { nombre: "A" },
     segunda: { nombre: "B" },
     paraMostrar: "A y B",
   });
-  assert.equal(res.display, "A y B");
+  assert.equal(result.display, "A y B");
 });

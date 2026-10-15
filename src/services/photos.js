@@ -6,39 +6,38 @@
 // de la plantilla. La unidad es la **clave** (la base del nombre, p. ej. `foto5`); las
 // variantes optimizadas viven en `assets/photos/opt/` y el nombre termina en su ancho
 // (`foto5-900.jpg`). Nunca se usa el original de cámara.
-import { boda } from "../data/wedding.js";
+import { wedding } from "../data/wedding.js";
 
-const modulos = import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", {
+const modules = import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", {
   eager: true,
   query: "?url",
   import: "default",
 });
 
-// clave ("foto5") -> (ancho -> URL)
-const variantesPorClave = new Map();
-for (const [ruta, url] of Object.entries(modulos)) {
-  const archivo = ruta.split("/").pop() ?? "";
-  const partes = archivo.match(/^(.+)-(\d+)\.(?:jpg|jpeg|png)$/i);
-  if (!partes) continue;
+// clave de la foto ("foto5") -> (ancho -> URL)
+const variantsByKey = new Map();
+for (const [modulePath, url] of Object.entries(modules)) {
+  const file = modulePath.split("/").pop() ?? "";
+  const parts = file.match(/^(.+)-(\d+)\.(?:jpg|jpeg|png)$/i);
+  if (!parts) continue;
 
-  const [, clave, ancho] = partes;
-  if (!variantesPorClave.has(clave)) variantesPorClave.set(clave, new Map());
-  variantesPorClave.get(clave).set(Number(ancho), url);
+  const [, key, width] = parts;
+  if (!variantsByKey.has(key)) variantsByKey.set(key, new Map());
+  variantsByKey.get(key).set(Number(width), url);
 }
 
-// Devuelve lo que espera un <img> de React: `src`, `srcSet`, `sizes` y `alt` (se puede
-// esparcir directamente sobre el elemento). Toma la variante mayor como `src` y todas en
-// `srcSet`. Si la clave no tiene variantes optimizadas, falla de forma visible (RF-20).
-export function photoFor(clave, alt = "", sizes) {
-  const variantes = variantesPorClave.get(clave);
-  if (!variantes || variantes.size === 0) {
-    throw new Error(`No hay variantes optimizadas para «${clave}» en assets/photos/opt/`);
+// Elige la variante mayor como `src` y todas en `srcSet`; sin variantes, falla de forma
+// visible para que un nombre mal escrito se vea al instante (RF-20).
+export function photoFor(key, alt = "", sizes) {
+  const variants = variantsByKey.get(key);
+  if (!variants || variants.size === 0) {
+    throw new Error(`No hay variantes optimizadas para «${key}» en assets/photos/opt/`);
   }
 
-  const ordenadas = [...variantes.entries()].sort((a, b) => a[0] - b[0]);
+  const sorted = [...variants.entries()].sort((a, b) => a[0] - b[0]);
   return {
-    src: ordenadas[ordenadas.length - 1][1],
-    srcSet: ordenadas.map(([ancho, url]) => `${url} ${ancho}w`).join(", "),
+    src: sorted[sorted.length - 1][1],
+    srcSet: sorted.map(([width, url]) => `${url} ${width}w`).join(", "),
     sizes,
     alt,
   };
@@ -46,43 +45,45 @@ export function photoFor(clave, alt = "", sizes) {
 
 // Portada: la primera imagen es el fondo y la segunda la tarjeta. Los `sizes` los fija la
 // plantilla; el registro decide cuántas imágenes hay y con qué `alt`.
-export function coverPhotos(portada, sizes) {
-  const imagenes = portada?.imagenes ?? [];
-  return imagenes.map((imagen, i) =>
-    photoFor(imagen?.clave, imagen?.alt ?? "", sizes[i] ?? sizes[0]),
+export function coverPhotos(cover, sizes) {
+  const images = cover?.imagenes ?? [];
+  return images.map((image, i) =>
+    photoFor(image?.clave, image?.alt ?? "", sizes[i] ?? sizes[0]),
   );
 }
 
 // Galería: las primeras `destacadas` van al carrusel y el resto a la rejilla.
-export function galleryPhotos(galeria, sizes) {
-  const imagenes = galeria?.imagenes ?? [];
-  const corte = Number.isInteger(galeria?.destacadas) ? galeria.destacadas : imagenes.length;
-  const limite = Math.max(0, Math.min(corte, imagenes.length));
-  const resolver = (imagen, size) => photoFor(imagen?.clave, imagen?.alt ?? "", size);
+export function galleryPhotos(gallery, sizes) {
+  const images = gallery?.imagenes ?? [];
+  const featuredCount = Number.isInteger(gallery?.destacadas)
+    ? gallery.destacadas
+    : images.length;
+  const limit = Math.max(0, Math.min(featuredCount, images.length));
+  const resolve = (image, size) => photoFor(image?.clave, image?.alt ?? "", size);
 
   return {
-    destacadas: imagenes.slice(0, limite).map((imagen) => resolver(imagen, sizes.featured)),
-    rejilla: imagenes.slice(limite).map((imagen) => resolver(imagen, sizes.grid)),
+    featured: images.slice(0, limit).map((image) => resolve(image, sizes.featured)),
+    grid: images.slice(limit).map((image) => resolve(image, sizes.grid)),
   };
 }
 
 // Claves que el registro manda resolver (portada + galería).
 function registryPhotoKeys() {
-  const claves = [];
-  for (const imagen of boda?.portada?.imagenes ?? []) {
-    if (imagen?.clave) claves.push(imagen.clave);
+  const keys = [];
+  for (const image of wedding?.portada?.imagenes ?? []) {
+    if (image?.clave) keys.push(image.clave);
   }
-  for (const imagen of boda?.galeria?.imagenes ?? []) {
-    if (imagen?.clave) claves.push(imagen.clave);
+  for (const image of wedding?.galeria?.imagenes ?? []) {
+    if (image?.clave) keys.push(image.clave);
   }
-  return claves;
+  return keys;
 }
 
 // Falla al arrancar si falta una clave esperada: así un nombre mal escrito en el registro (o
 // en la plantilla) o una variante sin optimizar se ve al instante en vez de dejar un hueco o
 // un 404 (RF-9, RF-20). La app la llama con las claves estructurales de la plantilla activa.
 export function assertPhotoKeys(structuralKeys) {
-  for (const clave of [...structuralKeys, ...registryPhotoKeys()]) {
-    photoFor(clave, "");
+  for (const key of [...structuralKeys, ...registryPhotoKeys()]) {
+    photoFor(key, "");
   }
 }

@@ -5,7 +5,7 @@
 // documentada en la constitución). El repositorio SOLO incluye fichas de ejemplo,
 // sin datos personales reales.
 
-export const invitaciones = [
+export const guestCards = [
   // INVITACIÓN PERSONALIZADA
   {
     codigo: "karina-gerardo-inv-001",

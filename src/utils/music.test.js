@@ -9,7 +9,7 @@ test("alterna entre reproducir y pausar", () => {
 });
 
 test("alternar dos veces vuelve al estado inicial", () => {
-  for (const inicial of [true, false]) {
-    assert.equal(nextMusicState(nextMusicState(inicial)), inicial);
+  for (const initial of [true, false]) {
+    assert.equal(nextMusicState(nextMusicState(initial)), initial);
   }
 });

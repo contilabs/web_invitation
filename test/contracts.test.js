@@ -6,35 +6,35 @@ import { readFileSync, readdirSync } from "node:fs";
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-const leer = (ruta) => readFileSync(new URL(ruta, import.meta.url), "utf8");
+const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 
 // Todo el código de `src/` (sin pruebas) como un solo texto, para buscar anclas y contratos
 // que viven repartidos entre componentes.
-const raiz = new URL("../src/", import.meta.url);
-const archivos = readdirSync(raiz, { recursive: true })
-  .map((ruta) => ruta.split(/[\\/]/).join("/"))
-  .filter((ruta) => /\.(js|jsx)$/.test(ruta) && !/\.test\.js$/.test(ruta));
-const codigo = archivos
-  .map((relativo) => readFileSync(new URL(relativo, raiz), "utf8"))
+const root = new URL("../src/", import.meta.url);
+const files = readdirSync(root, { recursive: true })
+  .map((path) => path.split(/[\\/]/).join("/"))
+  .filter((path) => /\.(js|jsx)$/.test(path) && !/\.test\.js$/.test(path));
+const code = files
+  .map((relative) => readFileSync(new URL(relative, root), "utf8"))
   .join("\n");
 
 test("el tema conserva la clave, los valores y el intercambio de atributos", () => {
-  const tema = leer("../src/constants/theme.js");
-  assert.match(tema, /THEME_STORAGE_KEY = "kg-tema"/, "cambió la clave de almacenamiento");
-  assert.match(tema, /THEME_DAY = "dia"/, "cambió el valor de día");
-  assert.match(tema, /THEME_NIGHT = "noche"/, "cambió el valor de noche");
+  const theme = read("../src/constants/theme.js");
+  assert.match(theme, /THEME_STORAGE_KEY = "kg-tema"/, "cambió la clave de almacenamiento");
+  assert.match(theme, /THEME_DAY = "dia"/, "cambió el valor de día");
+  assert.match(theme, /THEME_NIGHT = "noche"/, "cambió el valor de noche");
 
-  const html = leer("../index.html");
+  const html = read("../index.html");
   assert.match(html, /localStorage\.getItem\("kg-tema"\)/, "el shell no lee kg-tema");
   assert.match(html, /classList\.add\("dark-mode"\)/, "el shell no aplica dark-mode");
   assert.match(html, /dataset\.tema/, "el shell no publica data-tema");
 
-  assert.match(codigo, /classList\.toggle\("dark-mode"/, "useTheme no aplica dark-mode");
-  assert.match(codigo, /dataset\.tema = theme/, "useTheme no publica data-tema");
+  assert.match(code, /classList\.toggle\("dark-mode"/, "useTheme no aplica dark-mode");
+  assert.match(code, /dataset\.tema = theme/, "useTheme no publica data-tema");
 });
 
 test("las anclas publicadas siguen con el mismo id en español", () => {
-  const anclas = [
+  const anchors = [
     "inicio",
     "fecha",
     "cita",
@@ -49,20 +49,20 @@ test("las anclas publicadas siguen con el mismo id en español", () => {
     "hospedaje",
     "cuenta-regresiva",
   ];
-  for (const ancla of anclas) {
-    assert.ok(codigo.includes(`id="${ancla}"`), `falta el ancla #${ancla}`);
+  for (const anchor of anchors) {
+    assert.ok(code.includes(`id="${anchor}"`), `falta el ancla #${anchor}`);
   }
-  assert.match(leer("../index.html"), /id="root"/, "falta el punto de montaje #root");
+  assert.match(read("../index.html"), /id="root"/, "falta el punto de montaje #root");
 });
 
 test("el código de enlace sigue aceptando los mismos parámetros", () => {
-  const invitacion = leer("../src/utils/invitation.js");
-  assert.match(invitacion, /\["codigo", "code", "inv"\]/, "cambiaron los parámetros del enlace");
+  const invitation = read("../src/utils/invitation.js");
+  assert.match(invitation, /\["codigo", "code", "inv"\]/, "cambiaron los parámetros del enlace");
 });
 
 test("la confirmación conserva el destino y los name del envío", () => {
-  const rsvp = leer("../src/components/sections/Rsvp.jsx");
-  for (const campo of [
+  const rsvp = read("../src/components/sections/Rsvp.jsx");
+  for (const field of [
     "_subject",
     "asistencia",
     "nombre",
@@ -71,14 +71,14 @@ test("la confirmación conserva el destino y los name del envío", () => {
     "alergias",
     "mensaje",
   ]) {
-    assert.ok(rsvp.includes(`name="${campo}"`), `falta el campo «${campo}» del formulario`);
+    assert.ok(rsvp.includes(`name="${field}"`), `falta el campo «${field}» del formulario`);
   }
-  assert.match(codigo, /enlaces\?\.rsvp/, "la confirmación ya no lee el destino del registro");
+  assert.match(code, /enlaces\?\.rsvp/, "la confirmación ya no lee el destino del registro");
 });
 
 test("el registro y las fichas conservan sus claves y sus valores de tipo", () => {
-  const registro = leer("../src/data/wedding.js");
-  for (const clave of [
+  const registry = read("../src/data/wedding.js");
+  for (const key of [
     "plantilla:",
     "pareja:",
     "evento:",
@@ -88,32 +88,32 @@ test("el registro y las fichas conservan sus claves y sus valores de tipo", () =
     "galeria:",
     "regalos:",
   ]) {
-    assert.ok(registro.includes(clave), `falta la clave «${clave}» en el registro`);
+    assert.ok(registry.includes(key), `falta la clave «${key}» en el registro`);
   }
-  assert.match(registro, /plantilla: "clasica"/, "cambió el id de la plantilla del registro");
+  assert.match(registry, /plantilla: "clasica"/, "cambió el id de la plantilla del registro");
 
-  const fichas = leer("../src/data/guest-cards.js");
-  for (const clave of ["codigo:", "tipo:", "lugaresReservados:", "guestName:", "partnerName:"]) {
-    assert.ok(fichas.includes(clave), `falta la clave «${clave}» en las fichas`);
+  const cards = read("../src/data/guest-cards.js");
+  for (const key of ["codigo:", "tipo:", "lugaresReservados:", "guestName:", "partnerName:"]) {
+    assert.ok(cards.includes(key), `falta la clave «${key}» en las fichas`);
   }
-  for (const tipo of ['"personalizada"', '"reutilizable"', '"generica"']) {
-    assert.ok(fichas.includes(tipo), `falta el tipo de invitación ${tipo}`);
+  for (const type of ['"personalizada"', '"reutilizable"', '"generica"']) {
+    assert.ok(cards.includes(type), `falta el tipo de invitación ${type}`);
   }
 });
 
 test("los recursos publicados siguen en su ruta", () => {
-  const html = leer("../index.html");
+  const html = read("../index.html");
   assert.match(html, /assets\/photos\/opt\/[\w.-]+\.jpg/, "cambió el og:image");
   assert.match(html, /assets\/icons\/sello\.png/, "cambió el favicon");
   assert.match(html, /\/src\/app\/main\.jsx/, "cambió el entry del shell");
   assert.match(html, /\/src\/templates\/classic\/classic\.css/, "cambió el CSS de la plantilla");
   assert.match(html, /\/src\/templates\/classic\/classic-dark\.css/, "cambió el CSS de noche");
 
-  assert.match(codigo, /assets\/audio\.mp3/, "el audio ya no entra por el código");
+  assert.match(code, /assets\/audio\.mp3/, "el audio ya no entra por el código");
   assert.match(
-    leer("../src/services/photos.js"),
+    read("../src/services/photos.js"),
     /assets\/photos\/opt\//,
     "la resolución de fotos ya no lee de opt/",
   );
-  assert.match(codigo, /assets\/icons\//, "los iconos de la plantilla cambiaron de ruta");
+  assert.match(code, /assets\/icons\//, "los iconos de la plantilla cambiaron de ruta");
 });
