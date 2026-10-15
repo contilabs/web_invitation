@@ -1,86 +1,82 @@
 # MEMORY.md — Invitación digital
 Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo que ya no aporte.
 ## Estado actual
-- **Spec 001 cerrada salvo la pasada manual** (T28) y el despliegue. La app React compone toda la
-  invitación; `script.js`/`darkMode.js` borrados y el código legado de datos eliminado (T29). El
-  árbol está sin commitear.
-- **Spec 002 · modelo de datos reutilizable** (`specs/Jose-QB/002-modelo-datos-boda`): fases **0–7**
-  hechas (documentos/datos, lógica pura, hooks, interfaz, limpieza y verificación); solo queda la
-  **pasada manual (T33)**: otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil.
-- Documentación: `docs/constitution.md` (6 principios), `specs/Jose-QB/001-*` y
-  `specs/Jose-QB/002-*` (`spec.md`,
-  `plan.md`, `tasks.md`), `PENDING_TASKS.md`.
-- **Spec 001 (T1–T27):** hooks, componentes, rediseño «Ascua», accesibilidad y rendimiento;
-  verificación headless en `dist/` OK (320–1440 px, día/noche, contraste, foco, movimiento
-  reducido).
-- **Spec 002 · Fases 1–2 (T4–T15):** registro único `src/datos/boda.js` + fichas
-  `src/datos/invitaciones.js` (tres tipos de ejemplo); lógica pura en `src/logica/` (`pareja`,
-  `evento`, `secciones`, `restricciones`, `invitacion`, `confirmacion`, `regalos`, `validacion` y,
-  de spec 001, `cuentaRegresiva`, `tema`, `musica`, `etiquetas`, `galeria`).
-- **Spec 002 · Fase 4 (T17–T19):** `useInvitacion` (código de enlace → tipo/límite/invitado/
-  lugares) sustituye a `useInvitados` (borrado); `useConfirmacion` (cierre al llegar el límite sin
-  recargar). Los hooks reciben sus datos por parámetros.
-- **Spec 002 · Fase 5 (T20–T28):** interfaz dirigida por el registro. `App.jsx` compone leyendo
-  `seccionesVisibles(boda)`; nuevos `AvisoDeError`/`Cita`/`Historia`; `Portada`, `Galeria`,
-  `MesaDeRegalos`+`BotonCopiar` y `Confirmacion` leen del registro; `Encabezado`/`CuentaRegresiva`
-  reciben props. `fotos.js` resuelve portada/galería por clave (`fotosDePortada`,
-  `fotosDeGaleria`). `npm test` → **98/98** y `npm run build` OK; render verificado con Chrome
-  headless sobre `dist/` (portada, 11 secciones, enlace personalizado con nombre bloqueado y
-  «2 lugares»).
-- **Spec 002 · Fase 6 (T29):** borrados `logica/datosEvento.js`/`.test.js` e
-  `logica/invitados.js`/`.test.js` (nadie los importaba; `formatearLugares` ya vivía en
-  `invitacion.js`). `npm test` → **84/84**. `README.md` y `AGENTS.md` dejan de apuntar al módulo
-  borrado (el README ya describe el registro y el enlace por `?codigo=`).
-- **Spec 002 · Fase 7 (T30–T32, T34):** no regresión del registro (`src/datos/boda.test.js`) y de
-  las fichas (`src/datos/invitaciones.test.js`), más guardarraíl de `?invitados=N` en
-  `test/andamiaje.test.js`; `npm test` → **105/105** y build OK (fuentes, iconos y audio en
-  `dist/assets/`). Verificación headless a 320–1440 px en día/noche: sin desbordamiento e imágenes
-  que cargan con `alt`; secciones según el registro (`restricciones` no sale); casos límite con
-  **parches temporales** de `boda.js` (plazo pasado, registro inválido, sección omitida, plantilla no
-  implementada). Queda solo T33 (a mano).
-- **Spec 002 · ajuste posterior (T35):** la mesa de regalos muestra los datos de la transferencia
-  como texto y un **único** botón que copia el dato marcado en el registro (`copiar: true`: la
-  cuenta). `npm test` → **110/110** y build OK.
-- **Spec 002 · ajuste posterior (T36):** la **galería cierra** la invitación (última sección, justo
-  antes del `Pie`). El orden vive solo en `ORDEN_SECCIONES` (`secciones.js`); `App.jsx` y el CSS no
-  cambiaron. `npm test` → **110/110** y build OK.
-- **Spec 003 · reorganización modular y plantillas** (`specs/Jose-QB/003-reorganizacion-modular-plantillas`):
-  **`spec.md` (tras QA), `plan.md` y `tasks.md` (28 tareas, T1–T28) escritos; lista para ejecutar.**
-  Prepara **varias plantillas** y la **nomenclatura del código en inglés** sin cambio visible (paridad
-  **estricta**, una plantilla, sin selector); exige enmendar la constitución (§10) y fija la estructura
-  objetivo (`app/`, `components/`, `constants/`, `data/`, `hooks/`, `providers/`, `services/`, `templates/`, `types/`, `utils/`).
+- **Spec 001 cerrada salvo la pasada manual (T28) y el despliegue:** app React completa (sin
+  `script.js`/`darkMode.js` ni código legado de datos), rediseño «Ascua», accesibilidad y rendimiento.
+- **Spec 002 (`specs/002-modelo-datos-boda/`): fases 0–7 hechas**; queda la **pasada manual (T33)**:
+  otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil. Registro único
+  (`src/data/wedding.js`) + fichas (`src/data/guest-cards.js`); interfaz dirigida por el registro
+  (`App.jsx` compone `visibleSections(boda)`); `npm test` → **110/110** y build OK.
+- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T12 hechas** (fases 0–3) y marcadas
+  en `tasks.md`: `constants/`, `utils/` en inglés (T4–T7), `data/` (T8), plantilla clásica con CSS +
+  iconos + `photoSizes` (T9–T10) y **capa de plantilla** (T11–T12: `templates/index.js`,
+  `templates/classic/index.js`, `providers/TemplateProvider.jsx`, `hooks/useTemplate.js`,
+  `services/photos.js`). `npm test` → **110/110**, build OK y **paridad 30/30**. Sin cambios sin
+  commitear. Falta T13–T28 (hooks, componentes, clases CSS, `app/`, pruebas y cierre).
+- Documentación: `docs/constitution.md` (6 principios), `specs/001-*`…`003-*`, `PENDING_TASKS.md`.
 ## Decisiones (y por qué)
-- **Spec 002 (modelo de datos):** toda la boda en un único registro (`src/datos/boda.js`), fichas separadas (`src/datos/invitaciones.js`); un despliegue por pareja; catálogo completo (incluye **cita** e **historia**); se conserva la plantilla clásica. **Tres tipos de invitación** que **sustituyen** a `?invitados=N` (sin compatibilidad hacia atrás): *personalizada* (enlace con nombre y boletos, lugares reservados), *reutilizable* (hasta 10 enlaces, límite 1–10, sin nombre) y *genérica* (un enlace, sin lugares, con el máximo de la boda). Límites por tipo; configuración **jerárquica** (la boda se impone a la ficha; conflicto niños→fallo visible). Confirmación abierta hasta la fecha límite (borde incluido). Datos inválidos → **fallo visible**; plantilla distinta a la clásica → **aviso** (no error). El repositorio usa **solo fichas de ejemplo** (RNF-7); el contrato del GAS es **solo referencia** (no se copia al repo ahora, no se conecta servicio).
-- T3: **`base: "./"`** (relativo), vale en cualquier subruta.
-- T4: el script de tema vive en el `<head>`; React **reutiliza** `data-tema`/`kg-tema` (T12).
-- T7: `terminado` cuando la diferencia es **≤ 0**; recorta, no redondea.
-- T11: `elegirVariante` da la variante optimizada más cercana al ancho objetivo y descarta las que no llevan `w` (nunca el original).
-- T14: `componentes/fotos.js` resuelve por **clave** con `resolverFoto(clave, alt?, sizes?)` → `{ src, srcSet, sizes, alt }` con `import.meta.glob` (Vite emite huella y URL válida en cualquier `base`) y **lanza al arrancar** si falta una clave esperada.
-- T23: `audio.play()` se llama **dentro del gesto** (INGRESAR o botón) para Safari.
-- T24 (rediseño «Ascua»): solo cambian **tokens** (`--paper/--ink/--ember/--vino/--banda-*`); texto `Source Serif 4`, etiquetas `Montserrat`, nombres/títulos `Erstoria`/`Kalista`.
-- T25/T26: accesibilidad dentro de `<main>` (`a.saltar`, `:focus-visible` por token, la portada devuelve el foco a `#inicio`); `preload="none"` en el `<audio>`, `fetchPriority`, y `calcularRestante` → «terminado» si la fecha es `NaN`.
-- **Spec 002 · Fase 5 (decisiones):** los **títulos de sección viven en el registro** (`ubicaciones.titulo`, `galeria.titulo`, `restricciones.titulo`); `itinerario`/`hoteles` pasan a `{ titulo, momentos/lista }` y `secciones.js` acepta también la lista suelta; `esNoVacio` ignora `titulo` (un rótulo solo no muestra la sección). En `App.jsx` el catálogo y la validación se calculan en ámbito de módulo; el aviso del registro se fija arriba (`z-index: 10001`) para verse con la portada abierta; `document.title`/meta description salen de `marca.nombre`/`evento.descripcion`. `ajustes.navegacion` (`encabezadoVisible`/`panelFlotanteVisible`/`pieVisible`) y `ajustes.musica.habilitada` gobiernan qué se pinta. `Confirmacion` usa `camposDeConfirmacion`, prellena y bloquea el nombre en la personalizada, impide superar el límite (`min`/`max` + `preventDefault`) y muestra el mensaje de cierre. La galería se titula «Nuestros momentos» (antes «Nuestra historia») para no chocar con la sección **historia**.
+- **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue
+  por pareja; **tres tipos de invitación** (*personalizada*, *reutilizable* 1–10 y *genérica*) que
+  **sustituyen** a `?invitados=N`; configuración jerárquica (boda → ficha) y conflicto de niños →
+  fallo visible; datos inválidos → fallo visible, plantilla desconocida → aviso. El repo usa **solo
+  fichas de ejemplo** (RNF-7); el contrato del GAS es **solo referencia**.
+- T3: **`base: "./"`** (relativo), vale en cualquier subruta. T4: el script de tema vive en el
+  `<head>` y React **reutiliza** `data-tema`/`kg-tema`. T7: `terminado` cuando la diferencia es `<= 0`.
+  T11: `pickVariant` da la variante optimizada más cercana (nunca el original). T23: `audio.play()`
+  **dentro del gesto** (Safari). T24 («Ascua»): solo cambian **tokens**. T25/T26: `<main>` + `a.saltar`
+  + `:focus-visible` por token; `preload="none"` y `fetchPriority`.
+- T14: `services/photos.js` (antes `componentes/fotos.js`) resuelve por **clave** con
+  `photoFor(clave, alt, sizes)` → `{ src, srcSet, sizes, alt }` vía `import.meta.glob` (Vite emite
+  huella y URL válida en cualquier `base`); **falla al arrancar** si falta una variante esperada
+  (`assertPhotoKeys`, la llama `App.jsx`).
+- **Spec 003 · plantilla (T11–T12):** sale de `boda.plantilla` y se resuelve en ámbito de módulo de
+  `App.jsx` con `templateStatus` (si no está implementada, la de por defecto); se publica por
+  **contexto** y `useTemplate` es la **única vía de acceso**. El descriptor reúne identidad, iconos,
+  `photoSizes` y las **claves de las fotos estructurales**. `services/photos.js` **no decide
+  presentación** (recibe los `sizes` y las claves) y los servicios no importan la plantilla concreta.
+- **Spec 002 · títulos de sección** en el registro; `hasContent` ignora `titulo` (un rótulo solo no
+  muestra la sección). `ajustes.navegacion`/`ajustes.musica.habilitada` gobiernan qué se pinta. `Rsvp`
+  prellena y bloquea el nombre en la personalizada e impide superar el límite. La galería se titula
+  «Nuestros momentos» para no chocar con la sección **historia**.
 ## Aprendizajes y errores a evitar
 - Fase de spec: solo el QUÉ y el POR QUÉ.
-- T5: el guardarraíl escanea CSS/`index.html` (no JS/JSX): no se puede nombrar Bootstrap; en comentarios, «la hoja externa retirada».
+- T5: el guardarraíl escanea CSS/`index.html` (no JS/JSX): no se puede nombrar Bootstrap.
 - `node --test` descubre `**/*.test.js`; los módulos puros no afectan al build.
-- Chrome headless: `--dump-dom` emite **todo en una línea** → contar con regex, no por líneas; usar un `--user-data-dir` propio si hay otra instancia abierta. `:focus-visible` no coincide con `focus()` programático.
-- **Spec 002:** la personalización pasa a **código de enlace** (tres tipos) en lugar de `?invitados=N`; sin compatibilidad hacia atrás.
-- **Spec 002 · lógica:** `instanteDelEvento` → `NaN` si la fecha falta/es imposible o la zona es inválida (lo detecta `validacion.js`). `seccionesVisibles` omite opcionales ausentes o **vacíos** y **fuerza la confirmación** (RF-18). `permiteNinos` es `true` si no se indica (RF-12); el conflicto es error. `confirmacionAbierta` compara `<=` (borde incluido).
-- **Spec 002 · `fotos.js`:** en fase 5 quedan como estructurales `FOTO_HERO` (foto1), `FOTO_RETRATO` (foto9) y `FOTO_CONFIRMACION` (foto7); `backgrond3`/`foto20` y toda la galería vienen del registro. Si cambia el registro, hay que mantener las variantes de `assets/photos/opt/` (el arranque falla si falta una).
-- **Spec 002 · datos de ejemplo:** `boda.js` trae cita, historia (2 párrafos), galería (13 fotos por clave, 7 destacadas) y portada (fondo + foto20); `restricciones` va sin datos → la sección no se muestra.
-- **Spec 002 · verificación (T32):** no usar `--dump-dom` para medir: se sirve `dist/` con un servidor propio y se mide/anota por DevTools Protocol (WebSocket global de Node ≥ 22), en un script **fuera** del repo. Los casos límite se prueban con **parches temporales** de `boda.js` + rebuild + revertir (nunca dejarlos aplicados).
-- **Spec 002 · desviaciones del §6 (anotadas en `PENDING_TASKS.md`):** un `limite` de reutilizable fuera de 1–10 cae a `desconocida` **en silencio** (no lo marca `erroresDelRegistro`); el límite de la ficha se recorta al `maximoBoda` sin aviso; `instanteDelEvento` no interpreta la hora de pared en la zona del evento.
-- **Spec 002 · mesa de regalos (T35):** un botón por dato resultaba ruidoso (y copiaba banco/titular). Ahora el registro marca **un** dato (`copiar: true`) y `datoCopiable` lo resuelve (varios sin marca → sin botón, para no adivinar). Aprendizaje: en `BotonCopiar` la prop `textoBoton` estaba **declarada y sin usar** (el botón siempre decía «Copiar»).
-- **Spec 003 · nomenclatura (spec + plan):** la paridad se exige sobre el **resultado visible** (por eso
-  se compara contra una **referencia congelada** antes del cambio), no sobre los nombres. El inglés es
-  **solo de código**: no alcanza a textos visibles, datos y sus claves, contratos publicados (`kg-tema`,
-  anclas, campos del envío), recursos ni comentarios/documentación. La paridad **manda** sobre reutilizar.
-- **Spec 003 · plan:** la plantilla viaja por **contexto** (`TemplateProvider` + `useTemplate`, sin
-  selector) y su CSS se enlaza desde el shell (nada de CSS por componente); las **clases** pasan a inglés
-  pero los **ids de ancla** (`#inicio`, `#galeria`…) se quedan en español (enlaces compartibles).
-  Precedente de la enmienda: la spec 002 ya enmendó la constitución (principios 2, 3, 5 y 6).
-- **Spec 002 · orden de secciones (T36):** el orden visual **no estaba en la spec**, solo en `ORDEN_SECCIONES` (`secciones.js`); ahora RF-4 lo exige. Mover una sección = mover su clave ahí y actualizar la prueba de orden de `src/datos/boda.test.js` (la única que lo fija: `secciones.test.js` usa `includes`).
+- Chrome headless: `--dump-dom` no sirve para medir (emite todo en una línea); servir `dist/` en local
+  y medir por DevTools Protocol. `:focus-visible` no coincide con `focus()` programático.
+- **Spec 002:** la personalización pasa a **código de enlace** (sin vuelta atrás).
+- **Spec 002 · lógica:** `eventInstant` → `NaN` si la fecha o la zona es inválida (lo detecta
+  `validation.js`); `visibleSections` omite opcionales ausentes o **vacíos** y **fuerza la
+  confirmación** (RF-18); `allowsChildren` es `true` si no se indica (RF-12); `isConfirmationOpen`
+  compara `<=` (borde incluido).
+- **Fotos estructurales:** hero/retrato/confirmación no están en el registro; sus **claves**
+  (`foto1`/`foto9`/`foto7`) viven en el descriptor de la plantilla. Si cambia el registro o la
+  plantilla, hay que mantener las variantes de `assets/photos/opt/` (el arranque falla si falta una).
+- **Datos de ejemplo:** `src/data/wedding.js` trae cita, historia, galería (13 fotos, 7 destacadas) y
+  portada (fondo + foto20); `restricciones` va sin datos → la sección no se muestra.
+- **Verificación (headless):** `dist/` servido en local y medido por CDP (WebSocket global de Node
+  ≥ 22), en un script **fuera** del repo; los casos límite con **parches temporales** de `wedding.js` +
+  rebuild + revertir (nunca dejarlos aplicados).
+- **Desviaciones del §6 (en `PENDING_TASKS.md`):** un `limite` fuera de 1–10 cae a `desconocida` **en
+  silencio**; el límite de la ficha se recorta al `maximoBoda` sin aviso; `eventInstant` no interpreta
+  la hora de pared en la zona del evento.
+- **Mesa de regalos (T35):** el registro marca **un** dato (`copiar: true`) y `copyableField` lo
+  resuelve (varios sin marca → sin botón, para no adivinar).
+- **Spec 003 · nomenclatura:** la paridad se exige sobre el **resultado visible** (referencia
+  congelada), no sobre los nombres. El inglés es **solo de código**: no alcanza a textos visibles,
+  datos y sus claves, contratos publicados (`kg-tema`, anclas, campos del envío), recursos ni
+  documentos. La paridad **manda** sobre reutilizar.
+- **Spec 003 · arnés de paridad (fuera del repo, `…\003-referencia\parity.mjs`):** 3 tipos × día/noche
+  × 5 anchos (30 casos) de estructura, textos, atributos, geometría y estilos efectivos; las **clases**
+  se excluyen (T18–T21 las renombran) y la **cuenta regresiva** se omite (sus cifras dependen del
+  reloj). Exige `prefers-reduced-motion`, esperar todas las fuentes, recorrer la página entera y medir
+  hasta dos instantáneas idénticas; lleva comprobación de cordura (anclajes e imágenes) para no dar un
+  falso OK con una página vacía. Hoy **30/30**.
+- **Spec 002 · orden de secciones (T36):** el orden vive solo en `SECTION_ORDER`
+  (`src/constants/sections.js`); mover una sección = mover su clave ahí y actualizar la prueba de orden
+  de `src/data/wedding.test.js`.
 ## Próximos pasos
-- **Spec 002 · T33 (pasada manual):** reutilizar con otro registro, copiar datos con el portapapeles, audio tras «Ingresar», **envío real del RSVP** y una vuelta en un **móvil físico**; anotar el resultado en «Verificación» de `AGENTS.md`.
+- **Spec 002 · T33:** pasada manual (otro registro, portapapeles, audio, **RSVP real**, móvil físico).
+- **Spec 003 · T13–T28:** hooks y componentes a inglés y a `components/`, clases CSS (lo más
+  delicado), `app/`, `test/contracts.test.js`, limpieza y paridad automática (arnés ya disponible).
 - Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas…): ver `PENDING_TASKS.md`.
