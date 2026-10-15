@@ -55,7 +55,7 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 3 — Capa de plantilla
 
-- [ ] **T9 · Mover los dos CSS a `templates/classic/`.** _RF: RF-2, RNF-5._
+- [x] **T9 · Mover los dos CSS a `templates/classic/`.** _RF: RF-2, RNF-5._
   Hecho cuando: `src/templates/classic/classic.css` y `classic-dark.css` son idénticos a los actuales,
   `index.html` los enlaza con el script del tema **antes** del primer `<link rel="stylesheet">` y pasan
   `npm run build` y la prueba de andamiaje (con las rutas nuevas).

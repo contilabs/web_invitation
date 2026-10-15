@@ -10,6 +10,13 @@
 // En la fase 5 la **portada** y la **galería** salen del registro (`wedding.js`); las fotos
 // estructurales (hero, retrato y confirmación) siguen resolviéndose aquí.
 import { boda } from "../data/wedding.js";
+import {
+  SIZES_CONFIRMATION,
+  SIZES_COVER_CARD,
+  SIZES_FEATURED,
+  SIZES_FULL_WIDTH,
+  SIZES_GRID,
+} from "../templates/classic/photoSizes.js";
 
 const modulos = import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", {
   eager: true,
@@ -47,19 +54,13 @@ export function resolverFoto(clave, alt = "", sizes) {
   };
 }
 
-const SIZES_ANCHO_COMPLETO = "100vw";
-const SIZES_DESTACADA = "(max-width: 1180px) 100vw, 1180px";
-const SIZES_REJILLA = "(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw";
-const SIZES_PORTADA_TARJETA = "14rem";
-const SIZES_CONFIRMACION = "(max-width: 860px) 90vw, 34vw";
-
 // Fotos estructurales de la interfaz: no las nombra el registro (el hero, el retrato y la
 // foto junto al formulario). El texto alternativo lo pone el componente cuando importa.
 const CLAVES_ESTRUCTURALES = ["foto1", "foto9", "foto7"];
 
-export const FOTO_HERO = resolverFoto("foto1", "", SIZES_ANCHO_COMPLETO);
-export const FOTO_RETRATO = resolverFoto("foto9", "", SIZES_ANCHO_COMPLETO);
-export const FOTO_CONFIRMACION = resolverFoto("foto7", "", SIZES_CONFIRMACION);
+export const FOTO_HERO = resolverFoto("foto1", "", SIZES_FULL_WIDTH);
+export const FOTO_RETRATO = resolverFoto("foto9", "", SIZES_FULL_WIDTH);
+export const FOTO_CONFIRMACION = resolverFoto("foto7", "", SIZES_CONFIRMATION);
 
 // Claves que el registro manda resolver (portada + galería).
 function clavesDelRegistro() {
@@ -83,9 +84,9 @@ for (const clave of [...CLAVES_ESTRUCTURALES, ...clavesDelRegistro()]) {
 // cuántas hay y con qué `alt`.
 export function fotosDePortada(portada = boda?.portada) {
   const imagenes = portada?.imagenes ?? [];
-  const sizes = [SIZES_ANCHO_COMPLETO, SIZES_PORTADA_TARJETA];
+  const sizes = [SIZES_FULL_WIDTH, SIZES_COVER_CARD];
   return imagenes.map((imagen, i) =>
-    resolverFoto(imagen?.clave, imagen?.alt ?? "", sizes[i] ?? SIZES_ANCHO_COMPLETO),
+    resolverFoto(imagen?.clave, imagen?.alt ?? "", sizes[i] ?? SIZES_FULL_WIDTH),
   );
 }
 
@@ -98,7 +99,7 @@ export function fotosDeGaleria(galeria = boda?.galeria) {
     resolverFoto(imagen?.clave, imagen?.alt ?? "", sizes);
 
   return {
-    destacadas: imagenes.slice(0, limite).map((imagen) => resolver(imagen, SIZES_DESTACADA)),
-    rejilla: imagenes.slice(limite).map((imagen) => resolver(imagen, SIZES_REJILLA)),
+    destacadas: imagenes.slice(0, limite).map((imagen) => resolver(imagen, SIZES_FEATURED)),
+    rejilla: imagenes.slice(limite).map((imagen) => resolver(imagen, SIZES_GRID)),
   };
 }

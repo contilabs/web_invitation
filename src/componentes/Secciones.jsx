@@ -4,22 +4,7 @@
 import { coupleNames } from "../utils/couple.js";
 import { restrictionMessages } from "../utils/restrictions.js";
 import { FOTO_HERO, FOTO_RETRATO } from "./fotos.js";
-
-import icoComida from "../../assets/icons/comida.png";
-import icoCopas from "../../assets/icons/copas.png";
-import icoDisco from "../../assets/icons/disco.png";
-import icoHotel from "../../assets/icons/hotel.png";
-import icoIglesia from "../../assets/icons/iglesia.png";
-import icoMansion from "../../assets/icons/mansion.png";
-
-// Los iconos son presentación: el registro guarda una clave y aquí se elige el archivo.
-const ICONOS = {
-  iglesia: icoIglesia,
-  mansion: icoMansion,
-  copas: icoCopas,
-  comida: icoComida,
-  disco: icoDisco,
-};
+import { HOTEL_ICON, LOCATION_ICONS, TIMELINE_ICONS } from "../templates/classic/icons.js";
 
 export function Hero({ pareja, fechaTexto }) {
   const nombres = coupleNames(pareja);
@@ -86,8 +71,6 @@ function CardLugar({ icono, ubicacion }) {
   );
 }
 
-const ICONOS_UBICACION = { ceremonia: icoIglesia, recepcion: icoMansion };
-
 export function Lugares({ ubicaciones }) {
   const lugares = ["ceremonia", "recepcion"]
     .map((clave) => ({ clave, ...(ubicaciones?.[clave] ?? {}) }))
@@ -100,7 +83,7 @@ export function Lugares({ ubicaciones }) {
 
         <div className="rejilla-2">
           {lugares.map((u) => (
-            <CardLugar key={u.clave} icono={ICONOS_UBICACION[u.clave]} ubicacion={u} />
+            <CardLugar key={u.clave} icono={LOCATION_ICONS[u.clave]} ubicacion={u} />
           ))}
         </div>
       </div>
@@ -120,10 +103,10 @@ export function Itinerario({ itinerario }) {
           {momentos.map((momento, i) => (
             <li className="event" key={`${momento?.titulo ?? "momento"}-${i}`}>
               <span className="event-ico">
-                {ICONOS[momento?.icono] && (
+                {TIMELINE_ICONS[momento?.icono] && (
                   <img
                     className="ico"
-                    src={ICONOS[momento.icono]}
+                    src={TIMELINE_ICONS[momento.icono]}
                     alt=""
                     loading="lazy"
                     decoding="async"
@@ -153,7 +136,7 @@ export function Hoteles({ hoteles }) {
             const enlace = hotel?.bookingUrl ?? hotel?.mapaUrl ?? null;
             const interior = (
               <>
-                <img className="ico" src={icoHotel} alt="" loading="lazy" decoding="async" />
+                <img className="ico" src={HOTEL_ICON} alt="" loading="lazy" decoding="async" />
                 <span className="hotel-nombre">{hotel?.nombre}</span>
                 {hotel?.precio && <span className="hotel-precio">{hotel.precio}</span>}
                 {enlace && <span className="hotel-enlace">Ver hotel</span>}
