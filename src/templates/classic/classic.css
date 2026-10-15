@@ -1206,12 +1206,12 @@ body.cover-closed .hero-text {
 /* ============================================================
    18. Galería
    ============================================================ */
-.galeria {
+.gallery {
   background-color: var(--paper-2);
   padding-block: var(--espacio-seccion);
 }
 
-.galeria-carrusel {
+.gallery-strip {
   position: relative; /* lo aportaba la hoja externa retirada; el contador se ancla aquí */
   display: grid;
   width: min(100% - 3rem, var(--ancho));
@@ -1221,7 +1221,7 @@ body.cover-closed .hero-text {
   background-color: var(--superficie);
 }
 
-.galeria-carrusel .diapositiva img {
+.gallery-strip .slide img {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 2;
@@ -1230,21 +1230,21 @@ body.cover-closed .hero-text {
 
 /* Fundido cruzado (T24): todas las diapositivas comparten celda y solo la activa
    es opaca y recibe el puntero. La mecánica (cuál se ve y cómo avanza) es de T21. */
-.galeria-carrusel .diapositiva {
+.gallery-strip .slide {
   grid-area: 1 / 1;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.7s ease;
 }
 
-.galeria-carrusel .diapositiva.activa {
+.gallery-strip .slide.slide-active {
   opacity: 1;
   pointer-events: auto;
   z-index: 1;
 }
 
 /* La foto es un botón (RNF-1): así se puede abrir el visor con el teclado. */
-.galeria-carrusel .diapositiva-boton {
+.gallery-strip .slide-button {
   display: block;
   width: 100%;
   padding: 0;
@@ -1253,7 +1253,7 @@ body.cover-closed .hero-text {
   cursor: zoom-in;
 }
 
-.galeria-carrusel .carrusel-flecha {
+.gallery-strip .gallery-arrow {
   position: absolute;
   top: 50%;
   z-index: 2;
@@ -1266,17 +1266,17 @@ body.cover-closed .hero-text {
   transform: translateY(-50%);
 }
 
-.galeria-carrusel .carrusel-flecha:not(.carrusel-flecha-siguiente) {
+.gallery-strip .gallery-arrow:not(.gallery-arrow-next) {
   left: 0.75rem;
 }
 
-.galeria-carrusel .carrusel-flecha-siguiente {
+.gallery-strip .gallery-arrow-next {
   right: 0.75rem;
 }
 
 /* La flecha la dibujaba la hoja externa retirada; ahora es un SVG propio.
    La mecánica del carrusel (qué diapositiva se ve y cómo cambia) la define T21. */
-.galeria-carrusel .carrusel-flecha-icono {
+.gallery-strip .gallery-arrow-icon {
   display: block;
   width: 2.75rem;
   height: 2.75rem;
@@ -1292,16 +1292,16 @@ body.cover-closed .hero-text {
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-.galeria-carrusel .carrusel-flecha-siguiente .carrusel-flecha-icono {
+.gallery-strip .gallery-arrow-next .gallery-arrow-icon {
   transform: rotate(180deg);
 }
 
-.galeria-carrusel .carrusel-flecha:hover .carrusel-flecha-icono {
+.gallery-strip .gallery-arrow:hover .gallery-arrow-icon {
   background-color: var(--ember);
   border-color: var(--ember);
 }
 
-.galeria-contador {
+.gallery-counter {
   position: absolute;
   left: 50%;
   bottom: 0.9rem;
@@ -1321,13 +1321,13 @@ body.cover-closed .hero-text {
   letter-spacing: 0.08em;
 }
 
-.galeria-rejilla {
+.gallery-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem;
 }
 
-.foto-mini {
+.gallery-thumb {
   display: block;
   padding: 0;
   border: 0;
@@ -1338,7 +1338,7 @@ body.cover-closed .hero-text {
   transition: box-shadow 0.35s ease;
 }
 
-.foto-mini img {
+.gallery-thumb img {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 2;
@@ -1346,13 +1346,13 @@ body.cover-closed .hero-text {
   transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.foto-mini:hover img,
-.foto-mini:focus-visible img {
+.gallery-thumb:hover img,
+.gallery-thumb:focus-visible img {
   transform: scale(1.03);
 }
 
-.foto-mini:hover,
-.foto-mini:focus-visible {
+.gallery-thumb:hover,
+.gallery-thumb:focus-visible {
   box-shadow: 0 0 0 1px var(--ember);
 }
 
@@ -1393,7 +1393,7 @@ body.cover-closed .hero-text {
   }
 }
 
-.lightbox-contador {
+.lightbox-counter {
   margin: 0.9rem 0 0;
   text-align: center;
   color: rgba(253, 243, 232, 0.75);
@@ -1402,7 +1402,7 @@ body.cover-closed .hero-text {
   font-variant-numeric: tabular-nums;
 }
 
-.lightbox-cerrar,
+.lightbox-close,
 .lightbox-nav {
   display: grid;
   place-items: center;
@@ -1419,13 +1419,13 @@ body.cover-closed .hero-text {
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-.lightbox-cerrar:hover,
+.lightbox-close:hover,
 .lightbox-nav:hover {
   background-color: var(--ember);
   border-color: var(--ember);
 }
 
-.lightbox-cerrar {
+.lightbox-close {
   position: fixed;
   top: 1.25rem;
   right: 1.25rem;
@@ -1746,7 +1746,7 @@ footer a:hover {
     grid-template-columns: 1fr;
   }
 
-  .galeria-rejilla {
+  .gallery-grid {
     gap: 0.6rem;
   }
 
@@ -1757,7 +1757,7 @@ footer a:hover {
 }
 
 @media (max-width: 620px) {
-  .galeria-rejilla {
+  .gallery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

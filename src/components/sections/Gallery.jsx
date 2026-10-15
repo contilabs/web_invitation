@@ -65,22 +65,22 @@ export function Gallery({ gallery }) {
   }, []);
 
   return (
-    <section className="galeria reveal" id="galeria-seccion">
+    <section className="gallery reveal" id="galeria-seccion">
       <div className="wrap">{gallery?.titulo && <h2>{gallery.titulo}</h2>}</div>
 
       {featuredCount > 0 && (
-        <div className="galeria-carrusel" id="galeria" ref={containerRef}>
+        <div className="gallery-strip" id="galeria" ref={containerRef}>
           {featured.map((photo, position) => {
             const active = position === index;
             return (
               <div
-                className={`diapositiva${active ? " activa" : ""}`}
+                className={`slide${active ? " slide-active" : ""}`}
                 key={photo.src}
                 aria-hidden={!active}
               >
                 <button
                   type="button"
-                  className="diapositiva-boton"
+                  className="slide-button"
                   tabIndex={active ? 0 : -1}
                   aria-label={`Ampliar: ${photo.alt}`}
                   onClick={() => openViewer(position)}
@@ -98,20 +98,20 @@ export function Gallery({ gallery }) {
             );
           })}
 
-          <button type="button" className="carrusel-flecha" onClick={previous}>
-            <span className="carrusel-flecha-icono" aria-hidden="true"></span>
+          <button type="button" className="gallery-arrow" onClick={previous}>
+            <span className="gallery-arrow-icon" aria-hidden="true"></span>
             <span className="visually-hidden">Foto anterior</span>
           </button>
           <button
             type="button"
-            className="carrusel-flecha carrusel-flecha-siguiente"
+            className="gallery-arrow gallery-arrow-next"
             onClick={next}
           >
-            <span className="carrusel-flecha-icono" aria-hidden="true"></span>
+            <span className="gallery-arrow-icon" aria-hidden="true"></span>
             <span className="visually-hidden">Foto siguiente</span>
           </button>
 
-          <p className="galeria-contador" aria-live="off">
+          <p className="gallery-counter" aria-live="off">
             <span id="galeria-actual">{index + 1}</span> /{" "}
             <span id="galeria-total">{featuredCount}</span>
           </p>
@@ -119,11 +119,11 @@ export function Gallery({ gallery }) {
       )}
 
       <div className="wrap">
-        <div className="galeria-rejilla">
+        <div className="gallery-grid">
           {grid.map((photo, position) => (
             <button
               type="button"
-              className="foto-mini"
+              className="gallery-thumb"
               key={photo.src}
               onClick={() => openViewer(featuredCount + position)}
             >

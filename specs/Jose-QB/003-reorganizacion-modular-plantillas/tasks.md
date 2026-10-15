@@ -111,7 +111,7 @@ contradicción con el código (principio 2, «spec = código»).
   usan clases en inglés, los **ids de ancla** (`#inicio`, `#fecha`, `#cita`, `#historia`, `#lugares`,
   `#itinerario`, `#regalos`, `#hospedaje`, `#restricciones`) siguen **sin cambiar** y la paridad de esas
   secciones no muestra diferencias.
-- [ ] **T20 · Renombrar clases de la galería y el visor, sin «carousel».** _RF: RF-3, RNF-5, RNF-1._
+- [x] **T20 · Renombrar clases de la galería y el visor, sin «carousel».** _RF: RF-3, RNF-5, RNF-1._
   Hecho cuando: `slide`/`slide-active`, `gallery-strip`, `gallery-arrow` y `gallery-counter` sustituyen a
   las clases españolas en JSX y CSS, `useReveal` y `useGallery` apuntan a las nuevas, y el carrusel, el
   contador y el visor funcionan igual (avance, pausa, cierre y teclado).

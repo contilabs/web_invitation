@@ -48,10 +48,10 @@ export function GalleryViewer({ photo, current, total, onClose, onPrevious, onNe
       }}
     >
       <img src={source} alt={photo.alt} />
-      <p className="lightbox-contador" aria-live="polite">
+      <p className="lightbox-counter" aria-live="polite">
         Foto {current} de {total}
       </p>
-      <button type="button" className="lightbox-cerrar" aria-label="Cerrar" onClick={onClose}>
+      <button type="button" className="lightbox-close" aria-label="Cerrar" onClick={onClose}>
         ×
       </button>
       <button
