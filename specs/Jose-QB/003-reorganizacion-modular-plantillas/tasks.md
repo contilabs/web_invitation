@@ -59,15 +59,15 @@ contradicción con el código (principio 2, «spec = código»).
   Hecho cuando: `src/templates/classic/classic.css` y `classic-dark.css` son idénticos a los actuales,
   `index.html` los enlaza con el script del tema **antes** del primer `<link rel="stylesheet">` y pasan
   `npm run build` y la prueba de andamiaje (con las rutas nuevas).
-- [ ] **T10 · Extraer iconos y tamaños de imagen a la plantilla.** _RF: RF-2, RF-4._
+- [x] **T10 · Extraer iconos y tamaños de imagen a la plantilla.** _RF: RF-2, RF-4._
   Hecho cuando: `templates/classic/icons.js` y `photoSizes.js` contienen el mapa de iconos y los `sizes`
   de hoy, los componentes los leen de la plantilla y lugares, itinerario, hoteles, portada, galería y
   confirmación se ven **igual** que antes.
-- [ ] **T11 · Registro de plantillas, proveedor y `useTemplate`.** _RF: RF-2, RNF-3._
+- [x] **T11 · Registro de plantillas, proveedor y `useTemplate`.** _RF: RF-2, RNF-3._
   Hecho cuando: `templates/index.js` resuelve `"clasica"` y cae en la plantilla por defecto con cualquier
   otro valor; `App` la publica con `TemplateProvider`, `useTemplate` es la única vía de acceso y **no**
   existe ningún control, parámetro de enlace ni ajuste nuevo para elegir plantilla.
-- [ ] **T12 · `services/photos.js` sin decisiones de presentación.** _RF: RF-2, RNF-5._
+- [x] **T12 · `services/photos.js` sin decisiones de presentación.** _RF: RF-2, RNF-5._
   Hecho cuando: el servicio recibe de la plantilla los `sizes` y las claves estructurales, sigue
   **fallando al arrancar** si falta una clave esperada (registro + estructurales) y ninguna imagen se
   carga desde el original sin optimizar.

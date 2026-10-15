@@ -2,7 +2,7 @@
 //
 // Comprueba que `src/data/wedding.js` conserva los datos de la boda actual (nombres, fecha,
 // ubicaciones, cuenta y enlaces) y que el registro es coherente con la validación pura.
-// No importa `componentes/fotos.js`: usa `import.meta.glob`, que solo existe bajo Vite; la
+// No importa `services/photos.js`: usa `import.meta.glob`, que solo existe bajo Vite; la
 // resolución de las claves se comprueba con `registryErrors` (RF-20).
 import { strict as assert } from "node:assert";
 import test from "node:test";

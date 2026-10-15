@@ -4,15 +4,17 @@
 // (`portada` y `pareja`); la foto de fondo se marca como prioritaria (T26).
 import { Fragment, useEffect, useRef } from "react";
 
+import { useTemplate } from "../hooks/useTemplate.js";
+import { coverPhotos } from "../services/photos.js";
 import { coupleNames } from "../utils/couple.js";
-import { fotosDePortada } from "./fotos.js";
 
 export function Portada({ portada, pareja, fechaTexto, onIngresar }) {
   const botonRef = useRef(null);
   const cuerpoRef = useRef(null);
 
+  const { photoSizes } = useTemplate();
   const nombres = coupleNames(pareja);
-  const [fondo, tarjeta] = fotosDePortada(portada);
+  const [fondo, tarjeta] = coverPhotos(portada, [photoSizes.fullWidth, photoSizes.coverCard]);
   const lineas = String(portada?.texto ?? "").split("\n");
 
   useEffect(() => {

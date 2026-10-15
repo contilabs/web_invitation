@@ -6,12 +6,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useGaleria } from "../hooks/useGaleria.js";
+import { useTemplate } from "../hooks/useTemplate.js";
+import { galleryPhotos } from "../services/photos.js";
 import { nextIndex } from "../utils/gallery.js";
-import { fotosDeGaleria } from "./fotos.js";
 import { Visor } from "./Visor.jsx";
 
 export function Galeria({ galeria }) {
-  const { destacadas, rejilla } = useMemo(() => fotosDeGaleria(galeria), [galeria]);
+  const { photoSizes } = useTemplate();
+  const { destacadas, rejilla } = useMemo(
+    () => galleryPhotos(galeria, photoSizes),
+    [galeria, photoSizes],
+  );
   const totalDestacadas = destacadas.length;
   const { indice, siguiente, anterior, pausar, reanudar } = useGaleria(totalDestacadas);
   const [anticipar, setAnticipar] = useState(false);

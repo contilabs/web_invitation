@@ -10,9 +10,13 @@ import audioUrl from "../assets/audio.mp3";
 
 import { boda } from "./data/wedding.js";
 import { invitaciones } from "./data/guest-cards.js";
+import { DEFAULT_TEMPLATE_ID } from "./constants/templates.js";
+import { resolveTemplate } from "./templates/index.js";
+import { TemplateProvider } from "./providers/TemplateProvider.jsx";
+import { assertPhotoKeys } from "./services/photos.js";
 import { formatDate, eventInstant, eventTimeZone } from "./utils/event.js";
 import { visibleSections } from "./utils/sections.js";
-import { registryWarnings, registryErrors } from "./utils/validation.js";
+import { registryWarnings, registryErrors, templateStatus } from "./utils/validation.js";
 
 import { AvisoDeError } from "./componentes/AvisoDeError.jsx";
 import { Cita } from "./componentes/Cita.jsx";
@@ -54,6 +58,14 @@ const PIE_VISIBLE = NAVEGACION.pieVisible !== false;
 
 const MUSICA_HABILITADA = boda.ajustes?.musica?.habilitada !== false;
 const PORTADA_VISIBLE = SECCIONES.some((seccion) => seccion.clave === "portada");
+
+// La plantilla activa sale del registro; si no está implementada, la de por defecto (RF-2).
+const TEMPLATE = resolveTemplate(
+  templateStatus(boda.plantilla) === "implementada" ? boda.plantilla : DEFAULT_TEMPLATE_ID,
+);
+
+// Falla al arrancar si falta alguna variante optimizada (claves del registro y de la plantilla).
+assertPhotoKeys(Object.values(TEMPLATE.structuralPhotos));
 
 const CLAVES_CON_PORTADA = (seccion) => seccion.clave !== "portada";
 
@@ -132,7 +144,7 @@ export function App() {
   }, [reproducir]);
 
   return (
-    <>
+    <TemplateProvider template={TEMPLATE}>
       <AvisoDeError errores={ERRORES} avisos={AVISOS} />
 
       {portadaAbierta && (
@@ -175,6 +187,6 @@ export function App() {
           />
         )}
       </main>
-    </>
+    </TemplateProvider>
   );
 }

@@ -1,19 +1,20 @@
 // Secciones de contenido de la invitación (T15/T24, RF-2, RF-4, RF-6, RF-11, RF-14). Todas
 // leen del registro único (`data/wedding.js`): aquí no quedan nombres, fechas, lugares ni
 // textos de contenido, solo el rótulo de interfaz («Cómo llegar», «Ver hotel»).
+import { useTemplate } from "../hooks/useTemplate.js";
+import { photoFor } from "../services/photos.js";
 import { coupleNames } from "../utils/couple.js";
 import { restrictionMessages } from "../utils/restrictions.js";
-import { FOTO_HERO, FOTO_RETRATO } from "./fotos.js";
-import { HOTEL_ICON, LOCATION_ICONS, TIMELINE_ICONS } from "../templates/classic/icons.js";
 
 export function Hero({ pareja, fechaTexto }) {
+  const { structuralPhotos, photoSizes } = useTemplate();
   const nombres = coupleNames(pareja);
 
   return (
     <section className="hero" id="inicio" tabIndex={-1}>
       <img
         className="hero-img"
-        {...FOTO_HERO}
+        {...photoFor(structuralPhotos.hero, "", photoSizes.fullWidth)}
         alt={nombres.paraMostrar}
         fetchPriority="low"
         decoding="async"
@@ -35,9 +36,15 @@ export function Hero({ pareja, fechaTexto }) {
 }
 
 export function Retrato() {
+  const { structuralPhotos, photoSizes } = useTemplate();
+
   return (
     <section className="Nombres reveal" aria-hidden="true">
-      <img {...FOTO_RETRATO} loading="lazy" decoding="async" />
+      <img
+        {...photoFor(structuralPhotos.portrait, "", photoSizes.fullWidth)}
+        loading="lazy"
+        decoding="async"
+      />
     </section>
   );
 }
@@ -72,6 +79,7 @@ function CardLugar({ icono, ubicacion }) {
 }
 
 export function Lugares({ ubicaciones }) {
+  const { icons } = useTemplate();
   const lugares = ["ceremonia", "recepcion"]
     .map((clave) => ({ clave, ...(ubicaciones?.[clave] ?? {}) }))
     .filter((u) => u.nombre || u.lugar || u.direccion);
@@ -83,7 +91,7 @@ export function Lugares({ ubicaciones }) {
 
         <div className="rejilla-2">
           {lugares.map((u) => (
-            <CardLugar key={u.clave} icono={LOCATION_ICONS[u.clave]} ubicacion={u} />
+            <CardLugar key={u.clave} icono={icons.locations[u.clave]} ubicacion={u} />
           ))}
         </div>
       </div>
@@ -92,6 +100,7 @@ export function Lugares({ ubicaciones }) {
 }
 
 export function Itinerario({ itinerario }) {
+  const { icons } = useTemplate();
   const momentos = Array.isArray(itinerario?.momentos) ? itinerario.momentos : [];
 
   return (
@@ -103,10 +112,10 @@ export function Itinerario({ itinerario }) {
           {momentos.map((momento, i) => (
             <li className="event" key={`${momento?.titulo ?? "momento"}-${i}`}>
               <span className="event-ico">
-                {TIMELINE_ICONS[momento?.icono] && (
+                {icons.timeline[momento?.icono] && (
                   <img
                     className="ico"
-                    src={TIMELINE_ICONS[momento.icono]}
+                    src={icons.timeline[momento.icono]}
                     alt=""
                     loading="lazy"
                     decoding="async"
@@ -124,6 +133,7 @@ export function Itinerario({ itinerario }) {
 }
 
 export function Hoteles({ hoteles }) {
+  const { icons } = useTemplate();
   const lista = Array.isArray(hoteles?.lista) ? hoteles.lista : [];
 
   return (
@@ -136,7 +146,7 @@ export function Hoteles({ hoteles }) {
             const enlace = hotel?.bookingUrl ?? hotel?.mapaUrl ?? null;
             const interior = (
               <>
-                <img className="ico" src={HOTEL_ICON} alt="" loading="lazy" decoding="async" />
+                <img className="ico" src={icons.hotel} alt="" loading="lazy" decoding="async" />
                 <span className="hotel-nombre">{hotel?.nombre}</span>
                 {hotel?.precio && <span className="hotel-precio">{hotel.precio}</span>}
                 {enlace && <span className="hotel-enlace">Ver hotel</span>}

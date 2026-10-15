@@ -81,7 +81,7 @@ export const boda = {
     // Cuántas imágenes van al carrusel; el resto forma la rejilla (T26).
     destacadas: 7,
     // Cada imagen guarda una clave (base de assets/photos/opt/) y su texto alternativo.
-    // `componentes/fotos.js` resuelve la clave a { src, srcSet, sizes } (T16).
+    // `services/photos.js` resuelve la clave a { src, srcSet, sizes } (T16).
     imagenes: [
       { clave: "foto2", alt: "Karina y Gerardo, foto 2" },
       { clave: "foto4", alt: "Karina y Gerardo, foto 4" },

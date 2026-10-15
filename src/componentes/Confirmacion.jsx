@@ -8,14 +8,16 @@ import { useState } from "react";
 import { invitaciones as invitacionesPorDefecto } from "../data/guest-cards.js";
 import { useConfirmacion } from "../hooks/useConfirmacion.js";
 import { useInvitacion } from "../hooks/useInvitacion.js";
+import { useTemplate } from "../hooks/useTemplate.js";
+import { photoFor } from "../services/photos.js";
 import { confirmationFields, deadlineMs } from "../utils/confirmation.js";
 import { formatDate, eventTimeZone } from "../utils/event.js";
 import { INVITATION_TYPES } from "../utils/invitation.js";
-import { FOTO_CONFIRMACION } from "./fotos.js";
 
 export function Confirmacion({ boda }) {
   const { abierta } = useConfirmacion(boda);
   const invitacion = useInvitacion(invitacionesPorDefecto, boda);
+  const { structuralPhotos, photoSizes } = useTemplate();
 
   const confirmacion = boda?.confirmacion ?? {};
   const enlaceRsvp = boda?.marca?.enlaces?.rsvp ?? "";
@@ -57,7 +59,11 @@ export function Confirmacion({ boda }) {
         ) : (
           <div className="confirmar-rejilla">
             <figure className="confirmar-foto">
-              <img {...FOTO_CONFIRMACION} loading="lazy" decoding="async" />
+              <img
+                {...photoFor(structuralPhotos.confirmation, "", photoSizes.confirmation)}
+                loading="lazy"
+                decoding="async"
+              />
             </figure>
 
             <div className="confirmar-panel">
