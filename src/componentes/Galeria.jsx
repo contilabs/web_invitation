@@ -9,7 +9,7 @@ import { useGallery } from "../hooks/useGallery.js";
 import { useTemplate } from "../hooks/useTemplate.js";
 import { galleryPhotos } from "../services/photos.js";
 import { nextIndex } from "../utils/gallery.js";
-import { Visor } from "./Visor.jsx";
+import { GalleryViewer } from "../components/ui/GalleryViewer.jsx";
 
 export function Galeria({ galeria }) {
   const { photoSizes } = useTemplate();
@@ -140,13 +140,13 @@ export function Galeria({ galeria }) {
       </div>
 
       {visor !== null && (
-        <Visor
-          foto={todas[visor]}
-          actual={visor + 1}
+        <GalleryViewer
+          photo={todas[visor]}
+          current={visor + 1}
           total={todas.length}
-          onCerrar={cerrarVisor}
-          onAnterior={() => moverVisor(-1)}
-          onSiguiente={() => moverVisor(1)}
+          onClose={cerrarVisor}
+          onPrevious={() => moverVisor(-1)}
+          onNext={() => moverVisor(1)}
         />
       )}
     </section>

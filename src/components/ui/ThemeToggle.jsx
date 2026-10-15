@@ -1,16 +1,16 @@
 // Interruptor de tema (T12, RF-4). El aspecto (sol/luna, posición del pulgar) lo
 // pone el CSS según `html.dark-mode`; aquí solo se refleja el estado accesible.
-import { THEME_ARIA_LABEL, themeLabel } from "../utils/labels.js";
+import { THEME_ARIA_LABEL, themeLabel } from "../../utils/labels.js";
 
-export function ControlTema({ oscuro, alternar }) {
+export function ThemeToggle({ dark, toggle }) {
   return (
     <button
       type="button"
       className="toggle-btn"
       aria-label={THEME_ARIA_LABEL}
-      aria-pressed={oscuro}
-      title={themeLabel(oscuro ? "noche" : "dia")}
-      onClick={alternar}
+      aria-pressed={dark}
+      title={themeLabel(dark ? "noche" : "dia")}
+      onClick={toggle}
     >
       <span className="toggle-thumb" aria-hidden="true"></span>
       <span className="icons" aria-hidden="true">

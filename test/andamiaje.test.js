@@ -59,8 +59,11 @@ test("sin JavaScript se avisa en español", () => {
 test("la app ofrece un enlace para saltar al contenido dentro de <main>", () => {
   const app = leer("../src/App.jsx");
   assert.match(app, /<main\b/, "no hay <main> en App.jsx");
-  assert.match(app, /className="saltar"/, "no hay enlace «saltar al contenido»");
-  assert.match(app, /href="#inicio"/, "el enlace de salto no apunta al inicio");
+  assert.match(app, /<SkipLink\s*\/>/, "App no pinta el enlace «saltar al contenido»");
+
+  const salto = leer("../src/components/layout/SkipLink.jsx");
+  assert.match(salto, /className="saltar"/, "no hay enlace «saltar al contenido»");
+  assert.match(salto, /href="#inicio"/, "el enlace de salto no apunta al inicio");
 });
 
 // T5: Bootstrap se retiró del CSS y del shell. Se vigila que no vuelva a colarse

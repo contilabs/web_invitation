@@ -194,26 +194,3 @@ export function Restricciones({ restricciones }) {
   );
 }
 
-export function Pie({ pareja, fechaTexto, lugar, credito }) {
-  const nombres = coupleNames(pareja);
-
-  return (
-    <footer>
-      <p className="footer-nombres">
-        {nombres.first} <span className="amp">&amp;</span> {nombres.second}
-      </p>
-      <p className="footer-fecha">
-        {fechaTexto}
-        {lugar ? ` · ${lugar}` : ""}
-      </p>
-      {credito && (
-        <p className="footer-credito">
-          Diseño de Invitación Digital ·{" "}
-          <a href={credito} target="_blank" rel="noopener noreferrer">
-            Más información aquí
-          </a>
-        </p>
-      )}
-    </footer>
-  );
-}

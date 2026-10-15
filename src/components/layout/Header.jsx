@@ -1,11 +1,11 @@
 // Nombres fijos que aparecen al dejar de verse el hero (T15/T28, RF-6). Los nombres salen
 // del registro (`pareja`).
-import { useHeader } from "../hooks/useHeader.js";
-import { coupleNames } from "../utils/couple.js";
+import { useHeader } from "../../hooks/useHeader.js";
+import { coupleNames } from "../../utils/couple.js";
 
-export function Encabezado({ pareja }) {
+export function Header({ couple }) {
   const fixed = useHeader("inicio");
-  const names = coupleNames(pareja);
+  const names = coupleNames(couple);
 
   return (
     <header className={`inicio${fixed ? " inicio--fijo" : ""}`} id="encabezado">
@@ -14,5 +14,4 @@ export function Encabezado({ pareja }) {
       </p>
     </header>
   );
-
 }

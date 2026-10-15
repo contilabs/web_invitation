@@ -4,36 +4,36 @@
 // (`portada` y `pareja`); la foto de fondo se marca como prioritaria (T26).
 import { Fragment, useEffect, useRef } from "react";
 
-import { useTemplate } from "../hooks/useTemplate.js";
-import { coverPhotos } from "../services/photos.js";
-import { coupleNames } from "../utils/couple.js";
+import { useTemplate } from "../../hooks/useTemplate.js";
+import { coverPhotos } from "../../services/photos.js";
+import { coupleNames } from "../../utils/couple.js";
 
-export function Portada({ portada, pareja, fechaTexto, onIngresar }) {
-  const botonRef = useRef(null);
-  const cuerpoRef = useRef(null);
+export function Cover({ cover, couple, dateText, onEnter }) {
+  const buttonRef = useRef(null);
+  const bodyRef = useRef(null);
 
   const { photoSizes } = useTemplate();
-  const nombres = coupleNames(pareja);
-  const [fondo, tarjeta] = coverPhotos(portada, [photoSizes.fullWidth, photoSizes.coverCard]);
-  const lineas = String(portada?.texto ?? "").split("\n");
+  const names = coupleNames(couple);
+  const [background, card] = coverPhotos(cover, [photoSizes.fullWidth, photoSizes.coverCard]);
+  const lines = String(cover?.texto ?? "").split("\n");
 
   useEffect(() => {
-    botonRef.current?.focus();
+    buttonRef.current?.focus();
   }, []);
 
   // Escape cierra el diálogo (RF-1).
   useEffect(() => {
-    const alTeclear = (evento) => {
-      if (evento.key === "Escape") onIngresar();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onEnter();
     };
-    document.addEventListener("keydown", alTeclear);
-    return () => document.removeEventListener("keydown", alTeclear);
-  }, [onIngresar]);
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onEnter]);
 
   // Un clic fuera de la tarjeta (sobre el velo) también cierra (RF-1).
-  const alClicFondo = (evento) => {
-    if (cuerpoRef.current && !cuerpoRef.current.contains(evento.target)) {
-      onIngresar();
+  const onBackdropClick = (event) => {
+    if (bodyRef.current && !bodyRef.current.contains(event.target)) {
+      onEnter();
     }
   };
 
@@ -44,12 +44,12 @@ export function Portada({ portada, pareja, fechaTexto, onIngresar }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="titulo-portada"
-      onClick={alClicFondo}
+      onClick={onBackdropClick}
     >
-      {fondo && (
+      {background && (
         <img
           className="portada-fondo"
-          {...fondo}
+          {...background}
           fetchPriority="high"
           decoding="async"
           aria-hidden="true"
@@ -57,31 +57,31 @@ export function Portada({ portada, pareja, fechaTexto, onIngresar }) {
       )}
       <div className="portada-velo" aria-hidden="true"></div>
 
-      <div className="modal-bienvenida-body" ref={cuerpoRef}>
-        {tarjeta && (
+      <div className="modal-bienvenida-body" ref={bodyRef}>
+        {card && (
           <div className="modal-intro-img">
-            <img {...tarjeta} decoding="async" />
+            <img {...card} decoding="async" />
           </div>
         )}
 
         <h1 id="titulo-portada">
-          {nombres.first} <span className="amp">&amp;</span> {nombres.second}
+          {names.first} <span className="amp">&amp;</span> {names.second}
         </h1>
 
-        <p className="modal-fecha">{fechaTexto}</p>
+        <p className="modal-fecha">{dateText}</p>
 
         <span className="filete" aria-hidden="true"></span>
 
         <p className="modal-invitacion">
-          {lineas.map((linea, i) => (
+          {lines.map((line, i) => (
             <Fragment key={i}>
               {i > 0 && <br />}
-              {linea}
+              {line}
             </Fragment>
           ))}
         </p>
 
-        <button type="button" id="btn-ingresar" ref={botonRef} onClick={onIngresar}>
+        <button type="button" id="btn-ingresar" ref={buttonRef} onClick={onEnter}>
           Ingresar
         </button>
       </div>

@@ -18,23 +18,23 @@ import { formatDate, eventInstant, eventTimeZone } from "./utils/event.js";
 import { visibleSections } from "./utils/sections.js";
 import { registryWarnings, registryErrors, templateStatus } from "./utils/validation.js";
 
-import { AvisoDeError } from "./componentes/AvisoDeError.jsx";
+import { ErrorNotice } from "./components/layout/ErrorNotice.jsx";
+import { Cover } from "./components/layout/Cover.jsx";
+import { Header } from "./components/layout/Header.jsx";
+import { Footer } from "./components/layout/Footer.jsx";
+import { SkipLink } from "./components/layout/SkipLink.jsx";
+import { ControlsPanel } from "./components/layout/ControlsPanel.jsx";
 import { Cita } from "./componentes/Cita.jsx";
 import { Confirmacion } from "./componentes/Confirmacion.jsx";
-import { ControlMusica } from "./componentes/ControlMusica.jsx";
-import { ControlTema } from "./componentes/ControlTema.jsx";
 import { CuentaRegresiva } from "./componentes/CuentaRegresiva.jsx";
-import { Encabezado } from "./componentes/Encabezado.jsx";
 import { Galeria } from "./componentes/Galeria.jsx";
 import { Historia } from "./componentes/Historia.jsx";
 import { MesaDeRegalos } from "./componentes/MesaDeRegalos.jsx";
-import { Portada } from "./componentes/Portada.jsx";
 import {
   Hero,
   Hoteles,
   Itinerario,
   Lugares,
-  Pie,
   Restricciones,
   Retrato,
 } from "./componentes/Secciones.jsx";
@@ -145,22 +145,26 @@ export function App() {
 
   return (
     <TemplateProvider template={TEMPLATE}>
-      <AvisoDeError errores={ERRORES} avisos={AVISOS} />
+      <ErrorNotice errors={ERRORES} warnings={AVISOS} />
 
       {portadaAbierta && (
-        <Portada
-          portada={boda.portada}
-          pareja={boda.pareja}
-          fechaTexto={FECHA_TEXTO}
-          onIngresar={ingresar}
+        <Cover
+          cover={boda.portada}
+          couple={boda.pareja}
+          dateText={FECHA_TEXTO}
+          onEnter={ingresar}
         />
       )}
 
       {PANEL_VISIBLE && (
-        <div className="fixed-panel" inert={portadaAbierta}>
-          <ControlTema oscuro={dark} alternar={toggleTheme} />
-          {MUSICA_HABILITADA && <ControlMusica sonando={playing} alternar={toggleMusic} />}
-        </div>
+        <ControlsPanel
+          inert={portadaAbierta}
+          withMusic={MUSICA_HABILITADA}
+          dark={dark}
+          playing={playing}
+          onToggleTheme={toggleTheme}
+          onToggleMusic={toggleMusic}
+        />
       )}
 
       {MUSICA_HABILITADA && (
@@ -170,20 +174,18 @@ export function App() {
       )}
 
       <main className="contenido" ref={contenidoRef} tabIndex={-1} inert={portadaAbierta}>
-        <a className="saltar" href="#inicio">
-          Saltar al contenido
-        </a>
+        <SkipLink />
 
-        {ENCABEZADO_VISIBLE && <Encabezado pareja={boda.pareja} />}
+        {ENCABEZADO_VISIBLE && <Header couple={boda.pareja} />}
 
         {SECCIONES.filter(CLAVES_CON_PORTADA).map(pintarSeccion)}
 
         {PIE_VISIBLE && (
-          <Pie
-            pareja={boda.pareja}
-            fechaTexto={FECHA_TEXTO}
-            lugar={boda.evento?.lugar}
-            credito={boda.marca?.enlaces?.credito}
+          <Footer
+            couple={boda.pareja}
+            dateText={FECHA_TEXTO}
+            place={boda.evento?.lugar}
+            credit={boda.marca?.enlaces?.credito}
           />
         )}
       </main>

@@ -3,7 +3,7 @@
 // **único** botón «Copiar» con el dato que el registro marca como copiable (la cuenta). Los
 // logos son presentación y se eligen aquí por tipo.
 import { giftOptions } from "../utils/gifts.js";
-import { BotonCopiar } from "./BotonCopiar.jsx";
+import { CopyButton } from "../components/ui/CopyButton.jsx";
 
 import icoBbva from "../../assets/icons/bbva.png";
 import icoLiverpool from "../../assets/icons/liverpool.png";
@@ -60,10 +60,10 @@ export function MesaDeRegalos({ regalos }) {
                 )}
 
                 {copiable && (
-                  <BotonCopiar
-                    valor={copiable.value}
-                    etiqueta={copiable.label}
-                    textoBoton={`Copiar ${copiable.label.toLowerCase()}`}
+                  <CopyButton
+                    value={copiable.value}
+                    label={copiable.label}
+                    buttonText={`Copiar ${copiable.label.toLowerCase()}`}
                   />
                 )}
 

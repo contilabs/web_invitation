@@ -83,10 +83,10 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 5 — Componentes (aún sin tocar nombres de clase)
 
-- [ ] **T14 · Mover las piezas reutilizables a `components/ui/`.** _RF: RF-1, RF-5._
+- [x] **T14 · Mover las piezas reutilizables a `components/ui/`.** _RF: RF-1, RF-5._
   Hecho cuando: existen `CopyButton`, `ThemeToggle`, `MusicToggle` y `GalleryViewer`, y copiar el dato
   de la mesa de regalos, cambiar de tema, pausar la música y abrir el visor con teclado funcionan igual.
-- [ ] **T15 · Mover las piezas de estructura a `components/layout/`.** _RF: RF-1, RF-5._
+- [x] **T15 · Mover las piezas de estructura a `components/layout/`.** _RF: RF-1, RF-5._
   Hecho cuando: existen `Header`, `Footer`, `Cover`, `ErrorNotice`, `SkipLink` y `ControlsPanel`; el
   enlace de salto sigue apuntando a `#inicio`, `href="#inicio"` no cambia y el panel sigue inerte
   mientras la portada está abierta.

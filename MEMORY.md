@@ -7,15 +7,16 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil. Registro único
   (`src/data/wedding.js`) + fichas (`src/data/guest-cards.js`); interfaz dirigida por el registro
   (`App.jsx` compone `visibleSections(boda)`); `npm test` → **110/110** y build OK.
-- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T13 hechas** (fases 0–4) y marcadas
-  en `tasks.md`: `constants/`, `utils/` en inglés (T4–T7), `data/` (T8), plantilla clásica con CSS +
-  iconos + `photoSizes` (T9–T10), **capa de plantilla** (T11–T12: `templates/index.js`,
+- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T15 hechas** (fases 0–5 parciales) y
+  marcadas en `tasks.md`: `constants/`, `utils/` en inglés (T4–T7), `data/` (T8), plantilla clásica con
+  CSS + iconos + `photoSizes` (T9–T10), **capa de plantilla** (T11–T12: `templates/index.js`,
   `templates/classic/index.js`, `providers/TemplateProvider.jsx`, `hooks/useTemplate.js`,
-  `services/photos.js`) y **hooks renombrados y en inglés** (T13: `useTheme`, `useMusic`,
-  `useInvitation`, `useCountdown`, `useConfirmation`, `useReveal`, `useHeader`, `useGallery`), con los
-  **internos de `utils/` y de `hooks/` pasados a inglés** (comentarios, textos y claves de datos
-  siguen en español). `npm test` → **110/110**, build OK (CSS `index-BJyTF753.css` intacto) y
-  **paridad 30/30**. Falta T14–T28 (componentes, clases CSS, `app/`, pruebas y cierre).
+  `services/photos.js`), **hooks renombrados y en inglés** (T13) y **presentación repartida**:
+  `components/ui/` (`CopyButton`, `ThemeToggle`, `MusicToggle`, `GalleryViewer`, T14) y
+  `components/layout/` (`Header`, `Footer`, `Cover`, `ErrorNotice`, `SkipLink`, `ControlsPanel`, T15).
+  Los **internos de `utils/`, `hooks/` y de las piezas movidas** van en inglés (comentarios, textos y
+  claves de datos siguen en español). `npm test` → **110/110**, build OK (CSS `index-BJyTF753.css`
+  intacto) y **paridad 30/30**. Faltan T16–T28 (secciones, clases CSS, `app/`, pruebas y cierre).
 - Documentación: `docs/constitution.md` (6 principios), `specs/001-*`…`003-*`, `PENDING_TASKS.md`.
 ## Decisiones (y por qué)
 - **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue
