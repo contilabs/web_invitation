@@ -1,8 +1,9 @@
 /* ============================================================
    Invitación de Karina & Gerardo
    Concepto: «el fuego», el elemento que ellos mismos nombran en
-   su texto. El tema claro es el día (papel marfil, tinta expreso,
-   cobre de brasa); el tema oscuro es la noche (luz de vela).
+   su texto. Rediseño «Ascua» (T24): evolución editorial del fuego
+   cálido. El tema claro es el día (papel lino, tinta expreso,
+   brasa roja y vino); el tema oscuro es la noche (luz de vela).
    Todo el color vive en las variables de :root, y darkMode.css
    solo las reescribe: un cambio aquí se ve en ambos temas.
    ============================================================ */
@@ -31,68 +32,76 @@
    1. Tokens de diseño
    ============================================================ */
 :root {
-  /* Superficies: papel marfil, apenas cálido */
-  --paper: #fbf8f2;
-  --paper-2: #f5efe6;
-  --superficie: #fffefb;
-  --papel-velo: rgba(251, 248, 242, 0.82);
+  /* Superficies: lino, un papel más frío que el marfil de antes */
+  --paper: #f0ebe0;
+  --paper-2: #e7e0d3;
+  --superficie: #f7f3ea;
+  --papel-velo: rgba(240, 235, 224, 0.82);
 
   /* Tinta */
-  --ink: #2b211c;
-  --ink-2: #6b5a50;
-  --smoke: #74645a;
+  --ink: #1f1713;
+  --ink-2: #5a4a40;
+  --smoke: #6f5f54;
 
-  /* Brasa */
-  --ember: #b4501f;
-  --ember-2: #8c3a12;
-  --glow: #e9a46b;
-  --ember-suave: rgba(180, 80, 31, 0.08);
+  /* Brasa: acento principal. El valor está elegido para superar AA sobre el
+     lino (4.58:1); si se cambia, hay que revisar el contraste. */
+  --ember: #b8431d;
+  --ember-2: #97340f;
+  --glow: #e79457;
+  --ember-suave: rgba(184, 67, 29, 0.08);
   /* Texto que va encima de --ember (de noche la brasa es más clara) */
-  --sobre-ember: #ffffff;
+  --sobre-ember: #fffaf4;
+
+  /* Vino: segundo color, solo para filetes y estructura; no compite con la
+     brasa ni se usa como texto pequeño. */
+  --vino: #5e2a28;
+  --vino-suave: rgba(94, 42, 40, 0.08);
 
   /* Tinte de los iconos.
      Los PNG de assets/icons son línea oscura sobre transparente. En vez de
-     usarlos como máscara (Chrome bloquea las máscaras sobre file://), se
-     normalizan a negro con brightness(0) y se colorean con esta cadena, que
-     está calculada para dar exactamente --ember. Solo cambia el token al
-     pasar a modo noche. */
-  --filtro-ico: brightness(0) invert(46%) sepia(74%) saturate(800%)
-    hue-rotate(340deg) brightness(71%) contrast(98%);
+     usarlos como máscara, se normalizan a negro con brightness(0) y se colorean
+     con esta cadena, medida sobre el propio PNG para dar la brasa exacta
+     (#b8431d; queda en #b44b1f, a menos de 10 de distancia). Solo cambia el
+     token al pasar a modo noche. */
+  --filtro-ico: brightness(0) invert(46%) sepia(50%) saturate(950%)
+    hue-rotate(335deg) brightness(72%) contrast(98%);
 
   /* Líneas y sombras: casi planas, solo para lo que flota */
-  --linea: rgba(43, 33, 28, 0.14);
-  --linea-fuerte: rgba(43, 33, 28, 0.26);
-  --sombra-suave: 0 1px 2px rgba(43, 33, 28, 0.05);
-  --sombra: 0 20px 44px -26px rgba(43, 33, 28, 0.5);
+  --linea: rgba(31, 23, 19, 0.14);
+  --linea-fuerte: rgba(31, 23, 19, 0.26);
+  --sombra-suave: 0 1px 2px rgba(31, 23, 19, 0.05);
+  --sombra: 0 20px 44px -26px rgba(31, 23, 19, 0.5);
 
-  /* Banda de brasa (cuenta regresiva): un tono profundo, sin degradado */
-  --banda-1: #1e130d;
-  --banda-texto: #fdf3e8;
+  /* Banda de brasa (cuenta regresiva): el único bloque oscuro, sin degradado */
+  --banda-1: #17100b;
+  --banda-texto: #fbf2e6;
 
-  /* Tipografías: una serif de display para títulos y nombres y una sans
-     neutra para el resto. La caligrafía sigue cargada y disponible: para
-     volver a ella basta --fuente-nombres: var(--fuente-script). */
+  /* Tipografías: la Erstoria (display) se conserva; el texto pasa a una serif
+     editorial y la sans se reserva para etiquetas, botones y números. La
+     caligrafía sigue cargada y disponible: para volver a ella basta
+     --fuente-nombres: var(--fuente-script). */
   --fuente-titulo: "Erstoria", "Iowan Old Style", Georgia, serif;
   --fuente-script: "Kalista", "Segoe Script", cursive;
-  --fuente-texto: "Montserrat", system-ui, sans-serif;
+  --fuente-texto: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --fuente-etiqueta: "Montserrat", system-ui, sans-serif;
   --fuente-nombres: var(--fuente-titulo);
 
   /* Escala tipográfica */
   --fs-xs: 0.72rem;
   --fs-sm: 0.85rem;
-  --fs-base: clamp(1rem, 0.96rem + 0.2vw, 1.05rem);
-  --fs-lead: clamp(1.2rem, 1.05rem + 0.7vw, 1.5rem);
+  --fs-base: clamp(1.02rem, 0.98rem + 0.2vw, 1.08rem);
+  --fs-lead: clamp(1.3rem, 1.1rem + 0.9vw, 1.7rem);
   --fs-h3: clamp(1.35rem, 1.15rem + 0.8vw, 1.6rem);
-  --fs-h2: clamp(1.9rem, 1.25rem + 2.4vw, 2.75rem);
-  --fs-display: clamp(2.5rem, 7.5vw, 5rem);
+  --fs-h2: clamp(2rem, 1.2rem + 2.8vw, 3.1rem);
+  --fs-display: clamp(2.7rem, 8vw, 5.6rem);
 
   /* Medidas */
-  --ancho: 1120px;
-  --ancho-estrecho: 660px;
-  --radio: 0.4rem;
-  --radio-grande: 0.6rem;
-  --espacio-seccion: clamp(5rem, 10vw, 8rem);
-  --tracking-dato: 0.18em;
+  --ancho: 1180px;
+  --ancho-estrecho: 680px;
+  --radio: 0px;
+  --radio-grande: 0px;
+  --espacio-seccion: clamp(5.5rem, 11vw, 9rem);
+  --tracking-dato: 0.2em;
   --panel-alto: 5rem;
 
   color-scheme: light;
@@ -117,7 +126,7 @@ body {
   margin: 0;
   font-family: var(--fuente-texto);
   font-size: var(--fs-base);
-  line-height: 1.75;
+  line-height: 1.72;
   background-color: var(--paper);
   color: var(--ink-2);
   overflow-x: hidden;
@@ -134,14 +143,35 @@ img {
   width: 100%;
 }
 
+/* Enlace «saltar al contenido» (RNF-1): invisible hasta que recibe foco. */
+.saltar {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 3000;
+  padding: 0.7rem 1.15rem;
+  background-color: var(--ink);
+  color: var(--paper);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.2s ease;
+}
+
+.saltar:focus {
+  transform: none;
+}
+
 /* Anchos de lectura */
 .wrap {
-  width: min(100% - 2.5rem, var(--ancho));
+  width: min(100% - 3rem, var(--ancho));
   margin-inline: auto;
 }
 
 .wrap-estrecho {
-  width: min(100% - 2.5rem, var(--ancho-estrecho));
+  width: min(100% - 3rem, var(--ancho-estrecho));
   margin-inline: auto;
 }
 
@@ -153,12 +183,27 @@ section {
 :where(a, button, input, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--ember);
   outline-offset: 3px;
-  border-radius: 0.35rem;
+  border-radius: 0.15rem;
 }
 
 ::selection {
   background: var(--ember);
   color: var(--sobre-ember);
+}
+
+/* Texto solo para lectores de pantalla (RNF-1). Propio desde la migración: la utilidad
+   venía de la hoja externa retirada. No se usa `display:none` ni `visibility:hidden`
+   porque eso lo oculta también a la tecnología de asistencia. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* ============================================================
@@ -170,10 +215,10 @@ h3 {
   font-family: var(--fuente-titulo);
   font-weight: 400;
   color: var(--ink);
-  text-align: center;
+  text-align: left;
   text-wrap: balance;
-  line-height: 1.12;
-  margin: 0 0 1rem;
+  line-height: 1.1;
+  margin: 0 0 1.25rem;
   letter-spacing: 0;
 }
 
@@ -181,27 +226,16 @@ h2 {
   font-size: var(--fs-h2);
 }
 
-/* Cabecera de sección, idéntica en todas: un pequeño rombo de brasa (el
-   mismo gesto que repite la invitación de referencia) sobre el título y un
-   filete de 1 px debajo. */
+/* Cabecera de sección editorial (T24): un filete corto en vino abre cada
+   título, alineado a la izquierda. Se retiran el rombo y el filete centrados
+   del diseño anterior. */
 h2::before {
   content: "";
   display: block;
-  width: 6px;
-  height: 6px;
-  margin: 0 auto 1rem;
-  background-color: var(--ember);
-  opacity: 0.55;
-  transform: rotate(45deg);
-}
-
-h2::after {
-  content: "";
-  display: block;
   width: 2.5rem;
-  height: 1px;
-  margin: 1.15rem auto 0;
-  background-color: var(--linea-fuerte);
+  height: 2px;
+  margin: 0 0 1.15rem;
+  background-color: var(--vino);
 }
 
 h3 {
@@ -222,10 +256,11 @@ p:last-child {
   vertical-align: 0.02em;
 }
 
-/* Etiqueta de datos: solo para unidades y fechas */
+/* Etiqueta de datos: solo para unidades, fechas y microcopy de interfaz */
 .etiqueta-dato {
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
   color: var(--ink-2);
@@ -239,13 +274,14 @@ p:last-child {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.8rem 1.6rem;
+  padding: 0.95rem 1.9rem;
   border: 1px solid transparent;
   border-radius: var(--radio);
-  font-family: var(--fuente-texto);
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-family: var(--fuente-etiqueta);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   line-height: 1.2;
   text-align: center;
   text-decoration: none;
@@ -337,12 +373,12 @@ p:last-child {
 
 .modal-bienvenida-body {
   position: relative;
-  width: min(100%, 25rem);
+  width: min(100%, 26rem);
   margin: auto;
-  padding: 2.25rem 1.75rem 2rem;
+  padding: 2.5rem 2rem 2.25rem;
   text-align: center;
   background-color: var(--paper);
-  border: 1px solid var(--linea);
+  border: 1px solid var(--linea-fuerte);
   border-radius: var(--radio-grande);
   box-shadow: var(--sombra);
   animation: portadaEntra 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
@@ -375,12 +411,14 @@ p:last-child {
   font-weight: 400;
   line-height: 1.05;
   color: var(--ink);
+  text-align: center;
   margin: 0 0 0.6rem;
 }
 
 .modal-fecha {
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
   color: var(--ember);
@@ -404,15 +442,16 @@ p:last-child {
 
 #btn-ingresar {
   width: 100%;
-  padding: 0.95rem 1.5rem;
+  padding: 1rem 1.5rem;
   border: none;
   border-radius: var(--radio);
   background-color: var(--ember);
   color: var(--sobre-ember);
-  font-family: var(--fuente-texto);
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-family: var(--fuente-etiqueta);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: background-color 0.25s ease;
 }
@@ -476,7 +515,7 @@ p:last-child {
 
 /* ============================================================
    8. Encabezado: aparece solo al pasar la portada principal
-   (una sola clase que añade script.js con IntersectionObserver;
+   (una sola clase que añade `useEncabezado` con IntersectionObserver;
    sin JS simplemente nunca se muestra, nunca queda ilegible)
    ============================================================ */
 .inicio {
@@ -568,8 +607,10 @@ body.portada-cerrada .hero-img {
 .hero-texto {
   position: relative;
   z-index: 1;
-  padding: 0 1.25rem clamp(4.5rem, 11vw, 7rem);
-  text-align: center;
+  width: min(100% - 3rem, var(--ancho));
+  margin-inline: auto;
+  padding: 0 0 clamp(4.5rem, 11vw, 7rem);
+  text-align: left;
   color: var(--banda-texto);
 }
 
@@ -590,19 +631,33 @@ body.portada-cerrada .hero-texto {
 
 .hero-nombres {
   margin: 0;
+  max-width: 12ch;
   font-family: var(--fuente-nombres);
   font-size: var(--fs-display);
-  line-height: 1;
+  font-weight: 400;
+  line-height: 0.98;
   color: #fff;
+  text-shadow: 0 1px 30px rgba(23, 16, 11, 0.4);
 }
 
 .hero-fecha {
-  margin: 1.25rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.6rem 0 0;
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
-  color: rgba(253, 243, 232, 0.88);
+  color: rgba(253, 243, 232, 0.9);
+}
+
+.hero-fecha::before {
+  content: "";
+  width: 2.5rem;
+  height: 1px;
+  background-color: rgba(253, 243, 232, 0.6);
 }
 
 .hero-flecha {
@@ -654,10 +709,21 @@ body.portada-cerrada .hero-texto {
   border: 0;
 }
 
+/* Comilla de apertura en brasa: convierte la frase en un pull-quote. */
+.Intro blockquote::before {
+  content: "“";
+  display: block;
+  font-family: var(--fuente-titulo);
+  font-size: 4.5rem;
+  line-height: 0.45;
+  color: var(--ember);
+  margin-bottom: 0.9rem;
+}
+
 .Intro blockquote p {
   font-size: var(--fs-lead);
-  line-height: 1.75;
-  color: var(--ink-2);
+  line-height: 1.7;
+  color: var(--ink);
   margin: 0;
 }
 
@@ -665,39 +731,41 @@ body.portada-cerrada .hero-texto {
    11. Cuenta regresiva: el único bloque oscuro de la invitación
    ============================================================ */
 .Fecha {
-  padding: clamp(4rem, 9vw, 6.5rem) 1.25rem;
-  text-align: center;
+  padding: clamp(5rem, 12vw, 8.5rem) 1.5rem;
+  text-align: left;
   color: var(--banda-texto);
   background-color: var(--banda-1);
 }
 
 .banda-contenido {
-  width: min(100%, var(--ancho));
+  width: min(100% - 3rem, var(--ancho));
   margin-inline: auto;
 }
 
 .fecha-dia {
   font-family: var(--fuente-titulo);
-  font-size: clamp(1.7rem, 4.4vw, 2.6rem);
-  line-height: 1.2;
+  font-size: clamp(2rem, 5.4vw, 3.4rem);
+  line-height: 1.1;
   color: var(--banda-texto);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.75rem;
 }
 
 .faltan {
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-dato);
-  color: rgba(253, 243, 232, 0.8);
+  text-transform: uppercase;
+  color: rgba(251, 242, 230, 0.75);
   margin: 0;
 }
 
 .cuenta-regresiva {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.75rem 2.75rem;
-  margin-top: 2.5rem;
+  justify-content: flex-start;
+  gap: 2rem 3.5rem;
+  margin-top: 3rem;
 }
 
 /* Sin cajas ni cristal: los números se separan con aire. */
@@ -707,7 +775,8 @@ body.portada-cerrada .hero-texto {
 
 .caja-num {
   display: block;
-  font-size: clamp(2.1rem, 5vw, 2.9rem);
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2.8rem, 7vw, 4.4rem);
   font-weight: 400;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -716,17 +785,18 @@ body.portada-cerrada .hero-texto {
 
 .caja-label {
   display: block;
-  margin-top: 0.55rem;
+  margin-top: 0.7rem;
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
-  color: rgba(253, 243, 232, 0.84);
+  color: rgba(251, 242, 230, 0.8);
 }
 
 .msg-post {
   font-family: var(--fuente-titulo);
-  font-size: clamp(1.6rem, 4.4vw, 2.4rem);
+  font-size: clamp(1.7rem, 4.6vw, 2.5rem);
   line-height: 1.3;
   color: var(--banda-texto);
   margin: 0;
@@ -748,12 +818,13 @@ body.portada-cerrada .hero-texto {
 .card-lugar {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.35rem;
-  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 3vw, 2rem);
-  text-align: center;
-  border: 1px solid var(--linea);
-  border-radius: var(--radio);
+  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
+  text-align: left;
+  border: 0;
+  border-top: 1px solid var(--linea-fuerte);
+  border-radius: 0;
 }
 
 .card-lugar h3 {
@@ -761,7 +832,7 @@ body.portada-cerrada .hero-texto {
 }
 
 .card-lugar .boton {
-  margin-top: 1.5rem;
+  margin-top: 1.6rem;
 }
 
 .lugar-dato {
@@ -772,16 +843,17 @@ body.portada-cerrada .hero-texto {
 
 /* La hora del lugar: sin píldora, un punto que separa y la brasa justa. */
 .chip {
+  font-family: var(--fuente-etiqueta);
   color: var(--ember);
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .chip::before {
   content: "·";
-  margin: 0 0.45rem 0 0.15rem;
+  margin: 0 0.5rem 0 0.2rem;
   color: var(--ink-2);
 }
 
@@ -820,7 +892,7 @@ body.portada-cerrada .hero-texto {
 }
 
 .timeline::after {
-  background: linear-gradient(90deg, var(--glow), var(--ember) 45%, var(--ember-2));
+  background: linear-gradient(90deg, var(--vino), var(--ember) 55%, var(--glow));
   transform: scaleX(0);
   transition: transform 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s;
 }
@@ -880,8 +952,10 @@ body.portada-cerrada .hero-texto {
 
 .time {
   margin: 1.15rem 0 0.2rem;
-  font-size: 1.1875rem;
-  font-weight: 500;
+  font-family: var(--fuente-etiqueta);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
@@ -946,9 +1020,12 @@ body.portada-cerrada .hero-texto {
 }
 
 .campo label {
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  color: var(--ink);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
 }
 
 .campo input,
@@ -971,7 +1048,6 @@ body.portada-cerrada .hero-texto {
 
 .campo input:focus,
 .campo textarea:focus {
-  outline: none;
   border-color: var(--ember);
 }
 
@@ -983,9 +1059,12 @@ body.portada-cerrada .hero-texto {
 /* Elección clara de asistencia: dos opciones dentro de un filete, como en
    las invitaciones de referencia. */
 .asistencia-titulo {
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  color: var(--ink);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
 }
 
 .asistencia-opciones {
@@ -1030,20 +1109,21 @@ body.portada-cerrada .hero-texto {
    16. Mesa de regalos
    ============================================================ */
 .mesa-nota {
-  max-width: 46ch;
-  margin: 0 auto 2.5rem;
-  text-align: center;
+  max-width: 52ch;
+  margin: 0 0 2.75rem;
+  text-align: left;
 }
 
 .card-regalo {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.4rem;
-  padding: clamp(1.75rem, 4vw, 2.5rem) clamp(1.25rem, 3vw, 2rem);
-  text-align: center;
-  border: 1px solid var(--linea);
-  border-radius: var(--radio);
+  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
+  text-align: left;
+  border: 0;
+  border-top: 1px solid var(--linea-fuerte);
+  border-radius: 0;
 }
 
 .logo-regalo {
@@ -1080,14 +1160,15 @@ body.portada-cerrada .hero-texto {
    ============================================================ */
 .card-hotel {
   display: grid;
-  justify-items: center;
+  justify-items: start;
   gap: 0.4rem;
-  padding: clamp(1.5rem, 3vw, 2.25rem) 1rem;
-  text-align: center;
+  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
+  text-align: left;
   text-decoration: none;
   color: inherit;
-  border: 1px solid var(--linea);
-  border-radius: var(--radio);
+  border: 0;
+  border-top: 1px solid var(--linea-fuerte);
+  border-radius: 0;
   transition: border-color 0.25s ease;
 }
 
@@ -1108,9 +1189,18 @@ body.portada-cerrada .hero-texto {
 }
 
 .hotel-enlace {
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ember);
+  text-decoration: underline;
+  text-decoration-color: var(--linea-fuerte);
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.25s ease;
+}
+
+.card-hotel:hover .hotel-enlace {
+  text-decoration-color: var(--ember);
 }
 
 /* ============================================================
@@ -1122,25 +1212,76 @@ body.portada-cerrada .hero-texto {
 }
 
 .galeria-carrusel {
-  width: min(100% - 2.5rem, var(--ancho));
+  position: relative; /* lo aportaba la hoja externa retirada; el contador se ancla aquí */
+  display: grid;
+  width: min(100% - 3rem, var(--ancho));
   margin: 2.5rem auto 0.85rem;
   border-radius: var(--radio);
   overflow: hidden;
   background-color: var(--superficie);
 }
 
-.galeria-carrusel .carousel-item img {
+.galeria-carrusel .diapositiva img {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 2;
   object-fit: cover;
+}
+
+/* Fundido cruzado (T24): todas las diapositivas comparten celda y solo la activa
+   es opaca y recibe el puntero. La mecánica (cuál se ve y cómo avanza) es de T21. */
+.galeria-carrusel .diapositiva {
+  grid-area: 1 / 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease;
+}
+
+.galeria-carrusel .diapositiva.activa {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* La foto es un botón (RNF-1): así se puede abrir el visor con el teclado. */
+.galeria-carrusel .diapositiva-boton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: zoom-in;
 }
 
-.galeria-carrusel .carousel-control-prev-icon,
-.galeria-carrusel .carousel-control-next-icon {
+.galeria-carrusel .carrusel-flecha {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.galeria-carrusel .carrusel-flecha:not(.carrusel-flecha-siguiente) {
+  left: 0.75rem;
+}
+
+.galeria-carrusel .carrusel-flecha-siguiente {
+  right: 0.75rem;
+}
+
+/* La flecha la dibujaba la hoja externa retirada; ahora es un SVG propio.
+   La mecánica del carrusel (qué diapositiva se ve y cómo cambia) la define T21. */
+.galeria-carrusel .carrusel-flecha-icono {
+  display: block;
   width: 2.75rem;
   height: 2.75rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fdf3e8'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
   background-size: 1rem 1rem;
   background-position: 50%;
   border: 1px solid rgba(253, 243, 232, 0.4);
@@ -1151,8 +1292,11 @@ body.portada-cerrada .hero-texto {
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-.galeria-carrusel .carousel-control-prev:hover .carousel-control-prev-icon,
-.galeria-carrusel .carousel-control-next:hover .carousel-control-next-icon {
+.galeria-carrusel .carrusel-flecha-siguiente .carrusel-flecha-icono {
+  transform: rotate(180deg);
+}
+
+.galeria-carrusel .carrusel-flecha:hover .carrusel-flecha-icono {
   background-color: var(--ember);
   border-color: var(--ember);
 }
@@ -1162,18 +1306,19 @@ body.portada-cerrada .hero-texto {
   left: 50%;
   bottom: 0.9rem;
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 2;
   margin: 0;
   padding: 0.3rem 0.85rem;
-  border-radius: 999px;
-  background-color: rgba(24, 14, 9, 0.5);
+  border-radius: 0;
+  background-color: rgba(23, 16, 11, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   color: rgba(253, 243, 232, 0.92);
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .galeria-rejilla {
@@ -1323,8 +1468,9 @@ footer {
 
 .footer-fecha {
   margin: 1rem 0 0;
+  font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
   color: var(--ink-2);
@@ -1353,13 +1499,13 @@ footer a:hover {
 .rejilla-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  gap: clamp(1.5rem, 4vw, 3rem);
 }
 
 .rejilla-3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.25rem;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 
 /* ============================================================
@@ -1367,7 +1513,7 @@ footer a:hover {
    ============================================================ */
 .reveal {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(12px);
   transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -1379,7 +1525,7 @@ footer a:hover {
 /* ============================================================
    22. Aviso (copiar cuenta)
    ============================================================ */
-#notificacion {
+.copia-aviso {
   display: none;
   position: fixed;
   left: 50%;
@@ -1396,6 +1542,125 @@ footer a:hover {
   box-shadow: var(--sombra);
   opacity: 0;
   transition: opacity 0.3s ease;
+}
+
+/* ============================================================
+   Bloques añadidos en la fase 5 (spec 002): cita con autor, historia,
+   restricciones, mesa de regalos con varios datos copiables y aviso del
+   registro. Todo con los tokens del tema (nunca colores literales).
+   ============================================================ */
+.cita-autor {
+  margin-top: 1rem;
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.historia p {
+  max-width: 62ch;
+}
+
+.restricciones-lista {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.restricciones-lista li {
+  text-wrap: pretty;
+}
+
+/* Mesa de regalos: los datos van como texto y un único botón copia la cuenta. */
+.regalo-datos {
+  list-style: none;
+  width: 100%;
+  margin: 0.25rem 0 1.25rem;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.regalo-dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.regalo-dato-texto {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.regalo-dato .regalo-cuenta {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.boton-copiar {
+  flex: none;
+}
+
+.hotel-precio {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ember);
+}
+
+.ayuda {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.confirmacion-cerrada {
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+}
+
+/* Aviso del registro: se fija arriba y por encima de todo (RF-20). */
+.aviso-registro {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10001;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 0.9rem clamp(1rem, 4vw, 2rem);
+  background-color: var(--vino);
+  color: var(--paper);
+  box-shadow: var(--sombra);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-sm);
+}
+
+.aviso-bloque + .aviso-bloque {
+  margin-top: 0.6rem;
+}
+
+.aviso-titulo {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+}
+
+.aviso-registro ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.aviso-registro strong {
+  color: var(--glow);
 }
 
 /* ============================================================
@@ -1422,8 +1687,8 @@ footer a:hover {
   }
 
   .timeline::after {
-    /* El degradado gira con el riel: la brasa baja de claro a oscuro. */
-    background: linear-gradient(180deg, var(--glow), var(--ember) 45%, var(--ember-2));
+    /* El degradado gira con el riel: el vino se abre a la brasa. */
+    background: linear-gradient(180deg, var(--vino), var(--ember) 55%, var(--glow));
     transform: scaleY(0);
   }
 

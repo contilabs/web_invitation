@@ -7,3 +7,7 @@ skills-lock.json
 # Basura del sistema
 Thumbs.db
 desktop.ini
+
+# Dependencias y resultado del build (Vite): se regeneran con npm install / npm run build
+node_modules/
+dist/

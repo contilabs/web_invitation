@@ -1,7 +1,9 @@
-# 💌 Invitación Digital — Karina &amp; Gerardo
+# 💌 Invitación Digital — Karina & Gerardo
 
-Invitación de boda web 100% estática (HTML + CSS + JS + Bootstrap 5), construida tomando lo
-mejor de tres proyectos de invitaciones y usando los **assets de `invitacionk-g`**.
+Invitación de boda web construida con **React + Vite**. El build genera un sitio **estático**
+en `dist/`, listo para servir en cualquier subruta. No hay backend ni panel: toda la boda vive en
+un **registro único** (`src/datos/boda.js`) y las invitaciones en `src/datos/invitaciones.js`; la
+interfaz solo lee y pinta.
 
 ## 🔥 Concepto: «Fuego cálido: día y noche»
 
@@ -11,69 +13,103 @@ torno a la brasa:
 - **Día**: papel marfil, tinta café espresso y cobre de brasa.
 - **Noche**: luz de vela — oscuros cálidos y una brasa más viva.
 
+El estilo es **minimalista y editorial**: superficies de línea de 1 px sin sombras, un único
+bloque oscuro (la cuenta regresiva) y la brasa reservada como acento. Cada sección abre con el
+mismo gesto —un rombo de brasa sobre el título y un filete debajo— y el formulario ofrece la
+asistencia como dos opciones claras.
+
 Ambos temas se controlan **solo con variables CSS** (`:root` en `styles.css` para el día,
 `html.dark-mode` en `darkMode.css` para la noche), y el interruptor recuerda la elección.
 
-El estilo es **minimalista y editorial**: dos tipografías (Erstoria para nombres y títulos,
-Montserrat para el texto), superficies de línea de 1 px sin sombras, un único bloque oscuro (la
-cuenta regresiva) y la brasa reservada como acento. Cada sección abre con el mismo gesto —un rombo
-de brasa sobre el título y un filete debajo— y el formulario ofrece la asistencia como dos opciones
-claras, detalles tomados de la invitación de referencia `vowpost.com/i/grace-noah`. La caligrafía
-Kalista sigue disponible para los nombres cambiando un solo token (`--fuente-nombres`).
-
 ## ▶️ Cómo verla
 
-No hay build ni dependencias. Opciones:
+```bash
+npm install       # instala React + Vite (no hay más dependencias)
+npm run dev       # servidor de desarrollo
+npm run build     # genera el sitio estático en dist/
+npm run preview   # sirve el build de dist/
+npm test          # pruebas de la lógica pura (node --test, sin instalar nada)
+```
 
-- Abre `index.html` directamente en el navegador.
-- O sirve la carpeta con un servidor estático simple (VS Code **Live Server**,
-  `python -m http.server`, etc.)
+## 🧱 Stack
 
-Verifica manualmente en el navegador (no hay tests ni lint).
+- **React 19** + **Vite 8** con `@vitejs/plugin-react`. Nada de librerías de UI, CSS o
+  animación: los estilos son propios y el estado vive en hooks.
 
 ## 📁 Estructura
 
 ```
-index.html        # Todo el contenido de la invitación (secciones 1–14 comentadas)
-styles.css        # Estilos del tema día (Erstoria para nombres/títulos + Montserrat)
-darkMode.css      # Estilos del tema noche + interruptor de tema
-script.js         # Cuenta regresiva, música, aparición al hacer scroll, galería/visor,
-                  # personalización por invitado y copiar datos bancarios
-darkMode.js       # Interruptor de tema (día / noche)
-assets/           # Fotos originales, iconos y audio (copiados de invitacionk-g)
-assets/photos/opt # Derivados JPEG optimizados: lo que la página carga de verdad
-fonts/            # Erstoria + Kalista (copiadas de invitacionk-g)
+index.html          # Shell de Vite (<div id="root">) + script de tema anti-parpadeo + metas
+src/main.jsx        # Monta React
+src/App.jsx         # Compone la invitación y orquesta portada, música e inert
+src/datos/          # El registro de la boda y las fichas de invitación (solo datos)
+src/logica/         # Funciones puras + pruebas (sin React, sin DOM, sin reloj)
+src/hooks/          # Estado con efecto: tema, cuenta regresiva, música, galería, invitación…
+src/componentes/    # Presentación (JSX en español)
+test/               # Prueba de andamiaje (ESM, shell, Bootstrap retirado, fotos optimizadas)
+assets/             # Fotos originales, iconos y audio
+assets/photos/opt/  # Derivados JPEG optimizados: lo que la página carga de verdad
+fonts/              # Erstoria + Kalista (locales)
 ```
 
 ## 🎨 Personalización (datos de la pareja y del evento)
 
-| Qué | Dónde cambia |
+Todo eso se edita en **`src/datos/boda.js`** (registro único de la boda). Las **fichas de
+invitación** viven aparte, en **`src/datos/invitaciones.js`**. No hay textos de contenido en los
+componentes: la interfaz solo lee el registro y pinta.
+
+| Qué | Clave en el registro |
 | --- | --- |
-| Nombre de los novios | `<h1>` del modal y del `header.inicio` en `index.html` |
-| Fecha del evento | Modal, portada, banda de cuenta regresiva y pie en `index.html` |
-| Fecha de la cuenta regresiva | Constante `fechaBoda` en `script.js` (**debe coincidir con el HTML**) |
-| Correo del formulario RSVP | `action` del `<form>` en `index.html` (FormSubmit.co; el primer envío pide confirmación) |
-| Cuenta bancaria / beneficiario | Constante `DATOS_BANCARIOS` en `script.js` |
-| Enlaces de ubicaciones, mesa de regalos y hoteles | Anclas `href` en `index.html` |
-| Fotos de la galería | Carrusel (`#galeria`) y cuadrícula (`.galeria-rejilla`) en `index.html` |
+| Nombres de los novios | `pareja` |
+| Fecha, hora y zona del evento | `evento` (`fechaInicio`, `zonaHoraria`) |
+| Ubicaciones (ceremonia y recepción) | `ubicaciones` |
+| Itinerario, galería e historia | `itinerario`, `galeria`, `historia` |
+| Cita y portada | `cita`, `portada` |
+| Mesa de regalos | `regalos` (por tipo, con sus datos copiables) |
+| Hoteles y restricciones | `hoteles`, `restricciones` |
+| Confirmación (plazo y campos) | `confirmacion` |
+| Música, navegación y visibilidad | `ajustes` |
+| Crédito y correo del RSVP | `marca.enlaces` |
+| Plantilla | `plantilla` (`"clasica"`) |
 
-### Enlace personalizado por invitado
+Para **reutilizar la invitación con otra pareja**: cambia el registro, deja las fotos con las
+mismas claves y anchos en `assets/photos/opt/` y vuelve a publicar.
 
-La invitación lee `?invitados=N` de la URL y muestra lo reservado en la sección de confirmación:
+### Enlaces de invitación
+
+La invitación se resuelve por **código de enlace** (no por `?invitados=N`). Hay tres tipos de
+ficha en `src/datos/invitaciones.js`:
 
 ```text
-index.html?invitados=3
+index.html?codigo=karina-gerardo-inv-001   # personalizada: nombre, boletos y lugares reservados
+index.html?codigo=rec-003                  # reutilizable: límite de asistentes (1–10), sin nombre
+index.html?codigo=gen-001                  # genérica: un enlace para todos, sin lugares reservados
 ```
+
+Sin código (o con uno desconocido) se muestra la invitación completa con «un lugar».
 
 ### Música
 
-El navegador bloquea el autoplay: la música inicia al pulsar **INGRESAR** en el modal de
-bienvenida (o con el botón flotante de música). Reemplaza `assets/audio.mp3` si quieres otra canción.
+El navegador bloquea el autoplay: la música inicia al pulsar **Ingresar** en la portada (o con
+el botón flotante). Reemplaza `assets/audio.mp3` si quieres otra canción.
 
 ### Tema día / noche
 
 El interruptor está en el panel fijo (arriba a la derecha). La elección se guarda en el
-navegador; si el visitante nunca la cambia, se respeta el tema del sistema operativo.
+navegador; si el visitante nunca la cambia, se respeta el tema del sistema operativo. El script
+del `<head>` resuelve el tema **antes de pintar** para que no haya parpadeo.
+
+### Tipografías
+
+`Erstoria` (nombres y títulos, local) y `Source Serif 4` (texto) + `Montserrat` (etiquetas,
+Google Fonts). La caligrafía `Kalista` sigue disponible para los nombres cambiando un solo
+token: `--fuente-nombres: var(--fuente-script)`.
+
+## ♿ Accesibilidad
+
+Enlace «Saltar al contenido», foco visible, operación por teclado de la portada, el carrusel y
+el visor, textos alternativos en las fotos y respeto por la preferencia de **movimiento
+reducido** (las animaciones se desactivan y el carrusel deja de avanzar solo).
 
 ## 🖼️ Fotos: originales y derivados
 
@@ -87,3 +123,9 @@ declarados con `srcset` y `sizes`).
 > ⚠️ Rutas sensibles a mayúsculas: en macOS/Linux/GitHub Pages los nombres de archivo deben
 > coincidir exactamente (por ejemplo `foto1.jpg`, no `Foto1.JPG`). Nota: los originales incluyen
 > `foto9.png` (no `.jpg`) y `backgrond3.jpg` (con esa grafía).
+
+## 🚀 Despliegue
+
+`npm run build` deja el sitio en `dist/`. `vite.config.js` fija **`base: "./"`**, así que el
+build usa rutas relativas y funciona en cualquier subruta o dominio (incluidos los enlaces ya
+repartidos del tipo `…/index.html?codigo=…`). No hay URL de publicación confirmada todavía.

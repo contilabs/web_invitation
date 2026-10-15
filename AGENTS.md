@@ -1,145 +1,137 @@
 # AGENTS.md
 
-## What this repo is
+Invitación de boda de Karina & Gerardo. App **React + Vite** con build. La spec activa es
+`specs/002-modelo-datos-boda/` (modelo de datos reutilizable, UI dirigida por el registro); la
+migración previa (de la página estática a React) está en `specs/001-migracion-y-rediseno/`.
 
-A static digital wedding invitation (**Spanish UI, `lang="es"`**) for *Karina & Gerardo*, built by
-combining the best parts of three reference projects and using the **assets (photos, icons, audio)
-and fonts from `../invitacionk-g`**. Plain HTML + CSS + vanilla JS + Bootstrap 5 (CDN):
+## Quick start
 
-- **No build step, no package manager, no tests, no lint.** There is no `package.json`.
-- To preview: open `index.html` directly or serve the folder (VS Code **Live Server**,
-  `python -m http.server`). Verify changes manually in a browser.
+- `npm install` — instala React + Vite (no hay más dependencias).
+- `npm run dev` — servidor de desarrollo de Vite.
+- `npm run build` — genera el sitio estático en `dist/`; `npm run preview` lo sirve.
 
-## Design concept: «Fuego cálido: día y noche»
+Estado: la app React compone **toda** la invitación y la interfaz va **dirigida por el registro
+único** (fase 5 de la spec 002 hecha). `index.html` es el shell de Vite (`<div id="root">`), la app
+monta desde `src/main.jsx` y `src/App.jsx` compone el catálogo de secciones que devuelve
+`seccionesVisibles(boda)`; los antiguos `script.js` / `darkMode.js` **ya no existen**. La spec 002
+tiene las fases 0–7 hechas (verificación automática incluida) salvo la **pasada manual (T33)**.
 
-Fire is the couple's own metaphor for their love, so the whole palette is ember-driven:
+## Critical sync points
 
-- **Día** (light) = paper ivory (`--paper`), espresso ink (`--ink`), ember copper (`--ember`).
-- **Noche** (dark) = candlelit night: near-black warm browns, brighter ember.
+> El **único origen** de los datos de la boda es **`src/datos/boda.js`** (pareja, evento, secciones, enlaces, etc.). Las **fichas de invitación** viven en **`src/datos/invitaciones.js`** (separadas del registro de la boda). El código antiguo (`script.js`, `darkMode.js`) ya se borró.
 
-Both themes are driven **only** by CSS custom properties: the `:root` block in `styles.css` (day)
-and the `html.dark-mode` block in `darkMode.css` (night). Never hard-code a colour in a rule —
-add/override a token instead, in both files.
+- **Registro de la boda.** El **único origen** de los datos de la boda es `src/datos/boda.js` (pareja, evento, secciones, enlaces, etc.). Las **fichas de invitación** viven en `src/datos/invitaciones.js` (separadas del registro de la boda).
+- **RSVP form endpoint.** FormSubmit.co; el primer envío pedirá confirmación por correo (externo, no local). El endpoint se define en el registro (`boda.js`) donde corresponda.
 
-The visual language is deliberately **minimal and editorial** (scope of the "más minimalista y
-elegante" pass, Oct 2026):
+## Lógica pura (`src/logica/`)
 
-- **Two type families with clear roles.** Erstoria (display serif) carries the couple's names and
-  every heading; Montserrat (sans) carries body copy and UI. Kalista (script) is still loaded and
-  declared but no longer used: the single switch is the token `--fuente-nombres`, today
-  `var(--fuente-titulo)`. Set it to `var(--fuente-script)` to bring the calligraphy back on the
-  names (hero, header, modal, footer) — nothing else needs to change.
-- **Nothing decorates but a 1 px hairline, one ember diamond, or empty space.** Cards, inputs,
-  buttons, the carousel and the photos use `--radio`/`--radio-grande` and hairlines; **surfaces
-  carry no box-shadow** (only the modal, the copy notification and the floating controls keep
-  `--sombra`/`--sombra-suave`). Every `h2` shares one section header: a 6 px `--ember` diamond
-  (`h2::before`, rotated 45°, opacity 0.55) over the title and one 2.5 rem hairline (`h2::after`)
-  under it — the repeated ornament borrowed from the reference invitation `vowpost.com/i/grace-noah`.
-- **Section detail, borrowed from the same reference:** venue links read `Cómo llegar →`, and the
-  RSVP opens with two hairline choices (`Sí, asistiré` / `No podré asistir`) as a
-  `role="radiogroup"` of `.asistencia-opcion` labels (selected = ember border + `--ember-suave`),
-  which collapses to one column on narrow screens (`minmax(12rem, 1fr)`).
-- **One dark moment.** The countdown band (`.Fecha`) is a single flat `--banda-1` — no gradient,
-  glow or glass. Its four units are separated by air alone (`gap: 1.75rem 2.75rem`); `.caja` has no
-  box.
-- **`--ember` is an accent, not a surface.** Filled ember only on the primary actions; the rest is
-  ink text, hairlines, or a `·`+ember detail (e.g. the `.chip` time). `--tracking-dato` (0.18em) is
-  the one tracked-caps voice for dates/labels.
-- **Calm motion.** The ambient photo zooms became one-shot settles (`heroAcerca` 2.6 s,
-  `portadaAcerca` 3.2 s); no hover `translateY`; hover zoom on gallery thumbnails is 1.03.
-  `prefers-reduced-motion` still removes all of it.
+- **Sin React, sin DOM y sin reloj interno.** Cada módulo exporta funciones puras; lo que
+  depende del entorno (el «ahora», `localStorage`, `<audio>`, `URLSearchParams`) entra como parámetro o vive en
+  el hook/componente. Español en identificadores, comentarios y textos de interfaz.
+- **Secciones.** El catálogo incluye las secciones existentes más **cita** e **historia**. La confirmación **siempre está presente** (no se apaga). Las secciones opcionales se omiten si no están definidas o no tienen contenido. El **orden de presentación vive solo en `ORDEN_SECCIONES`** (`secciones.js`); la **galería cierra** la invitación (última, justo antes del `Pie`). Los **títulos de sección viven en el registro** (`ubicaciones.titulo`, `galeria.titulo`, `regalos.titulo`, `restricciones.titulo`, `itinerario.titulo`, `hoteles.titulo`); un objeto con solo `titulo` **no** hace visible la sección (por eso `esNoVacio` lo ignora).
+- **Personalización por enlace.** La invitación se resuelve por **código de enlace** (no por `?invitados=N`). Hay tres tipos: personalizada, reutilizable y genérica. Los lugares reservados solo existen en la personalizada.
+- **Inventario de lógica.** Funciones puras para nombres (`pareja.js`), fecha/zona (`evento.js`), secciones visibles (`secciones.js`), restricciones con jerarquía boda→ficha (`restricciones.js`), resolución de invitación (`invitacion.js`), confirmación/plazos (`confirmacion.js`), regalos con `opcionesDeRegalo`/`datosCopiables`/`datoCopiable` (`regalos.js`), validación/avisos (`validacion.js`), cuenta regresiva (`cuentaRegresiva.js`), galería (`galeria.js`), tema (`tema.js`), música (`musica.js`) y etiquetas (`etiquetas.js`).
+- **Mesa de regalos (RF-10).** Los datos de cada opción salen del registro; **como máximo uno** va marcado con `copiar: true` y es el que copia el **único** botón de la opción (el resto se muestra como texto). Si una opción trae varios datos sin marca, no se pone botón: no se adivina cuál es la cuenta. `BotonCopiar` usa `textoBoton` para el rótulo visible y el aviso nombra el dato copiado.
+- **Pruebas co-locadas** (`src/logica/*.test.js`) con el runner `node --test`; se descubren
+  solas. No hay tests de UI (van a mano).
+- **Interfaz (`src/hooks/`, `src/componentes/`).** La lógica con estado (el «ahora», `localStorage`,
+  `<audio>`, `IntersectionObserver`) vive en `src/hooks/` (un hook por comportamiento) y la
+  presentación en `src/componentes/` (JSX en español). `App.jsx` compone el catálogo que devuelve
+  `seccionesVisibles(boda)` y reparte los datos; cada sección tiene su componente (`Portada`,
+  `Hero`, `CuentaRegresiva`, `Retrato`, `Cita`, `Historia`, `Lugares`, `Itinerario`, `Galeria`,
+  `MesaDeRegalos`, `Hoteles`, `Restricciones`, `Confirmacion`, `Pie`, `Encabezado`) y hay piezas
+  reutilizables (`BotonCopiar`, `Visor`, `ControlTema`, `ControlMusica`, `AvisoDeError`). Los
+  textos que son **datos de la boda** viven en el registro (`boda.js`); los rótulos de interfaz que
+  no son datos viven con su componente.
 
-> Constraints any restyle must respect: `verificar.js` asserts every ink/paper contrast pair is
-> ≥ 4.5 in both themes, and that the rendered icon tint equals the theme's `--ember`.
+## Theming & behavior quirks
 
-## Structure
+- **Theme prevents flash.** The inline script at the top of `<head>` in `index.html` is the **single initial resolution** of the theme: it reads `localStorage["kg-tema"]` (`"dia"`/`"noche"`), falls back to the system preference, and applies `html.dark-mode` + `data-tema` before any stylesheet loads. It must stay **before** the first `<link rel="stylesheet">` (guarded by `test/andamiaje.test.js`). Don’t add theme classes to `<body>` or duplicate this logic: `useTema` (T12) **reuses** what the script already set (`data-tema` / `kg-tema`), persists the choice in `localStorage["kg-tema"]`, follows the system while there is no saved choice, and updates `theme-color` with an unscoped `<meta>` when the guest chooses.
+- **No-JS fallback.** `<body>` carries a `<noscript>` notice in Spanish: without JavaScript the app cannot mount, so the guest is told to enable it. Keep it in Spanish (RNF-5); it is new interface copy, allowed by RF-2.
+- **CSS-only theming.** Day tokens live in `styles.css` (`:root`), night tokens in `darkMode.css` (`html.dark-mode`). Only CSS variables change; images are not filtered for theme. Dark-mode icon/logo adjustments are defined in `darkMode.css`.
+- **Reduced motion.** The motion override lives at the end of `styles.css` (`@media (prefers-reduced-motion: reduce)`). `useGaleria` (T21) also disables the carousel’s auto-advance under this preference (RNF-2), and `useReveal` relies on the CSS override to skip the section animation.
+- **Accessibility (T25).** La app va dentro de `<main>` (con `<header>`/`<footer>`) y abre con el enlace «Saltar al contenido» (`a.saltar`, oculto hasta recibir foco). El foco visible sale de `:where(a, button, input, textarea, [tabindex]):focus-visible` con `--ember`. La portada cierra con Escape o clic fuera y devuelve el foco a `#inicio`; cada diapositiva del carrusel es un `<button>` y el visor es un `<dialog>` con `showModal()`. `test/andamiaje.test.js` exige el enlace de salto dentro de `<main>`.
+- **Rendimiento (T26).** La página solo carga derivados de `assets/photos/opt/` (nunca los originales); el visor usa `elegirVariante(srcset, 1400)`; el `<audio>` lleva `preload="none"` con `<source>` (no se descarga hasta el gesto); `fetchPriority` alto en la portada y bajo en el hero. `calcularRestante` devuelve «terminado» si la fecha es `NaN` en vez de propagarlo.
+- **Bootstrap retired (T5).** No Bootstrap CSS/JS is loaded: `styles.css` + `darkMode.css` (plus Google Fonts) are the only stylesheets. Carousel hooks are now project-owned — `.galeria-carrusel .diapositiva img` for slides, `.diapositiva.activa` is the visible one (T21 mechanics), and `.carrusel-flecha` (with `.carrusel-flecha-siguiente` for the reversed arrow) + `.carrusel-flecha-icono` for the controls; the chevron is an inline SVG data-URI, and `.galeria-carrusel` is `position: relative` so `.galeria-contador` anchors to it. `.visually-hidden` is defined locally (RNF-1). `test/andamiaje.test.js` fails if `bootstrap`/`carousel`/`data-bs` reappear in the CSS or the shell.
+- **Music requires gesture.** Autoplay is blocked; music starts only after clicking “INGRESAR” (which also closes the welcome modal and unlocks background) or the floating music button. `useMusica` (T23) calls `audio.play()` **inside** the gesture (Safari-friendly); the audio file `assets/audio.mp3` is imported by `App.jsx` so it enters the build.
 
-```
-index.html        # All invitation content (single page, sections commented ES: 1–14)
-styles.css        # Day theme tokens + layout/component styles (Erstoria display + Montserrat; @font-face for Erstoria and Kalista)
-darkMode.css      # Night theme tokens + the theme-switch control
-script.js         # Countdown, music, scroll reveal, guest personalization, gallery/lightbox, copy bank data
-darkMode.js       # Theme-switch handler (toggles the class on <html>)
-assets/           # Copied verbatim from invitacionk-g (photos, icons, audio)
-assets/photos/opt/# Optimized JPEG derivatives — what index.html actually loads (see below)
-fonts/            # Erstoria.woff2, Kalista Script Regular .woff2/.woff (copied from invitacionk-g)
-```
+## Images & assets
 
-- `.reveal` sections animate in via `IntersectionObserver` (adds `.visible`).
-- The gallery (§13, the last section before the footer) is **carousel + grid + lightbox**: Bootstrap's `.carousel` (`#galeria`) shows 7
-  featured photos, `.galeria-rejilla` shows the other 6, and a `<dialog id="lightbox">` opens any of
-  the 13 full-size on click. The carousel preloads its slides when the section nears the viewport
-  (`script.js` §8.b) — hidden slides are never lazily loaded by the browser.
+- **Photo inventory (`src/componentes/fotos.js`).** Las fotos se resuelven **por clave** con `resolverFoto(clave, alt?, sizes?)`, que devuelve `{ src, srcSet, sizes, alt }` (listo para esparcir en un `<img>`) desde `import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", { query: "?url", import: "default" })`. Al arrancar **falla** si falta una clave esperada (las estructurales + las del registro). No escribas rutas de assets a mano: Vite solo copia a `dist/` lo que importa (las fotos/iconos/audio referenciados solo desde el código **no** se copiaban). Así el build las emite con huella y con URL válida en cualquier subruta. La portada y la galería resuelven sus fotos **desde el registro** con `fotosDePortada(portada)` (fondo + tarjeta) y `fotosDeGaleria(galeria)` (destacadas + rejilla); solo quedan como constantes estructurales `FOTO_HERO`, `FOTO_RETRATO` y `FOTO_CONFIRMACION` (fase 5 de la spec 002).
+- **Use optimized images.** The page loads from `assets/photos/opt/` (with `srcset`/`sizes`), not the large originals in `assets/photos/`. If you replace an original, regenerate its optimized variants with the same base names and widths (e.g. `foto5-900.jpg`, `foto5-1800.jpg`); `fotos.js` las descubre por el patrón `…\d+.<ext>` y falla al arrancar si falta una base esperada.
+- **Filename casing matters.** On case-sensitive systems (Linux/GitHub Pages) names must match exactly. Since `fotos.js` deriva los nombres del glob, un cambio de nombre se refleja solo; pero los literales que sí quedan escritos a mano (`backgrond3` como fondo de portada) tienen que coincidir. Nota: en `opt/` todas son `.jpg` (p. ej. `foto9-900.jpg`), aunque el original de `assets/photos/` sea de otra extensión.
+- **Custom fonts.** `Erstoria` y `Kalista` se cargan desde `fonts/` con `font-display: swap` (nombres y títulos: `--fuente-titulo`/`--fuente-script`, y `--fuente-nombres` elige cuál). El **texto** usa `Source Serif 4` (`--fuente-texto`) y las **etiquetas** `Montserrat` (`--fuente-etiqueta`), desde Google Fonts. El rediseño «Ascua» (T24) solo cambia **tokens** de color (`--paper`/`--ink`/`--ember`/`--vino`/`--banda-*`): nunca colores literales.
+- **Base relativa del build (tarea T3).** `vite.config.js` fija `base: "./"`, así el sitio funciona en cualquier subruta (y los enlaces `…/index.html?codigo=…` siguen valiendo). Consecuencia: importa los assets (`import x from "…"` o `import.meta.glob`) en vez de construir rutas a mano; `import.meta.env.BASE_URL` vale `"./"` y no hay que normalizarlo a `/`. Vite reescribe las rutas del HTML y del CSS y resuelve las de JS con `import.meta.url`.
 
-## Reference projects (outside this repo — do not edit them from here)
+## Guest personalization
 
-| Path | Stack | Use |
-| --- | --- | --- |
-| `../invitacionk-g` | Bootstrap 5 + vanilla JS | **Asset source** + content (event data copied from here) |
-| `../InvitacionD-R` | Bootstrap 5 + vanilla JS | Scroll animations, `?invitados=N` personalization, music-on-INGRESAR |
-| `../invitaci-n-ByF` | Bootstrap 3 + jQuery | Considered only; legacy BS3 markup must not be mixed in |
+- La personalización se resuelve con **`useInvitacion`** (T17): lee el **código del enlace** y devuelve `tipo`, `limite`, `invitado`, `ficha`, `lugaresReservados`, `limiteAsistentes` y `lugaresTexto` (la lógica vive en `logica/invitacion.js`). `Confirmacion` (T27) usa esos datos: prellena y bloquea el nombre en la personalizada, muestra el acompañante de la ficha y acota el número de asistentes al límite.
+- `useConfirmacion` (T18) expone `{ abierta }` y la recalcula **al pasar la fecha límite sin recargar**. Los hooks no leen el registro por su cuenta: sus datos entran por parámetros (en la fase 5, `App.jsx` y `Confirmacion` se los pasan).
 
-This repo intentionally targets **Bootstrap 5 + vanilla JS**; never introduce jQuery, a bundler,
-or a framework without asking.
+## Editing guidance
 
-## Hard-coded personalization (update per event, easy to miss)
+- Prefer minimal, targeted edits. El trabajo avanza **tarea a tarea** según
+  `specs/002-modelo-datos-boda/tasks.md`: no adelantes tareas ajenas ni reescribas lo que
+  ya funciona.
+- Keep the theme token system intact (central CSS variables). Don't inline colors that should come from tokens.
+- When touching dates, links, or bank data, update the **único origen**:
+  `src/datos/boda.js` (toda la interfaz lee de ahí). El código legado de la spec 001
+  (`logica/datosEvento.js`, `logica/invitados.js`) **ya se borró** (T29): no queda copia alguna.
 
-- **Countdown target date** is the constant `fechaBoda` in `script.js` (`2027-11-01T16:30:00`)
-  *and* appears as text ("01 de noviembre de 2027") in the welcome modal, the hero, the countdown
-  band and the footer of `index.html`. Keep them in sync. After the date passes, the countdown area
-  shows a fixed "thanks" message (see `actualizarCuenta()`).
-- **Guest count** is read from `?invitados=N` and written into `#numero` in the RSVP section
-  (defaults to "un lugar").
-- **RSVP** posts to FormSubmit.co whose destination email is hardcoded in the form `action`
-  in `index.html`. First submission triggers a confirmation step.
-- **Bank-transfer data** (account + recipient name) lives in the single constant `DATOS_BANCARIOS`
-  in `script.js`; `copyInfo()` paints it into `[data-banco-cuenta]`/`[data-banco-titular]`.
-- Couple names, venue links, gift registry and hotel links are inline `href`/`h1` values in
-  `index.html`.
+## Memoria
+- Al empezar, lee `MEMORY.md` para conocer el estado del proyecto y las decisiones
+  tomadas.
+- Al terminar una tarea, actualízalo: estado actual, decisiones importantes (con su
+  por qué) y errores a evitar.
+- Mantenlo breve (máximo ~80 líneas): resume o elimina lo que ya no aporte.
+- Si algo se convierte en una regla permanente, propón moverlo a `AGENTS.md` en lugar de
+  dejarlo en la memoria.
+- No guardes nunca datos sensibles (claves, tokens, datos personales).
+- Además de `MEMORY.md` existe `PENDING_TASKS.md` (raíz): casos límite, dudas y trabajo
+  diferido. Léelo al empezar.
+- Depura `PENDING_TASKS.md` siempre: elimina cada entrada cuando se resuelve o deja de ser
+  relevante. No es un histórico.
+- Reparto: `MEMORY.md` = estado y decisiones; `AGENTS.md` = reglas permanentes;
+  `PENDING_TASKS.md` = lo pendiente.
 
-## Gotchas
+## Forma de trabajar
 
-- **Asset availability is source-of-truth.** The k-g asset set does *not* contain every numbered
-  photo: `foto15.jpg`, `foto17.jpg`, `foto18.jpg` do not exist. Used today: `foto1` (hero),
-  `foto2/4/6/10/13/16/19` (carousel), `foto3/5/8/11/12/14` (grid), `foto7` (RSVP side), `foto9`
-  (countdown band), `foto20` (modal arch), `backgrond3` (modal background). Verify the filename
-  against `assets/photos/` before adding a photo, and match case exactly — case matters on GitHub
-  Pages/Linux.
-- **`index.html` loads the optimized derivatives in `assets/photos/opt/`, never the originals in
-  `assets/photos/`.** Each photo has two widths (900/1800 for `foto2`–`foto8`, `foto10`–`foto14`,
-  `foto16`, `foto19`; 700/1400 for `foto20`; 900/1280 for `foto9`; 1400/2400 for `backgrond3`;
-  900/1800 for `foto1`) declared with `srcset` + `sizes`. If you replace a source photo you **must**
-  regenerate its derivatives with matching names/widths, or the `srcset` will 404. Do not "fix" a
-  broken image by pointing back at the original — keep the derivative pipeline.
-- **The hero framing is tuned to `foto1`'s content.** `foto1` is portrait (2048×3072) but the PC
-  hero is a wide `object-fit: cover` band, so only a slice of its height shows. The couple sits at
-  ~49–72 % of the photo's height (faces ~51–58 %), hence `.hero-img { object-position: 50% 62% }`:
-  that keeps them whole from 1280 px to 2560 px wide. On phones there is no vertical crop (the
-  overflow is horizontal), so the value has no effect there. Swapping `foto1` for a different shot
-  means re-tuning that percentage.
-- **Background music cannot autoplay** in browsers; it is started by the INGRESAR button and the
-  floating music button (`reproducirMusica()`/`pausarMusica()` in `script.js`). Keep the gesture.
-- **The theme class lives on `<html>`, not `<body>`** — the inline `<head>` script in `index.html`
-  applies it before first paint (no flash), reading/remembering `localStorage` key `kg-tema`, and
-  falling back to `prefers-color-scheme`. `darkMode.js` only handles the switch clicks;
-  `darkMode.css` holds every `html.dark-mode` override.
-- **Icons are `<img class="ico">` tinted by a CSS `filter: var(--filtro-ico)` — not CSS masks.**
-  Chrome blocks `mask-image` on `file://`, so masks were abandoned. `--filtro-ico` begins with
-  `brightness(0)`, which makes the source pixel colour irrelevant, so any monochrome PNG icons will
-  do. The chain is defined twice (light in `styles.css`, dark in `darkMode.css`) and must stay in
-  sync with the `--ember` tokens of each theme.
-- The `.carousel` class name belongs to Bootstrap; the gallery `<section>` uses `.galeria` and its
-  id is `galeria-seccion` (the carousel keeps `#galeria`) — keep it that way.
-- **The vertical itinerary (≤900 px) turns the rail 90° and centres it.** The rail (`.timeline::before/::after`)
-  becomes a 1 px line at `left: calc(50% - 0.5px)` with a `180deg` gradient, and each `.event` stacks like
-  on desktop (icon, time, label, all centred). The line would otherwise cross the text, so `.time`/`.label`
-  are painted on `background-color: var(--paper)` with `z-index: 1` (the icon already did the same with its
-  `box-shadow` ring). If that section ever gets a background other than `--paper`, the veil will show as a
-  rectangle. `--riel-y` is now only the *desktop* rail's `top` offset.
-- **The countdown band is flat and the four `.caja` have no chrome by design.** Do not reintroduce a
-  gradient/glow on `.Fecha` (`background-image: none`) nor a border/background on `.caja`; the tests
-  only require four `.caja`, each with a `.caja-num` and a `.caja-label`.
-- **`--fuente-nombres` is the one switch between the display serif and the calligraphic script** for
-  the couple's names. Kalista's `@font-face` and `--fuente-script` stay defined so the revert is a
-  one-token change (the font is only downloaded when actually used).
-- Keep all user-facing copy in **Spanish**, including new sections.
+- Haz solo lo que se pide: no añadas funcionalidades por tu cuenta.
+- Cambios pequeños y enfocados; no reescribas lo que ya funciona.
+- Al terminar, resume qué has cambiado y cualquier decisión que deba revisar.
+
+## Límites
+
+- ✅ Siempre: actualizar `MEMORY.md` al terminar cada tarea.
+- ⚠️ Pregunta antes: crear archivos nuevos, cambiar el formato de los datos guardados.
+- 🚫 Nunca: añadir dependencias fuera de las que fija la constitución (hoy: React, Vite y el
+  plugin oficial de React). Nada de librerías de UI, CSS o animación.
+
+## Verificación
+
+- `npm run dev` y `npm run build` deben terminar sin errores.
+- `npm test` (`node --test`, el runner integrado de Node): sin instalar nada. Cubre la lógica
+  pura de `src/logica/*.test.js` y la prueba de andamiaje `test/andamiaje.test.js`.
+- Verificación manual en el navegador (no hay tests de UI): tema, música, cuenta regresiva,
+  galería + visor, copiar datos y envío del RSVP.
+- **Pruebas.** `src/logica/*.test.js` cubre la lógica pura; `src/datos/boda.test.js` y
+  `src/datos/invitaciones.test.js` (T30) son la **no regresión del registro** y la **forma de las
+  fichas** (no importan `componentes/fotos.js`: usa `import.meta.glob`, que solo existe bajo Vite;
+  las claves se validan con `erroresDelRegistro`). `test/andamiaje.test.js` vigila el shell, el CSS
+  y que no vuelva `?invitados=N` (RF-16).
+- **Verificación automática (T32).** Chrome headless sobre `dist/` **servido por un servidor propio**
+  y medido por DevTools Protocol (WebSocket global de Node ≥ 22), no con `--dump-dom`. Comprueba a
+  320/375/768/1024/1440 px, en día y noche, que `scrollWidth` no supera `innerWidth` + 1, que las
+  imágenes del DOM cargan y llevan `alt`, y qué secciones salen según el registro (`restricciones`
+  no aparece en el ejemplo). Los casos límite se ejercen con **parches temporales** de `boda.js` +
+  rebuild y revertir: plazo pasado → `.confirmacion-cerrada` sin formulario; `nombre2` vacío →
+  `.aviso-registro` con el error; `historiaVisible: false` → sin `#historia`; `plantilla: "moderna"`
+  → aviso. El script vive **fuera** del repo (no se versiona).
+- **Pasada manual (T33, pendiente).** Reutilizar con otro registro, copiar datos con el
+  portapapeles, audio tras «Ingresar», **envío real del RSVP** (FormSubmit pide confirmar el correo
+  la primera vez) y una vuelta en un **móvil físico**.
+
+## Reglas
+
+- Lee `docs/constitution.md` y la spec activa (`specs/NNN-*/`) antes de tocar código. 
+

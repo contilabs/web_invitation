@@ -19,15 +19,20 @@ html.dark-mode {
   --smoke: #9a887a;
 
   /* Brasa: más clara para brillar sobre el fondo oscuro */
-  --ember: #e2833f;
+  --ember: #e5763a;
   --ember-2: #f0a061;
   --glow: #f5bd85;
-  --ember-suave: rgba(226, 131, 63, 0.12);
+  --ember-suave: rgba(229, 118, 58, 0.14);
   --sobre-ember: #1a110b;
 
-  /* Misma cadena de tintado, recalculada para la brasa clara del modo noche */
-  --filtro-ico: brightness(0) invert(63%) sepia(93%) saturate(1200%)
-    hue-rotate(331deg) brightness(93%) contrast(91%);
+  /* Vino: versión clara del segundo color, para los filetes de sección */
+  --vino: #a86b62;
+  --vino-suave: rgba(168, 107, 98, 0.16);
+
+  /* Misma cadena de tintado, medida para la brasa clara del modo noche
+     (#e5763a; queda en #e37d3d). */
+  --filtro-ico: brightness(0) invert(63%) sepia(40%) saturate(1450%)
+    hue-rotate(332deg) brightness(93%) contrast(91%);
 
   /* Líneas y sombras */
   --linea: rgba(245, 236, 226, 0.14);
