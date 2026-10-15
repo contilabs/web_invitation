@@ -5,7 +5,7 @@ import { ThemeToggle } from "../ui/ThemeToggle.jsx";
 
 export function ControlsPanel({ inert, withMusic, dark, playing, onToggleTheme, onToggleMusic }) {
   return (
-    <div className="fixed-panel" inert={inert}>
+    <div className="floating-panel" inert={inert}>
       <ThemeToggle dark={dark} toggle={onToggleTheme} />
       {withMusic && <MusicToggle playing={playing} toggle={onToggleMusic} />}
     </div>

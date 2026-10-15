@@ -62,7 +62,7 @@ test("la app ofrece un enlace para saltar al contenido dentro de <main>", () => 
   assert.match(app, /<SkipLink\s*\/>/, "App no pinta el enlace «saltar al contenido»");
 
   const salto = leer("../src/components/layout/SkipLink.jsx");
-  assert.match(salto, /className="saltar"/, "no hay enlace «saltar al contenido»");
+  assert.match(salto, /className="skip-link"/, "no hay enlace «saltar al contenido»");
   assert.match(salto, /href="#inicio"/, "el enlace de salto no apunta al inicio");
 });
 

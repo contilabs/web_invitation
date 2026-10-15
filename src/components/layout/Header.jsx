@@ -8,8 +8,8 @@ export function Header({ couple }) {
   const names = coupleNames(couple);
 
   return (
-    <header className={`inicio${fixed ? " inicio--fijo" : ""}`} id="encabezado">
-      <p className="inicio-titulo">
+    <header className={`site-header${fixed ? " site-header--fixed" : ""}`} id="encabezado">
+      <p className="site-header-title">
         {names.first} <span className="amp">&amp;</span> {names.second}
       </p>
     </header>

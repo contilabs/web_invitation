@@ -171,7 +171,7 @@ export function App() {
         </audio>
       )}
 
-      <main className="contenido" ref={contenidoRef} tabIndex={-1} inert={portadaAbierta}>
+      <main className="site-content" ref={contenidoRef} tabIndex={-1} inert={portadaAbierta}>
         <SkipLink />
 
         {ENCABEZADO_VISIBLE && <Header couple={boda.pareja} />}

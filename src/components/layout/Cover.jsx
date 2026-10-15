@@ -39,7 +39,7 @@ export function Cover({ cover, couple, dateText, onEnter }) {
 
   return (
     <div
-      className="modal-bienvenida"
+      className="welcome-modal"
       id="portada"
       role="dialog"
       aria-modal="true"
@@ -48,18 +48,18 @@ export function Cover({ cover, couple, dateText, onEnter }) {
     >
       {background && (
         <img
-          className="portada-fondo"
+          className="cover-backdrop"
           {...background}
           fetchPriority="high"
           decoding="async"
           aria-hidden="true"
         />
       )}
-      <div className="portada-velo" aria-hidden="true"></div>
+      <div className="cover-veil" aria-hidden="true"></div>
 
-      <div className="modal-bienvenida-body" ref={bodyRef}>
+      <div className="welcome-modal-body" ref={bodyRef}>
         {card && (
-          <div className="modal-intro-img">
+          <div className="welcome-card">
             <img {...card} decoding="async" />
           </div>
         )}
@@ -68,11 +68,11 @@ export function Cover({ cover, couple, dateText, onEnter }) {
           {names.first} <span className="amp">&amp;</span> {names.second}
         </h1>
 
-        <p className="modal-fecha">{dateText}</p>
+        <p className="welcome-date">{dateText}</p>
 
-        <span className="filete" aria-hidden="true"></span>
+        <span className="rule" aria-hidden="true"></span>
 
-        <p className="modal-invitacion">
+        <p className="welcome-text">
           {lines.map((line, i) => (
             <Fragment key={i}>
               {i > 0 && <br />}

@@ -62,7 +62,7 @@ html.dark-mode .logo-regalo {
 /* ============================================================
    Interruptor de tema
    ============================================================ */
-.toggle-btn {
+.theme-toggle {
   position: relative;
   width: 3.9rem;
   height: 2.1rem;
@@ -74,7 +74,7 @@ html.dark-mode .logo-regalo {
   cursor: pointer;
 }
 
-.toggle-thumb {
+.theme-toggle-thumb {
   position: absolute;
   top: 0.19rem;
   left: 0.19rem;
@@ -86,11 +86,11 @@ html.dark-mode .logo-regalo {
   transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-html.dark-mode .toggle-thumb {
+html.dark-mode .theme-toggle-thumb {
   transform: translateX(1.78rem);
 }
 
-.icons {
+.theme-toggle-icons {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -102,7 +102,7 @@ html.dark-mode .toggle-thumb {
 
 /* El icono visible es siempre el del tema al que puedes cambiar,
    y queda en el lado opuesto al del interruptor. */
-.icons svg {
+.theme-toggle-icons svg {
   width: 0.95rem;
   height: 0.95rem;
   color: var(--ink-2);
@@ -115,18 +115,18 @@ html.dark-mode .toggle-thumb {
   transition: opacity 0.3s ease;
 }
 
-.icons .sun circle,
-.icons .moon path {
+.theme-toggle-icons .icon-sun circle,
+.theme-toggle-icons .icon-moon path {
   fill: currentColor;
 }
 
-html:not(.dark-mode) .moon,
-html.dark-mode .sun {
+html:not(.dark-mode) .icon-moon,
+html.dark-mode .icon-sun {
   opacity: 0.9;
 }
 
 @media (hover: hover) {
-  .toggle-btn:hover .icons svg {
+  .theme-toggle:hover .theme-toggle-icons svg {
     opacity: 1;
   }
 }

@@ -2,7 +2,7 @@
 // hasta recibir foco (la clase vive en el CSS) y su destino sigue siendo el ancla `#inicio`.
 export function SkipLink() {
   return (
-    <a className="saltar" href="#inicio">
+    <a className="skip-link" href="#inicio">
       Saltar al contenido
     </a>
   );

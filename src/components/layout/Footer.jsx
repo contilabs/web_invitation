@@ -7,15 +7,15 @@ export function Footer({ couple, dateText, place, credit }) {
 
   return (
     <footer>
-      <p className="footer-nombres">
+      <p className="footer-names">
         {names.first} <span className="amp">&amp;</span> {names.second}
       </p>
-      <p className="footer-fecha">
+      <p className="footer-date">
         {dateText}
         {place ? ` · ${place}` : ""}
       </p>
       {credit && (
-        <p className="footer-credito">
+        <p className="footer-credit">
           Diseño de Invitación Digital ·{" "}
           <a href={credit} target="_blank" rel="noopener noreferrer">
             Más información aquí

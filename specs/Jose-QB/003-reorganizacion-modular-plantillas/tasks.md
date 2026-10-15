@@ -101,7 +101,7 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 6 — Nomenclatura de clases CSS en inglés (el paso de más riesgo)
 
-- [ ] **T18 · Renombrar clases de estructura y controles.** _RF: RF-3, RNF-6, RNF-1._
+- [x] **T18 · Renombrar clases de estructura y controles.** _RF: RF-3, RNF-6, RNF-1._
   Hecho cuando: portada, encabezado, pie, panel, controles, enlace de salto y aviso usan clases en inglés
   (JSX y CSS a la vez), la prueba de andamiaje apunta al nombre nuevo del enlace de salto, ninguna clase
   usa `carousel`/`bootstrap`/`data-bs`/`--bs-` y la comparación de paridad de esos bloques no muestra

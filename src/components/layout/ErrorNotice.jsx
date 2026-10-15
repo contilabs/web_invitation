@@ -6,10 +6,10 @@ export function ErrorNotice({ errors = [], warnings = [] }) {
   if (errors.length === 0 && warnings.length === 0) return null;
 
   return (
-    <section className="aviso-registro" role="alert" aria-live="assertive">
+    <section className="registry-notice" role="alert" aria-live="assertive">
       {errors.length > 0 && (
-        <div className="aviso-bloque aviso-errores">
-          <p className="aviso-titulo">Hay datos inválidos en el registro de la boda</p>
+        <div className="notice-block notice-errors">
+          <p className="notice-title">Hay datos inválidos en el registro de la boda</p>
           <ul>
             {errors.map((error, i) => (
               <li key={`error-${error.field}-${i}`}>
@@ -21,8 +21,8 @@ export function ErrorNotice({ errors = [], warnings = [] }) {
       )}
 
       {warnings.length > 0 && (
-        <div className="aviso-bloque aviso-avisos">
-          <p className="aviso-titulo">Avisos del registro</p>
+        <div className="notice-block notice-warnings">
+          <p className="notice-title">Avisos del registro</p>
           <ul>
             {warnings.map((warning, i) => (
               <li key={`aviso-${warning.field}-${i}`}>

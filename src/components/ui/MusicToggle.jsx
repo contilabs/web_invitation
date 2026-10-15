@@ -6,11 +6,11 @@ export function MusicToggle({ playing, toggle }) {
   return (
     <button
       type="button"
-      className="btn-musica"
+      className="music-toggle"
       aria-label={musicLabel(playing)}
       onClick={toggle}
     >
-      <div className={playing ? "icono-sonando" : "icono-silencio"}></div>
+      <div className={playing ? "icon-playing" : "icon-muted"}></div>
     </button>
   );
 }
