@@ -26,10 +26,12 @@ test("las pruebas usan el runner integrado de Node", () => {
   assert.equal(paquete.scripts.test, "node --test");
 });
 
-test("index.html monta la app de React", () => {
+test("index.html monta la app de React y carga los CSS de la plantilla", () => {
   const html = leer("../index.html");
   assert.match(html, /id="root"/);
   assert.match(html, /src="\/src\/app\/main\.jsx"/);
+  assert.match(html, /href="\/src\/templates\/classic\/classic\.css"/);
+  assert.match(html, /href="\/src\/templates\/classic\/classic-dark\.css"/);
 });
 
 // El script del <head> resuelve el tema antes de pintar (RF-4): si se mueve detrás del

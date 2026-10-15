@@ -133,7 +133,7 @@ contradicción con el código (principio 2, «spec = código»).
   Hecho cuando: la prueba falla si alguien cambia la clave `kg-tema`, un id de ancla, los parámetros
   aceptados `codigo`/`code`/`inv`, los `name` de los campos del formulario o cualquier clave del registro
   o de las fichas.
-- [ ] **T24 · Repasar `test/andamiaje.test.js` completo.** _RF: RF-3, RNF-2._
+- [x] **T24 · Repasar `test/andamiaje.test.js` completo.** _RF: RF-3, RNF-2._
   Hecho cuando: apunta a las rutas nuevas y **ninguna** de sus comprobaciones se ha relajado (script del
   tema antes del primer estilo, `kg-tema`, `dark-mode`, `<noscript>` en español, sin `?invitados=N`, sin
   originales de fotos y sin Bootstrap).
