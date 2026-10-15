@@ -2,11 +2,11 @@
 // traen datos copiables (transferencia, efectivo) los muestran como texto y llevan un
 // **único** botón «Copiar» con el dato que el registro marca como copiable (la cuenta). Los
 // logos son presentación y se eligen aquí por tipo.
-import { giftOptions } from "../utils/gifts.js";
-import { CopyButton } from "../components/ui/CopyButton.jsx";
+import { giftOptions } from "../../utils/gifts.js";
+import { CopyButton } from "../ui/CopyButton.jsx";
 
-import icoBbva from "../../assets/icons/bbva.png";
-import icoLiverpool from "../../assets/icons/liverpool.png";
+import icoBbva from "../../../assets/icons/bbva.png";
+import icoLiverpool from "../../../assets/icons/liverpool.png";
 
 const LOGOS = {
   tienda: icoLiverpool,
@@ -14,25 +14,25 @@ const LOGOS = {
   efectivo: null,
 };
 
-export function MesaDeRegalos({ regalos }) {
-  const opciones = giftOptions(regalos);
+export function Gifts({ gifts }) {
+  const options = giftOptions(gifts);
 
   return (
     <section className="mesaregalos reveal" id="regalos">
       <div className="wrap">
-        {regalos?.titulo && <h2>{regalos.titulo}</h2>}
-        {regalos?.mensaje && <p className="mesa-nota">{regalos.mensaje}</p>}
+        {gifts?.titulo && <h2>{gifts.titulo}</h2>}
+        {gifts?.mensaje && <p className="mesa-nota">{gifts.mensaje}</p>}
 
         <div className="rejilla-2">
-          {opciones.map((opcion, i) => {
-            const logo = LOGOS[opcion.type] ?? null;
-            const copiables = Array.isArray(opcion.copyableFields)
-              ? opcion.copyableFields
+          {options.map((option, i) => {
+            const logo = LOGOS[option.type] ?? null;
+            const copyables = Array.isArray(option.copyableFields)
+              ? option.copyableFields
               : [];
-            const copiable = opcion.copyableField ?? null;
+            const copyable = option.copyableField ?? null;
 
             return (
-              <article className="card-regalo" key={`${opcion.type ?? "regalo"}-${i}`}>
+              <article className="card-regalo" key={`${option.type ?? "regalo"}-${i}`}>
                 {logo && (
                   <img
                     className="logo-regalo"
@@ -43,34 +43,34 @@ export function MesaDeRegalos({ regalos }) {
                   />
                 )}
 
-                <h3>{opcion.label}</h3>
-                {opcion.description && <p className="regalo-titular">{opcion.description}</p>}
+                <h3>{option.label}</h3>
+                {option.description && <p className="regalo-titular">{option.description}</p>}
 
-                {copiables.length > 0 && (
+                {copyables.length > 0 && (
                   <ul className="regalo-datos">
-                    {copiables.map((dato, j) => (
-                      <li className="regalo-dato" key={`${dato.label}-${j}`}>
+                    {copyables.map((field, j) => (
+                      <li className="regalo-dato" key={`${field.label}-${j}`}>
                         <span className="regalo-dato-texto">
-                          <span className="regalo-titular">{dato.label}</span>
-                          <span className="regalo-cuenta">{dato.value}</span>
+                          <span className="regalo-titular">{field.label}</span>
+                          <span className="regalo-cuenta">{field.value}</span>
                         </span>
                       </li>
                     ))}
                   </ul>
                 )}
 
-                {copiable && (
+                {copyable && (
                   <CopyButton
-                    value={copiable.value}
-                    label={copiable.label}
-                    buttonText={`Copiar ${copiable.label.toLowerCase()}`}
+                    value={copyable.value}
+                    label={copyable.label}
+                    buttonText={`Copiar ${copyable.label.toLowerCase()}`}
                   />
                 )}
 
-                {opcion.url && (
+                {option.url && (
                   <a
                     className="boton boton-solido"
-                    href={opcion.url}
+                    href={option.url}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

@@ -5,55 +5,53 @@
 // vienen de la ficha y no se editan.
 import { useState } from "react";
 
-import { invitaciones as defaultGuestCards } from "../data/guest-cards.js";
-import { useConfirmation } from "../hooks/useConfirmation.js";
-import { useInvitation } from "../hooks/useInvitation.js";
-import { useTemplate } from "../hooks/useTemplate.js";
-import { photoFor } from "../services/photos.js";
-import { confirmationFields, deadlineMs } from "../utils/confirmation.js";
-import { formatDate, eventTimeZone } from "../utils/event.js";
-import { INVITATION_TYPES } from "../utils/invitation.js";
+import { invitaciones as defaultGuestCards } from "../../data/guest-cards.js";
+import { useConfirmation } from "../../hooks/useConfirmation.js";
+import { useInvitation } from "../../hooks/useInvitation.js";
+import { useTemplate } from "../../hooks/useTemplate.js";
+import { photoFor } from "../../services/photos.js";
+import { confirmationFields, deadlineMs } from "../../utils/confirmation.js";
+import { formatDate, eventTimeZone } from "../../utils/event.js";
+import { INVITATION_TYPES } from "../../utils/invitation.js";
 
-export function Confirmacion({ boda }) {
-  const { open } = useConfirmation(boda);
-  const invitacion = useInvitation(defaultGuestCards, boda);
+export function Rsvp({ wedding }) {
+  const { open } = useConfirmation(wedding);
+  const invitation = useInvitation(defaultGuestCards, wedding);
   const { structuralPhotos, photoSizes } = useTemplate();
 
-  const confirmacion = boda?.confirmacion ?? {};
-  const enlaceRsvp = boda?.marca?.enlaces?.rsvp ?? "";
-  const campos = confirmationFields(confirmacion);
-  const tieneCampo = (campo) => campos.includes(campo);
+  const confirmation = wedding?.confirmacion ?? {};
+  const rsvpEndpoint = wedding?.marca?.enlaces?.rsvp ?? "";
+  const fields = confirmationFields(confirmation);
+  const hasField = (field) => fields.includes(field);
 
-  const esPersonalizada = invitacion.type === INVITATION_TYPES.PERSONALIZED;
-  const ficha = invitacion.card ?? null;
-  const nombreFicha = esPersonalizada ? String(ficha?.guestName ?? "").trim() : "";
-  const acompanante = esPersonalizada ? String(ficha?.partnerName ?? "").trim() : "";
-  const reservados = invitacion.reservedSeats;
-  const limite = Number.isFinite(invitacion.guestLimit)
-    ? invitacion.guestLimit
-    : null;
+  const isPersonalized = invitation.type === INVITATION_TYPES.PERSONALIZED;
+  const card = invitation.card ?? null;
+  const cardName = isPersonalized ? String(card?.guestName ?? "").trim() : "";
+  const partner = isPersonalized ? String(card?.partnerName ?? "").trim() : "";
+  const reservedSeats = invitation.reservedSeats;
+  const attendeeLimit = Number.isFinite(invitation.guestLimit) ? invitation.guestLimit : null;
 
-  const [asistentes, setAsistentes] = useState(() =>
-    reservados !== null ? String(reservados) : "1",
+  const [attendees, setAttendees] = useState(() =>
+    reservedSeats !== null ? String(reservedSeats) : "1",
   );
 
-  const excedido = limite !== null && Number(asistentes) > limite;
-  const fechaLimite = formatDate(deadlineMs(boda), eventTimeZone(boda?.evento));
+  const exceeded = attendeeLimit !== null && Number(attendees) > attendeeLimit;
+  const deadlineText = formatDate(deadlineMs(wedding), eventTimeZone(wedding?.evento));
 
-  const asunto = boda?.marca?.nombre
-    ? `Confirmación de asistencia — ${boda.marca.nombre}`
+  const subject = wedding?.marca?.nombre
+    ? `Confirmación de asistencia — ${wedding.marca.nombre}`
     : "Confirmación de asistencia";
 
   return (
     <section className="Confirmacion reveal" id="confirmar">
       <div className="wrap">
-        {confirmacion.titulo && <h2>{confirmacion.titulo}</h2>}
+        {confirmation.titulo && <h2>{confirmation.titulo}</h2>}
 
         {!open ? (
           <div className="confirmacion-cerrada" role="status">
             <p className="mesa-nota">El plazo para confirmar tu asistencia ya terminó.</p>
-            {fechaLimite && (
-              <p className="ayuda">La confirmación cerró el {fechaLimite}.</p>
+            {deadlineText && (
+              <p className="ayuda">La confirmación cerró el {deadlineText}.</p>
             )}
           </div>
         ) : (
@@ -68,18 +66,18 @@ export function Confirmacion({ boda }) {
 
             <div className="confirmar-panel">
               <p className="reserva">
-                Hemos reservado <span id="numero">{invitacion.seatsText}</span> en tu honor
+                Hemos reservado <span id="numero">{invitation.seatsText}</span> en tu honor
               </p>
 
               <form
-                action={enlaceRsvp}
+                action={rsvpEndpoint}
                 method="POST"
                 acceptCharset="UTF-8"
-                onSubmit={(evento) => {
-                  if (excedido) evento.preventDefault();
+                onSubmit={(event) => {
+                  if (exceeded) event.preventDefault();
                 }}
               >
-                <input type="hidden" name="_subject" value={asunto} />
+                <input type="hidden" name="_subject" value={subject} />
 
                 <div
                   className="campo asistencia"
@@ -101,7 +99,7 @@ export function Confirmacion({ boda }) {
                   </div>
                 </div>
 
-                {tieneCampo("nombre") && (
+                {hasField("nombre") && (
                   <div className="campo">
                     <label htmlFor="nombre">Tu nombre</label>
                     <input
@@ -110,23 +108,23 @@ export function Confirmacion({ boda }) {
                       name="nombre"
                       placeholder="Escribe tu nombre"
                       autoComplete="name"
-                      defaultValue={nombreFicha}
-                      readOnly={esPersonalizada && nombreFicha !== ""}
+                      defaultValue={cardName}
+                      readOnly={isPersonalized && cardName !== ""}
                       required
                     />
                   </div>
                 )}
 
-                {acompanante && (
+                {partner && (
                   <>
                     <p className="ayuda">
-                      Te acompañará <strong>{acompanante}</strong>.
+                      Te acompañará <strong>{partner}</strong>.
                     </p>
-                    <input type="hidden" name="acompanante" value={acompanante} />
+                    <input type="hidden" name="acompanante" value={partner} />
                   </>
                 )}
 
-                {tieneCampo("asistentes") && (
+                {hasField("asistentes") && (
                   <div className="campo">
                     <label htmlFor="asistentes">Número de asistentes</label>
                     <input
@@ -134,24 +132,24 @@ export function Confirmacion({ boda }) {
                       id="asistentes"
                       name="asistentes"
                       min={1}
-                      max={limite ?? undefined}
+                      max={attendeeLimit ?? undefined}
                       step={1}
                       inputMode="numeric"
-                      value={asistentes}
-                      onChange={(evento) => setAsistentes(evento.target.value)}
+                      value={attendees}
+                      onChange={(event) => setAttendees(event.target.value)}
                       required
                     />
-                    {limite !== null && (
+                    {attendeeLimit !== null && (
                       <p className="ayuda">
-                        {excedido
-                          ? `El máximo reservado son ${limite === 1 ? "1 lugar" : `${limite} lugares`}.`
-                          : `Tienes ${limite === 1 ? "1 lugar" : `${limite} lugares`} disponibles.`}
+                        {exceeded
+                          ? `El máximo reservado son ${attendeeLimit === 1 ? "1 lugar" : `${attendeeLimit} lugares`}.`
+                          : `Tienes ${attendeeLimit === 1 ? "1 lugar" : `${attendeeLimit} lugares`} disponibles.`}
                       </p>
                     )}
                   </div>
                 )}
 
-                {tieneCampo("alergias") && (
+                {hasField("alergias") && (
                   <div className="campo">
                     <label htmlFor="alergias">Alergias o restricciones alimentarias</label>
                     <input
@@ -164,7 +162,7 @@ export function Confirmacion({ boda }) {
                   </div>
                 )}
 
-                {tieneCampo("mensaje") && (
+                {hasField("mensaje") && (
                   <div className="campo">
                     <label htmlFor="mensaje">Mensaje para los novios</label>
                     <textarea
@@ -176,7 +174,7 @@ export function Confirmacion({ boda }) {
                   </div>
                 )}
 
-                <button type="submit" className="boton boton-solido" disabled={excedido}>
+                <button type="submit" className="boton boton-solido" disabled={exceeded}>
                   Enviar confirmación
                 </button>
               </form>

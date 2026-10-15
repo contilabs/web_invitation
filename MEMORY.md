@@ -7,16 +7,17 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil. Registro único
   (`src/data/wedding.js`) + fichas (`src/data/guest-cards.js`); interfaz dirigida por el registro
   (`App.jsx` compone `visibleSections(boda)`); `npm test` → **110/110** y build OK.
-- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T15 hechas** (fases 0–5 parciales) y
+- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T17 hechas** (fases 0–5) y
   marcadas en `tasks.md`: `constants/`, `utils/` en inglés (T4–T7), `data/` (T8), plantilla clásica con
-  CSS + iconos + `photoSizes` (T9–T10), **capa de plantilla** (T11–T12: `templates/index.js`,
-  `templates/classic/index.js`, `providers/TemplateProvider.jsx`, `hooks/useTemplate.js`,
-  `services/photos.js`), **hooks renombrados y en inglés** (T13) y **presentación repartida**:
-  `components/ui/` (`CopyButton`, `ThemeToggle`, `MusicToggle`, `GalleryViewer`, T14) y
-  `components/layout/` (`Header`, `Footer`, `Cover`, `ErrorNotice`, `SkipLink`, `ControlsPanel`, T15).
-  Los **internos de `utils/`, `hooks/` y de las piezas movidas** van en inglés (comentarios, textos y
-  claves de datos siguen en español). `npm test` → **110/110**, build OK (CSS `index-BJyTF753.css`
-  intacto) y **paridad 30/30**. Faltan T16–T28 (secciones, clases CSS, `app/`, pruebas y cierre).
+  CSS + iconos + `photoSizes` (T9–T10), **capa de plantilla** (T11–T12:
+  `templates/`, `providers/TemplateProvider.jsx`, `hooks/useTemplate.js`, `services/photos.js`),
+  **hooks** (T13) y **todos los componentes** reubicados y en inglés: `components/ui/` (T14),
+  `components/layout/` (T15) y `components/sections/` (T16–T17: `Hero`, `Portrait`, `Locations`,
+  `Timeline`, `Hotels`, `Restrictions`, `Quote`, `Story`, `Countdown`, `Gallery`, `Gifts`, `Rsvp`);
+  `src/componentes/` ya no existe. Los **internos** de `utils/`, `hooks/` y componentes van en inglés
+  (comentarios, textos y claves de datos siguen en español). `npm test` → **110/110**, build OK
+  (CSS `index-BJyTF753.css` intacto) y **paridad 30/30**. Faltan T18–T28 (clases CSS, `app/`,
+  pruebas y cierre).
 - Documentación: `docs/constitution.md` (6 principios), `specs/001-*`…`003-*`, `PENDING_TASKS.md`.
 ## Decisiones (y por qué)
 - **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue
@@ -79,6 +80,6 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   idénticas. Hoy **30/30**.
 ## Próximos pasos
 - **Spec 002 · T33:** pasada manual (otro registro, portapapeles, audio, **RSVP real**, móvil físico).
-- **Spec 003 · T14–T28:** componentes a inglés y a `components/`, clases CSS (lo más delicado),
-  `app/`, `test/contracts.test.js`, limpieza y paridad automática (arnés ya disponible).
+- **Spec 003 · T18–T28:** clases CSS a inglés (lo más delicado), `app/`, `test/contracts.test.js`,
+  limpieza de `services/` y de los internos de tests, y pasada manual final.
 - Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas…): ver `PENDING_TASKS.md`.

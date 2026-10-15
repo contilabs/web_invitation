@@ -24,20 +24,18 @@ import { Header } from "./components/layout/Header.jsx";
 import { Footer } from "./components/layout/Footer.jsx";
 import { SkipLink } from "./components/layout/SkipLink.jsx";
 import { ControlsPanel } from "./components/layout/ControlsPanel.jsx";
-import { Cita } from "./componentes/Cita.jsx";
-import { Confirmacion } from "./componentes/Confirmacion.jsx";
-import { CuentaRegresiva } from "./componentes/CuentaRegresiva.jsx";
-import { Galeria } from "./componentes/Galeria.jsx";
-import { Historia } from "./componentes/Historia.jsx";
-import { MesaDeRegalos } from "./componentes/MesaDeRegalos.jsx";
-import {
-  Hero,
-  Hoteles,
-  Itinerario,
-  Lugares,
-  Restricciones,
-  Retrato,
-} from "./componentes/Secciones.jsx";
+import { Quote } from "./components/sections/Quote.jsx";
+import { Story } from "./components/sections/Story.jsx";
+import { Countdown } from "./components/sections/Countdown.jsx";
+import { Gallery } from "./components/sections/Gallery.jsx";
+import { Gifts } from "./components/sections/Gifts.jsx";
+import { Rsvp } from "./components/sections/Rsvp.jsx";
+import { Hero } from "./components/sections/Hero.jsx";
+import { Portrait } from "./components/sections/Portrait.jsx";
+import { Locations } from "./components/sections/Locations.jsx";
+import { Timeline } from "./components/sections/Timeline.jsx";
+import { Hotels } from "./components/sections/Hotels.jsx";
+import { Restrictions } from "./components/sections/Restrictions.jsx";
 import { useMusic } from "./hooks/useMusic.js";
 import { useReveal } from "./hooks/useReveal.js";
 import { useTheme } from "./hooks/useTheme.js";
@@ -76,29 +74,29 @@ function pintarSeccion({ key, data }) {
     case "pareja":
       return (
         <Fragment key="pareja">
-          <Hero pareja={boda.pareja} fechaTexto={FECHA_TEXTO} />
-          <CuentaRegresiva instanteMs={INSTANTE_EVENTO} fechaTexto={FECHA_TEXTO} />
-          <Retrato />
+          <Hero couple={boda.pareja} dateText={FECHA_TEXTO} />
+          <Countdown instantMs={INSTANTE_EVENTO} dateText={FECHA_TEXTO} />
+          <Portrait />
         </Fragment>
       );
     case "cita":
-      return <Cita key="cita" cita={data} />;
+      return <Quote key="cita" quote={data} />;
     case "historia":
-      return <Historia key="historia" historia={data} />;
+      return <Story key="historia" story={data} />;
     case "ubicaciones":
-      return <Lugares key="ubicaciones" ubicaciones={data} />;
+      return <Locations key="ubicaciones" locations={data} />;
     case "itinerario":
-      return <Itinerario key="itinerario" itinerario={data} />;
+      return <Timeline key="itinerario" timeline={data} />;
     case "galeria":
-      return <Galeria key="galeria" galeria={data} />;
+      return <Gallery key="galeria" gallery={data} />;
     case "regalos":
-      return <MesaDeRegalos key="regalos" regalos={data} />;
+      return <Gifts key="regalos" gifts={data} />;
     case "hoteles":
-      return <Hoteles key="hoteles" hoteles={data} />;
+      return <Hotels key="hoteles" hotels={data} />;
     case "restricciones":
-      return <Restricciones key="restricciones" restricciones={data} />;
+      return <Restrictions key="restricciones" restrictions={data} />;
     case "confirmacion":
-      return <Confirmacion key="confirmacion" boda={boda} />;
+      return <Rsvp key="confirmacion" wedding={boda} />;
     default:
       return null;
   }

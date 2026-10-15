@@ -90,11 +90,11 @@ contradicción con el código (principio 2, «spec = código»).
   Hecho cuando: existen `Header`, `Footer`, `Cover`, `ErrorNotice`, `SkipLink` y `ControlsPanel`; el
   enlace de salto sigue apuntando a `#inicio`, `href="#inicio"` no cambia y el panel sigue inerte
   mientras la portada está abierta.
-- [ ] **T16 · Partir `Secciones.jsx` en `components/sections/`.** _RF: RF-1, RF-4._
+- [x] **T16 · Partir `Secciones.jsx` en `components/sections/`.** _RF: RF-1, RF-4._
   Hecho cuando: existen `Hero`, `Portrait`, `Locations`, `Timeline`, `Hotels` y `Restrictions` (y
   `Footer` en layout) y el marcado generado es **idéntico** al de antes: mismos nodos, mismos atributos,
   mismas `alt` y mismo orden.
-- [ ] **T17 · Mover las secciones restantes.** _RF: RF-1, RF-4, RF-5._
+- [x] **T17 · Mover las secciones restantes.** _RF: RF-1, RF-4, RF-5._
   Hecho cuando: existen `Quote`, `Story`, `Countdown`, `Gallery`, `Gifts` y `Rsvp`; el conjunto y el
   orden de secciones no cambian y la confirmación muestra el mismo formulario, los mismos campos y los
   mismos límites por tipo de invitación.
