@@ -1,5 +1,5 @@
 // Lógica pura: resolución de la invitación por código de enlace (RF-16, RF-17).
-// Sustituye a `?invitados=N`: el código identifica la ficha en `invitaciones.js`.
+// Sustituye a `?invitados=N`: el código identifica la ficha en `guest-cards.js`.
 
 export const INVITATION_TYPES = {
   PERSONALIZED: "personalizada",

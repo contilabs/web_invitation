@@ -5,7 +5,7 @@
 // vienen de la ficha y no se editan.
 import { useState } from "react";
 
-import { invitaciones as invitacionesPorDefecto } from "../datos/invitaciones.js";
+import { invitaciones as invitacionesPorDefecto } from "../data/guest-cards.js";
 import { useConfirmacion } from "../hooks/useConfirmacion.js";
 import { useInvitacion } from "../hooks/useInvitacion.js";
 import { confirmationFields, deadlineMs } from "../utils/confirmation.js";

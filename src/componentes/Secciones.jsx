@@ -1,5 +1,5 @@
 // Secciones de contenido de la invitación (T15/T24, RF-2, RF-4, RF-6, RF-11, RF-14). Todas
-// leen del registro único (`datos/boda.js`): aquí no quedan nombres, fechas, lugares ni
+// leen del registro único (`data/wedding.js`): aquí no quedan nombres, fechas, lugares ni
 // textos de contenido, solo el rótulo de interfaz («Cómo llegar», «Ver hotel»).
 import { coupleNames } from "../utils/couple.js";
 import { restrictionMessages } from "../utils/restrictions.js";

@@ -3,7 +3,7 @@
 // el texto de lugares para no repetir el formato en los componentes.
 import { useState } from "react";
 
-import { invitaciones as invitacionesPorDefecto } from "../datos/invitaciones.js";
+import { invitaciones as invitacionesPorDefecto } from "../data/guest-cards.js";
 import {
   formatSeats,
   guestLimit,

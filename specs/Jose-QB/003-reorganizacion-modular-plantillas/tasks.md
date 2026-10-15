@@ -48,7 +48,7 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 2 — Datos
 
-- [ ] **T8 · Mover `src/datos/` a `src/data/`.** _RF: RF-1, RNF-4._
+- [x] **T8 · Mover `src/datos/` a `src/data/`.** _RF: RF-1, RNF-4._
   Hecho cuando: `data/wedding.js` y `data/guest-cards.js` contienen **exactamente** el mismo registro y
   las mismas fichas (mismas claves y mismos valores, incluido `plantilla: "clasica"`), sus pruebas pasan
   desde `data/` y ninguna referencia a `datos/` queda en `src/`.

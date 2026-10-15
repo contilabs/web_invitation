@@ -6,8 +6,8 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import { boda } from "./boda.js";
-import { invitaciones } from "./invitaciones.js";
+import { boda } from "./wedding.js";
+import { invitaciones } from "./guest-cards.js";
 import {
   INVITATION_TYPES,
   guestLimit,

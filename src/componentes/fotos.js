@@ -7,9 +7,9 @@
 // `assets/photos/opt/` y el nombre termina en su ancho (`foto5-900.jpg`). Nunca se usa el
 // original de cámara.
 //
-// En la fase 5 la **portada** y la **galería** salen del registro (`boda.js`); las fotos
+// En la fase 5 la **portada** y la **galería** salen del registro (`wedding.js`); las fotos
 // estructurales (hero, retrato y confirmación) siguen resolviéndose aquí.
-import { boda } from "../datos/boda.js";
+import { boda } from "../data/wedding.js";
 
 const modulos = import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", {
   eager: true,

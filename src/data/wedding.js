@@ -1,7 +1,7 @@
 // Registro único de la boda (T4–T5, RF-1, RF-2, RF-3, RF-4–RF-15, RF-22).
 //
 // Toda la información de la boda vive aquí, separada de las fichas de invitación
-// (src/datos/invitaciones.js). Solo datos (sin React, sin DOM, sin lógica): también los
+// (src/data/guest-cards.js). Solo datos (sin React, sin DOM, sin lógica): también los
 // textos de cada sección, que la interfaz no incrusta (RNF-1).
 
 export const boda = {

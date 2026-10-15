@@ -1,5 +1,5 @@
 // App (T28, RF-19, RF-22). Es la raíz de composición: lee el registro único
-// (`datos/boda.js`) y el catálogo de secciones (`utils/sections.js`) y pinta cada bloque
+// (`data/wedding.js`) y el catálogo de secciones (`utils/sections.js`) y pinta cada bloque
 // con sus datos. No contiene datos ni textos de contenido incrustados. Mientras la portada
 // está abierta, el contenido (dentro de <main>) y el panel quedan inertes (RF-1); al
 // cerrarla, el foco pasa al inicio y arranca la música (RF-5). El audio no se descarga hasta
@@ -8,8 +8,8 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 import audioUrl from "../assets/audio.mp3";
 
-import { boda } from "./datos/boda.js";
-import { invitaciones } from "./datos/invitaciones.js";
+import { boda } from "./data/wedding.js";
+import { invitaciones } from "./data/guest-cards.js";
 import { formatDate, eventInstant, eventTimeZone } from "./utils/event.js";
 import { visibleSections } from "./utils/sections.js";
 import { registryWarnings, registryErrors } from "./utils/validation.js";

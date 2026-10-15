@@ -1,14 +1,14 @@
 // Prueba de no regresión del registro de ejemplo (T30, RF-1, RF-19, RF-22).
 //
-// Comprueba que `src/datos/boda.js` conserva los datos de la boda actual (nombres, fecha,
+// Comprueba que `src/data/wedding.js` conserva los datos de la boda actual (nombres, fecha,
 // ubicaciones, cuenta y enlaces) y que el registro es coherente con la validación pura.
 // No importa `componentes/fotos.js`: usa `import.meta.glob`, que solo existe bajo Vite; la
 // resolución de las claves se comprueba con `registryErrors` (RF-20).
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import { boda } from "./boda.js";
-import { invitaciones } from "./invitaciones.js";
+import { boda } from "./wedding.js";
+import { invitaciones } from "./guest-cards.js";
 import {
   confirmationFields,
   isConfirmationOpen,
