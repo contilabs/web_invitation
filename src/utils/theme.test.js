@@ -2,22 +2,22 @@
 // la del sistema entran como parámetros; la persistencia vive en el hook (T12).
 import { strict as assert } from "node:assert";
 import test from "node:test";
-import { resolverTema, CLAVE_TEMA } from "./tema.js";
+import { resolveTheme, CLAVE_TEMA } from "./theme.js";
 
 test("una preferencia guardada válida manda sobre el sistema", () => {
-  assert.equal(resolverTema("dia", true), "dia");
-  assert.equal(resolverTema("noche", false), "noche");
+  assert.equal(resolveTheme("dia", true), "dia");
+  assert.equal(resolveTheme("noche", false), "noche");
 });
 
 test("sin preferencia guardada, se sigue el sistema", () => {
-  assert.equal(resolverTema(null, true), "noche");
-  assert.equal(resolverTema(null, false), "dia");
+  assert.equal(resolveTheme(null, true), "noche");
+  assert.equal(resolveTheme(null, false), "dia");
 });
 
 test("una preferencia guardada inválida se ignora", () => {
   for (const guardado of ["", "DIA", "claro", "oscuro", "true"]) {
-    assert.equal(resolverTema(guardado, true), "noche", `«${guardado}» debería ignorarse`);
-    assert.equal(resolverTema(guardado, false), "dia", `«${guardado}» debería ignorarse`);
+    assert.equal(resolveTheme(guardado, true), "noche", `«${guardado}» debería ignorarse`);
+    assert.equal(resolveTheme(guardado, false), "dia", `«${guardado}» debería ignorarse`);
   }
 });
 

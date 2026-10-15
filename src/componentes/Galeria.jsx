@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useGaleria } from "../hooks/useGaleria.js";
-import { siguienteIndice } from "../logica/galeria.js";
+import { nextIndex } from "../utils/gallery.js";
 import { fotosDeGaleria } from "./fotos.js";
 import { Visor } from "./Visor.jsx";
 
@@ -35,7 +35,7 @@ export function Galeria({ galeria }) {
   }, [reanudar]);
 
   const moverVisor = useCallback(
-    (paso) => setVisor((actual) => siguienteIndice(actual, todas.length, paso)),
+    (paso) => setVisor((actual) => nextIndex(actual, todas.length, paso)),
     [todas.length],
   );
 

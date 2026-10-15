@@ -1,8 +1,8 @@
 // Secciones de contenido de la invitación (T15/T24, RF-2, RF-4, RF-6, RF-11, RF-14). Todas
 // leen del registro único (`datos/boda.js`): aquí no quedan nombres, fechas, lugares ni
 // textos de contenido, solo el rótulo de interfaz («Cómo llegar», «Ver hotel»).
-import { nombresDeLaPareja } from "../logica/pareja.js";
-import { mensajesDeRestricciones } from "../logica/restricciones.js";
+import { coupleNames } from "../utils/couple.js";
+import { restrictionMessages } from "../utils/restrictions.js";
 import { FOTO_HERO, FOTO_RETRATO } from "./fotos.js";
 
 import icoComida from "../../assets/icons/comida.png";
@@ -22,7 +22,7 @@ const ICONOS = {
 };
 
 export function Hero({ pareja, fechaTexto }) {
-  const nombres = nombresDeLaPareja(pareja);
+  const nombres = coupleNames(pareja);
 
   return (
     <section className="hero" id="inicio" tabIndex={-1}>
@@ -184,7 +184,7 @@ export function Hoteles({ hoteles }) {
 }
 
 export function Restricciones({ restricciones }) {
-  const mensajes = mensajesDeRestricciones(restricciones);
+  const mensajes = restrictionMessages(restricciones);
   if (mensajes.length === 0) return null;
 
   return (
@@ -202,7 +202,7 @@ export function Restricciones({ restricciones }) {
 }
 
 export function Pie({ pareja, fechaTexto, lugar, credito }) {
-  const nombres = nombresDeLaPareja(pareja);
+  const nombres = coupleNames(pareja);
 
   return (
     <footer>

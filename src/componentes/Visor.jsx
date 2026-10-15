@@ -3,7 +3,7 @@
 // optimizada de resolución intermedia, nunca el archivo original de cámara.
 import { useEffect, useRef } from "react";
 
-import { elegirVariante } from "../logica/galeria.js";
+import { pickVariant } from "../utils/gallery.js";
 
 const ANCHO_INTERMEDIO = 1400;
 
@@ -34,7 +34,7 @@ export function Visor({ foto, actual, total, onCerrar, onAnterior, onSiguiente }
     return () => dialogo.removeEventListener("keydown", alTeclear);
   }, [onSiguiente, onAnterior]);
 
-  const fuente = elegirVariante(foto.srcSet, ANCHO_INTERMEDIO) ?? foto.src;
+  const fuente = pickVariant(foto.srcSet, ANCHO_INTERMEDIO) ?? foto.src;
 
   return (
     <dialog

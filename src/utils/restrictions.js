@@ -8,21 +8,21 @@ function leerPermisoNinos(restricciones) {
   return undefined;
 }
 
-export function permiteNinos(boda) {
+export function allowsChildren(boda) {
   const valor = leerPermisoNinos(boda?.restricciones);
   // Si no se indica, se permiten (RF-12)
   return valor === undefined ? true : valor;
 }
 
-export function hayConflictoDeNinos(boda, invitacion) {
-  if (!permiteNinos(boda)) {
+export function hasChildrenConflict(boda, invitacion) {
+  if (!allowsChildren(boda)) {
     const n = Number(invitacion?.childGuests ?? invitacion?.ninos ?? 0);
     return Number.isFinite(n) && n > 0;
   }
   return false;
 }
 
-export function mensajesDeRestricciones(restricciones) {
+export function restrictionMessages(restricciones) {
   const mensajes = [];
   if (!restricciones || typeof restricciones !== "object") return mensajes;
   const vestimenta = restricciones.codigoVestimenta ?? restricciones.vestimenta;

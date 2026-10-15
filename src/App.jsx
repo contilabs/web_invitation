@@ -1,5 +1,5 @@
 // App (T28, RF-19, RF-22). Es la raíz de composición: lee el registro único
-// (`datos/boda.js`) y el catálogo de secciones (`logica/secciones.js`) y pinta cada bloque
+// (`datos/boda.js`) y el catálogo de secciones (`utils/sections.js`) y pinta cada bloque
 // con sus datos. No contiene datos ni textos de contenido incrustados. Mientras la portada
 // está abierta, el contenido (dentro de <main>) y el panel quedan inertes (RF-1); al
 // cerrarla, el foco pasa al inicio y arranca la música (RF-5). El audio no se descarga hasta
@@ -10,9 +10,9 @@ import audioUrl from "../assets/audio.mp3";
 
 import { boda } from "./datos/boda.js";
 import { invitaciones } from "./datos/invitaciones.js";
-import { formatearFecha, instanteDelEvento, zonaHorariaDelEvento } from "./logica/evento.js";
-import { seccionesVisibles } from "./logica/secciones.js";
-import { avisosDelRegistro, erroresDelRegistro } from "./logica/validacion.js";
+import { formatDate, eventInstant, eventTimeZone } from "./utils/event.js";
+import { visibleSections } from "./utils/sections.js";
+import { registryWarnings, registryErrors } from "./utils/validation.js";
 
 import { AvisoDeError } from "./componentes/AvisoDeError.jsx";
 import { Cita } from "./componentes/Cita.jsx";
@@ -40,12 +40,12 @@ import { useTema } from "./hooks/useTema.js";
 
 // Todo lo que se deriva del registro se calcula una sola vez (el registro no cambia en
 // tiempo de ejecución). La validación pura decide el aviso visible (RF-15, RF-20).
-const SECCIONES = seccionesVisibles(boda);
-const ERRORES = erroresDelRegistro(boda, invitaciones);
-const AVISOS = avisosDelRegistro(boda);
+const SECCIONES = visibleSections(boda);
+const ERRORES = registryErrors(boda, invitaciones);
+const AVISOS = registryWarnings(boda);
 
-const INSTANTE_EVENTO = instanteDelEvento(boda.evento);
-const FECHA_TEXTO = formatearFecha(INSTANTE_EVENTO, zonaHorariaDelEvento(boda.evento));
+const INSTANTE_EVENTO = eventInstant(boda.evento);
+const FECHA_TEXTO = formatDate(INSTANTE_EVENTO, eventTimeZone(boda.evento));
 
 const NAVEGACION = boda.ajustes?.navegacion ?? {};
 const ENCABEZADO_VISIBLE = NAVEGACION.encabezadoVisible !== false;

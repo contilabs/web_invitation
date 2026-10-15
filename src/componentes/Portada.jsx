@@ -4,14 +4,14 @@
 // (`portada` y `pareja`); la foto de fondo se marca como prioritaria (T26).
 import { Fragment, useEffect, useRef } from "react";
 
-import { nombresDeLaPareja } from "../logica/pareja.js";
+import { coupleNames } from "../utils/couple.js";
 import { fotosDePortada } from "./fotos.js";
 
 export function Portada({ portada, pareja, fechaTexto, onIngresar }) {
   const botonRef = useRef(null);
   const cuerpoRef = useRef(null);
 
-  const nombres = nombresDeLaPareja(pareja);
+  const nombres = coupleNames(pareja);
   const [fondo, tarjeta] = fotosDePortada(portada);
   const lineas = String(portada?.texto ?? "").split("\n");
 

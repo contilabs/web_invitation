@@ -1,15 +1,15 @@
 // Interruptor de tema (T12, RF-4). El aspecto (sol/luna, posición del pulgar) lo
 // pone el CSS según `html.dark-mode`; aquí solo se refleja el estado accesible.
-import { ETIQUETA_TEMA_ARIA, etiquetaTema } from "../logica/etiquetas.js";
+import { THEME_ARIA_LABEL, themeLabel } from "../utils/labels.js";
 
 export function ControlTema({ oscuro, alternar }) {
   return (
     <button
       type="button"
       className="toggle-btn"
-      aria-label={ETIQUETA_TEMA_ARIA}
+      aria-label={THEME_ARIA_LABEL}
       aria-pressed={oscuro}
-      title={etiquetaTema(oscuro ? "noche" : "dia")}
+      title={themeLabel(oscuro ? "noche" : "dia")}
       onClick={alternar}
     >
       <span className="toggle-thumb" aria-hidden="true"></span>

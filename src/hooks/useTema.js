@@ -3,7 +3,7 @@
 // (contrato de T4). Solo aquí vive la persistencia en `localStorage`.
 import { useCallback, useEffect, useState } from "react";
 
-import { CLAVE_TEMA, TEMA_DIA, TEMA_NOCHE } from "../logica/tema.js";
+import { CLAVE_TEMA, TEMA_DIA, TEMA_NOCHE } from "../utils/theme.js";
 
 const COLOR_BARRA = { [TEMA_DIA]: "#f0ebe0", [TEMA_NOCHE]: "#14100d" };
 

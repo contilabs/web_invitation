@@ -1,6 +1,6 @@
 // Cuenta regresiva (T13/T28, RF-3). Muestra días, horas, minutos y segundos, y el mensaje
 // posterior al evento cuando ya pasó (lo decide el módulo puro). El instante y el texto de
-// la fecha llegan desde el registro (App los resuelve con `logica/evento.js`).
+// la fecha llegan desde el registro (App los resuelve con `utils/event.js`).
 import { useCuentaRegresiva } from "../hooks/useCuentaRegresiva.js";
 
 const dosCifras = (numero) => String(numero).padStart(2, "0");

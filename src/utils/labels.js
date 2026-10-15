@@ -2,12 +2,12 @@
 // usaba la web anterior para no cambiar lo que lee el invitado ni el lector de
 // pantalla. Función pura.
 
-export const ETIQUETA_TEMA_ARIA = "Cambiar entre tema claro y oscuro";
+export const THEME_ARIA_LABEL = "Cambiar entre tema claro y oscuro";
 
-export function etiquetaMusica(sonando) {
+export function musicLabel(sonando) {
   return sonando ? "Pausar la música" : "Reproducir la música";
 }
 
-export function etiquetaTema(tema) {
+export function themeLabel(tema) {
   return tema === "noche" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
 }

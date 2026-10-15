@@ -1,6 +1,6 @@
 // Lógica pura: composición de nombres de la pareja (RF-2)
 
-export function componerNombrePersona(persona) {
+export function composePersonName(persona) {
   if (!persona || typeof persona !== "object") return "";
   const partes = [];
   if (persona.nombre) {
@@ -26,7 +26,7 @@ export function componerNombrePersona(persona) {
   return partes.join(" ");
 }
 
-export function nombresDeLaPareja(pareja) {
+export function coupleNames(pareja) {
   if (!pareja || typeof pareja !== "object") {
     return { primera: "", segunda: "", paraMostrar: "" };
   }
@@ -35,9 +35,9 @@ export function nombresDeLaPareja(pareja) {
   let primera = "";
   let segunda = "";
   if (typeof p1 === "string") primera = p1.trim();
-  else primera = componerNombrePersona(p1);
+  else primera = composePersonName(p1);
   if (typeof p2 === "string") segunda = p2.trim();
-  else segunda = componerNombrePersona(p2);
+  else segunda = composePersonName(p2);
   const nombreParaMostrarBruto = pareja.nombreParaMostrar ?? pareja.paraMostrar ?? null;
   let paraMostrar = "";
   if (nombreParaMostrarBruto && String(nombreParaMostrarBruto).trim()) {

@@ -15,10 +15,10 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 0 — Preparación
 
-- [ ] **T1 · Congelar la referencia de paridad.** _RF: RNF-1._
+- [x] **T1 · Congelar la referencia de paridad.** _RF: RNF-1._
   Hecho cuando: existe un commit con el estado actual y una copia del `dist/` construido desde él
   (con su fecha), guardada fuera del árbol de trabajo; sin esa copia la paridad no es comprobable.
-- [ ] **T2 · Enmendar `docs/constitution.md`.** _RF: RF-3, RNF-6 (soporte de RF-1 y RF-2)._
+- [x] **T2 · Enmendar `docs/constitution.md`.** _RF: RF-3, RNF-6 (soporte de RF-1 y RF-2)._
   Hecho cuando: los principios 2 y 3 describen **responsabilidades y capas** en vez de rutas literales,
   el 6 exige nomenclatura de **código en inglés** conservando español en textos, datos, comentarios y
   documentación, y el 4 aclara qué es verificación automática y cómo se anota la manual; ninguna frase
@@ -26,23 +26,23 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 1 — Constantes y lógica pura
 
-- [ ] **T3 · Crear `constants/` y hacer que la lógica lea de ahí.** _RF: RF-1, RF-2, RF-4, RF-5._
+- [x] **T3 · Crear `constants/` y hacer que la lógica lea de ahí.** _RF: RF-1, RF-2, RF-4, RF-5._
   Hecho cuando: `constants/sections.js` es la **única** fuente del orden de secciones,
   `constants/theme.js` expone `THEME_STORAGE_KEY` con el valor `"kg-tema"` y `constants/templates.js`
   expone `IMPLEMENTED_TEMPLATE_IDS = ["clasica"]`; `secciones.js`, `tema.js` y `validacion.js` los usan y
   `npm test` pasa con los mismos valores y el mismo aviso de plantilla.
-- [ ] **T4 · Mover a `utils/` los módulos de nombres y fechas.** _RF: RF-1, RF-4, RNF-6._
+- [x] **T4 · Mover a `utils/` los módulos de nombres y fechas.** _RF: RF-1, RF-4, RNF-6._
   Hecho cuando: existen `utils/couple.js`, `utils/event.js` y `utils/labels.js` con sus exportaciones
   renombradas en inglés, sus pruebas corren desde `utils/` y `npm test` pasa con los **mismos casos**
   (nombres compuestos, zonas horarias, formatos y rótulos de interfaz).
-- [ ] **T5 · Mover a `utils/` las secciones, restricciones e invitaciones.** _RF: RF-1, RF-4._
+- [x] **T5 · Mover a `utils/` las secciones, restricciones e invitaciones.** _RF: RF-1, RF-4._
   Hecho cuando: existen `utils/sections.js`, `utils/restrictions.js` y `utils/invitation.js`, sus pruebas
   pasan desde `utils/` con los mismos casos (incluido el **orden** de secciones y los tres tipos de
   invitación) y ningún archivo de `src/` importa ya desde `logica/`.
-- [ ] **T6 · Mover a `utils/` confirmación, regalos y validación.** _RF: RF-1, RF-4, RF-2 (aviso)._
+- [x] **T6 · Mover a `utils/` confirmación, regalos y validación.** _RF: RF-1, RF-4, RF-2 (aviso)._
   Hecho cuando: existen `utils/confirmation.js`, `utils/gifts.js` y `utils/validation.js`, el aviso por
   plantilla no implementada conserva **el mismo texto** y `npm test` pasa con los mismos casos.
-- [ ] **T7 · Mover a `utils/` cuenta regresiva, galería, tema y música.** _RF: RF-1, RF-5._
+- [x] **T7 · Mover a `utils/` cuenta regresiva, galería, tema y música.** _RF: RF-1, RF-5._
   Hecho cuando: existen `utils/countdown.js`, `utils/gallery.js`, `utils/theme.js` y `utils/music.js`,
   `src/logica/` ha desaparecido por completo y `npm test` pasa (mismo número de pruebas que al empezar).
 

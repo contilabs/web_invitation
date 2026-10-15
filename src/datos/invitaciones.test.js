@@ -9,11 +9,11 @@ import test from "node:test";
 import { boda } from "./boda.js";
 import { invitaciones } from "./invitaciones.js";
 import {
-  TIPOS,
-  limiteDeAsistentes,
-  lugaresReservados,
-  resolverInvitacion,
-} from "../logica/invitacion.js";
+  INVITATION_TYPES,
+  guestLimit,
+  reservedSeats,
+  resolveInvitation,
+} from "../utils/invitation.js";
 
 const normalizar = (valor) => String(valor ?? "").trim().toLowerCase();
 const porTipo = (tipo) => invitaciones.filter((ficha) => ficha.tipo === tipo);
@@ -64,11 +64,11 @@ test("la personalizada tiene la forma del contrato (RF-19)", () => {
 
 test("la personalizada trae lugares reservados y la genérica no (RF-17)", () => {
   const personalizada = porTipo("personalizada")[0];
-  const reservados = lugaresReservados(resolverInvitacion(invitaciones, personalizada.codigo));
+  const reservados = reservedSeats(resolveInvitation(invitaciones, personalizada.codigo));
   assert.ok(Number.isInteger(reservados) && reservados >= 1);
 
   const generica = porTipo("generica")[0];
-  assert.equal(lugaresReservados(resolverInvitacion(invitaciones, generica.codigo)), null);
+  assert.equal(reservedSeats(resolveInvitation(invitaciones, generica.codigo)), null);
 });
 
 test("ni las reutilizables ni la genérica registran nombre (RF-16)", () => {
@@ -79,10 +79,10 @@ test("ni las reutilizables ni la genérica registran nombre (RF-16)", () => {
 
 test("cada ficha resuelve por su código, con su tipo y su límite (RF-16)", () => {
   for (const ficha of invitaciones) {
-    const directa = resolverInvitacion(invitaciones, ficha.codigo);
+    const directa = resolveInvitation(invitaciones, ficha.codigo);
     assert.equal(directa.tipo, ficha.tipo, `no resuelve ${ficha.codigo}`);
 
-    const normalizada = resolverInvitacion(invitaciones, `  ${String(ficha.codigo).toUpperCase()}  `);
+    const normalizada = resolveInvitation(invitaciones, `  ${String(ficha.codigo).toUpperCase()}  `);
     assert.equal(normalizada.tipo, ficha.tipo, `no normaliza ${ficha.codigo}`);
 
     if (ficha.tipo === "reutilizable") {
@@ -93,7 +93,7 @@ test("cada ficha resuelve por su código, con su tipo y su límite (RF-16)", () 
 
 test("ningún límite supera el máximo de la boda (RF-17)", () => {
   for (const ficha of invitaciones) {
-    const limite = limiteDeAsistentes(resolverInvitacion(invitaciones, ficha.codigo), boda);
+    const limite = guestLimit(resolveInvitation(invitaciones, ficha.codigo), boda);
     assert.ok(
       limite <= boda.confirmacion.maximoBoda,
       `${ficha.codigo} supera el máximo de la boda`,
@@ -102,7 +102,7 @@ test("ningún límite supera el máximo de la boda (RF-17)", () => {
 });
 
 test("un código desconocido no personaliza nada (RF-17)", () => {
-  const invitacion = resolverInvitacion(invitaciones, "no-existe");
+  const invitacion = resolveInvitation(invitaciones, "no-existe");
   assert.equal(invitacion.tipo, "desconocida");
-  assert.equal(lugaresReservados(invitacion), null);
+  assert.equal(reservedSeats(invitacion), null);
 });

@@ -1,6 +1,6 @@
 // Lógica pura: apertura del formulario de confirmación (RF-18)
 
-export function fechaLimiteMs(boda) {
+export function deadlineMs(boda) {
   const conf = boda?.confirmacion ?? {};
   const valor = conf.fechaLimite ?? conf.limite ?? null;
   if (valor === null || valor === undefined) return Number.NaN;
@@ -9,8 +9,8 @@ export function fechaLimiteMs(boda) {
   return Number.isNaN(ms) ? Number.NaN : ms;
 }
 
-export function confirmacionAbierta(boda, ahoraMs) {
-  const limite = fechaLimiteMs(boda);
+export function isConfirmationOpen(boda, ahoraMs) {
+  const limite = deadlineMs(boda);
   if (Number.isNaN(limite)) return false;
   const ahora = Number(ahoraMs);
   if (!Number.isFinite(ahora)) return false;
@@ -18,7 +18,7 @@ export function confirmacionAbierta(boda, ahoraMs) {
   return ahora <= limite;
 }
 
-export function camposDeConfirmacion(confirmacion) {
+export function confirmationFields(confirmacion) {
   const campos = confirmacion?.camposHabilitados;
   if (Array.isArray(campos)) return campos.slice();
   return ["nombre", "asistentes", "alergias", "mensaje"];

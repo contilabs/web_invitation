@@ -8,9 +8,9 @@ import { useState } from "react";
 import { invitaciones as invitacionesPorDefecto } from "../datos/invitaciones.js";
 import { useConfirmacion } from "../hooks/useConfirmacion.js";
 import { useInvitacion } from "../hooks/useInvitacion.js";
-import { camposDeConfirmacion, fechaLimiteMs } from "../logica/confirmacion.js";
-import { formatearFecha, zonaHorariaDelEvento } from "../logica/evento.js";
-import { TIPOS } from "../logica/invitacion.js";
+import { confirmationFields, deadlineMs } from "../utils/confirmation.js";
+import { formatDate, eventTimeZone } from "../utils/event.js";
+import { INVITATION_TYPES } from "../utils/invitation.js";
 import { FOTO_CONFIRMACION } from "./fotos.js";
 
 export function Confirmacion({ boda }) {
@@ -19,14 +19,14 @@ export function Confirmacion({ boda }) {
 
   const confirmacion = boda?.confirmacion ?? {};
   const enlaceRsvp = boda?.marca?.enlaces?.rsvp ?? "";
-  const campos = camposDeConfirmacion(confirmacion);
+  const campos = confirmationFields(confirmacion);
   const tieneCampo = (campo) => campos.includes(campo);
 
-  const esPersonalizada = invitacion.tipo === TIPOS.PERSONALIZADA;
+  const esPersonalizada = invitacion.tipo === INVITATION_TYPES.PERSONALIZED;
   const ficha = invitacion.ficha ?? null;
   const nombreFicha = esPersonalizada ? String(ficha?.guestName ?? "").trim() : "";
   const acompanante = esPersonalizada ? String(ficha?.partnerName ?? "").trim() : "";
-  const reservados = invitacion.lugaresReservados;
+  const reservados = invitacion.reservedSeats;
   const limite = Number.isFinite(invitacion.limiteAsistentes)
     ? invitacion.limiteAsistentes
     : null;
@@ -36,7 +36,7 @@ export function Confirmacion({ boda }) {
   );
 
   const excedido = limite !== null && Number(asistentes) > limite;
-  const fechaLimite = formatearFecha(fechaLimiteMs(boda), zonaHorariaDelEvento(boda?.evento));
+  const fechaLimite = formatDate(deadlineMs(boda), eventTimeZone(boda?.evento));
 
   const asunto = boda?.marca?.nombre
     ? `Confirmación de asistencia — ${boda.marca.nombre}`

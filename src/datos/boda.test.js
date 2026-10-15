@@ -3,35 +3,35 @@
 // Comprueba que `src/datos/boda.js` conserva los datos de la boda actual (nombres, fecha,
 // ubicaciones, cuenta y enlaces) y que el registro es coherente con la validación pura.
 // No importa `componentes/fotos.js`: usa `import.meta.glob`, que solo existe bajo Vite; la
-// resolución de las claves se comprueba con `erroresDelRegistro` (RF-20).
+// resolución de las claves se comprueba con `registryErrors` (RF-20).
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
 import { boda } from "./boda.js";
 import { invitaciones } from "./invitaciones.js";
 import {
-  camposDeConfirmacion,
-  confirmacionAbierta,
-  fechaLimiteMs,
-} from "../logica/confirmacion.js";
+  confirmationFields,
+  isConfirmationOpen,
+  deadlineMs,
+} from "../utils/confirmation.js";
 import {
-  formatearFecha,
-  formatearHora,
-  instanteDelEvento,
-  zonaHorariaDelEvento,
-} from "../logica/evento.js";
-import { nombresDeLaPareja } from "../logica/pareja.js";
-import { datoCopiable } from "../logica/regalos.js";
-import { permiteNinos } from "../logica/restricciones.js";
-import { seccionesVisibles } from "../logica/secciones.js";
-import { avisosDelRegistro, erroresDelRegistro } from "../logica/validacion.js";
+  formatDate,
+  formatTime,
+  eventInstant,
+  eventTimeZone,
+} from "../utils/event.js";
+import { coupleNames } from "../utils/couple.js";
+import { copyableField } from "../utils/gifts.js";
+import { allowsChildren } from "../utils/restrictions.js";
+import { visibleSections } from "../utils/sections.js";
+import { registryWarnings, registryErrors } from "../utils/validation.js";
 
 // Instante con offset explícito: el formato esperado no depende de la zona de la máquina.
 const INSTANTE_FECHA = new Date("2027-11-01T16:30:00-06:00").getTime();
 
 test("el registro de ejemplo es coherente (RF-20)", () => {
-  assert.deepEqual(erroresDelRegistro(boda, invitaciones), []);
-  assert.deepEqual(avisosDelRegistro(boda), []);
+  assert.deepEqual(registryErrors(boda, invitaciones), []);
+  assert.deepEqual(registryWarnings(boda), []);
 });
 
 test("la plantilla del registro es la clásica (RF-15)", () => {
@@ -39,7 +39,7 @@ test("la plantilla del registro es la clásica (RF-15)", () => {
 });
 
 test("conserva los nombres de la pareja (RF-2, RF-22)", () => {
-  assert.deepEqual(nombresDeLaPareja(boda.pareja), {
+  assert.deepEqual(coupleNames(boda.pareja), {
     primera: "Karina",
     segunda: "Gerardo",
     paraMostrar: "Karina y Gerardo",
@@ -48,14 +48,14 @@ test("conserva los nombres de la pareja (RF-2, RF-22)", () => {
 
 test("conserva la fecha, la hora y la zona del evento (RF-3, RF-22)", () => {
   assert.equal(boda.evento.fechaInicio, "2027-11-01T16:30:00");
-  assert.equal(zonaHorariaDelEvento(boda.evento), "America/Mexico_City");
+  assert.equal(eventTimeZone(boda.evento), "America/Mexico_City");
   assert.equal(boda.evento.lugar, "Guadalajara");
   assert.ok(
-    Number.isFinite(instanteDelEvento(boda.evento)),
+    Number.isFinite(eventInstant(boda.evento)),
     "la fecha del registro no da un instante válido",
   );
-  assert.equal(formatearFecha(INSTANTE_FECHA, "America/Mexico_City"), "01 de noviembre de 2027");
-  assert.equal(formatearHora(INSTANTE_FECHA, "America/Mexico_City"), "16:30 h");
+  assert.equal(formatDate(INSTANTE_FECHA, "America/Mexico_City"), "01 de noviembre de 2027");
+  assert.equal(formatTime(INSTANTE_FECHA, "America/Mexico_City"), "16:30 h");
 });
 
 test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
@@ -87,7 +87,7 @@ test("conserva la mesa de regalos con su cuenta copiable (RF-10, RF-22)", () => 
 
 test("la transferencia expone un único dato copiable: la cuenta (RF-10)", () => {
   const transferencia = boda.regalos.opciones.find((opcion) => opcion.tipo === "transferencia");
-  const copiable = datoCopiable(transferencia);
+  const copiable = copyableField(transferencia);
   assert.ok(copiable, "la transferencia no expone ningún dato copiable");
   assert.equal(copiable.etiqueta, "Cuenta");
   assert.equal(copiable.valor, "012320015636927951");
@@ -119,7 +119,7 @@ test("conserva todos los enlaces de la boda en https (RF-5, RF-11, RF-14, RF-22)
 
 test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () => {
   assert.deepEqual(
-    seccionesVisibles(boda).map((seccion) => seccion.clave),
+    visibleSections(boda).map((seccion) => seccion.clave),
     [
       "portada",
       "pareja",
@@ -150,19 +150,19 @@ test("conserva la galería y la portada del registro (RF-9, RF-22)", () => {
 
 test("conserva el plazo, los campos y el máximo de la confirmación (RF-18, RF-22)", () => {
   assert.equal(boda.confirmacion.maximoBoda, 100);
-  assert.deepEqual(camposDeConfirmacion(boda.confirmacion), [
+  assert.deepEqual(confirmationFields(boda.confirmacion), [
     "nombre",
     "asistentes",
     "alergias",
     "mensaje",
   ]);
 
-  const limite = fechaLimiteMs(boda);
+  const limite = deadlineMs(boda);
   assert.ok(Number.isFinite(limite), "la fecha límite del registro no es válida");
-  assert.equal(confirmacionAbierta(boda, limite - 1_000), true, "debería estar abierta antes del plazo");
-  assert.equal(confirmacionAbierta(boda, limite + 1_000), false, "debería estar cerrada tras el plazo");
+  assert.equal(isConfirmationOpen(boda, limite - 1_000), true, "debería estar abierta antes del plazo");
+  assert.equal(isConfirmationOpen(boda, limite + 1_000), false, "debería estar cerrada tras el plazo");
 });
 
 test("los niños están permitidos cuando la boda no lo indica (RF-12)", () => {
-  assert.equal(permiteNinos(boda), true);
+  assert.equal(allowsChildren(boda), true);
 });

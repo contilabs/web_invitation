@@ -1,6 +1,6 @@
 // Lógica pura: fecha, hora y zona horaria del evento (RF-3)
 
-export function zonaHorariaDelEvento(evento) {
+export function eventTimeZone(evento) {
   if (!evento || typeof evento !== "object") return null;
   const z = evento.zonaHoraria ?? evento.timeZone ?? evento.zona ?? null;
   if (z === null || z === undefined) return null;
@@ -8,13 +8,13 @@ export function zonaHorariaDelEvento(evento) {
   return s || null;
 }
 
-export function instanteDelEvento(evento, zonaLocal) {
+export function eventInstant(evento, zonaLocal) {
   if (!evento || typeof evento !== "object") return Number.NaN;
   const fechaInicio = evento.fechaInicio ?? evento.fechaHora ?? evento.inicio ?? evento.fechaIso ?? null;
   if (fechaInicio === null || fechaInicio === undefined) return Number.NaN;
   const s = String(fechaInicio).trim();
   if (!s) return Number.NaN;
-  const zona = zonaHorariaDelEvento(evento);
+  const zona = eventTimeZone(evento);
   // Si no hay zona, usar zona local (pasada como parámetro o ambiente)
   if (!zona) {
     const d = new Date(s);
@@ -41,7 +41,7 @@ export function instanteDelEvento(evento, zonaLocal) {
   return Number.NaN;
 }
 
-export function formatearFecha(ms, zonaHoraria, idioma = "es-MX") {
+export function formatDate(ms, zonaHoraria, idioma = "es-MX") {
   if (typeof ms !== "number" || Number.isNaN(ms)) return "";
   try {
     return new Intl.DateTimeFormat(idioma, {
@@ -55,7 +55,7 @@ export function formatearFecha(ms, zonaHoraria, idioma = "es-MX") {
   }
 }
 
-export function formatearHora(ms, zonaHoraria, idioma = "es-MX") {
+export function formatTime(ms, zonaHoraria, idioma = "es-MX") {
   if (typeof ms !== "number" || Number.isNaN(ms)) return "";
   try {
     return new Intl.DateTimeFormat(idioma, {

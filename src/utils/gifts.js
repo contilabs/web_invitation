@@ -1,16 +1,16 @@
 // Lógica pura: normalización de opciones de regalo (RF-10)
 
-export const TIPOS_REGALO = {
-  TIENDA: "tienda",
-  TRANSFERENCIA: "transferencia",
-  EFECTIVO: "efectivo",
+export const GIFT_TYPES = {
+  STORE: "tienda",
+  TRANSFER: "transferencia",
+  CASH: "efectivo",
 };
 
 function normalizarTipo(tipo) {
   const t = String(tipo ?? "").trim().toLowerCase();
-  if (t === "tienda" || t === "mesa" || t === "tienda/mesa") return TIPOS_REGALO.TIENDA;
-  if (t === "transferencia" || t === "transfer") return TIPOS_REGALO.TRANSFERENCIA;
-  if (t === "efectivo" || t === "cash") return TIPOS_REGALO.EFECTIVO;
+  if (t === "tienda" || t === "mesa" || t === "tienda/mesa") return GIFT_TYPES.STORE;
+  if (t === "transferencia" || t === "transfer") return GIFT_TYPES.TRANSFER;
+  if (t === "efectivo" || t === "cash") return GIFT_TYPES.CASH;
   return t;
 }
 
@@ -31,7 +31,7 @@ function normalizarDato(d) {
   return { etiqueta, valor: v, copiar: d.copiar === true || d.copy === true };
 }
 
-export function datosCopiables(opcion) {
+export function copyableFields(opcion) {
   if (!opcion || typeof opcion !== "object") return [];
   const fuente = opcion.datosCopiables ?? opcion.datos ?? [];
   if (!Array.isArray(fuente)) return [];
@@ -44,7 +44,7 @@ export function datosCopiables(opcion) {
 // Dato que copia el botón de la opción: el que el registro marca con `copiar: true`. Si la
 // opción solo trae un dato copiable, ese. Si hay varios sin marca (o más de una marca), no hay
 // botón: no se adivina cuál es la cuenta.
-export function datoCopiable(opcion) {
+export function copyableField(opcion) {
   if (!opcion || typeof opcion !== "object") return null;
   const fuente = opcion.datosCopiables ?? opcion.datos ?? [];
   if (!Array.isArray(fuente)) return null;
@@ -57,7 +57,7 @@ export function datoCopiable(opcion) {
   return null;
 }
 
-export function opcionesDeRegalo(regalos) {
+export function giftOptions(regalos) {
   const opciones = regalos?.opciones;
   if (!Array.isArray(opciones)) return [];
   return opciones.map((o) => {
@@ -69,13 +69,13 @@ export function opcionesDeRegalo(regalos) {
       url: urlValida(o?.url ?? o?.enlace),
     };
     if (tiposConDatos(tipo)) {
-      opcion.datosCopiables = datosCopiables(o);
-      opcion.datoCopiable = datoCopiable(o);
+      opcion.copyableFields = copyableFields(o);
+      opcion.copyableField = copyableField(o);
     }
     return opcion;
   });
 }
 
 function tiposConDatos(tipo) {
-  return tipo === TIPOS_REGALO.TRANSFERENCIA || tipo === TIPOS_REGALO.EFECTIVO;
+  return tipo === GIFT_TYPES.TRANSFER || tipo === GIFT_TYPES.CASH;
 }

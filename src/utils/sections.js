@@ -17,7 +17,7 @@ function esNoVacio(valor) {
   return true;
 }
 
-export function tieneContenido(clave, seccion) {
+export function hasContent(clave, seccion) {
   if (!seccion) return false;
   if (clave === "galeria") {
     const imgs = seccion?.imagenes ?? [];
@@ -43,7 +43,7 @@ export function tieneContenido(clave, seccion) {
   return esNoVacio(seccion);
 }
 
-export function seccionesVisibles(boda) {
+export function visibleSections(boda) {
   if (!boda || typeof boda !== "object") return [];
   const ajustes = boda.ajustes || {};
   const visibilidad = ajustes.secciones || {};
@@ -57,7 +57,7 @@ export function seccionesVisibles(boda) {
     if (visibilidad[`${clave}Visible`] === false) continue;
     const datos = boda[clave] ?? null;
     if (!datos) continue;
-    if (!tieneContenido(clave, datos)) continue;
+    if (!hasContent(clave, datos)) continue;
     resultado.push({ clave, datos });
   }
   return resultado;

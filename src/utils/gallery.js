@@ -1,11 +1,11 @@
 // Galería (T11, RF-7). Funciones puras.
 //
-// `siguienteIndice` da el salto circular entre fotos (total 0 o 1 no rompe).
-// `elegirVariante` lee el `srcset` y devuelve la variante optimizada más cercana al
+// `nextIndex` da el salto circular entre fotos (total 0 o 1 no rompe).
+// `pickVariant` lee el `srcset` y devuelve la variante optimizada más cercana al
 // ancho objetivo; descarta las entradas sin ancho (`w`), que son las que apuntarían
 // al archivo original de cámara. Si no hay objetivo, devuelve la variante mayor.
 
-export function siguienteIndice(actual, total, paso = 1) {
+export function nextIndex(actual, total, paso = 1) {
   if (!Number.isInteger(total) || total <= 0) return 0;
 
   const base = Number.isInteger(actual) ? actual : 0;
@@ -13,7 +13,7 @@ export function siguienteIndice(actual, total, paso = 1) {
   return (((base + salto) % total) + total) % total;
 }
 
-export function elegirVariante(srcset, anchoObjetivo) {
+export function pickVariant(srcset, anchoObjetivo) {
   if (typeof srcset !== "string") return null;
 
   const candidatos = srcset

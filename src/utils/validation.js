@@ -3,10 +3,10 @@
 // no implementados, como una plantilla distinta de la clásica).
 
 import { IMPLEMENTED_TEMPLATE_IDS } from "../constants/templates.js";
-import { instanteDelEvento } from "./evento.js";
-import { hayConflictoDeNinos } from "./restricciones.js";
+import { eventInstant } from "./event.js";
+import { hasChildrenConflict } from "./restrictions.js";
 
-export function plantillaImplementada(plantilla) {
+export function templateStatus(plantilla) {
   if (plantilla === null || plantilla === undefined) return "desconocida";
   const s = String(plantilla).trim().toLowerCase();
   if (!s) return "desconocida";
@@ -25,14 +25,14 @@ function imagenesDeGaleria(boda) {
   return [];
 }
 
-export function erroresDelRegistro(boda, invitaciones) {
+export function registryErrors(boda, invitaciones) {
   const errores = [];
   if (!boda || typeof boda !== "object") {
     return [{ campo: "boda", mensaje: "No hay registro de la boda." }];
   }
 
   // Fecha del evento requerida y válida (RF-3, RF-20)
-  const ms = instanteDelEvento(boda.evento ?? {});
+  const ms = eventInstant(boda.evento ?? {});
   if (Number.isNaN(ms)) {
     errores.push({ campo: "evento.fechaInicio", mensaje: "La fecha del evento falta o es imposible." });
   }
@@ -58,7 +58,7 @@ export function erroresDelRegistro(boda, invitaciones) {
   // Conflicto de niños boda ↔ ficha (RF-12, RF-20)
   if (Array.isArray(invitaciones)) {
     for (const inv of invitaciones) {
-      if (hayConflictoDeNinos(boda, inv)) {
+      if (hasChildrenConflict(boda, inv)) {
         errores.push({
           campo: `invitaciones.${inv?.codigo ?? "?"}`,
           mensaje: `La invitación ${inv?.codigo ?? "?"} asigna niños pero la boda no los permite.`,
@@ -70,9 +70,9 @@ export function erroresDelRegistro(boda, invitaciones) {
   return errores;
 }
 
-export function avisosDelRegistro(boda) {
+export function registryWarnings(boda) {
   const avisos = [];
-  const estado = plantillaImplementada(boda?.plantilla);
+  const estado = templateStatus(boda?.plantilla);
   if (estado === "no-implementada") {
     avisos.push({
       campo: "plantilla",

@@ -9,7 +9,7 @@ const MINUTO = 60 * SEGUNDO;
 const HORA = 60 * MINUTO;
 const DIA = 24 * HORA;
 
-export function calcularRestante(fechaObjetivoMs, ahoraMs) {
+export function remainingParts(fechaObjetivoMs, ahoraMs) {
   // Guarda (T26): si el instante objetivo no es un número finito (por ejemplo, una
   // fecha imposible resuelta por `evento.js` deja NaN) o el «ahora» no lo es, se
   // devuelve el estado terminado en lugar de esparcir NaN por la interfaz. El instante

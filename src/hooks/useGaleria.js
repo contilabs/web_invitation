@@ -1,8 +1,8 @@
-// Estado del carrusel (T21, RF-7/RF-6). El salto circular vive en `logica/galeria.js`;
+// Estado del carrusel (T21, RF-7/RF-6). El salto circular vive en `utils/gallery.js`;
 // aquí se controla qué diapositiva se ve, el avance automático y la pausa del visor.
 import { useCallback, useEffect, useState } from "react";
 
-import { siguienteIndice } from "../logica/galeria.js";
+import { nextIndex } from "../utils/gallery.js";
 
 const INTERVALO_MS_POR_DEFECTO = 5000;
 
@@ -31,12 +31,12 @@ export function useGaleria(total, { intervaloMs = INTERVALO_MS_POR_DEFECTO } = {
   const movimientoReducido = useMovimientoReducido();
 
   const siguiente = useCallback(
-    () => setIndice((actual) => siguienteIndice(actual, total, 1)),
+    () => setIndice((actual) => nextIndex(actual, total, 1)),
     [total],
   );
 
   const anterior = useCallback(
-    () => setIndice((actual) => siguienteIndice(actual, total, -1)),
+    () => setIndice((actual) => nextIndex(actual, total, -1)),
     [total],
   );
 
@@ -47,7 +47,7 @@ export function useGaleria(total, { intervaloMs = INTERVALO_MS_POR_DEFECTO } = {
     if (movimientoReducido || pausado || total <= 1) return;
 
     const intervalo = setInterval(
-      () => setIndice((actual) => siguienteIndice(actual, total, 1)),
+      () => setIndice((actual) => nextIndex(actual, total, 1)),
       intervaloMs,
     );
     return () => clearInterval(intervalo);

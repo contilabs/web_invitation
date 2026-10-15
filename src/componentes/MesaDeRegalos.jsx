@@ -2,7 +2,7 @@
 // traen datos copiables (transferencia, efectivo) los muestran como texto y llevan un
 // **único** botón «Copiar» con el dato que el registro marca como copiable (la cuenta). Los
 // logos son presentación y se eligen aquí por tipo.
-import { opcionesDeRegalo } from "../logica/regalos.js";
+import { giftOptions } from "../utils/gifts.js";
 import { BotonCopiar } from "./BotonCopiar.jsx";
 
 import icoBbva from "../../assets/icons/bbva.png";
@@ -15,7 +15,7 @@ const LOGOS = {
 };
 
 export function MesaDeRegalos({ regalos }) {
-  const opciones = opcionesDeRegalo(regalos);
+  const opciones = giftOptions(regalos);
 
   return (
     <section className="mesaregalos reveal" id="regalos">
@@ -26,10 +26,10 @@ export function MesaDeRegalos({ regalos }) {
         <div className="rejilla-2">
           {opciones.map((opcion, i) => {
             const logo = LOGOS[opcion.tipo] ?? null;
-            const copiables = Array.isArray(opcion.datosCopiables)
-              ? opcion.datosCopiables
+            const copiables = Array.isArray(opcion.copyableFields)
+              ? opcion.copyableFields
               : [];
-            const copiable = opcion.datoCopiable ?? null;
+            const copiable = opcion.copyableField ?? null;
 
             return (
               <article className="card-regalo" key={`${opcion.tipo ?? "regalo"}-${i}`}>

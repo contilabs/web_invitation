@@ -10,7 +10,7 @@ export const boda = {
   pareja: {
     nombre1: "Karina",
     nombre2: "Gerardo",
-    // Usar nombresDeLaPareja para componer el nombre para mostrar si no se define.
+    // Usar coupleNames para componer el nombre para mostrar si no se define.
     nombreParaMostrar: null,
   },
 
