@@ -129,7 +129,7 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 8 — Pruebas y cierre
 
-- [ ] **T23 · Crear `test/contracts.test.js`.** _RF: RF-3, RF-5._
+- [x] **T23 · Crear `test/contracts.test.js`.** _RF: RF-3, RF-5._
   Hecho cuando: la prueba falla si alguien cambia la clave `kg-tema`, un id de ancla, los parámetros
   aceptados `codigo`/`code`/`inv`, los `name` de los campos del formulario o cualquier clave del registro
   o de las fichas.
