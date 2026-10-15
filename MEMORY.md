@@ -7,17 +7,15 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil. Registro único
   (`src/data/wedding.js`) + fichas (`src/data/guest-cards.js`); interfaz dirigida por el registro
   (`App.jsx` compone `visibleSections(boda)`); `npm test` → **110/110** y build OK.
-- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T18 hechas** (fases 0–6 parciales) y
-  marcadas en `tasks.md`: `constants/`, `utils/` en inglés (T4–T7), `data/` (T8) y plantilla clásica
-  (CSS + iconos + `photoSizes`, T9–T10); **capa de plantilla** (T11–T12: `templates/`, `providers/`,
-  `hooks/useTemplate.js`, `services/photos.js`); **hooks** (T13) y **todos los componentes**
-  reubicados y en inglés — `components/ui/` (T14), `components/layout/` (T15) y `components/sections/`
-  (T16–T17: `Hero`, `Portrait`, `Locations`, `Timeline`, `Hotels`, `Restrictions`, `Quote`, `Story`,
-  `Countdown`, `Gallery`, `Gifts`, `Rsvp`); `src/componentes/` ya no existe. T18 pasó a inglés las
-  **clases CSS de estructura y controles** (portada, encabezado, pie, panel, controles, enlace de salto
-  y aviso), en JSX y CSS a la vez. Los **internos** de `utils/`, `hooks/`, componentes y clases van en
-  inglés (comentarios, textos y claves de datos siguen en español). `npm test` → **110/110**, build OK y
-  **paridad 30/30**. Faltan T19–T28 (resto de clases CSS, `app/`, pruebas y cierre).
+- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T19 hechas** (fases 0–6 parciales) y
+  marcadas en `tasks.md`: `constants/`, `utils/` (T4–T7), `data/` (T8) y plantilla clásica (T9–T10);
+  **capa de plantilla** (T11–T12: `templates/`, `providers/`, `hooks/useTemplate.js`,
+  `services/photos.js`); `hooks/` (T13); **todos los componentes** reubicados y en inglés —
+  `components/ui/` (T14), `components/layout/` (T15) y `components/sections/` (T16–T17); y las **clases
+  CSS** de estructura y controles (T18) y de las secciones de contenido y utilidades compartidas
+  (`button*`, `icon`, `grid-*`, `wrap-narrow`, T19), sin tocar ids, textos ni `name`. `src/componentes/`
+  ya no existe. `npm test` → **110/110**, build OK y **paridad 30/30**. Faltan T20–T28 (galería y visor,
+  confirmación, `app/`, pruebas y cierre).
 - Documentación: `docs/constitution.md` (6 principios), `specs/001-*`…`003-*`, `PENDING_TASKS.md`.
 ## Decisiones (y por qué)
 - **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue
@@ -46,6 +44,8 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   lo que el **plan §9** lista como contrato; el barrido interno de los componentes llegó en T14–T17.
 ## Aprendizajes y errores a evitar
 - `node --test` descubre `**/*.test.js`; los módulos puros no afectan al build.
+- **Leer antes de editar:** el lector de archivos puede devolver una versión distinta a la real (pasó con
+  `Countdown.jsx`); confirmar con Node y validar siempre con `git diff`.
 - Chrome headless: `--dump-dom` no sirve para medir (emite todo en una línea); servir `dist/` en local
   y medir por DevTools Protocol. `:focus-visible` no coincide con `focus()` programático.
 - **Spec 001/002 · personalización por código de enlace** (sin vuelta atrás a `?invitados=N`).
@@ -77,6 +77,7 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   idénticas. Hoy **30/30**.
 ## Próximos pasos
 - **Spec 002 · T33:** pasada manual (otro registro, portapapeles, audio, **RSVP real**, móvil físico).
-- **Spec 003 · T19–T28:** resto de clases CSS (secciones, galería/visor, confirmación), `app/`,
-  `test/contracts.test.js`, limpieza de `services/` y de los internos de tests, y pasada manual final.
+- **Spec 003 · T20–T28:** clases de la galería y el visor (ya fijadas: `slide`, `slide-active`,
+  `gallery-strip`, `gallery-arrow`, `gallery-counter`) y de la confirmación, `app/`,
+  `test/contracts.test.js`, limpieza de `services/` e internos de tests, y pasada manual final.
 - Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas…): ver `PENDING_TASKS.md`.

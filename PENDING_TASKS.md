@@ -53,12 +53,12 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
   decisión D5 previa decía lo contrario); (b) **`src/data/wedding.js` sigue exportando `boda`** y
   `src/data/guest-cards.js` sigue exportando `invitaciones` (el plan §5.2 dice «contenido y claves
   idénticos; solo cambia archivo y ruta»). Decidir si se renombran en una tarea posterior.
-- **Comentario desactualizado en `src/templates/classic/classic.css:518`.** Menciona el hook
-  `useEncabezado` (renombrado a `useHeader` en T13); se corregirá al tocar el CSS en T18–T20 (cambiar
-  solo el comentario altera el hash del CSS, así que se deja para entonces).
 - Autoalojar **Montserrat y Source Serif 4**: hoy se cargan desde el CDN de Google Fonts
   (`preconnect` + hoja externa). Se mantiene por ser preexistente y conservar la tipografía
   (RF-11), pero autoalojarlas reduciría peticiones a terceros (RNF-7). Requiere los archivos.
+- **CSS muerto (spec 003, T18–T19).** La comprobación cruzada JSX↔CSS dejó a la vista reglas que
+  ningún componente usa: `body.cover-closed …` (`.hero-img`, `.hero-text`, del `script.js` retirado)
+  y `data-label` (antes `etiqueta-dato`, utilidad de tipografía). Valorar borrarlas en T20–T25.
 
 ## Gobernanza (detectado en la revisión QA; sin resolver)
 

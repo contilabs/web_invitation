@@ -7,7 +7,7 @@ export function Portrait() {
   const { structuralPhotos, photoSizes } = useTemplate();
 
   return (
-    <section className="Nombres reveal" aria-hidden="true">
+    <section className="portrait reveal" aria-hidden="true">
       <img
         {...photoFor(structuralPhotos.portrait, "", photoSizes.fullWidth)}
         loading="lazy"

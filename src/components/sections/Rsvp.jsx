@@ -49,7 +49,7 @@ export function Rsvp({ wedding }) {
 
         {!open ? (
           <div className="confirmacion-cerrada" role="status">
-            <p className="mesa-nota">El plazo para confirmar tu asistencia ya terminó.</p>
+            <p className="section-note">El plazo para confirmar tu asistencia ya terminó.</p>
             {deadlineText && (
               <p className="ayuda">La confirmación cerró el {deadlineText}.</p>
             )}
@@ -174,7 +174,7 @@ export function Rsvp({ wedding }) {
                   </div>
                 )}
 
-                <button type="submit" className="boton boton-solido" disabled={exceeded}>
+                <button type="submit" className="button button-solid" disabled={exceeded}>
                   Enviar confirmación
                 </button>
               </form>

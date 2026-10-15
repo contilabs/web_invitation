@@ -5,11 +5,11 @@ export function Quote({ quote }) {
   const author = quote?.autor ? String(quote.autor).trim() : "";
 
   return (
-    <section className="Intro reveal" id="cita">
-      <div className="wrap-estrecho">
+    <section className="quote reveal" id="cita">
+      <div className="wrap-narrow">
         <blockquote>
           <p>{text}</p>
-          {author && <footer className="cita-autor">— {author}</footer>}
+          {author && <footer className="quote-author">— {author}</footer>}
         </blockquote>
       </div>
     </section>

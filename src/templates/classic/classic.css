@@ -170,7 +170,7 @@ img {
   margin-inline: auto;
 }
 
-.wrap-estrecho {
+.wrap-narrow {
   width: min(100% - 3rem, var(--ancho-estrecho));
   margin-inline: auto;
 }
@@ -257,7 +257,7 @@ p:last-child {
 }
 
 /* Etiqueta de datos: solo para unidades, fechas y microcopy de interfaz */
-.etiqueta-dato {
+.data-label {
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -269,7 +269,7 @@ p:last-child {
 /* ============================================================
    4. Botones
    ============================================================ */
-.boton {
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -290,22 +290,22 @@ p:last-child {
     border-color 0.25s ease;
 }
 
-.boton-solido {
+.button-solid {
   background-color: var(--ember);
   color: var(--sobre-ember);
 }
 
-.boton-solido:hover {
+.button-solid:hover {
   background-color: var(--ember-2);
 }
 
-.boton-linea {
+.button-outline {
   background-color: transparent;
   border-color: var(--linea-fuerte);
   color: var(--ink);
 }
 
-.boton-linea:hover {
+.button-outline:hover {
   border-color: var(--ember);
   color: var(--ember);
 }
@@ -319,7 +319,7 @@ p:last-child {
    pinta con la brasa del tema, así que un mismo PNG sirve para
    día y noche.
    ============================================================ */
-.ico {
+.icon {
   display: block;
   width: var(--ico-tam, 3.25rem);
   height: var(--ico-tam, 3.25rem);
@@ -591,7 +591,7 @@ body.cover-closed .hero-img {
   }
 }
 
-.hero-velo {
+.hero-veil {
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -604,7 +604,7 @@ body.cover-closed .hero-img {
   );
 }
 
-.hero-texto {
+.hero-text {
   position: relative;
   z-index: 1;
   width: min(100% - 3rem, var(--ancho));
@@ -614,7 +614,7 @@ body.cover-closed .hero-img {
   color: var(--banda-texto);
 }
 
-body.cover-closed .hero-texto {
+body.cover-closed .hero-text {
   animation: heroTexto 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s both;
 }
 
@@ -629,7 +629,7 @@ body.cover-closed .hero-texto {
   }
 }
 
-.hero-nombres {
+.hero-names {
   margin: 0;
   max-width: 12ch;
   font-family: var(--fuente-nombres);
@@ -640,7 +640,7 @@ body.cover-closed .hero-texto {
   text-shadow: 0 1px 30px rgba(23, 16, 11, 0.4);
 }
 
-.hero-fecha {
+.hero-date {
   display: inline-flex;
   align-items: center;
   gap: 1rem;
@@ -653,14 +653,14 @@ body.cover-closed .hero-texto {
   color: rgba(253, 243, 232, 0.9);
 }
 
-.hero-fecha::before {
+.hero-date::before {
   content: "";
   width: 2.5rem;
   height: 1px;
   background-color: rgba(253, 243, 232, 0.6);
 }
 
-.hero-flecha {
+.hero-arrow {
   position: absolute;
   left: 50%;
   bottom: 1.5rem;
@@ -675,7 +675,7 @@ body.cover-closed .hero-texto {
   transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
-.hero-flecha span {
+.hero-arrow span {
   display: block;
   width: 0.6rem;
   height: 0.6rem;
@@ -685,7 +685,7 @@ body.cover-closed .hero-texto {
   animation: flechaBaja 2.4s ease-in-out infinite;
 }
 
-.hero-flecha:hover {
+.hero-arrow:hover {
   border-color: var(--banda-texto);
   background-color: rgba(253, 243, 232, 0.12);
 }
@@ -703,14 +703,14 @@ body.cover-closed .hero-texto {
 /* ============================================================
    10. Frase de la pareja
    ============================================================ */
-.Intro blockquote {
+.quote blockquote {
   margin: 0;
   padding: 0;
   border: 0;
 }
 
 /* Comilla de apertura en brasa: convierte la frase en un pull-quote. */
-.Intro blockquote::before {
+.quote blockquote::before {
   content: "“";
   display: block;
   font-family: var(--fuente-titulo);
@@ -720,7 +720,7 @@ body.cover-closed .hero-texto {
   margin-bottom: 0.9rem;
 }
 
-.Intro blockquote p {
+.quote blockquote p {
   font-size: var(--fs-lead);
   line-height: 1.7;
   color: var(--ink);
@@ -730,19 +730,19 @@ body.cover-closed .hero-texto {
 /* ============================================================
    11. Cuenta regresiva: el único bloque oscuro de la invitación
    ============================================================ */
-.Fecha {
+.countdown-date {
   padding: clamp(5rem, 12vw, 8.5rem) 1.5rem;
   text-align: left;
   color: var(--banda-texto);
   background-color: var(--banda-1);
 }
 
-.banda-contenido {
+.band-content {
   width: min(100% - 3rem, var(--ancho));
   margin-inline: auto;
 }
 
-.fecha-dia {
+.date-day {
   font-family: var(--fuente-titulo);
   font-size: clamp(2rem, 5.4vw, 3.4rem);
   line-height: 1.1;
@@ -750,7 +750,7 @@ body.cover-closed .hero-texto {
   margin: 0 0 0.75rem;
 }
 
-.faltan {
+.remaining {
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -760,7 +760,7 @@ body.cover-closed .hero-texto {
   margin: 0;
 }
 
-.cuenta-regresiva {
+.countdown {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
@@ -769,11 +769,11 @@ body.cover-closed .hero-texto {
 }
 
 /* Sin cajas ni cristal: los números se separan con aire. */
-.caja {
+.box {
   min-width: 4rem;
 }
 
-.caja-num {
+.box-number {
   display: block;
   font-family: var(--fuente-titulo);
   font-size: clamp(2.8rem, 7vw, 4.4rem);
@@ -783,7 +783,7 @@ body.cover-closed .hero-texto {
   color: var(--banda-texto);
 }
 
-.caja-label {
+.box-label {
   display: block;
   margin-top: 0.7rem;
   font-family: var(--fuente-etiqueta);
@@ -794,7 +794,7 @@ body.cover-closed .hero-texto {
   color: rgba(251, 242, 230, 0.8);
 }
 
-.msg-post {
+.post-message {
   font-family: var(--fuente-titulo);
   font-size: clamp(1.7rem, 4.6vw, 2.5rem);
   line-height: 1.3;
@@ -805,7 +805,7 @@ body.cover-closed .hero-texto {
 /* ============================================================
    12. Retrato intermedio
    ============================================================ */
-.Nombres img {
+.portrait img {
   display: block;
   width: 100%;
   aspect-ratio: 2 / 1;
@@ -815,7 +815,7 @@ body.cover-closed .hero-texto {
 /* ============================================================
    13. Ceremonia y recepción
    ============================================================ */
-.card-lugar {
+.place-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -827,15 +827,15 @@ body.cover-closed .hero-texto {
   border-radius: 0;
 }
 
-.card-lugar h3 {
+.place-card h3 {
   margin: 1.1rem 0 0.35rem;
 }
 
-.card-lugar .boton {
+.place-card .button {
   margin-top: 1.6rem;
 }
 
-.lugar-dato {
+.place-detail {
   font-size: 1.0625rem;
   color: var(--ink-2);
   margin: 0;
@@ -932,7 +932,7 @@ body.cover-closed .hero-texto {
   transition-delay: 1.22s;
 }
 
-.event-ico {
+.event-icon {
   position: relative;
   z-index: 1;
   display: grid;
@@ -946,7 +946,7 @@ body.cover-closed .hero-texto {
   box-shadow: 0 0 0 0.5rem var(--paper);
 }
 
-.event-ico .ico {
+.event-icon .icon {
   --ico-tam: 2.25rem;
 }
 
@@ -1101,20 +1101,20 @@ body.cover-closed .hero-texto {
   color: var(--ember);
 }
 
-.confirmar-panel .boton {
+.confirmar-panel .button {
   justify-self: start;
 }
 
 /* ============================================================
    16. Mesa de regalos
    ============================================================ */
-.mesa-nota {
+.section-note {
   max-width: 52ch;
   margin: 0 0 2.75rem;
   text-align: left;
 }
 
-.card-regalo {
+.gift-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1126,23 +1126,23 @@ body.cover-closed .hero-texto {
   border-radius: 0;
 }
 
-.logo-regalo {
+.gift-logo {
   width: auto;
   height: 2.4rem;
   margin-bottom: 1rem;
 }
 
-.card-regalo h3 {
+.gift-card h3 {
   margin: 0 0 0.5rem;
 }
 
-.regalo-titular {
+.gift-holder {
   margin: 0;
   font-size: 1rem;
   color: var(--ink-2);
 }
 
-.regalo-cuenta {
+.gift-account {
   margin: 0 0 1.5rem;
   font-size: clamp(1.05rem, 2.4vw, 1.3rem);
   font-weight: 500;
@@ -1151,14 +1151,14 @@ body.cover-closed .hero-texto {
   color: var(--ember);
 }
 
-.card-regalo .boton {
+.gift-card .button {
   margin-top: auto;
 }
 
 /* ============================================================
    17. Hospedaje
    ============================================================ */
-.card-hotel {
+.hotel-card {
   display: grid;
   justify-items: start;
   gap: 0.4rem;
@@ -1172,23 +1172,23 @@ body.cover-closed .hero-texto {
   transition: border-color 0.25s ease;
 }
 
-.card-hotel:hover {
+.hotel-card:hover {
   border-color: var(--ember);
 }
 
-.card-hotel .ico {
+.hotel-card .icon {
   --ico-tam: 2.25rem;
   margin-bottom: 0.75rem;
 }
 
-.hotel-nombre {
+.hotel-name {
   font-family: var(--fuente-titulo);
   font-size: 1.5rem;
   line-height: 1.2;
   color: var(--ink);
 }
 
-.hotel-enlace {
+.hotel-link {
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -1199,7 +1199,7 @@ body.cover-closed .hero-texto {
   transition: text-decoration-color 0.25s ease;
 }
 
-.card-hotel:hover .hotel-enlace {
+.hotel-card:hover .hotel-link {
   text-decoration-color: var(--ember);
 }
 
@@ -1496,13 +1496,13 @@ footer a:hover {
 /* ============================================================
    20. Rejillas reutilizables
    ============================================================ */
-.rejilla-2 {
+.grid-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(1.5rem, 4vw, 3rem);
 }
 
-.rejilla-3 {
+.grid-3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1.5rem, 3vw, 2.5rem);
@@ -1549,7 +1549,7 @@ footer a:hover {
    restricciones, mesa de regalos con varios datos copiables y aviso del
    registro. Todo con los tokens del tema (nunca colores literales).
    ============================================================ */
-.cita-autor {
+.quote-author {
   margin-top: 1rem;
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
@@ -1558,23 +1558,23 @@ footer a:hover {
   color: var(--ink-2);
 }
 
-.historia p {
+.story p {
   max-width: 62ch;
 }
 
-.restricciones-lista {
+.restrictions-list {
   margin: 0;
   padding-left: 1.1rem;
   display: grid;
   gap: 0.5rem;
 }
 
-.restricciones-lista li {
+.restrictions-list li {
   text-wrap: pretty;
 }
 
 /* Mesa de regalos: los datos van como texto y un único botón copia la cuenta. */
-.regalo-datos {
+.gift-details {
   list-style: none;
   width: 100%;
   margin: 0.25rem 0 1.25rem;
@@ -1583,7 +1583,7 @@ footer a:hover {
   gap: 1rem;
 }
 
-.regalo-dato {
+.gift-detail {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -1592,13 +1592,13 @@ footer a:hover {
   width: 100%;
 }
 
-.regalo-dato-texto {
+.gift-detail-text {
   display: grid;
   gap: 0.15rem;
   min-width: 0;
 }
 
-.regalo-dato .regalo-cuenta {
+.gift-detail .gift-account {
   margin: 0;
   overflow-wrap: anywhere;
 }
@@ -1607,7 +1607,7 @@ footer a:hover {
   flex: none;
 }
 
-.hotel-precio {
+.hotel-price {
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -1730,19 +1730,19 @@ footer a:hover {
     text-align: center;
   }
 
-  .confirmar-panel .boton {
+  .confirmar-panel .button {
     justify-self: stretch;
   }
 }
 
 @media (max-width: 780px) {
-  .rejilla-3 {
+  .grid-3 {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 720px) {
-  .rejilla-2 {
+  .grid-2 {
     grid-template-columns: 1fr;
   }
 
@@ -1761,7 +1761,7 @@ footer a:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .Nombres img {
+  .portrait img {
     aspect-ratio: 3 / 2;
   }
 
@@ -1806,7 +1806,7 @@ footer a:hover {
 
   .hero-img,
   body.cover-closed .hero-img,
-  body.cover-closed .hero-texto,
+  body.cover-closed .hero-text,
   .cover-backdrop {
     animation: none !important;
     transform: none !important;

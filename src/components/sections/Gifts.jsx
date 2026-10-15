@@ -18,12 +18,12 @@ export function Gifts({ gifts }) {
   const options = giftOptions(gifts);
 
   return (
-    <section className="mesaregalos reveal" id="regalos">
+    <section className="gifts reveal" id="regalos">
       <div className="wrap">
         {gifts?.titulo && <h2>{gifts.titulo}</h2>}
-        {gifts?.mensaje && <p className="mesa-nota">{gifts.mensaje}</p>}
+        {gifts?.mensaje && <p className="section-note">{gifts.mensaje}</p>}
 
-        <div className="rejilla-2">
+        <div className="grid-2">
           {options.map((option, i) => {
             const logo = LOGOS[option.type] ?? null;
             const copyables = Array.isArray(option.copyableFields)
@@ -32,10 +32,10 @@ export function Gifts({ gifts }) {
             const copyable = option.copyableField ?? null;
 
             return (
-              <article className="card-regalo" key={`${option.type ?? "regalo"}-${i}`}>
+              <article className="gift-card" key={`${option.type ?? "regalo"}-${i}`}>
                 {logo && (
                   <img
-                    className="logo-regalo"
+                    className="gift-logo"
                     src={logo}
                     alt=""
                     loading="lazy"
@@ -44,15 +44,15 @@ export function Gifts({ gifts }) {
                 )}
 
                 <h3>{option.label}</h3>
-                {option.description && <p className="regalo-titular">{option.description}</p>}
+                {option.description && <p className="gift-holder">{option.description}</p>}
 
                 {copyables.length > 0 && (
-                  <ul className="regalo-datos">
+                  <ul className="gift-details">
                     {copyables.map((field, j) => (
-                      <li className="regalo-dato" key={`${field.label}-${j}`}>
-                        <span className="regalo-dato-texto">
-                          <span className="regalo-titular">{field.label}</span>
-                          <span className="regalo-cuenta">{field.value}</span>
+                      <li className="gift-detail" key={`${field.label}-${j}`}>
+                        <span className="gift-detail-text">
+                          <span className="gift-holder">{field.label}</span>
+                          <span className="gift-account">{field.value}</span>
                         </span>
                       </li>
                     ))}
@@ -69,7 +69,7 @@ export function Gifts({ gifts }) {
 
                 {option.url && (
                   <a
-                    className="boton boton-solido"
+                    className="button button-solid"
                     href={option.url}
                     target="_blank"
                     rel="noopener noreferrer"

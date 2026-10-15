@@ -106,7 +106,7 @@ contradicción con el código (principio 2, «spec = código»).
   (JSX y CSS a la vez), la prueba de andamiaje apunta al nombre nuevo del enlace de salto, ninguna clase
   usa `carousel`/`bootstrap`/`data-bs`/`--bs-` y la comparación de paridad de esos bloques no muestra
   diferencias.
-- [ ] **T19 · Renombrar clases de las secciones de contenido.** _RF: RF-3, RNF-6, RNF-1._
+- [x] **T19 · Renombrar clases de las secciones de contenido.** _RF: RF-3, RNF-6, RNF-1._
   Hecho cuando: hero, cita, historia, cuenta regresiva, lugares, itinerario, hoteles y mesa de regalos
   usan clases en inglés, los **ids de ancla** (`#inicio`, `#fecha`, `#cita`, `#historia`, `#lugares`,
   `#itinerario`, `#regalos`, `#hospedaje`, `#restricciones`) siguen **sin cambiar** y la paridad de esas

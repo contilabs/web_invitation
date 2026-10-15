@@ -4,8 +4,8 @@ export function Story({ story }) {
   const paragraphs = Array.isArray(story?.parrafos) ? story.parrafos : [];
 
   return (
-    <section className="historia reveal" id="historia">
-      <div className="wrap-estrecho">
+    <section className="story reveal" id="historia">
+      <div className="wrap-narrow">
         {title && <h2>{title}</h2>}
         {paragraphs.map((paragraph, i) => (
           <p key={i}>{paragraph}</p>

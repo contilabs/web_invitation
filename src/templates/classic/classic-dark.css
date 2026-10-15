@@ -55,7 +55,7 @@ footer {
 
 /* Los logotipos de la mesa de regalos son monocromos: se aclaran
    en lugar de invertirse con la cadena de filtros anterior. */
-html.dark-mode .logo-regalo {
+html.dark-mode .gift-logo {
   filter: brightness(0) invert(1) sepia(0.3) saturate(1.5) brightness(0.98);
 }
 

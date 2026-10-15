@@ -7,10 +7,10 @@ export function Restrictions({ restrictions }) {
   if (messages.length === 0) return null;
 
   return (
-    <section className="restricciones reveal" id="restricciones">
-      <div className="wrap-estrecho">
+    <section className="restrictions reveal" id="restricciones">
+      <div className="wrap-narrow">
         {restrictions?.titulo && <h2>{restrictions.titulo}</h2>}
-        <ul className="restricciones-lista">
+        <ul className="restrictions-list">
           {messages.map((message, i) => (
             <li key={i}>{message}</li>
           ))}

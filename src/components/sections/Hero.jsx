@@ -18,16 +18,16 @@ export function Hero({ couple, dateText }) {
         fetchPriority="low"
         decoding="async"
       />
-      <div className="hero-velo" aria-hidden="true"></div>
+      <div className="hero-veil" aria-hidden="true"></div>
 
-      <div className="hero-texto">
-        <h1 className="hero-nombres">
+      <div className="hero-text">
+        <h1 className="hero-names">
           {names.first} <span className="amp">&amp;</span> {names.second}
         </h1>
-        <p className="hero-fecha">{dateText}</p>
+        <p className="hero-date">{dateText}</p>
       </div>
 
-      <a className="hero-flecha" href="#fecha" aria-label="Continuar con la invitación">
+      <a className="hero-arrow" href="#fecha" aria-label="Continuar con la invitación">
         <span aria-hidden="true"></span>
       </a>
     </section>

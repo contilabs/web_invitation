@@ -7,26 +7,26 @@ export function Hotels({ hotels }) {
   const list = Array.isArray(hotels?.lista) ? hotels.lista : [];
 
   return (
-    <section className="hoteles reveal" id="hospedaje">
+    <section className="hotels reveal" id="hospedaje">
       <div className="wrap">
         {hotels?.titulo && <h2>{hotels.titulo}</h2>}
 
-        <div className="rejilla-3">
+        <div className="grid-3">
           {list.map((hotel, i) => {
             const link = hotel?.bookingUrl ?? hotel?.mapaUrl ?? null;
             const content = (
               <>
-                <img className="ico" src={icons.hotel} alt="" loading="lazy" decoding="async" />
-                <span className="hotel-nombre">{hotel?.nombre}</span>
-                {hotel?.precio && <span className="hotel-precio">{hotel.precio}</span>}
-                {link && <span className="hotel-enlace">Ver hotel</span>}
+                <img className="icon" src={icons.hotel} alt="" loading="lazy" decoding="async" />
+                <span className="hotel-name">{hotel?.nombre}</span>
+                {hotel?.precio && <span className="hotel-price">{hotel.precio}</span>}
+                {link && <span className="hotel-link">Ver hotel</span>}
               </>
             );
             const key = `${hotel?.nombre ?? "hotel"}-${i}`;
 
             return link ? (
               <a
-                className="card-hotel"
+                className="hotel-card"
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -35,7 +35,7 @@ export function Hotels({ hotels }) {
                 {content}
               </a>
             ) : (
-              <article className="card-hotel" key={key}>
+              <article className="hotel-card" key={key}>
                 {content}
               </article>
             );

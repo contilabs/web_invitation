@@ -72,7 +72,7 @@ export function CopyButton({ value, label = "", buttonText = "Copiar" }) {
 
   return (
     <>
-      <button type="button" className="boton boton-linea boton-copiar" onClick={copy}>
+      <button type="button" className="button button-outline boton-copiar" onClick={copy}>
         {buttonText}
         {label && !labelAlreadyVisible && <span className="visually-hidden"> {label}</span>}
       </button>

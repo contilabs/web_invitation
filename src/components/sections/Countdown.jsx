@@ -7,9 +7,9 @@ const twoDigits = (number) => String(number).padStart(2, "0");
 
 function Box({ number, label }) {
   return (
-    <div className="caja">
-      <span className="caja-num">{number}</span>
-      <span className="caja-label">{label}</span>
+    <div className="box">
+      <span className="box-number">{number}</span>
+      <span className="box-label">{label}</span>
     </div>
   );
 }
@@ -18,14 +18,14 @@ export function Countdown({ instantMs, dateText }) {
   const { days, hours, minutes, seconds, done } = useCountdown(instantMs);
 
   return (
-    <section className="Fecha reveal" id="fecha">
-      <div className="banda-contenido">
-        <p className="fecha-dia">{dateText}</p>
-        <p className="faltan">Faltan</p>
+    <section className="countdown-date reveal" id="fecha">
+      <div className="band-content">
+        <p className="date-day">{dateText}</p>
+        <p className="remaining">Faltan</p>
 
-        <div id="cuenta-regresiva" className="cuenta-regresiva">
+        <div id="cuenta-regresiva" className="countdown">
           {done ? (
-            <p className="msg-post">¡Gracias por celebrar con nosotros!</p>
+            <p className="post-message">¡Gracias por celebrar con nosotros!</p>
           ) : (
             <>
               <Box number={days} label="Días" />

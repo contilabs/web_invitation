@@ -14,10 +14,10 @@ export function Timeline({ timeline }) {
         <ul className="timeline">
           {moments.map((moment, i) => (
             <li className="event" key={`${moment?.titulo ?? "moment"}-${i}`}>
-              <span className="event-ico">
+              <span className="event-icon">
                 {icons.timeline[moment?.icono] && (
                   <img
-                    className="ico"
+                    className="icon"
                     src={icons.timeline[moment.icono]}
                     alt=""
                     loading="lazy"
