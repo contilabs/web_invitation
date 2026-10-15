@@ -1,6 +1,6 @@
 // Prueba de andamiaje (T2): vigila que el proyecto siga siendo ESM y que los scripts
 // base y el shell de Vite sigan en su sitio. No prueba lógica de la invitación: eso
-// vive en `src/logica/*.test.js` (T6–T11).
+// vive en `src/utils/*.test.js` (T6–T11).
 import { readFileSync, readdirSync } from "node:fs";
 import { strict as assert } from "node:assert";
 import test from "node:test";
@@ -67,7 +67,11 @@ test("la app ofrece un enlace para saltar al contenido dentro de <main>", () => 
 // (ni la librería ni sus clases), porque ya no se carga ninguna hoja suya.
 test("no queda ninguna referencia a Bootstrap", () => {
   const cosas = [/bootstrap/i, /carousel/i, /data-bs/i, /--bs-/i];
-  for (const archivo of ["../styles.css", "../darkMode.css", "../index.html"]) {
+  for (const archivo of [
+    "../src/templates/classic/classic.css",
+    "../src/templates/classic/classic-dark.css",
+    "../index.html",
+  ]) {
     const texto = leer(archivo);
     for (const cosa of cosas) {
       assert.doesNotMatch(texto, cosa, `${archivo} menciona «${cosa.source}»`);

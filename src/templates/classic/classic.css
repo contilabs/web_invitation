@@ -13,7 +13,7 @@
    ============================================================ */
 @font-face {
   font-family: "Erstoria";
-  src: url("fonts/Erstoria.woff2") format("woff2");
+  src: url("../../../fonts/Erstoria.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -21,8 +21,8 @@
 
 @font-face {
   font-family: "Kalista";
-  src: url("fonts/Kalista Script Regular.woff2") format("woff2"),
-    url("fonts/Kalista Script Regular.woff") format("woff");
+  src: url("../../../fonts/Kalista Script Regular.woff2") format("woff2"),
+    url("../../../fonts/Kalista Script Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -506,11 +506,11 @@ p:last-child {
 }
 
 .icono-silencio {
-  background-image: url("assets/icons/silencio.png");
+  background-image: url("../../../assets/icons/silencio.png");
 }
 
 .icono-sonando {
-  background-image: url("assets/icons/sonido.png");
+  background-image: url("../../../assets/icons/sonido.png");
 }
 
 /* ============================================================
