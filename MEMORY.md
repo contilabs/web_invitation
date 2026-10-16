@@ -2,8 +2,8 @@
 Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo que ya no aporte.
 ## Estado actual
 - **Rama viva: `react-migration`** (antes `003-reorganizacion-modular-plantillas`; = `main` + specs
-  001–004). **Spec 004** arrancada: solo `spec.md` (falta plan y tasks). `main` congelado en
-  `f085e53`, `origin/main` en `9b72fdf`: nada empujado (la autenticación de GitHub falla).
+  001–004), **publicada** en `origin/react-migration`. **Spec 004** arrancada: solo `spec.md` (falta
+  plan y tasks). `main` y `origin/main` al día en `f085e53`; la autenticación de GitHub funciona.
 - **Spec 001 cerrada salvo la pasada manual y el despliegue:** app React completa (sin
   `script.js`/`darkMode.js` ni código legado de datos), rediseño «Ascua», accesibilidad y rendimiento.
 - **Spec 002 (`specs/002-modelo-datos-boda/`): fases 0–7 hechas**; su pasada manual se cubre con la
