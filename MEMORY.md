@@ -6,17 +6,17 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   plan y tasks). `main` y `origin/main` al día en `f085e53`; la autenticación de GitHub funciona.
 - **Spec 001 cerrada salvo la pasada manual y el despliegue:** app React completa (sin
   `script.js`/`darkMode.js` ni código legado de datos), rediseño «Ascua», accesibilidad y rendimiento.
-- **Spec 002 (`specs/002-modelo-datos-boda/`): fases 0–7 hechas**; su pasada manual se cubre con la
+- **Spec 002 (`specs/Jose-QB/002-modelo-datos-boda/`): fases 0–7 hechas**; su pasada manual se cubre con la
   de la spec 003 (misma lista). Registro único (`src/data/wedding.js`) + fichas
   (`src/data/guest-cards.js`); interfaz dirigida por el registro (`App.jsx` compone
   `visibleSections(wedding)`); `npm test` → **116/116** y build OK.
-- **Spec 003 (`specs/003-reorganizacion-modular-plantillas/`): T1–T26 y T28 hechas** y marcadas en
+- **Spec 003 (`specs/Jose-QB/003-reorganizacion-modular-plantillas/`): T1–T26 y T28 hechas** y marcadas en
   `tasks.md`. Estructura final: `app/`, `constants/`, `data/`, `utils/` (lógica pura + pruebas),
   `hooks/`, `providers/`, `services/`, `templates/classic/`, `components/{layout,sections,ui}/` y
   `test/{andamiaje,contracts}.test.js`. **Toda la nomenclatura de `src/` y `test/` está en inglés**
   (T25; antes T13–T21). T26: paridad **30/30** + 4 casos límite. `npm test` → **116/116** y build OK.
   **Falta solo T27** (pasada manual: móvil y escritorio, RSVP real, portapapeles, audio).
-- Documentación: `docs/constitution.md` (6 principios, enmendada por T2), `specs/001-*`…`003-*`,
+- Documentación: `docs/constitution.md` (6 principios, enmendada por T2), `specs/Jose-QB/001-*`…`specs/Jose-QB/003-*`,
   `PENDING_TASKS.md`.
 ## Decisiones (y por qué)
 - **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue

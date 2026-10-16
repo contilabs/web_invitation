@@ -1,10 +1,10 @@
 # AGENTS.md
 
 Invitación de boda de Karina & Gerardo. App **React + Vite** con build. La spec activa es
-`specs/003-reorganizacion-modular-plantillas/` (reorganización modular por capas, plantilla de
+`specs/Jose-QB/003-reorganizacion-modular-plantillas/` (reorganización modular por capas, plantilla de
 presentación y nomenclatura del código en inglés); las anteriores son
-`specs/002-modelo-datos-boda/` (modelo de datos reutilizable, UI dirigida por el registro) y
-`specs/001-migracion-y-rediseno/` (de la página estática a React).
+`specs/Jose-QB/002-modelo-datos-boda/` (modelo de datos reutilizable, UI dirigida por el registro) y
+`specs/Jose-QB/001-migracion-y-rediseno/` (de la página estática a React).
 
 ## Quick start
 
@@ -92,7 +92,7 @@ la **pasada manual (T27)**.
 ## Editing guidance
 
 - Prefer minimal, targeted edits. El trabajo avanza **tarea a tarea** según
-  `specs/003-reorganizacion-modular-plantillas/tasks.md`: no adelantes tareas ajenas ni reescribas lo que
+  `specs/Jose-QB/003-reorganizacion-modular-plantillas/tasks.md`: no adelantes tareas ajenas ni reescribas lo que
   ya funciona.
 - Keep the theme token system intact (central CSS variables). Don't inline colors that should come from tokens.
 - When touching dates, links, or bank data, update the **único origen**:
@@ -160,4 +160,4 @@ la **pasada manual (T27)**.
 
 ## Reglas
 
-- Lee `docs/constitution.md` y la spec activa (`specs/NNN-*/`) antes de tocar código.
+- Lee `docs/constitution.md` y la spec activa (`specs/Jose-QB/NNN-*/`) antes de tocar código.
