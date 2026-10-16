@@ -1,9 +1,9 @@
 # MEMORY.md — Invitación digital
 Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo que ya no aporte.
 ## Estado actual
-- **Rama viva: `react-migration`** (antes `003-reorganizacion-modular-plantillas`; = `main` + specs
-  001–004), **publicada** en `origin/react-migration`. **Spec 004** arrancada: solo `spec.md` (falta
-  plan y tasks). `main` y `origin/main` al día en `f085e53`; la autenticación de GitHub funciona.
+- **Rama viva: `react-migration`** (antes `003-reorganizacion-modular-plantillas`), rebanada sobre
+  **`main` = `6a4b9fb`** (specs en `specs/Jose-QB/`; la 004 solo tiene `spec.md`). Su rebase (26
+  commits) está **sin publicar**: `origin/react-migration` sigue en `83ab969` (exige force-push).
 - **Spec 001 cerrada salvo la pasada manual y el despliegue:** app React completa (sin
   `script.js`/`darkMode.js` ni código legado de datos), rediseño «Ascua», accesibilidad y rendimiento.
 - **Spec 002 (`specs/Jose-QB/002-modelo-datos-boda/`): fases 0–7 hechas**; su pasada manual se cubre con la
