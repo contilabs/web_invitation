@@ -1,6 +1,6 @@
 # Plan técnico — Spec 002: Modelo de datos reutilizable de la invitación
 
-- **Spec:** `specs/002-modelo-datos-boda/spec.md`
+- **Spec:** `spec.md`
 - **Constitución:** `docs/constitution.md`
 - **Naturaleza:** plan (sí puede nombrar stack, archivos y arquitectura; la spec no).
 - **Base:** la app React + Vite ya terminada (spec 001, T1–T27). Este plan **reorganiza los

@@ -4,10 +4,11 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
 - **Spec 001 cerrada salvo la pasada manual** (T28) y el despliegue. La app React compone toda la
   invitación; `script.js`/`darkMode.js` borrados y el código legado de datos eliminado (T29). El
   árbol está sin commitear.
-- **Spec 002 · modelo de datos reutilizable** (`specs/002-modelo-datos-boda/`): fases **0–7**
+- **Spec 002 · modelo de datos reutilizable** (`specs/Jose-QB/002-modelo-datos-boda`): fases **0–7**
   hechas (documentos/datos, lógica pura, hooks, interfaz, limpieza y verificación); solo queda la
   **pasada manual (T33)**: otro registro, portapapeles, audio tras «Ingresar», RSVP real y móvil.
-- Documentación: `docs/constitution.md` (6 principios), `specs/001-*` y `specs/002-*` (`spec.md`,
+- Documentación: `docs/constitution.md` (6 principios), `specs/Jose-QB/001-*` y
+  `specs/Jose-QB/002-*` (`spec.md`,
   `plan.md`, `tasks.md`), `PENDING_TASKS.md`.
 - **Spec 001 (T1–T27):** hooks, componentes, rediseño «Ascua», accesibilidad y rendimiento;
   verificación headless en `dist/` OK (320–1440 px, día/noche, contraste, foco, movimiento
@@ -43,7 +44,7 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
 - **Spec 002 · ajuste posterior (T36):** la **galería cierra** la invitación (última sección, justo
   antes del `Pie`). El orden vive solo en `ORDEN_SECCIONES` (`secciones.js`); `App.jsx` y el CSS no
   cambiaron. `npm test` → **110/110** y build OK.
-- **Spec 003 · reorganización modular y plantillas** (`specs/003-reorganizacion-modular-plantillas/`):
+- **Spec 003 · reorganización modular y plantillas** (`specs/Jose-QB/003-reorganizacion-modular-plantillas`):
   **`spec.md` (tras QA), `plan.md` y `tasks.md` (28 tareas, T1–T28) escritos; lista para ejecutar.**
   Prepara **varias plantillas** y la **nomenclatura del código en inglés** sin cambio visible (paridad
   **estricta**, una plantilla, sin selector); exige enmendar la constitución (§10) y fija la estructura

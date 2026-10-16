@@ -1,6 +1,6 @@
 # Plan técnico — Spec 001: Migración a React y rediseño
 
-- **Spec:** `specs/001-migracion-y-rediseno/spec.md`
+- **Spec:** `spec.md`
 - **Constitución:** `docs/constitution.md`
 - **Naturaleza:** plan (sí puede nombrar stack, archivos y arquitectura; la spec no).
 

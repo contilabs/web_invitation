@@ -1,6 +1,6 @@
 # Plan técnico — Reorganización modular para soportar plantillas
 
-Spec de referencia: `specs/003-reorganizacion-modular-plantillas/spec.md`.
+Spec de referencia: `spec.md`.
 Constitución de referencia: `docs/constitution.md`.
 
 Este plan no cambia lo que ve el invitado: reorganiza los módulos, aísla la presentación en una capa de

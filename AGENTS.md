@@ -1,8 +1,8 @@
 # AGENTS.md
 
 Invitación de boda de Karina & Gerardo. App **React + Vite** con build. La spec activa es
-`specs/002-modelo-datos-boda/` (modelo de datos reutilizable, UI dirigida por el registro); la
-migración previa (de la página estática a React) está en `specs/001-migracion-y-rediseno/`.
+`specs/Jose-QB/002-modelo-datos-boda` (modelo de datos reutilizable, UI dirigida por el registro); la
+migración previa (de la página estática a React) está en `specs/Jose-QB/001-migracion-y-rediseno`.
 
 ## Quick start
 
@@ -71,7 +71,7 @@ tiene las fases 0–7 hechas (verificación automática incluida) salvo la **pas
 ## Editing guidance
 
 - Prefer minimal, targeted edits. El trabajo avanza **tarea a tarea** según
-  `specs/002-modelo-datos-boda/tasks.md`: no adelantes tareas ajenas ni reescribas lo que
+  `specs/Jose-QB/002-modelo-datos-boda`: no adelantes tareas ajenas ni reescribas lo que
   ya funciona.
 - Keep the theme token system intact (central CSS variables). Don't inline colors that should come from tokens.
 - When touching dates, links, or bank data, update the **único origen**:
@@ -133,5 +133,5 @@ tiene las fases 0–7 hechas (verificación automática incluida) salvo la **pas
 
 ## Reglas
 
-- Lee `docs/constitution.md` y la spec activa (`specs/NNN-*/`) antes de tocar código. 
+- Lee `docs/constitution.md` y la spec activa (`specs/Jose-QB/NNN-*/`) antes de tocar código. 
 

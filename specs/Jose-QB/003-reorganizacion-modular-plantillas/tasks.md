@@ -2,7 +2,7 @@
 
 Ordenadas por dependencia. Cada tarea es pequeña (≤ 20–30 min), indica los RF que cubre y tiene una
 línea **Hecho cuando:** verificable. Los **RF/RNF** citados son los de la **spec 003**
-(`specs/003-reorganizacion-modular-plantillas/spec.md`), no los de la 002.
+(`spec.md`), no los de la 002.
 
 **Regla de cierre de cada tarea:** `npm test` en verde y `npm run build` sin errores. Ninguna prueba se
 relaja: si vigila un nombre que cambia, se actualiza **comprobando lo mismo**. Nada se publica a medias.
