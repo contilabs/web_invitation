@@ -121,6 +121,8 @@ la **pasada manual (T27)**.
 - Haz solo lo que se pide: no añadas funcionalidades por tu cuenta.
 - Cambios pequeños y enfocados; no reescribas lo que ya funciona.
 - Al terminar, resume qué has cambiado y cualquier decisión que deba revisar.
+- **Commits** en español y sin acentos; los de tarea empiezan `spec NNN Tx:` y los de
+  documentación `docs(...)`; si aporta, cuerpo con viñetas.
 
 ## Límites
 
