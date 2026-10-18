@@ -1,9 +1,10 @@
 # 💌 Invitación Digital — Karina & Gerardo
 
 Invitación de boda web construida con **React + Vite**. El build genera un sitio **estático**
-en `dist/`, listo para servir en cualquier subruta. No hay backend ni panel: toda la boda vive en
-un **registro único** (`src/data/wedding.js`) y las invitaciones en `src/data/guest-cards.js`; la
-interfaz solo lee y pinta.
+en `dist/`, listo para servir en cualquier subruta. No hay panel: todo el contenido de la boda vive
+en un **registro único** (`src/data/wedding.js`) y la interfaz solo lee y pinta. Las **respuestas
+de los invitados** (confirmación de asistencia) van a un **servicio de registro** (Apps Script)
+configurado por variables de entorno al publicar (ver «Servicio de invitados y confirmación»).
 
 ## 🔥 Concepto: «Fuego cálido: día y noche»
 
@@ -56,14 +57,16 @@ compartibles.
 index.html          # Shell de Vite (<div id="root">) + script de tema anti-parpadeo + metas
 src/app/            # main.jsx (monta React), App.jsx (compone) y sectionRenderers.jsx (mapa clave → componente)
 src/constants/      # Constantes compartidas: orden de secciones, tema y plantillas
-src/data/           # Registro de la boda (wedding.js) y fichas de invitación (guest-cards.js) + pruebas
+src/data/           # Registro de la boda (wedding.js) + ejemplos ficticios de invitados (guest-cards.js, solo fixtures)
 src/utils/          # Funciones puras + pruebas (sin React, sin DOM, sin reloj)
 src/hooks/          # Estado con efecto: tema, música, invitación, cuenta regresiva, galería…
 src/components/     # Presentación: layout/ (estructura), sections/ (contenido) y ui/ (piezas reutilizables)
 src/providers/      # TemplateProvider (publica la plantilla activa)
 src/services/       # photos.js (resuelve las rutas de las fotos con Vite)
 src/templates/      # Capa de presentación: index.js (registro) y classic/ (CSS, iconos, tamaños)
-test/               # Andamiaje (andamiaje.test.js) y contratos (contracts.test.js)
+test/               # Andamiaje, contratos y sincronía del contrato del servicio
+gas/                # El servicio de registro (Apps Script) y su puesta en marcha
+docs/               # Constitución y contrato del servicio (servicio-invitados.md)
 assets/             # Fotos originales, iconos y audio
 assets/photos/opt/  # Derivados JPEG optimizados: lo que la página carga de verdad
 fonts/              # Erstoria + Kalista (locales)
@@ -72,8 +75,9 @@ fonts/              # Erstoria + Kalista (locales)
 ## 🎨 Personalización (datos de la pareja y del evento)
 
 Todo eso se edita en **`src/data/wedding.js`** (registro único de la boda). Las **fichas de
-invitación** viven aparte, en **`src/data/guest-cards.js`**. No hay textos de contenido en los
-componentes: la interfaz solo lee el registro y pinta.
+invitación** de antes ya no personalizan nada: `src/data/guest-cards.js` son **ejemplos
+ficticios** (fixtures de las pruebas) y la app no los importa en ejecución. No hay textos de
+contenido en los componentes: la interfaz solo lee el registro y pinta.
 
 | Qué | Clave en el registro |
 | --- | --- |
@@ -84,26 +88,40 @@ componentes: la interfaz solo lee el registro y pinta.
 | Cita y portada | `cita`, `portada` |
 | Mesa de regalos | `regalos` (por tipo, con sus datos copiables) |
 | Hoteles y restricciones | `hoteles`, `restricciones` |
-| Confirmación (plazo y campos) | `confirmacion` |
+| Confirmación (título, descripción y campos) | `confirmacion` |
 | Música, navegación y visibilidad | `ajustes` |
-| Crédito y correo del RSVP | `marca.enlaces` |
+| Crédito | `marca.enlaces` |
 | Plantilla | `plantilla` (`"clasica"`) |
 
+El **plazo** de confirmación y los **invitados** no viven en el registro: los resuelve el
+servicio (ver «Servicio de invitados y confirmación»).
+
 Para **reutilizar la invitación con otra pareja**: cambia el registro, deja las fotos con las
-mismas claves y anchos en `assets/photos/opt/` y vuelve a publicar.
+mismas claves y anchos en `assets/photos/opt/`, da de alta la boda en el maestro del servicio
+(`gas/README.md`) y vuelve a publicar.
 
 ### Enlaces de invitación
 
-La invitación se resuelve por **código de enlace** (no por `?invitados=N`). Hay tres tipos de
-ficha en `src/data/guest-cards.js`:
+La invitación se identifica con el parámetro **`guest`** y se resuelve contra el servicio de
+registro según el **tipo** que declara la boda en su maestro (los antiguos `?codigo=…` y
+`?invitados=N` están jubilados):
+
+- **personalizada** (`guest` = el identificador de la fila precargada): nombre, acompañante y
+  cupo vienen dados y **no** se pide teléfono.
+- **genérica** (`guest` = un código con su propio cupo): nombre y teléfono, **también para
+  rechazar**; el teléfono es la llave de la fila (una respuesta con el mismo teléfono
+  actualiza la fila, no la duplica).
+- **pública** (`guest` = el código reservado `PUBLIC`): un enlace para todos, **sin tope**,
+  nombre y teléfono también para rechazar.
 
 ```text
-index.html?codigo=karina-gerardo-inv-001   # personalizada: nombre, boletos y lugares reservados
-index.html?codigo=rec-003                  # reutilizable: límite de asistentes (1–10), sin nombre
-index.html?codigo=gen-001                  # genérica: un enlace para todos, sin lugares reservados
+index.html?guest=karina-001     # personalizada: nombre, acompañante y lugares reservados
+index.html?guest=gen-familia    # genérica: cupo del código, sin nombre precargado
+index.html?guest=PUBLIC         # pública: sin tope
 ```
 
-Sin código (o con uno desconocido) se muestra la invitación completa con «un lugar».
+Si el servicio no está configurado, la invitación se muestra completa y **sin personalizar**
+(modo demo, con su aviso).
 
 ### Música
 
@@ -121,6 +139,32 @@ del `<head>` resuelve el tema **antes de pintar** para que no haya parpadeo.
 `Erstoria` (nombres y títulos, local) y `Source Serif 4` (texto) + `Montserrat` (etiquetas,
 Google Fonts). La caligrafía `Kalista` sigue disponible para los nombres cambiando un solo
 token: `--fuente-nombres: var(--fuente-script)`.
+
+## 📬 Servicio de invitados y confirmación
+
+La confirmación de asistencia **no** es un formulario nativo ni va por correo: la app habla con
+un **servicio de registro** (Google Apps Script, `gas/Code.gs`) que lee y escribe los libros de
+invitados. El contrato vive en **módulo + documento**: `src/constants/contract.js` es la fuente
+única que consume la app y `docs/servicio-invitados.md` es el documento derivado (una prueba
+vigila que no se desincronicen). La puesta en marcha del servicio (maestro, libros y
+publicación) está explicada en `gas/README.md`.
+
+La configuración del despliegue **no** está en el repo: son valores por publicación, que se
+fijan con variables de entorno de Vite (p. ej. en un `.env.local`, que está en `.gitignore`):
+
+```bash
+VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"  # ubicación del servicio
+VITE_WEDDING_SLUG="mi-boda"                                         # slug de la boda en el maestro
+```
+
+- **Sin URL** → **modo demo**: la invitación se ve completa y sin personalizar, y la
+  confirmación queda deshabilitada con su aviso (no se llama a nadie).
+- **URL sin `slug`** → aviso «esta invitación no está configurada», sin reintento.
+- **Ambas** → la app resuelve la invitación al abrirla y registra la respuesta al enviarla
+  (espera de 10 s; si el servicio no responde, degradación visible con botón de reintento).
+
+El **plazo** de confirmación también sale del servicio (el `deadline` de la fila de la boda en
+el maestro), no del registro local.
 
 ## ♿ Accesibilidad
 
@@ -146,4 +190,7 @@ de la **clave** (la base del nombre, p. ej. `foto5`).
 
 `npm run build` deja el sitio en `dist/`. `vite.config.js` fija **`base: "./"`**, así que el
 build usa rutas relativas y funciona en cualquier subruta o dominio (incluidos los enlaces ya
-repartidos del tipo `…/index.html?codigo=…`). No hay URL de publicación confirmada todavía.
+repartidos del tipo `…/index.html?guest=…`). Para que la confirmación hable con el servicio,
+publica con las variables de entorno descritas arriba (`VITE_SERVICE_URL` y
+`VITE_WEDDING_SLUG`); sin ellas el sitio se publica en modo demo. No hay URL de publicación
+confirmada todavía.

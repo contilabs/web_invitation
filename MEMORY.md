@@ -1,80 +1,76 @@
 # MEMORY.md — Invitación digital
 Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo que ya no aporte.
+
 ## Estado actual
-- **Rama viva: `react-migration`** (antes `003-reorganizacion-modular-plantillas`), rebanada sobre
-  **`main` = `6a4b9fb`** (specs en `specs/Jose-QB/`; la 004 solo tiene `spec.md`). Su rebase (26
-  commits) está **sin publicar**: `origin/react-migration` sigue en `83ab969` (exige force-push).
-- **Spec 001 cerrada salvo la pasada manual y el despliegue:** app React completa (sin
-  `script.js`/`darkMode.js` ni código legado de datos), rediseño «Ascua», accesibilidad y rendimiento.
-- **Spec 002 (`specs/Jose-QB/002-modelo-datos-boda/`): fases 0–7 hechas**; su pasada manual se cubre con la
-  de la spec 003 (misma lista). Registro único (`src/data/wedding.js`) + fichas
-  (`src/data/guest-cards.js`); interfaz dirigida por el registro (`App.jsx` compone
-  `visibleSections(wedding)`); `npm test` → **116/116** y build OK.
-- **Spec 003 (`specs/Jose-QB/003-reorganizacion-modular-plantillas/`): T1–T26 y T28 hechas** y marcadas en
-  `tasks.md`. Estructura final: `app/`, `constants/`, `data/`, `utils/` (lógica pura + pruebas),
-  `hooks/`, `providers/`, `services/`, `templates/classic/`, `components/{layout,sections,ui}/` y
-  `test/{andamiaje,contracts}.test.js`. **Toda la nomenclatura de `src/` y `test/` está en inglés**
-  (T25; antes T13–T21). T26: paridad **30/30** + 4 casos límite. `npm test` → **116/116** y build OK.
-  **Falta solo T27** (pasada manual: móvil y escritorio, RSVP real, portapapeles, audio).
-- Documentación: `docs/constitution.md` (6 principios, enmendada por T2), `specs/Jose-QB/001-*`…`specs/Jose-QB/003-*`,
-  `PENDING_TASKS.md`.
+- **Rama viva: `react-migration`** (specs en `specs/`, publicada en `origin` tras el rebase).
+- **Spec 001 cerrada salvo la pasada manual y el despliegue:** app React completa, rediseño
+  «Ascua», accesibilidad y rendimiento.
+- **Spec 002: fases 0–7 hechas;** su pasada manual se cubre con la de la spec 003 (misma lista).
+  Registro único (`src/data/wedding.js`) + interfaz dirigida por el registro.
+- **Spec 003: T1–T26 y T28 hechas;** estructura por capas (`app/`, `constants/`, `data/`,
+  `utils/`, `hooks/`, `providers/`, `services/`, `templates/`, `components/`, `test/`) y
+  nomenclatura en inglés. T26: paridad **30/30**. **Falta solo T27** (pasada manual).
+- **Spec 004 (`specs/004-servicio-invitados-rsvp`): T1–T9 hechas; T10 (documentación y
+  verificación) en curso.** Servicio de invitados y RSVP contra un Apps Script (`gas/Code.gs`),
+  con contrato en módulo + documento (`src/constants/contract.js`, `docs/servicio-invitados.md`).
+  `npm test` → **158/158** y build OK. Falta la verificación manual contra el despliegue vivo
+  (§13 del plan; checklist anotada en «Verificación» de `AGENTS.md`, la rellena el coordinador).
+- Documentación: `docs/constitution.md` (6 principios, enmendada en T2 de la 004),
+  `docs/servicio-invitados.md`, `README.md`, `AGENTS.md`, `PENDING_TASKS.md`.
+
 ## Decisiones (y por qué)
-- **Spec 002 (modelo de datos):** toda la boda en un registro único y las fichas aparte; un despliegue
-  por pareja; **tres tipos de invitación** (*personalizada*, *reutilizable* 1–10 y *genérica*) que
-  **sustituyen** a `?invitados=N`; configuración jerárquica (boda → ficha) y conflicto de niños →
-  fallo visible; datos inválidos → fallo visible, plantilla desconocida → aviso. El repo usa **solo
-  fichas de ejemplo**; el contrato del GAS es **solo referencia**.
-- T3: **`base: "./"`** (relativo), vale en cualquier subruta. T4: el script de tema vive en el
-  `<head>` y React **reutiliza** `data-tema`/`kg-tema`. T7: la cuenta regresiva termina cuando la
-  diferencia es `<= 0`. `pickVariant` da la variante optimizada más cercana (nunca el original).
-  `audio.play()` **dentro del gesto** (Safari). Rediseño «Ascua»: solo cambian **tokens**. `<main>` +
-  `SkipLink` (`skip-link`) + `:focus-visible` por token; `preload="none"` y `fetchPriority`.
-- `services/photos.js` resuelve por **clave** con `photoFor(clave, alt, sizes)` → `{ src, srcSet,
-  sizes, alt }` vía `import.meta.glob` y **falla al arrancar** si falta una clave (`assertPhotoKeys`).
-- **Spec 003 · plantilla:** sale de `wedding.plantilla` y se resuelve en ámbito de módulo de
-  `App.jsx` con `templateStatus` (si no está implementada, la de por defecto); se publica por
-  **contexto** y `useTemplate` es la **única vía de acceso**. El descriptor reúne identidad, iconos,
-  `photoSizes` y las **claves de las fotos estructurales** (`foto1`/`foto9`/`foto7`). `photos.js`
-  **no decide presentación** (recibe los `sizes` y las claves).
-- **Spec 002 · títulos de sección** en el registro; `hasContent` ignora `titulo` (un rótulo solo no
-  muestra la sección). `ajustes.navegacion`/`ajustes.musica.habilitada` gobiernan qué se pinta. `Rsvp`
-  prellena y bloquea el nombre en la personalizada e impide superar el límite. La galería se titula
-  «Nuestros momentos» para no chocar con la sección **historia**.
-- **Spec 003 · nomenclatura (T13–T25):** el inglés es **solo de código**; quedan intactos los
-  **textos visibles**, los **datos y sus claves**, los **contratos publicados** (`data-tema`/`kg-tema`,
-  ids de ancla, parámetros `codigo`/`code`/`inv`, `name` del formulario), los **recursos** y los
-  **comentarios/documentación**. **T25** renombró los exports de datos (`boda`→`wedding`,
-  `invitaciones`→`guestCards`) por ser identificadores de código, y borró el **CSS muerto**
-  (`body.cover-closed …` y `.data-label`, sin uso desde que se retiró `script.js`).
+- **Spec 004 · contrato módulo + documento:** `src/constants/contract.js` es la fuente única que
+  consume la app; `docs/servicio-invitados.md` es el derivado y `test/serviceContract.test.js`
+  exige la sincronía (RF-17, D18). Los literales del modelo (hojas, columnas, estados, códigos)
+  van en inglés por excepción documentada.
+- **Spec 004 · el invitado sale del servicio:** el parámetro del enlace es **`guest`**
+  (`codigo`/`code`/`inv` jubilados, sin alias); la app **no** deduce tipo ni cupo: los recibe
+  resueltos (`interpretInvitation`, D20). Tipos: `personal`, `generic`, `public` (el código
+  reservado `PUBLIC` es la pública, sin tope); `none` = sin invitación.
+- **Spec 004 · el teléfono es la llave** de la genérica y la pública (10 dígitos, también para
+  rechazar); una fila existente por ese teléfono se **actualiza**, no se duplica.
+- **Spec 004 · plazo del maestro:** el registro ya **no** tiene `confirmacion.fechaLimite` ni
+  `marca.enlaces.rsvp`, y `confirmacion.maximoBoda` **no** lo lee ningún cálculo de cupos
+  (queda como dato informativo). El plazo (`deadline`) y el cupo viven en el maestro del servicio.
+- **Spec 004 · configuración por variables de entorno** (`VITE_SERVICE_URL`, `VITE_WEDDING_SLUG`;
+  p. ej. `.env.local`, gitignorado; nunca valores hardcodeados en el repo): sin URL → modo demo
+  sin llamar; URL sin `slug` → `MISSING_SLUG` sin reintento. POST con `text/plain` + JSON (evita
+  el preflight de Apps Script) y espera de 10 s con `AbortController`.
+- **Spec 004 · los libros reales no se versionan** (`gas/*.xlsx` en `.gitignore`);
+  `src/data/guest-cards.js` son **fixtures ficticios** que la app no importa en ejecución.
+- **Spec 003 · plantilla:** sale de `wedding.plantilla`, se resuelve con `templateStatus`, se
+  publica por contexto y `useTemplate` es la única vía. `photos.js` resuelve por clave
+  (`photoFor`) y falla al arrancar si falta una (`assertPhotoKeys`).
+- **Spec 003 · nomenclatura:** inglés solo de código; intactos textos visibles, datos y sus
+  claves, contratos publicados y comentarios/documentación. `base: "./"` (relativo); tema
+  anti-parpadeo en el `<head>`; `audio.play()` dentro del gesto; tokens «Ascua»; `<main>` +
+  `SkipLink` + `:focus-visible`.
+- **Spec 002 · lógica:** `visibleSections` omite opcionales ausentes/vacíos y fuerza la
+  confirmación; `allowsChildren` es `true` si no se indica; `isConfirmationOpen(deadline, now)`
+  devuelve `null` (sin plazo) o `NaN` (plazo ilegible) y compara `<=` con «ahora» por parámetro.
+
 ## Aprendizajes y errores a evitar
 - `node --test` descubre `**/*.test.js`; los módulos puros no afectan al build.
+  `services/config.js` (lee `import.meta.env`) no se prueba con `node --test` (misma frontera
+  que `photos.js`).
 - **Leer antes de editar:** el lector de archivos puede devolver una versión distinta a la real;
-  confirmar con Node y validar siempre con `git diff`.
-- Chrome headless: `--dump-dom` no sirve para medir (emite todo en una línea); servir `dist/` en local
-  y medir por DevTools Protocol. `:focus-visible` no coincide con `focus()` programático.
-- **Renombrar en masa con `replaceAll` es peligroso:** cae también sobre títulos de prueba, mensajes
-  y comentarios en español. Verificar con `git diff` después (en T25 hubo que revertir
-  «errores»→«errors» en un título y «paquete»→«pkg» en otro).
-- **Spec 001/002 · personalización por código de enlace** (sin vuelta atrás a `?invitados=N`).
-- **Spec 002 · lógica:** `eventInstant` → `NaN` si la fecha o la zona es inválida (lo detecta
-  `validation.js`); `visibleSections` omite opcionales ausentes o **vacíos** y **fuerza la
-  confirmación**; `allowsChildren` es `true` si no se indica; `isConfirmationOpen` compara `<=`.
-- **Fotos estructurales:** hero/retrato/confirmación no están en el registro; sus **claves**
-  (`foto1`/`foto9`/`foto7`) viven en el descriptor de la plantilla y hay que mantener las variantes de
-  `assets/photos/opt/` (el arranque falla si falta una).
-- **Datos de ejemplo:** `src/data/wedding.js` trae cita, historia, galería (13 fotos, 7 destacadas),
-  portada y enlaces; `restricciones` va sin datos → la sección no se muestra.
-- **Verificación (headless):** `dist/` servido en local y medido por CDP (WebSocket global de Node
-  ≥ 22), en un script **fuera** del repo (`…\003-referencia\parity.mjs`); los casos límite con
-  **parches temporales** de `wedding.js` + rebuild + revertir (nunca dejarlos aplicados). El arnés:
-  3 tipos × día/noche × 5 anchos (30 casos), excluye las clases y omite la cuenta regresiva (reloj).
-- **Mesa de regalos:** el registro marca **un** dato (`copiar: true`) y `copyableField` lo
-  resuelve (varios sin marca → sin botón, para no adivinar).
-- **Desviaciones del plan (detalle en `PENDING_TASKS.md`):** un `limite` fuera de 1–10 cae a
-  `desconocida` **en silencio**, el límite de la ficha se recorta al `maximoBoda` sin aviso y
-  `eventInstant` no interpreta la hora de pared en la zona del evento.
+  confirmar con Node y validar siempre con `git diff`. **`replaceAll` en masa es peligroso:**
+  cae sobre títulos y comentarios en español (en T25 hubo que revertir).
+- Chrome headless: `--dump-dom` no sirve para medir; servir `dist/` en local y medir por
+  DevTools Protocol. Paridad T26 con script **fuera** del repo y casos límite con **parches
+  temporales** de `wedding.js` + rebuild + revertir.
+- **Fotos estructurales:** hero/retrato/confirmación (`foto1`/`foto9`/`foto7`) viven en el
+  descriptor de la plantilla; mantener las variantes de `assets/photos/opt/` (el arranque falla
+  si falta una). Nombres sensibles a mayúsculas en sistemas case-sensitive.
+- **Mesa de regalos:** el registro marca **un** dato (`copiar: true`); varios sin marca → sin
+  botón (no se adivina la cuenta).
+- **Agentes de OpenCode (`.opencode/agents/*.md`):** el frontmatter debe ser YAML válido si no
+  el agente se omite en silencio (`opencode debug agents` lista solo los cargados).
+
 ## Próximos pasos
+- **Spec 004 · T10:** el coordinador verifica contra el despliegue vivo (tres tipos, escritura
+  por teléfono, casos de §13 del plan) y anota el veredicto en «Verificación» de `AGENTS.md`.
 - **Spec 003 · T27:** pasada manual (móvil y escritorio, tema, música tras «Ingresar», cuenta
-  regresiva, galería/visor con teclado, copiado y **envío real** del RSVP) y anotar el resultado en
-  «Verificación» de `AGENTS.md`.
-- Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas…): ver `PENDING_TASKS.md`.
+  regresiva, galería/visor, copiado y envío real del RSVP) y anotarla en «Verificación».
+- Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas y las variables de
+  entorno del servicio en el build): ver `PENDING_TASKS.md`.
