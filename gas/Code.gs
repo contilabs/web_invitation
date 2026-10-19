@@ -19,8 +19,9 @@
 // `code`, nunca en el código HTTP.
 //
 // Estado de la entrega: cabecera, constantes, intercambio HTTP, utilidades, lectura del
-// maestro y las **dos acciones** del contrato: `resolve` (resolver la invitación) y
-// `respond` (registrar la respuesta), con el plazo y el cupo hechos valer y la caché de
+// maestro y las **tres acciones** del contrato: `resolve` (resolver la invitación),
+// `respond` (registrar la respuesta) y `lookup` (consultar por teléfono la respuesta
+// previa de una fila, spec 005), con el plazo y el cupo hechos valer y la caché de
 // códigos del maestro.
 // ============================================================================
 
@@ -31,12 +32,17 @@
 // ============================================================================
 
 // Versión del contrato (literales, hojas, columnas, acciones y códigos de error). No
-// viaja en el enlace.
-const CONTRACT_VERSION = '1.0.0';
+// viaja en el enlace. La `1.1.0` añade la acción `lookup` (spec 005, RF-8): cambio
+// **aditivo**, sin retirar ni renombrar nada.
+const CONTRACT_VERSION = '1.1.0';
 
 // Propiedad del script que guarda el **id del maestro**. Es la única forma de apuntar al
 // libro: un id escrito aquí se versionaría y no debe versionarse (RNF-2).
-const MASTER_SHEET_ID = 'MASTER_SHEET_ID';
+// 1. Obtener el almacén de propiedades del script
+const scriptProperties = PropertiesService.getScriptProperties();
+
+// 2. Obtener el valor de una propiedad específica por su clave
+const MASTER_SHEET_ID = scriptProperties.getProperty('MASTER_SHEET_ID');
 
 // Hojas de los libros: el maestro tiene una sola (`files`) y cada boda tiene su libro de
 // invitados con dos (`guests` para las respuestas y `generic` para los códigos).
@@ -127,10 +133,12 @@ const RESPONSE_STATE_VALUES = [
   RESPONSE_STATES.REJECTED,
 ];
 
-// Acciones del servicio (RF-14): resolver la invitación y registrar la respuesta.
+// Acciones del servicio (RF-14): resolver la invitación, registrar la respuesta y
+// **consultar por teléfono** la respuesta previa de una fila (la última, de la spec 005).
 const SERVICE_ACTIONS = {
   RESOLVE: 'resolve',
   RESPOND: 'respond',
+  LOOKUP: 'lookup',
 };
 
 // Códigos de error del contrato (§4.1). La app elige el aviso por `code`; el servicio solo
@@ -178,8 +186,8 @@ function doOptions(e) {
   return ContentService.createTextOutput('');
 }
 
-// Entrada del contrato: cuerpo JSON con `action` (`resolve` o `respond`). Siempre se
-// responde JSON (nunca HTML de error) porque la app espera interpretar `ok` y `code`.
+// Entrada del contrato: cuerpo JSON con `action` (`resolve`, `respond` o `lookup`). Siempre
+// se responde JSON (nunca HTML de error) porque la app espera interpretar `ok` y `code`.
 function doPost(e) {
   let payload = null;
   try {
@@ -196,6 +204,7 @@ function doPost(e) {
   try {
     if (payload.action === SERVICE_ACTIONS.RESOLVE) return response_(resolveInvitation_(payload));
     if (payload.action === SERVICE_ACTIONS.RESPOND) return response_(registerResponse_(payload));
+    if (payload.action === SERVICE_ACTIONS.LOOKUP) return response_(lookupResponse_(payload));
     // Acción desconocida o ausente: el cuerpo no declara ninguna operación del contrato.
     return response_({ ok: false, code: ERROR_CODES.INVALID_RESPONSE });
   } catch (error) {
@@ -343,8 +352,9 @@ function resolvePersonal_(wedding, code) {
 
 // Invitación **genérica** o **pública** (RF-5, RF-6, RF-9, RF-18): el código es un
 // `generic_id` de la hoja `generic` y el cupo es el `limit` de ese código. Estas
-// invitaciones no precargan ningún dato del invitado y **no** pueden devolver una respuesta
-// previa, porque el teléfono que las identifica lo escribe el invitado al contestar (RF-6).
+// invitaciones no precargan ningún dato del invitado: al resolver todavía no hay teléfono,
+// así que **no** devuelven ninguna respuesta previa; la de **esa** fila la consulta
+// `lookup` con el teléfono que el invitado aporta en la página (spec 005, RF-8).
 function resolveCode_(wedding, code) {
   // La pública se sirve con **un solo** código de enlace: el reservado `PUBLIC` (RF-5).
   // Cualquier otro código no está en la hoja que le toca por su tipo (RF-12): es un
@@ -504,6 +514,133 @@ function writeGenericCache_(slug, limits) {
 function responseInstant_(value, timeZone) {
   if (!(value instanceof Date) && typeof value !== 'string') return null;
   return instantText_(value, timeZone);
+}
+
+// ---------------------------------------------------------------------------
+// Acción `lookup`: consultar por teléfono la respuesta de una fila (spec 005, RF-5, RF-8)
+// ---------------------------------------------------------------------------
+
+// Entra el cuerpo del `POST` (`{ action: "lookup", slug, code, phone }`) y sale el modelo ya
+// resuelto de `resolve` —`{ ok, action, type, limit, response, deadline }`— o
+// `{ ok: false, code }`. La consulta es la que reconoce al invitado que **vuelve** a una
+// invitación genérica o pública: con el teléfono que él mismo aporta, devuelve la respuesta
+// previa de **esa** fila —o `null` si no hay fila o no tiene respuesta— para poder
+// mostrarla y editarla (RF-5, RF-6).
+//
+// **Solo lee el libro de invitados:** no escribe ninguna celda de la hoja `guests` (el
+// `viewed` sigue siendo **solo** de la invitación personalizada, RF-10) y no crea ni
+// actualiza filas; del libro solo puede refrescar la **caché** del maestro al resolver el
+// código, igual que la lectura normal (spec 005, D14). El teléfono **no** se devuelve en la
+// respuesta (la app ya lo tiene en la página), aunque la petición sí lo mande (RF-6).
+function lookupResponse_(payload) {
+  // Sin `slug` no se sabe de qué boda es la invitación y sin código no hay hoja donde
+  // consultar (RF-2, RF-12).
+  const slug = text_(payload && payload.slug);
+  if (slug === null) return { ok: false, code: ERROR_CODES.MISSING_SLUG };
+
+  const code = normalizeCode_(payload && payload.code);
+  if (code === null) return { ok: false, code: ERROR_CODES.MISSING_GUEST };
+
+  const wedding = findWedding_(slug);
+  if (!wedding.ok) return wedding;
+
+  // La consulta **no aplica** a una boda personalizada: esa invitación identifica al invitado
+  // por su código y su respuesta previa viene en `resolve` sin escribir nada más (RF-6). Un
+  // cuerpo de `lookup` en esa boda no encaja en su contrato (RF-8).
+  if (wedding.guestType === GUEST_TYPES.PERSONAL) {
+    return { ok: false, code: ERROR_CODES.INVALID_RESPONSE };
+  }
+
+  // El teléfono es la **llave** de la consulta (RF-8, D6, D23): sin él, campos que faltan; si
+  // no llega a diez dígitos —o trae lada de país—, teléfono inválido. Se comprueba antes de
+  // resolver el código para que un teléfono mal escrito no acabe en un veredicto de código.
+  const phone = phoneDigits_(payload && payload.phone);
+  if (phone === '') return { ok: false, code: ERROR_CODES.MISSING_FIELDS };
+  if (phone.length !== PHONE_DIGITS) return { ok: false, code: ERROR_CODES.INVALID_PHONE };
+
+  // El límite del código sale del **mismo** camino que en `resolve` (RF-18, D23): la caché del
+  // maestro y, si no lo trae, la hoja `generic`. Sus errores (`UNKNOWN_GUEST`, `INVALID_DATA`)
+  // se devuelven tal cual. **No** se pasa por el camino de la personalizada, que es el único
+  // que escribe `viewed` (spec 005, D14; DT-10).
+  const resolved = resolveCode_(wedding, code);
+  if (!resolved.ok) return resolved;
+
+  const book = openGuestBook_(wedding);
+  if (!book.ok) return book;
+
+  const sheet = book.book.getSheetByName(SHEET_NAMES.GUESTS);
+  if (!sheet) return { ok: false, code: ERROR_CODES.INVALID_DATA };
+
+  // Cabeceras que esta consulta necesita (RF-4, RF-13): sin `phone` no hay fila que
+  // localizar, sin `guest_name` no hay nombre registrado que devolver y sin `status` no se
+  // sabe si la fila ya tiene respuesta.
+  const headerMap = readHeaderMap_(sheet);
+  if (
+    firstMissingColumn_(headerMap, [
+      GUEST_COLUMNS.PHONE,
+      GUEST_COLUMNS.GUEST_NAME,
+      GUEST_COLUMNS.STATUS,
+    ]) !== null
+  ) {
+    return { ok: false, code: ERROR_CODES.INVALID_DATA };
+  }
+
+  // La fila se busca por el teléfono **normalizado a dígitos** dentro de **este** libro: la
+  // primera que coincide es la de ese invitado (RF-8, D5). Sin fila no hay respuesta previa:
+  // eso **no** es un error, es la primera respuesta del invitado (`response: null`).
+  const rows = sheet.getDataRange().getValues();
+  let row = null;
+  for (let r = 1; r < rows.length; r += 1) {
+    if (phoneDigits_(cellOf_(rows[r], headerMap, GUEST_COLUMNS.PHONE)) !== phone) continue;
+    row = rows[r];
+    break;
+  }
+
+  let response = null;
+  if (row !== null) {
+    // Un `status` no vacío tiene que ser uno de los cuatro estados del libro (RF-10, RF-13);
+    // el vacío y `viewed` valen por «sin respuesta» (RF-10, D8) y se tratan como primera
+    // respuesta.
+    const status = text_(cellOf_(row, headerMap, GUEST_COLUMNS.STATUS));
+    if (status !== null && RESPONSE_STATE_VALUES.indexOf(status) === -1) {
+      return { ok: false, code: ERROR_CODES.INVALID_DATA };
+    }
+    if (status !== null && NO_RESPONSE_STATES.indexOf(status) === -1) {
+      // Respuesta previa, **tal cual** la trae el libro y con el **nombre registrado**
+      // (`guest_name`) dentro de `response` —es un dato de la respuesta, como `datetime`—:
+      // es lo único que la consulta añade al modelo de `resolve` (RF-8, DT-2). Los
+      // asistentes de una fila con respuesta son enteros ≥ 0 (RF-13); un mensaje o unas
+      // restricciones ausentes no invalidan nada y la respuesta **no** lleva el teléfono.
+      const adultsAttendees = parseCount_(
+        cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_ATTENDEES)
+      );
+      const childAttendees = parseCount_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_ATTENDEES));
+      if (adultsAttendees === null || childAttendees === null) {
+        return { ok: false, code: ERROR_CODES.INVALID_DATA };
+      }
+      response = {
+        name: text_(cellOf_(row, headerMap, GUEST_COLUMNS.GUEST_NAME)),
+        state: status,
+        adultsAttendees: adultsAttendees,
+        childAttendees: childAttendees,
+        message: text_(cellOf_(row, headerMap, GUEST_COLUMNS.MESSAGE)),
+        restrictions: text_(cellOf_(row, headerMap, GUEST_COLUMNS.DIETARY_RESTRICTIONS)),
+        datetime: responseInstant_(
+          cellOf_(row, headerMap, GUEST_COLUMNS.DATETIME),
+          book.timeZone
+        ),
+      };
+    }
+  }
+
+  return {
+    ok: true,
+    action: SERVICE_ACTIONS.LOOKUP,
+    type: wedding.guestType,
+    limit: resolved.limit,
+    response: response,
+    deadline: resolved.deadline,
+  };
 }
 
 // ---------------------------------------------------------------------------

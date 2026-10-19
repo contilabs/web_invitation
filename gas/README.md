@@ -162,7 +162,7 @@ contra el módulo del contrato (RNF-10). Estas comprobaciones se hacen **a mano*
 despliegue nuevo:
 
 1. **Salud.** Abrir la URL `…/exec` en el navegador (o con un `GET`): debe responder el JSON
-   `{"ok":true,"code":"OK","contract":"1.0.0"}`. Si responde una página de error, el script no
+   `{"ok":true,"code":"OK","contract":"1.1.0"}`. Si responde una página de error, el script no
    está publicado o falla al arrancar: revisar la implementación y la propiedad
    `MASTER_SHEET_ID`.
 2. **Los tres tipos.** Abrir la invitación con un enlace `…?guest=<código>` de cada tipo
@@ -176,6 +176,20 @@ despliegue nuevo:
    a `viewed`; al abrirla de nuevo tras contestar, la respuesta **no** se sobrescribe.
 5. **Casos de fallo.** Un código desconocido, una boda con `is_active` en `FALSE`, un `slug`
    inexistente y un `deadline` vencido deben producir cada uno su aviso propio en la app.
+6. **La consulta por teléfono (`lookup`, spec 005).** Solo aplica a las bodas genérica y
+   pública. Enviar a mano un `POST` con el cuerpo
+   `{"action":"lookup","slug":"<slug>","code":"<código>","phone":"<10 dígitos>"}` (el mismo tipo
+   de contenido `text/plain` del contrato) y comprobar los dos casos:
+   - **Teléfono con fila** (una respuesta ya registrada en `guests` de ese libro): la respuesta
+     trae `type`, `limit`, `deadline` y, dentro de `response`, el **nombre registrado**
+     (`guest_name`) con el `state` y los asistentes de esa fila; **no** trae objeto `guest` ni el
+     teléfono.
+   - **Teléfono sin fila** (o con la fila en `viewed`/`status` vacío): `response` es `null` y
+     **no** es un error (es la primera respuesta del invitado).
+
+   En los dos casos, la fila de `guests` **no** cambia: ni su `status` (el `viewed` se escribe
+   solo al abrir una personalizada) ni su `datetime`. Un teléfono de menos de 10 dígitos responde
+   `INVALID_PHONE`, sin teléfono `MISSING_FIELDS` y una boda `personal` `INVALID_RESPONSE`.
 
 ## Avisos finales
 
@@ -188,6 +202,9 @@ despliegue nuevo:
 - **El contrato se versiona en dos sitios.** `src/constants/contract.js` (que consume la app) y
   la constante `CONTRACT_VERSION` de `gas/Code.gs` deben llevar la **misma versión**; si se
   publica un script con otra versión del contrato, conviene desplegar el par completo.
+- **Redesplegar cuando cambia el contrato.** La `1.1.0` añade la consulta `lookup`: hasta que no
+  se cree una **nueva versión** de la implementación (paso 5), la URL publicada sigue sirviendo
+  el script anterior y responde `INVALID_RESPONSE` a esa acción.
 - **Zona horaria.** El `deadline` y los `datetime` se interpretan en la zona de la hoja de
   cálculo correspondiente: fija la zona del maestro (y la de cada libro) en la zona de la boda
   antes de repartir códigos.

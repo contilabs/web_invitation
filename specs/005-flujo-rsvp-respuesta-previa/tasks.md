@@ -33,7 +33,7 @@ marca.
   previa y actualiza su línea de versión a `1.1.0`; `npm test` en verde sin tocar todavía la prueba
   de sincronía.
 
-- [ ] **T2 · Implementar la acción `lookup` en el servicio (Apps Script).** _RF: RF-5, RF-6, RF-8; D14; RNF-2._
+- [x] **T2 · Implementar la acción `lookup` en el servicio (Apps Script).** _RF: RF-5, RF-6, RF-8; D14; RNF-2._
   Hecho cuando: `gas/Code.gs` declara `CONTRACT_VERSION = '1.1.0'` y `SERVICE_ACTIONS.LOOKUP =
   'lookup'`, `doPost` despacha la acción a `lookupResponse_`, y esta valida `slug`/código/boda y que
   el tipo **no** sea `personal` (→ `INVALID_RESPONSE`), exige teléfono (`MISSING_FIELDS` vacío,
