@@ -45,7 +45,7 @@ marca.
   nuevo y **sin** objeto `guest` ni teléfono en la respuesta; `gas/README.md` recoge la comprobación
   manual de `lookup` (teléfono con fila y sin fila) y el aviso de redesplegar el script.
 
-- [ ] **T3 · Ampliar la prueba de sincronía del contrato (literales de `lookup` + igualdad de versión).** _RF: RF-8; RNF-5; M6, I2._
+- [x] **T3 · Ampliar la prueba de sincronía del contrato (literales de `lookup` + igualdad de versión).** _RF: RF-8; RNF-5; M6, I2._
   Hecho cuando: `test/serviceContract.test.js` exige en `docs/servicio-invitados.md` los literales de
   `LOOKUP_FIELDS` y de la acción `lookup` (además de los que ya vigila) y afirma que `gas/Code.gs`
   declara la **misma** `CONTRACT_VERSION` que el módulo (leyendo el script como texto, sin
