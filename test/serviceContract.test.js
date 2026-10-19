@@ -212,3 +212,29 @@ test("la tabla de códigos de error del documento coincide con la del módulo", 
     );
   }
 });
+
+// El id del maestro sale de una **propiedad del script** y se lee por el **nombre** de esa
+// propiedad. El 17/10 se descubrió que `readMaster_` le pasaba el **valor** (el id) a
+// `getProperty`, que devuelve `null`: con cualquier maestro bien formado, el servicio
+// respondía `INVALID_DATA` siempre. `npm test` no ejecuta Apps Script, así que la vigilancia
+// es estática (no sustituye la verificación manual contra el despliegue vivo).
+test("el servicio lee el id del maestro por el nombre de la propiedad, nunca por su valor", () => {
+  assert.match(
+    scriptText,
+    /getProperty\(\s*'MASTER_SHEET_ID'\s*\)/,
+    "gas/Code.gs no lee el id del maestro por el nombre de la propiedad",
+  );
+
+  // Una constante que guarda el *valor* de una propiedad no puede pasarse a `getProperty`
+  // como si fuera el *nombre*: es el defecto que se corrige aquí.
+  const holders = [
+    ...scriptText.matchAll(/const\s+([A-Za-z_$][\w$]*)\s*=\s*[^\n]*getProperty\(/g),
+  ];
+  for (const [, name] of holders) {
+    assert.doesNotMatch(
+      scriptText,
+      new RegExp(`getProperty\\(\\s*${name}\\s*\\)`),
+      `«${name}» guarda un valor; no puede usarse como nombre de propiedad`,
+    );
+  }
+});

@@ -161,6 +161,13 @@ La verificación automática del repositorio (`npm test`) **no** toca el servici
 contra el módulo del contrato (RNF-10). Estas comprobaciones se hacen **a mano** contra el
 despliegue nuevo:
 
+> **Diagnóstico rápido.** Con un maestro bien formado, si **todas** las peticiones responden
+> `INVALID_DATA`, comprueba que la propiedad del script se llame exactamente
+> `MASTER_SHEET_ID` y que el script la lea **por su nombre** (`getProperty('MASTER_SHEET_ID')`):
+> pasar el **valor** de la propiedad a `getProperty` devuelve `null` y hace fallar
+> `readMaster_` con cualquier maestro. Y recuerda que todo cambio en `Code.gs` exige una
+> **nueva versión** de la implementación (paso 5).
+
 1. **Salud.** Abrir la URL `…/exec` en el navegador (o con un `GET`): debe responder el JSON
    `{"ok":true,"code":"OK","contract":"1.1.0"}`. Si responde una página de error, el script no
    está publicado o falla al arrancar: revisar la implementación y la propiedad

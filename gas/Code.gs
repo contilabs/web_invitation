@@ -36,14 +36,6 @@
 // **aditivo**, sin retirar ni renombrar nada.
 const CONTRACT_VERSION = '1.1.0';
 
-// Propiedad del script que guarda el **id del maestro**. Es la única forma de apuntar al
-// libro: un id escrito aquí se versionaría y no debe versionarse (RNF-2).
-// 1. Obtener el almacén de propiedades del script
-const scriptProperties = PropertiesService.getScriptProperties();
-
-// 2. Obtener el valor de una propiedad específica por su clave
-const MASTER_SHEET_ID = scriptProperties.getProperty('MASTER_SHEET_ID');
-
 // Hojas de los libros: el maestro tiene una sola (`files`) y cada boda tiene su libro de
 // invitados con dos (`guests` para las respuestas y `generic` para los códigos).
 const SHEET_NAMES = {
@@ -1096,8 +1088,15 @@ function deadlinePassed_(deadline, now) {
 // **Sin maestro no hay servicio:** el maestro es la raíz (D4) —de él salen el tipo de
 // invitación, el plazo, si la boda está activa y **dónde** están sus invitados—, así que
 // sin la propiedad del script o sin poder abrir el libro no se puede resolver nada.
+//
+// **De dónde sale el id:** de la propiedad del script `MASTER_SHEET_ID`, y se lee **por el
+// nombre** de esa propiedad (`getProperty('MASTER_SHEET_ID')`). El **valor** de la
+// propiedad es ya el id del libro: pasarlo a `getProperty` devuelve `null` (es el defecto
+// que se corrigió, porque con cualquier maestro bien formado el servicio respondía
+// `INVALID_DATA` siempre). El id no se escribe en el código, así que no se versiona
+// (RNF-2).
 function readMaster_() {
-  const masterId = text_(PropertiesService.getScriptProperties().getProperty(MASTER_SHEET_ID));
+  const masterId = text_(PropertiesService.getScriptProperties().getProperty('MASTER_SHEET_ID'));
   if (masterId === null) {
     // Falta el id: el despliegue no está configurado, no se puede resolver ninguna boda.
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
