@@ -15,13 +15,15 @@
 //      respuesta → `respondido`, sin fila → `editando` limpio, fallo → `degradado` (y
 //      `INVALID_PHONE`/`MISSING_FIELDS` de vuelta a `telefono`, M4);
 //   4. **`respondido`**: agradecimiento (copy `OK`, también para `rejected`), datos en solo
-//      lectura (`ResponseSummary`, con el teléfono aportado) y «Editar» (RF-9, RF-10);
+//      lectura (`ResponseSummary`, con el teléfono aportado) y «Editar» (RF-9, RF-10); en un
+//      **rechazo** el panel no muestra nada de la asistencia (D18);
 //   5. **`editando`**: el formulario en el orden de RF-3, con los combos de RF-4 (o campo
-//      libre con `n`), el nombre del titular `readOnly` y el nombre registrado editable; los
-//      **cuatro campos de la asistencia** (adultos, niños, alergias y mensaje) solo existen
-//      con «Sí, asistiré» (RF-11, D17);
-//   6. **`cerrado`**: el aviso de plazo y, en la personalizada, sus datos en lectura; sin
-//      «Responder invitación» ni «Editar» (RF-7);
+//      libre con `n`, con mínimo 1) y el nombre registrado editable; los **cuatro campos de
+//      la asistencia** (adultos, niños, alergias y mensaje) solo existen con «Sí, asistiré»
+//      (RF-11, D17) y, mientras están a la vista, el valor del combo se **normaliza** a una de
+//      sus opciones para que lo que se ve sea lo que se envía (R10, DT-13);
+//   6. **`cerrado`**: el aviso de plazo y, en la personalizada, sus datos en lectura —de un
+//      rechazo, sin la asistencia (D18)—; sin «Responder invitación» ni «Editar» (RF-7);
 //   7. **`degradado`**: el motivo, «Reintentar» cuando la causa lo permite y «Responder
 //      invitación» deshabilitado (RF-7, 004 D10).
 //
@@ -50,6 +52,7 @@ import { attendeeLimits, guestLimit, INVITATION_TYPES } from "../../utils/invita
 import {
   attendanceForm,
   attendeeOptions,
+  attendeeValue,
   isPhoneComplete,
   phoneDigits,
 } from "../../utils/rsvp.js";
@@ -101,14 +104,24 @@ function childrenHint(limit) {
   return `Puedes llevar hasta ${limit} ${limit === 1 ? "niño" : "niños"}.`;
 }
 
-// Un valor fuera del rango del combo no puede seleccionarse: se acota al cupo (el servicio
-// sigue siendo la autoridad al enviar, 004 RF-9 / `OVER_LIMIT`).
-function optionValue(value, options) {
-  const current = Number(value);
-  if (!Number.isInteger(current)) return String(value);
-  const values = options.map(Number);
-  if (values.includes(current)) return String(current);
-  return String(Math.max(values[0], Math.min(current, values[values.length - 1])));
+// El resumen de un **rechazo** no muestra nada de la asistencia (D18, DT-15): quien no
+// asiste no confirmó adultos, ni niños, ni mensaje, ni restricciones, así que esos datos se
+// pasan **ausentes** —`undefined`, no un `0` ni una cadena vacía, que sí se pintarían
+// (`ResponseSummary` pinta todo lo que no esté vacío)—. En una confirmación se muestran como
+// hoy. Los niños, además, solo existen en la personalizada (004 D12); la decisión es de quien
+// usa el panel, que no cambia de API (RF-9, RF-11).
+function summaryData(answer, personalized) {
+  if (!answer) return null;
+  const rejected = answer.state === RESPONSE_STATES.REJECTED;
+  return {
+    name: answer.name,
+    adultsAttendees: rejected ? undefined : answer.adultsAttendees,
+    childAttendees: rejected || !personalized ? undefined : answer.childAttendees,
+    message: rejected ? undefined : answer.message,
+    restrictions: rejected ? undefined : answer.restrictions,
+    datetime: answer.datetime,
+    phone: answer.phone,
+  };
 }
 
 // Los cuatro campos de la asistencia —adultos, niños, alergias y mensaje— **solo existen**
@@ -141,11 +154,17 @@ function focusFirstField(container) {
   else container?.focus?.();
 }
 
-// Campo de asistentes (RF-4, R1): combo con la opción 0 cuando el cupo es numérico y campo
-// numérico libre cuando es `n` (sin tope: la app no declara ningún máximo). Con cupo 0 no hay
-// nada que ofrecer y el campo no se muestra (solo cabe rechazar, 004 D21).
-function AttendeeField({ id, label, limit, value, helpText, onChange }) {
-  const options = attendeeOptions(limit);
+// Campo de asistentes (RF-4, R1, R8): combo con las opciones de **su** campo cuando el cupo
+// es numérico —adultos `1..cupo`, sin el 0; niños `0..cupo`— y campo numérico libre cuando es
+// `n` (sin tope: la app no declara ningún máximo, pero con **mínimo 1**, R9: confirmar exige
+// al menos un asistente). Con cupo 0 no hay nada que ofrecer y el campo no se muestra (solo
+// cabe rechazar, 004 D21).
+//
+// El valor que llega ya viene **normalizado** a una de las opciones del combo (R10, DT-13): la
+// normalización vive en el estado del formulario, no en lo que se pinta, para no tener dos
+// fuentes de verdad. El servicio sigue siendo la autoridad al enviar (004 RF-9, `OVER_LIMIT`).
+function AttendeeField({ id, label, limit, field = "adults", value, helpText, onChange }) {
+  const options = attendeeOptions(limit, field);
 
   if (options === null) {
     if (limit === NO_LIMIT) {
@@ -156,7 +175,7 @@ function AttendeeField({ id, label, limit, value, helpText, onChange }) {
             type="number"
             id={id}
             name={id}
-            min={0}
+            min={1}
             step={1}
             inputMode="numeric"
             value={value}
@@ -177,7 +196,7 @@ function AttendeeField({ id, label, limit, value, helpText, onChange }) {
     <AttendeeSelect
       id={id}
       label={label}
-      value={optionValue(value, options)}
+      value={value}
       options={options.map((option) => ({ value: String(option), label: String(option) }))}
       onChange={onChange}
       helpText={helpText}
@@ -248,12 +267,14 @@ export function Rsvp({ wedding }) {
     : "";
 
   // Lo que se muestra en lectura: la respuesta de esta sesión o la que ya traía la
-  // personalizada (D13: el estado «respondido» se construye con lo que la app ya tiene).
-  const answeredData =
+  // personalizada (D13: el estado «respondido» se construye con lo que la app ya tiene). Un
+  // **rechazo** limpia los campos de la asistencia antes de pintarlos (D18, DT-15).
+  const answer =
     answered ??
     (personalized && invitation?.previousResponse
       ? { ...invitation.previousResponse, name: invitation.guestName, phone: null }
       : null);
+  const answeredData = summaryData(answer, personalized);
 
   // Causa del bloque deshabilitado: la configuración (modo demo o error de resolución) o el
   // fallo de la consulta, que es el único camino que deja `degradado` con el servicio listo.
@@ -275,6 +296,29 @@ export function Rsvp({ wedding }) {
     !personalized &&
     lookupPhone.current !== null &&
     phoneDigits(phone) !== phoneDigits(lookupPhone.current);
+
+  // Las opciones del combo de cada campo, por **su** rango (RF-4, R8): adultos `1..cupo` (sin
+  // el 0) y niños `0..cupo`; `null` con cupo 0 (sin combo) o con un límite sin tope. Se
+  // memorizan por el cupo para que el efecto de normalización no corra en cada pintado.
+  const adultOptions = useMemo(() => attendeeOptions(limits.adults, "adults"), [limits.adults]);
+  const childOptions = useMemo(() => attendeeOptions(limits.children, "children"), [limits.children]);
+
+  // Lo que se **ve** es lo que se **envía** (R10, DT-13): mientras los campos de la asistencia
+  // estén a la vista, el valor del combo se normaliza a una de sus opciones con
+  // `attendeeValue` —el 0 heredado de una respuesta previa se ve y se envía como **1**—. Cubre
+  // también el valor que llega **después** de mostrarse el formulario (una precarga). El efecto
+  // solo escribe cuando el valor no era válido —`attendeeValue` de una opción válida es ella
+  // misma—, así que converge en una pasada y no se realimenta. Sin combo (cupo 0, campo libre
+  // de `n`) no hay nada que normalizar (004 D21; R9).
+  useEffect(() => {
+    if (!showsAttendance) return;
+    setForm((current) => {
+      const adults = attendeeValue(current.adults, adultOptions);
+      const children = attendeeValue(current.children, childOptions);
+      if (adults === current.adults && children === current.children) return current;
+      return { ...current, adults, children };
+    });
+  }, [showsAttendance, adultOptions, childOptions, form.adults, form.children]);
 
   // El bloque vuelve a su arranque cuando cambia lo que lo decide: la invitación resuelta, el
   // plazo (el cierre sin recargar lo dispara `useConfirmation`) o el reintento (RF-1, RF-7;
@@ -365,8 +409,8 @@ export function Rsvp({ wedding }) {
 
   // Cambiar de opinión **no** vacía el formulario (RF-11, D17): los cuatro campos se dejan de
   // pintar y lo ya escrito se queda en el estado, listo para reaparecer al reelegir «Sí,
-  // asistiré» (solo el 0 heredado de adultos vuelve como 1, R10 —eso, en T14—). Si el foco
-  // estaba en uno de los campos que desaparecen se lleva al bloque de asistencia, para que no
+  // asistiré» (el efecto de normalización devuelve el 0 heredado de adultos como 1, R10). Si el
+  // foco estaba en uno de los campos que desaparecen se lleva al bloque de asistencia, para que no
   // se quede en un control que ya no está (RNF-1).
   function changeAttendance(response) {
     update("response", response);
@@ -566,7 +610,7 @@ export function Rsvp({ wedding }) {
                       <ResponseSummary
                         name={answeredData.name}
                         adultsAttendees={answeredData.adultsAttendees}
-                        childAttendees={personalized ? answeredData.childAttendees : undefined}
+                        childAttendees={answeredData.childAttendees}
                         message={answeredData.message}
                         restrictions={answeredData.restrictions}
                         datetime={answeredData.datetime}
@@ -688,6 +732,7 @@ export function Rsvp({ wedding }) {
                             id="asistentes"
                             label={personalized ? "Adultos que asistirán" : "Cuántos asistirán"}
                             limit={limits.adults}
+                            field="adults"
                             value={form.adults}
                             helpText={seatsHint(effectiveInvitation)}
                             onChange={(value) => update("adults", value)}
@@ -699,6 +744,7 @@ export function Rsvp({ wedding }) {
                             id="ninos"
                             label="Niños que asistirán"
                             limit={limits.children}
+                            field="children"
                             value={form.children}
                             helpText={childrenHint(limits.children)}
                             onChange={(value) => update("children", value)}
@@ -779,7 +825,7 @@ export function Rsvp({ wedding }) {
                         <ResponseSummary
                           name={answeredData.name}
                           adultsAttendees={answeredData.adultsAttendees}
-                          childAttendees={personalized ? answeredData.childAttendees : undefined}
+                          childAttendees={answeredData.childAttendees}
                           message={answeredData.message}
                           restrictions={answeredData.restrictions}
                           datetime={answeredData.datetime}

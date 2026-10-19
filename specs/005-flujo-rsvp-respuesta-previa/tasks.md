@@ -210,7 +210,7 @@ RNF-4). Cada tarea cierra con `npm test` en verde y `npm run build` sin errores.
   sin errores (su aspecto se comprueba en T14 y a mano en la pasada manual).
   Archivos: `src/components/sections/Rsvp.jsx`.
 
-- [ ] **T14 · Normalización al mostrarse, mínimo 1 del campo libre y resumen del rechazo (`Rsvp.jsx` + `ResponseSummary`).** _RF: RF-4, RF-9, RF-11; D4, D18, R10; DT-13, DT-15._
+- [x] **T14 · Normalización al mostrarse, mínimo 1 del campo libre y resumen del rechazo (`Rsvp.jsx` + `ResponseSummary`).** _RF: RF-4, RF-9, RF-11; D4, D18, R10; DT-13, DT-15._
   Hecho cuando: al aparecer los campos con «Sí, asistiré», `form.adults` se **normaliza** con
   `attendeeValue` (un 0 heredado se ve y se envía como **1**, R10) y el `<select>` de adultos ya
   no ofrece el 0; el campo numérico libre de `n` lleva **`min={1}`** (R9) y conserva su etiqueta y
