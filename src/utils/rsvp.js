@@ -53,13 +53,22 @@ export function isPhoneComplete(value) {
   return phoneDigits(value).length === PHONE_DIGITS;
 }
 
-// Validación previa al envío (RF-8, RF-9, D21, D26). Devuelve `{ ok, errorCode }`.
+// Validación previa al envío (RF-8, RF-9, RF-11, D21, D26; R11). Devuelve `{ ok, errorCode }`.
+//
+// El **orden** de las comprobaciones importa y se conserva: invitación → nombre/teléfono →
+// asistencia elegida → rechazo → cupos.
 //
 // - Sin invitación no se envía: se hereda el código de la causa (RF-12).
 // - La **personalizada** no pide nombre ni teléfono; acota los adultos y los niños a los
 //   cupos de su fila (RF-9).
 // - La **genérica** y la **pública** exigen nombre y teléfono **también al rechazar** (D26)
 //   y acotan los adultos al límite del código, que en la pública no tiene tope (D12).
+// - La **asistencia elegida** es obligatoria (RF-11, R11): el formulario no se puede enviar
+//   sin una de las dos opciones del contrato (`confirmed`/`rejected`). El `required` de los
+//   radios del componente es solo una **ayuda de navegador**; la garantía es esta función.
+//   El código es el **existente** `INVALID_RESPONSE` (no se añade ninguno al contrato, R11)
+//   y va **después** del nombre y el teléfono —cuyas faltas mandan, D26— y **antes** del
+//   rechazo y de los cupos.
 // - Confirmar exige **al menos un asistente**: con cupo cero solo cabe rechazar (RF-9, D21).
 export function validateRsvp(form, invitation) {
   const type = invitation?.type ?? INVITATION_TYPES.NONE;
@@ -67,7 +76,7 @@ export function validateRsvp(form, invitation) {
     return { ok: false, errorCode: invitation?.errorCode ?? CODES.MISSING_GUEST };
   }
 
-  const rejecting = isRejection(form?.response);
+  const response = text(form?.response);
   const personalized = type === INVITATION_TYPES.PERSONALIZED;
 
   if (!personalized) {
@@ -77,6 +86,13 @@ export function validateRsvp(form, invitation) {
     if (!isPhoneComplete(digits)) return { ok: false, errorCode: CODES.INVALID_PHONE };
   }
 
+  // Sin asistencia elegida —ni `confirmed` ni `rejected`— no se compone ningún envío: el
+  // servicio trataría cualquier otra cosa como un **rechazo silencioso** (RF-11, R11).
+  if (response !== RESPONSE_STATES.CONFIRMED && response !== RESPONSE_STATES.REJECTED) {
+    return { ok: false, errorCode: CODES.INVALID_RESPONSE };
+  }
+
+  const rejecting = response === RESPONSE_STATES.REJECTED;
   if (rejecting) return { ok: true, errorCode: null };
 
   const adults = count(form?.adults);
@@ -101,6 +117,11 @@ export function validateRsvp(form, invitation) {
 // viaja lo que tiene valor. En la **personalizada** no se manda teléfono (RF-8); el
 // teléfono de la genérica y la pública viaja **normalizado a dígitos** porque es la llave
 // del libro (D6).
+//
+// Un **rechazo** omite además los campos de la asistencia (RF-11, D18): los asistentes, las
+// alergias y el mensaje están **ocultos** cuando se rechaza —lo que el invitado no ve no
+// viaja— y el servicio (sin cambios) los escribe en 0 y vacío al no recibirlos, así que el
+// contrato no cambia (RF-8 intacto).
 export function rsvpPayload({
   action,
   slug,
@@ -118,14 +139,17 @@ export function rsvpPayload({
     [REQUEST_FIELDS.SLUG]: text(slug),
     [REQUEST_FIELDS.CODE]: text(code),
     [REQUEST_FIELDS.RESPONSE]: text(response),
-    [REQUEST_FIELDS.ADULTS]: count(adults),
-    [REQUEST_FIELDS.CHILDREN]: count(children),
   };
 
   const digits = phoneDigits(phone);
   if (digits !== "") payload[REQUEST_FIELDS.PHONE] = digits;
   const guestName = text(name);
   if (guestName !== null) payload[REQUEST_FIELDS.NAME] = guestName;
+
+  if (isRejection(response)) return payload;
+
+  payload[REQUEST_FIELDS.ADULTS] = count(adults);
+  payload[REQUEST_FIELDS.CHILDREN] = count(children);
   const note = text(message);
   if (note !== null) payload[REQUEST_FIELDS.MESSAGE] = note;
   const diet = text(restrictions);

@@ -177,7 +177,7 @@ RNF-4). Cada tarea cierra con `npm test` en verde y `npm run build` sin errores.
   **sustituye** el rango `0..cupo` con la opción 0 de T5.)
   Archivos: `src/utils/rsvp.js`, `src/utils/rsvp.test.js`.
 
-- [ ] **T12 · Validación previa de la asistencia elegida y composición del envío de un rechazo (pura, con pruebas).** _RF: RF-9, RF-11; D18, R11; DT-14._
+- [x] **T12 · Validación previa de la asistencia elegida y composición del envío de un rechazo (pura, con pruebas).** _RF: RF-9, RF-11; D18, R11; DT-14._
   Tests primero: en `src/utils/rsvp.test.js` se añaden (a) los casos de `validateRsvp` sin asistencia
   elegida —`response` vacío, ausente o con un valor que no sea `confirmed` ni `rejected`— con nombre
   y teléfono ya presentes (genérica/pública) y sin ellos (personalizada), esperando

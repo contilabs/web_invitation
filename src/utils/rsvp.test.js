@@ -151,6 +151,69 @@ test("la pública (`n`) no tiene tope: la app no inventa un máximo (RF-9, D12)"
   assert.equal(validateRsvp({ ...form }, invitation).errorCode, "OVER_LIMIT");
 });
 
+// La asistencia elegida es obligatoria (RF-11, R11): la garantía **no** es el `required` de
+// los radios del navegador —eso es una ayuda—, sino esta validación pura. Un formulario sin
+// elegir asistencia recibiría, si no, un **rechazo silencioso** del servicio (trata cualquier
+// respuesta distinta de `confirmed` como `rejected`).
+test("sin asistencia elegida no se envía: lo rechaza la validación previa (RF-11, R11)", () => {
+  const invitation = generic(3);
+  const form = { name: "Invitada Ficticia", phone: "5512345678", adults: 2 };
+  for (const response of ["", "   ", null, undefined, "si", "no", "CONFIRMED", "atenderé"]) {
+    assert.equal(
+      validateRsvp({ ...form, response }, invitation).errorCode,
+      "INVALID_RESPONSE",
+      `no rechaza con la asistencia «${String(response)}»`,
+    );
+  }
+  // Falta el campo `response` entero (ni siquiera llega).
+  const { response: _omitted, ...withoutResponse } = form;
+  assert.equal(validateRsvp(withoutResponse, invitation).errorCode, "INVALID_RESPONSE");
+  // En la **personalizada** pasa lo mismo: no pide nombre ni teléfono pero sí una asistencia.
+  const personal = personalized();
+  assert.equal(validateRsvp({ adults: 2, children: 1 }, personal).errorCode, "INVALID_RESPONSE");
+  assert.equal(validateRsvp({ response: "", adults: 2 }, personal).errorCode, "INVALID_RESPONSE");
+  // Y en la **pública** (`n`), también.
+  assert.equal(
+    validateRsvp({ response: "", name: "Invitada Ficticia", phone: "5512345678", adults: 2 }, publicInvitation())
+      .errorCode,
+    "INVALID_RESPONSE",
+  );
+  // El código es el **existente** del contrato: no se añade ninguno (R11).
+  assert.ok(codes.includes("INVALID_RESPONSE"));
+  // Un valor con espacios alrededor **sí** es válido: el texto se recorta como en el resto
+  // del módulo (`text`), no es una asistencia distinta.
+  assert.equal(validateRsvp({ ...form, response: " rejected " }, invitation).ok, true);
+});
+
+test("el orden de la validación se conserva: asistencia después de nombre y teléfono (RF-11, R11)", () => {
+  const invitation = generic(3);
+  // Sin nombre o sin teléfono manda `MISSING_FIELDS`, aunque tampoco haya asistencia elegida.
+  assert.equal(validateRsvp({ response: "", adults: 2 }, invitation).errorCode, "MISSING_FIELDS");
+  assert.equal(validateRsvp({ response: "", name: "Invitada Ficticia" }, invitation).errorCode, "MISSING_FIELDS");
+  // Un teléfono mal formado manda `INVALID_PHONE`, antes que la asistencia.
+  assert.equal(
+    validateRsvp({ response: "", name: "Invitada Ficticia", phone: "551234567" }, invitation).errorCode,
+    "INVALID_PHONE",
+  );
+  // Un rechazo **válido** sigue pasando sin mirar los asistentes (D26 intacta).
+  assert.equal(
+    validateRsvp({ response: "rejected", name: "Invitada Ficticia", phone: "5512345678" }, invitation).ok,
+    true,
+  );
+  // Confirmar sin ningún asistente sigue dando `OVER_LIMIT` (uno de los dos valores válidos;
+  // 004 RF-9/D21 intactas).
+  assert.equal(
+    validateRsvp({ response: "confirmed", name: "Invitada Ficticia", phone: "5512345678", adults: 0 }, invitation)
+      .errorCode,
+    "OVER_LIMIT",
+  );
+  // Sin invitación manda su código de error propio, no el de la asistencia (RF-12).
+  assert.equal(
+    validateRsvp({ response: "", adults: 1 }, interpretInvitation({ ok: false, code: "UNKNOWN_GUEST" })).errorCode,
+    "UNKNOWN_GUEST",
+  );
+});
+
 test("sin invitación no se envía: se hereda su código de error (RF-12)", () => {
   const invitation = interpretInvitation({ ok: false, code: "UNKNOWN_GUEST" });
   const result = validateRsvp({ response: "confirmed", adults: 1 }, invitation);
@@ -194,14 +257,64 @@ test("rsvpPayload usa los nombres de campo del contrato (RF-14)", () => {
 });
 
 test("rsvpPayload: en la personalizada no manda teléfono y omite lo opcional vacío (RF-8)", () => {
-  const payload = rsvpPayload({ slug: "boda-ficticia", code: "inv-0001", response: "rejected", adults: 0, children: 0 });
+  const payload = rsvpPayload({ slug: "boda-ficticia", code: "inv-0001", response: "confirmed", adults: 1, children: 0 });
   assert.equal(REQUEST_FIELDS.PHONE in payload, false);
   assert.equal(REQUEST_FIELDS.NAME in payload, false);
   assert.equal(REQUEST_FIELDS.MESSAGE in payload, false);
   assert.equal(REQUEST_FIELDS.RESTRICTIONS in payload, false);
   assert.equal(payload[REQUEST_FIELDS.ACTION], "respond");
-  assert.equal(payload[REQUEST_FIELDS.ADULTS], 0);
-  assert.equal(payload[REQUEST_FIELDS.RESPONSE], "rejected");
+  assert.equal(payload[REQUEST_FIELDS.ADULTS], 1);
+  assert.equal(payload[REQUEST_FIELDS.RESPONSE], "confirmed");
+});
+
+// Un rechazo **no** envía los campos ocultos (RF-11, D18): los asistentes, las alergias y el
+// mensaje no se ven al rechazar, así que no viajan, aunque el formulario los tuviera escritos
+// de antes. El servicio (sin cambios) escribe los asistentes en **0** y los textos **vacíos**
+// cuando no llegan, así que el contrato no cambia (RF-8 intacto).
+test("rsvpPayload: un rechazo no envía los campos de la asistencia (RF-11, D18)", () => {
+  const payload = rsvpPayload({
+    slug: "boda-ficticia",
+    code: "gen-0007",
+    response: "rejected",
+    name: "  Invitada Ficticia  ",
+    phone: "(55) 1234-5678",
+    adults: 3,
+    children: 2,
+    message: "Un mensaje que ya no aplica",
+    restrictions: "Sin gluten",
+  });
+  assert.deepEqual(payload, {
+    action: "respond",
+    slug: "boda-ficticia",
+    code: "gen-0007",
+    response: "rejected",
+    phone: "5512345678",
+    name: "Invitada Ficticia",
+  });
+  // El nombre y el teléfono **sí** viajan: son obligatorios también al rechazar (004 D26).
+  for (const field of [REQUEST_FIELDS.ADULTS, REQUEST_FIELDS.CHILDREN, REQUEST_FIELDS.MESSAGE, REQUEST_FIELDS.RESTRICTIONS]) {
+    assert.equal(field in payload, false, `un rechazo no debe llevar ${field}`);
+  }
+  // Todos los campos que sí viajan son del contrato.
+  for (const key of Object.keys(payload)) {
+    assert.ok(Object.values(REQUEST_FIELDS).includes(key), `el campo ${key} no está en el contrato`);
+  }
+  // Una **confirmación** los sigue llevando como hoy (nada cambia fuera del rechazo).
+  const confirmed = rsvpPayload({
+    slug: "boda-ficticia",
+    code: "gen-0007",
+    response: "confirmed",
+    name: "Invitada Ficticia",
+    phone: "5512345678",
+    adults: 3,
+    children: 2,
+    message: "Un mensaje",
+    restrictions: "Sin gluten",
+  });
+  assert.equal(confirmed[REQUEST_FIELDS.ADULTS], 3);
+  assert.equal(confirmed[REQUEST_FIELDS.CHILDREN], 2);
+  assert.equal(confirmed[REQUEST_FIELDS.MESSAGE], "Un mensaje");
+  assert.equal(confirmed[REQUEST_FIELDS.RESTRICTIONS], "Sin gluten");
 });
 
 test("interpretRsvpResult distingue el resultado del envío (RF-14)", () => {
