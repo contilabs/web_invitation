@@ -54,7 +54,7 @@ marca.
 
 ## Fase 2 — Lógica pura y consulta
 
-- [ ] **T4 · Máquina de estados del bloque (pura, con sus pruebas).** _RF: RF-1, RF-7; D1, D2; B2, I1._
+- [x] **T4 · Máquina de estados del bloque (pura, con sus pruebas).** _RF: RF-1, RF-7; D1, D2; B2, I1._
   Hecho cuando: `src/utils/rsvpState.js` exporta `BLOCK_STATES` (los siete estados con
   identificadores en inglés: `NOT_ANSWERED`, `PHONE`, `LOOKING_UP`, `ANSWERED`, `EDITING`, `CLOSED`,
   `DEGRADED`), `BLOCK_EVENTS`, `initialBlockState({ status, invitation, open })` (regla única:
