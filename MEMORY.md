@@ -7,29 +7,35 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   rediseño «Ascua», estructura por capas, nomenclatura en inglés, registro único
   (`src/data/wedding.js`); paridad T26 **30/30**.
 - **Spec 004: T1–T9 hechas; T10 (verificación manual contra el despliegue vivo) desbloqueada.**
-  Servicio de invitados y RSVP contra un Apps Script (`gas/Code.gs`), con contrato en módulo +
-  documento. El servicio **no había funcionado nunca** por el defecto corregido (17/10) en
-  `readMaster_` (leía el id del maestro por su valor y no por el nombre de la propiedad). Checklist
-  en «Verificación» de `AGENTS.md`.
-- **Spec 005 (`specs/005-flujo-rsvp-respuesta-previa`): T1–T9 hechas (documentación y gobernanza),
-  T10 desbloqueada (verificación manual), igual que la de la 004.** Flujo RSVP por máquina de estados
+  Servicio de invitados y RSVP contra un Apps Script (`gas/Code.gs`). El defecto corregido (17/10) en
+  `readMaster_` (leía el id del maestro por su valor y no por el nombre de la propiedad) dejaba el
+  servicio sin funcionar. Checklist en «Verificación» de `AGENTS.md`.
+- **Spec 005 (`specs/005-flujo-rsvp-respuesta-previa`): T1–T9 y T11–T15 hechas; T10 desbloqueada
+  (verificación manual), igual que la de la 004.** Flujo RSVP por máquina de estados
   (`src/utils/rsvpState.js`, 7 estados) con `lookup` por teléfono (lectura, sin escritura en
-  `guests`), `useGuestLookup`, `AttendeeSelect`, `ResponseSummary`, bloque `Rsvp` reescrito y
-  contrato ampliado (`CONTRACT_VERSION 1.1.0`, `SERVICE_ACTIONS.LOOKUP`, `LOOKUP_FIELDS`).
-- Documentación: `docs/constitution.md`, `docs/servicio-invitados.md`, `README.md`, `AGENTS.md`, `PENDING_TASKS.md`.
+  `guests`), `useGuestLookup`, `AttendeeSelect`, `ResponseSummary` y contrato ampliado
+  (`CONTRACT_VERSION 1.1.0`, `SERVICE_ACTIONS.LOOKUP`, `LOOKUP_FIELDS`). Las **T11–T15** son la
+  revisión del formulario (RF-4, RF-11), que **no** toca el contrato.
+- Documentación: `AGENTS.md`, `MEMORY.md`, `PENDING_TASKS.md`, `README.md`, `docs/`.
 
 ## Decisiones (y por qué)
 - **Spec 005 · RSVP por máquina de estados y lookup:** el componente solo despacha eventos
   (`initialBlockState`/`nextBlockState`, 7 estados). La consulta `lookup` por teléfono se usa solo
   en genérica/pública (nunca en personalizada), exige diez dígitos antes de llamar, **no escribe**
   en `guests` (no marca `viewed`) y **no devuelve** el teléfono ni datos ajenos. El cupo del combo
-  y de validación sale de `attendeeLimits` (DT-6); la precarga de la respuesta previa usa
-  `attendanceForm`/`interpretLookup`. El riesgo aceptado de enviar el teléfono en consulta queda
-  documentado (constitución principio 5, AGENTS.md).
+  y de validación sale de `attendeeLimits` (DT-6); la precarga usa `attendanceForm`/`interpretLookup`.
+  El riesgo aceptado de enviar el teléfono en la consulta queda documentado (constitución 5, AGENTS.md).
+- **Spec 005 · revisión del formulario (T11–T15, RF-4/RF-11):** el rango del combo es **por campo**
+  —adultos `1..cupo` (el **0 fuera**: no es una confirmación válida) y niños `0..cupo`—;
+  `attendeeValue` **normaliza** el valor guardado a una opción válida (el 0 heredado se ve y se envía
+  como **1**) al mostrarse los campos, para que lo que se ve sea lo que se envía (`optionValue`
+  eliminado). `validateRsvp` **exige elegir asistencia** (`INVALID_RESPONSE`, código existente) tras
+  nombre/teléfono y antes del rechazo y los cupos. Los **cuatro campos de la asistencia** (adultos,
+  niños, alergias, mensaje) **solo existen** con «Sí, asistiré» y un **rechazo** no los envía ni los
+  muestra (D18). El campo libre de `n` lleva `min={1}`.
 - **Spec 004/005 · contrato módulo + documento:** `src/constants/contract.js` es la fuente única que
   consume la app, `docs/servicio-invitados.md` el derivado y `test/serviceContract.test.js` la
   sincronía exigida (RF-17, D18); los literales del modelo van en inglés por excepción documentada.
-  La 005 lo amplía: `CONTRACT_VERSION = "1.1.0"`, `SERVICE_ACTIONS.LOOKUP` y `LOOKUP_FIELDS`.
 - **Spec 004 · el invitado sale del servicio:** el parámetro del enlace es **`guest`**
   (`codigo`/`code`/`inv` jubilados, sin alias); la app **no** deduce tipo ni cupo: los recibe
   resueltos (`interpretInvitation`, D20). Tipos: `personal`, `generic`, `public` (el código
@@ -48,9 +54,9 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   `templateStatus` y `useTemplate` es la única vía; `photos.js` resuelve por clave (`photoFor`) y falla
   al arrancar si falta una (`assertPhotoKeys`). Inglés solo de código; intactos textos visibles, datos
   y contratos. `base: "./"`, tema anti-parpadeo, `audio.play()` en el gesto, tokens «Ascua».
-- **Spec 002 · lógica:** `visibleSections` omite opcionales ausentes/vacíos y fuerza la
-  confirmación; `allowsChildren` es `true` si no se indica; `isConfirmationOpen(deadline, now)`
-  devuelve `null` (sin plazo) o `NaN` (plazo ilegible) y compara `<=` con «ahora» por parámetro.
+- **Spec 002 · lógica:** `visibleSections` omite opcionales vacíos y fuerza la confirmación;
+  `allowsChildren` es `true` si no se indica; `isConfirmationOpen(deadline, now)` devuelve `null` (sin
+  plazo) o `NaN` (plazo ilegible) y compara `<=` con «ahora» por parámetro.
 
 ## Aprendizajes y errores a evitar
 - `node --test` descubre `**/*.test.js`; `services/config.js` (lee `import.meta.env`) no se prueba con
@@ -59,9 +65,9 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   confirmar con Node y validar siempre con `git diff`. **`replaceAll` en masa es peligroso:**
   cae sobre títulos y comentarios en español (en T25 hubo que revertir).
 - **El id del maestro se lee POR NOMBRE:** `getProperty('MASTER_SHEET_ID')`. Pasar el **valor** de la
-  propiedad (el id) como clave a `getProperty` devuelve `null`, y entonces `readMaster_` responde
-  `INVALID_DATA` con cualquier maestro. El guardarraíl es estático: `npm test` **no** ejecuta Apps
-  Script, así que no sustituye a la verificación manual contra el despliegue vivo.
+  propiedad como clave devuelve `null`, y `readMaster_` responde `INVALID_DATA` con cualquier maestro.
+  El guardarraíl es estático: `npm test` **no** ejecuta Apps Script, así que no sustituye a la
+  verificación manual contra el despliegue vivo.
 - Chrome headless: `--dump-dom` no sirve para medir; servir `dist/` en local y medir por
   DevTools Protocol. Paridad T26 con script **fuera** del repo y casos límite con **parches
   temporales** de `wedding.js` + rebuild + revertir.
@@ -74,8 +80,8 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
 
 ## Próximos pasos
 - **Spec 004/005 · T10 (desbloqueadas):** verificación manual contra el despliegue vivo —tres tipos,
-  escritura por teléfono, casos de fallo (spec 004 §13 del plan) y estados del RSVP (spec 005 §12)—;
-  anotar veredicto en «Verificación» de `AGENTS.md`. La de **spec 003 · T27** (tema, música,
-  galería/visor…) se cubre en la misma pasada.
+  escritura por teléfono, casos de fallo (004 §13 del plan) y estados del RSVP (005 §12, con el punto 8
+  de la revisión del formulario)—; anotar veredicto en «Verificación» de `AGENTS.md`. La de **spec 003
+  · T27** se cubre en la misma pasada.
 - Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas y las variables de
   entorno del servicio en el build): ver `PENDING_TASKS.md`.

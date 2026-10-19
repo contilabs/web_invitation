@@ -221,7 +221,7 @@ RNF-4). Cada tarea cierra con `npm test` en verde y `npm run build` sin errores.
   la presentación del rechazo de T8.)
   Archivos: `src/components/sections/Rsvp.jsx`, `src/components/ui/ResponseSummary.jsx`.
 
-- [ ] **T15 · Documentación y gobernanza de la revisión.** _RF: §5.2 de la spec; RF-4, RF-11; D17, D18; I6._
+- [x] **T15 · Documentación y gobernanza de la revisión.** _RF: §5.2 de la spec; RF-4, RF-11; D17, D18; I6._
   Hecho cuando: `AGENTS.md` refleja los ajustes del formulario (los cuatro campos de la asistencia
   solo con «Sí, asistiré», el 0 fuera del combo de adultos, el mínimo 1 de la pública y el rechazo
   que no envía asistentes ni textos) en sus inventarios y en la lista de verificación manual
