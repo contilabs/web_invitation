@@ -147,15 +147,36 @@ export function lookupPayload({ slug, code, phone } = {}) {
   };
 }
 
-// Opciones del combo de asistentes (RF-4, D4, R1): los enteros de 0 al cupo, **con la opción
-// 0 incluida** (el rango es completo; elegir 0 con «confirmar» lo rechaza la validación
-// previa y el servicio, M1). `null` cuando no hay combo que ofrecer: con cupo 0 (no hay
-// ninguna opción: solo cabe rechazar, D21) y con un límite que no es un número entero, que
-// es lo que pasa con el `"n"` de la pública (sin tope → **campo numérico libre**, la app no
-// declara ningún máximo, D12).
-export function attendeeOptions(limit) {
+// Opciones del combo de asistentes (RF-4, D4, R1, R8), con **rango por campo** (DT-13):
+//   - **adultos**: los enteros de **1** al cupo (el 0 **no** se ofrece: nunca es una
+//     confirmación válida —confirmar exige al menos un asistente— y ofrecerlo invitaba a
+//     elegirlo y recibir un aviso de error que la interfaz ya sabía inevitable, M1);
+//   - **niños**: los enteros de **0** al cupo (0 niños con adultos confirmados **sí** es una
+//     respuesta válida).
+// `null` cuando no hay combo que ofrecer: con cupo 0 (no hay ninguna opción: solo cabe
+// rechazar, D21) y con un límite que no es un número entero, que es lo que pasa con el `"n"`
+// de la pública (sin tope → **campo numérico libre** con mínimo 1, la app no declara ningún
+// máximo, D12/R9).
+//
+// El campo entra por parámetro; su valor por defecto es «adultos», el único que ofrece un
+// rango con el 0 fuera.
+export function attendeeOptions(limit, field = "adults") {
   if (!Number.isInteger(limit) || limit < 1) return null;
-  return Array.from({ length: limit + 1 }, (_, index) => index);
+  const first = field === "children" ? 0 : 1;
+  return Array.from({ length: limit - first + 1 }, (_, index) => first + index);
+}
+
+// Normalización de un valor guardado a una opción válida del combo (RF-4, R10; DT-13): la
+// decisión vive aquí —y no en lo que se pinta— para que lo que el invitado **ve** sea lo que
+// **viaja** al enviar. Si el valor ya está entre las opciones se devuelve tal cual (el 0
+// heredado de un rechazo o de una respuesta con 0 adultos no es una opción de adultos y vale
+// por la **opción menor**: 1 en adultos y 0 en niños). Sin opciones (`null`/vacío: cupo 0 o
+// el campo libre de `"n"`) no hay nada que normalizar y el valor se queda como está.
+export function attendeeValue(value, options) {
+  const current = String(value ?? "");
+  const values = Array.isArray(options) ? options : [];
+  if (values.length === 0) return current;
+  return values.map(String).includes(current) ? current : String(values[0]);
 }
 
 // Precarga del formulario de respuesta (RF-2, RF-5, RF-10): de la respuesta previa —la que
@@ -164,7 +185,10 @@ export function attendeeOptions(limit) {
 // `rejected` y «confirmar» para cualquier otra respuesta registrada (`confirmed`/`updated`),
 // y sin respuesta no se elige nada. El **nombre** es el registrado de la fila y, en la
 // personalizada, el titular de la invitación; la **condición de editable** la decide el
-// componente (el titular lleva `readOnly`, RF-2; el registrado se edita, RF-10). El
+// componente (el titular lleva `readOnly`, RF-2; el registrado se edita, RF-10). Los
+// **adultos** se precargan **normalizados** con `attendeeValue` (un 0 heredado se muestra
+// como **1**, R10; DT-13) **siempre que el cupo de adultos sea mayor que cero**: con cupo 0
+// no hay combo y solo cabe rechazar, así que la normalización no aplica (004 D21). El
 // **teléfono** no forma parte del modelo: vive en el componente, que es lo que el invitado
 // escribió, así que cambiarlo no borra la precarga ni dispara otra consulta (M8).
 export function attendanceForm(invitation, previousResponse) {
@@ -179,6 +203,16 @@ export function attendanceForm(invitation, previousResponse) {
   };
   if (!previousResponse) return form;
 
+  const previousAdults = String(count(previousResponse.adultsAttendees));
+  // El cupo de adultos del combo: en la personalizada, el reservado (que no cambia durante la
+  // sesión); en la genérica y la pública, el `limit` de la resolución —la consulta puede
+  // afinarlo, pero quien normaliza la precarga es la resolución, que es la lectura de la
+  // página—. Con cupo 0 no hay combo y la normalización **no** aplica (004 D21).
+  const adultLimit = personalized
+    ? count(invitation?.adultsGuests)
+    : guestLimit(invitation);
+  const adultOptions = attendeeOptions(adultLimit, "adults");
+
   return {
     ...form,
     response:
@@ -188,7 +222,7 @@ export function attendanceForm(invitation, previousResponse) {
     // La identidad manda por tipo: el titular de la personalizada (que no se edita, RF-2) o
     // el nombre registrado de la fila en la genérica y la pública (editable, RF-10).
     name: personalized ? form.name : (text(previousResponse.name) ?? form.name),
-    adults: String(count(previousResponse.adultsAttendees)),
+    adults: adultOptions === null ? previousAdults : attendeeValue(previousAdults, adultOptions),
     children: String(count(previousResponse.childAttendees)),
     message: text(previousResponse.message) ?? "",
     restrictions: text(previousResponse.restrictions) ?? "",

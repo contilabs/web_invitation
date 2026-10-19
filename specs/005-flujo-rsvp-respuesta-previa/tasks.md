@@ -15,6 +15,22 @@ inglés; los textos, datos, comentarios y documentación, en español. Nada de d
 **Orden de documentos:** la documentación y la gobernanza van **al final** (T9), porque describen
 comportamiento y rutas y hacerlo antes las dejaría en contradicción con el código.
 
+**Revisión por el cambio de requisitos del formulario (T11–T15).** La spec ganó **RF-11** (los
+campos de la asistencia solo existen con «Sí, asistiré») y un **RF-4** con el combo de adultos
+`1..cupo` (sin el 0), el campo libre de `n` con **mínimo 1** y la normalización del valor fuera de
+rango a **1** (D4, D17, D18; R8–R11). Son **presentación y composición del envío**: **no** tocan el
+contrato, ni `gas/Code.gs`, ni `CONTRACT_VERSION` (RF-8 intacto). Las tareas nuevas van **después**
+de T10 y **rehacen** una parte ya implementada de la spec 005 original (el rango `0..cupo` del combo
+en **T5**, el cuerpo del rechazo en `rsvpPayload` y la visibilidad de los cuatro campos en **T8**);
+la historia de T1–T10 **no** se reescribe. La lógica pura va **antes** que la presentación (plan
+§10, RNF-4).
+
+**R11 (decisión nueva): la validación pura también exige elegir asistencia.** Por elección de quien
+pide el cambio, **no** basta con el `required` de los radios: `validateRsvp` **rechaza** el envío sin
+asistencia elegida, con el código **existente** `INVALID_RESPONSE` (el contrato no admite códigos
+nuevos). Se implementa en **T12** (junto a la composición del envío del rechazo, que ya vive en la
+lógica pura) y se refleja en **T13**. **No** toca el contrato.
+
 **Nota sobre la 004:** su verificación manual (T10 de la 004) sigue pendiente y la rellena el
 coordinador en «Verificación» de `AGENTS.md`; **no** forma parte de estas tareas y aquí **no** se
 marca.
@@ -75,6 +91,11 @@ marca.
   los valores por defecto de hoy; el teléfono **no** forma parte de la respuesta); las pruebas
   co-locadas (`invitation.test.js`, `rsvp.test.js`) cubren esos casos y `npm test` en verde.
 
+  > **Superado por la revisión del formulario (RF-4, RF-11):** el rango `0..cupo` **con la opción 0**
+  > de `attendeeOptions` que describe esta tarea queda **sustituido** por T11 (rango por campo:
+  > adultos `1..cupo`, niños `0..cupo`) y la normalización del valor fuera de rango de T11; el
+  > cuerpo del rechazo de `rsvpPayload` lo sustituye T12. La historia de T5 **no** se reescribe.
+
 - [x] **T6 · Hook de la consulta por teléfono.** _RF: RF-5; M4, M10; RNF-2, RNF-4._
   Hecho cuando: `src/hooks/useGuestLookup.js` expone `{ status, errorCode, result, lookup(phone) }`
   con `status ∈ idle | looking | ok | error`, valida los diez dígitos **antes** de llamar, **ignora**
@@ -113,7 +134,7 @@ marca.
 
 ## Fase 4 — Documentación y verificación
 
-- [ ] **T9 · Documentación y gobernanza.** _RF: §5.2 de la spec; I6._
+- [x] **T9 · Documentación y gobernanza.** _RF: §5.2 de la spec; I6._
   Hecho cuando: `docs/constitution.md` (principio 5) recoge que la app **lee y muestra** los datos de
   la fila identificada por teléfono en la genérica y la pública, con el **riesgo aceptado** de §1.4 y
   el teléfono como única barrera, y que **enviar** el teléfono no es **escribirlo**; `AGENTS.md`
@@ -133,3 +154,110 @@ marca.
   `localStorage` ni en la URL, sin datos de otras filas y sin escrituras de `lookup` en `guests`)— y
   el veredicto queda anotado en «Verificación» de `AGENTS.md`. (La verificación manual de la 004
   sigue pendiente: no se marca aquí.)
+
+## Fase 5 — Revisión del formulario (cambio de requisitos: RF-4, RF-11; D4, D17, D18; R8–R11)
+
+Rehace una parte ya implementada de la spec 005 original (T5, T8): el rango del combo, el valor
+fuera de rango, la composición del envío de un rechazo y la **exigencia de elegir asistencia** en la
+validación previa (R11). **No** toca el contrato, `gas/Code.gs` ni
+`CONTRACT_VERSION` (RF-8 intacto). La lógica pura va **antes** que la presentación (plan §10,
+RNF-4). Cada tarea cierra con `npm test` en verde y `npm run build` sin errores.
+
+- [x] **T11 · Rango del combo por campo y normalización del valor fuera de rango (pura, con pruebas).** _RF: RF-4; D4, R8, R10; DT-13._
+  Tests primero: en `src/utils/rsvp.test.js` se **sustituyen** los casos que hoy afirman
+  `attendeeOptions(...) === [0, 1, 4…]` y `attendeeOptions(0) === null` por los del rango por
+  campo, y se añaden los de `attendeeValue`; luego se implementa hasta ponerlos en verde.
+  Hecho cuando: `attendeeOptions(limit, field)` devuelve **adultos `1..limit`** (sin el 0) y
+  **niños `0..limit`** (con el 0), `null` con cupo 0 y con un límite no numérico (`"n"`,
+  `Infinity`, ilegible); `attendeeValue(value, options)` devuelve una opción válida tal cual y, si
+  el valor no está entre las opciones (el 0 heredado o una cifra fuera del rango), la **opción
+  menor** (`1` en adultos, `0` en niños); `attendanceForm(...).adults` queda en `"1"` cuando la
+  respuesta previa traía 0 adultos **y el cupo de adultos es mayor que cero** (con cupo 0 no hay
+  combo y solo cabe rechazar: la normalización no aplica, 004 D21); `npm test` en verde. (Esta tarea
+  **sustituye** el rango `0..cupo` con la opción 0 de T5.)
+  Archivos: `src/utils/rsvp.js`, `src/utils/rsvp.test.js`.
+
+- [ ] **T12 · Validación previa de la asistencia elegida y composición del envío de un rechazo (pura, con pruebas).** _RF: RF-9, RF-11; D18, R11; DT-14._
+  Tests primero: en `src/utils/rsvp.test.js` se añaden (a) los casos de `validateRsvp` sin asistencia
+  elegida —`response` vacío, ausente o con un valor que no sea `confirmed` ni `rejected`— con nombre
+  y teléfono ya presentes (genérica/pública) y sin ellos (personalizada), esperando
+  `INVALID_RESPONSE`; (b) el caso de que el orden de comprobaciones se conserva (sin nombre o
+  teléfono sigue mandando `MISSING_FIELDS`/`INVALID_PHONE`, y un rechazo válido sigue pasando); y
+  (c) el caso de `rsvpPayload` con `response: "rejected"`; luego se implementa.
+  Hecho cuando: `validateRsvp(form, invitation)` **rechaza** con el código **existente**
+  `INVALID_RESPONSE` cuando `form.response` **no** es `confirmed` ni `rejected`, **después** de la
+  invitación y del nombre y el teléfono (004 RF-8/D26 intactas) y **antes** de la rama de rechazo y
+  de los cupos (004 RF-9/D21 intacta; R11), y `rsvpPayload({...})` **omite** `adults`, `children`,
+  `message` y `restrictions` cuando `response` es `rejected` (aunque el formulario los tuviera
+  escritos) y los mantiene como hoy en cualquier otra respuesta; el contrato (`REQUEST_FIELDS`,
+  `SERVICE_ERRORS`) **no** cambia (ningún código nuevo) y las pruebas existentes de `validateRsvp` y
+  del cuerpo del envío siguen cubriendo sus casos; `npm test` en verde.
+  (Esta tarea **sustituye** el comportamiento implícito del cuerpo del envío en T5 y **cierra R11**,
+  el riesgo «enviar sin elegir asistencia» que la spec 005 original solo vigilaba.)
+  Archivos: `src/utils/rsvp.js`, `src/utils/rsvp.test.js`.
+
+- [ ] **T13 · Visibilidad condicional de los cuatro campos de la asistencia (`Rsvp.jsx`).** _RF: RF-11; D17, R11; DT-14._
+  Hecho cuando: en `editando`, los campos de **adultos, niños, alergias y mensaje** se pintan
+  **solo** con «Sí, asistiré»; con «No podré asistir» o sin elegir **no existen** en el DOM (no
+  se esconden por CSS ni quedan `disabled` de adorno), y el **nombre** y el **teléfono** se pintan
+  y se exigen **siempre** (004 RF-8/D26 intactas); lo ya escrito **se conserva** al cambiar de
+  opinión y reaparece al reelegir «Sí»; el aparecer/desaparecer se anuncia en la **región viva** y
+  cada control lleva su `<label>`/`aria-describedby` **solo** mientras existe (RNF-1); los radios
+  **siguen** siendo `required` como **ayuda de navegador**, pero la **garantía** de no enviar sin
+  elegir asistencia es la **validación previa** de T12 (`validateRsvp` → `INVALID_RESPONSE`; R11:
+  el `required` **no** es lo que lo impide, así que aquí **no** hay nada que vigilar por si se
+  cuela); `npm run build`
+  sin errores (su aspecto se comprueba en T14 y a mano en la pasada manual).
+  Archivos: `src/components/sections/Rsvp.jsx`.
+
+- [ ] **T14 · Normalización al mostrarse, mínimo 1 del campo libre y resumen del rechazo (`Rsvp.jsx` + `ResponseSummary`).** _RF: RF-4, RF-9, RF-11; D4, D18, R10; DT-13, DT-15._
+  Hecho cuando: al aparecer los campos con «Sí, asistiré», `form.adults` se **normaliza** con
+  `attendeeValue` (un 0 heredado se ve y se envía como **1**, R10) y el `<select>` de adultos ya
+  no ofrece el 0; el campo numérico libre de `n` lleva **`min={1}`** (R9) y conserva su etiqueta y
+  ayuda; en `respondido` y en `cerrado` con respuesta previa, el panel **no** muestra adultos,
+  niños, mensaje ni restricciones **cuando la respuesta es un rechazo** (se pasan esos campos como
+  ausentes, no como `0`), y sí los muestra en una confirmación; `npm test` en verde y
+  `npm run build` sin errores. (Esta tarea **sustituye** el recorte del valor en `optionValue` y
+  la presentación del rechazo de T8.)
+  Archivos: `src/components/sections/Rsvp.jsx`, `src/components/ui/ResponseSummary.jsx`.
+
+- [ ] **T15 · Documentación y gobernanza de la revisión.** _RF: §5.2 de la spec; RF-4, RF-11; D17, D18; I6._
+  Hecho cuando: `AGENTS.md` refleja los ajustes del formulario (los cuatro campos de la asistencia
+  solo con «Sí, asistiré», el 0 fuera del combo de adultos, el mínimo 1 de la pública y el rechazo
+  que no envía asistentes ni textos) en sus inventarios y en la lista de verificación manual
+  (punto 8 de §12 del plan); `MEMORY.md` queda al día con el estado de T11–T15; `PENDING_TASKS.md`
+  se depura si algo deja de aplicar; **no** se toca el contrato, `gas/Code.gs` ni
+  `CONTRACT_VERSION`; `npm test` en verde.
+  Archivos: `AGENTS.md`, `MEMORY.md`, `PENDING_TASKS.md`.
+
+**Pruebas automáticas de cierre de la revisión:** T11 y T12 con `node --test` sobre
+`src/utils/rsvp.js` (rangos por campo, normalización, **asistencia elegida obligatoria** en
+`validateRsvp` —R11— y cuerpo del rechazo). **Queda para la pasada
+manual** (§12 punto 8 del plan): que los cuatro campos se pinten o no según la asistencia, que el
+foco y las etiquetas no queden huérfanos, el `min` del campo libre en el navegador, el resumen del
+rechazo en pantalla y la fila del libro con 0 asistentes y sin mensaje/restricciones.
+
+## Puntos delicados a vigilar al repartir la implementación
+
+- **Enviar sin elegir asistencia (RESUELTO, R11).** Ya **no** queda solo vigilado: la validación
+  **pura** (`validateRsvp`) **rechaza** el envío cuando `form.response` no es `confirmed` ni
+  `rejected`, con el código **existente** `INVALID_RESPONSE` (no se añade ninguno al contrato). Se
+  implementa en **T12** (tests primero) y T13 solo conserva los radios `required` como **ayuda de
+  navegador**: el `required` **no** es la garantía, así que no hay que vigilar «por si se cuela» un
+  envío sin elección —la prueba pura lo fija—. El servicio, sin cambios, hacía de todos modos un
+  rechazo silencioso (trata cualquier respuesta distinta de `confirmed` como `rejected`): esto solo
+  evita que la app envíe a ciegas.
+- **Lo que se ve y lo que se envía deben coincidir (R10, DT-13).** La normalización va en la lógica
+  pura **y** al estado del formulario al mostrarse los campos; el componente **no** debe recortar por
+  su cuenta (hoy lo hace `optionValue`). No dejar dos fuentes de verdad.
+- **El resumen del rechazo (DT-15).** `ResponseSummary` pinta la fila si el valor **no** está vacío
+  y un `0` **sí** se pinta: para el rechazo hay que pasar esos campos como **ausentes**, no como 0,
+  o el panel mostrará «Adultos 0».
+- **Conservar lo escrito (RF-11, D17).** Al ocultar/mostrar los campos, el estado del formulario no
+  se debe reiniciar; solo el **0 de adultos** se normaliza a 1 (nunca un valor que el invitado haya
+  elegido en el combo).
+- **No tocar el contrato.** Ni `REQUEST_FIELDS`, ni `LOOKUP_FIELDS`, ni `SERVICE_ERRORS` (ningún
+  código nuevo: la exigencia de elegir asistencia usa el **existente** `INVALID_RESPONSE`, R11), ni
+  `CONTRACT_VERSION`, ni `gas/Code.gs`, ni `docs/servicio-invitados.md`: el rechazo que omite campos
+  es **composición del envío** y el servicio ya escribe 0/vacío (verificado en `gas/Code.gs`). Si una
+  tarea necesita tocar el contrato, se ha salido del alcance: **parar y preguntar**.

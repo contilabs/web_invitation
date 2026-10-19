@@ -16,6 +16,7 @@ import {
 import { interpretInvitation, interpretLookup } from "./invitation.js";
 import {
   attendeeOptions,
+  attendeeValue,
   attendanceForm,
   interpretRsvpResult,
   isPhoneComplete,
@@ -282,26 +283,86 @@ test("lookupPayload no manda nada del envío ni inventa campos (RF-8, RF-5)", ()
   );
 });
 
-test("attendeeOptions: rango completo 0..cupo, con la opción 0 incluida (RF-4, D4, M1)", () => {
-  assert.deepEqual(attendeeOptions(1), [0, 1]);
-  assert.deepEqual(attendeeOptions(4), [0, 1, 2, 3, 4]);
-  const wide = attendeeOptions(12);
+// Rango del combo por campo (RF-4, D4, R8; DT-13): los **adultos** se eligen de 1 al cupo —el
+// 0 nunca es una confirmación válida y ofrecerlo invitaba a elegirlo (M1)— y los **niños** de
+// 0 al cupo (0 niños con adultos confirmados sí es válido).
+test("attendeeOptions: adultos de 1..cupo, sin el 0 (RF-4, D4, R8)", () => {
+  assert.deepEqual(attendeeOptions(1, "adults"), [1]);
+  assert.deepEqual(attendeeOptions(4, "adults"), [1, 2, 3, 4]);
+  const wide = attendeeOptions(12, "adults");
+  assert.equal(wide.length, 12);
+  assert.equal(wide[0], 1);
+  assert.equal(wide[wide.length - 1], 12);
+});
+
+test("attendeeOptions: niños de 0..cupo, con el 0 incluido (RF-4, D4, R8)", () => {
+  assert.deepEqual(attendeeOptions(1, "children"), [0, 1]);
+  assert.deepEqual(attendeeOptions(4, "children"), [0, 1, 2, 3, 4]);
+  const wide = attendeeOptions(12, "children");
   assert.equal(wide.length, 13);
   assert.equal(wide[0], 0);
   assert.equal(wide[12], 12);
 });
 
 test("attendeeOptions: sin combo con cupo 0, con `n` ni con un límite ilegible (RF-4, R1)", () => {
-  // Cupo 0: no hay ninguna opción que ofrecer y solo cabe rechazar (D21).
-  assert.equal(attendeeOptions(0), null);
+  // Cupo 0: no hay ninguna opción que ofrecer y solo cabe rechazar (D21), para los dos campos.
+  assert.equal(attendeeOptions(0, "adults"), null);
+  assert.equal(attendeeOptions(0, "children"), null);
   // `n` = sin tope: campo numérico libre, la app no inventa un máximo (D12, R1).
-  assert.equal(attendeeOptions(NO_LIMIT), null);
-  assert.equal(attendeeOptions(Infinity), null);
-  assert.equal(attendeeOptions(null), null);
-  assert.equal(attendeeOptions(undefined), null);
-  assert.equal(attendeeOptions(-1), null);
-  assert.equal(attendeeOptions(2.5), null);
-  assert.equal(attendeeOptions("4"), null);
+  for (const field of ["adults", "children"]) {
+    assert.equal(attendeeOptions(NO_LIMIT, field), null);
+    assert.equal(attendeeOptions(Infinity, field), null);
+    assert.equal(attendeeOptions(null, field), null);
+    assert.equal(attendeeOptions(undefined, field), null);
+    assert.equal(attendeeOptions(-1, field), null);
+    assert.equal(attendeeOptions(2.5, field), null);
+    assert.equal(attendeeOptions("4", field), null);
+    // Un límite ilegible tampoco ofrece combo, aunque sea una cifra en texto.
+    assert.equal(attendeeOptions("n", field), null);
+    assert.equal(attendeeOptions("cuatro", field), null);
+  }
+});
+
+// Normalización del valor fuera de rango (RF-4, R10; DT-13): la decisión vive en la lógica
+// pura —no en lo que se pinta— para que lo que el invitado **ve** sea lo que **viaja**.
+test("attendeeValue: una opción válida se conserva, y lo de fuera de rango vale por la menor (RF-4, R10)", () => {
+  const adults = attendeeOptions(4, "adults");
+  const children = attendeeOptions(4, "children");
+
+  // Un valor que ya es una opción del combo se devuelve tal cual, como texto (el `<select>`).
+  for (const value of ["1", "2", "4", 1, 4]) {
+    assert.equal(attendeeValue(value, adults), String(value));
+  }
+  assert.equal(attendeeValue("2", children), "2");
+  assert.equal(attendeeValue(0, children), "0");
+
+  // Fuera de rango: el 0 heredado (de un rechazo o de una respuesta con 0 adultos) y las
+  // cifras fuera del cupo valen por la **opción menor**: 1 en adultos y 0 en niños.
+  assert.equal(attendeeValue("0", adults), "1");
+  assert.equal(attendeeValue(0, adults), "1");
+  assert.equal(attendeeValue("9", adults), "1");
+  assert.equal(attendeeValue("-3", adults), "1");
+  assert.equal(attendeeValue("dos", adults), "1");
+  assert.equal(attendeeValue(null, adults), "1");
+  assert.equal(attendeeValue(undefined, adults), "1");
+
+  // En niños la opción menor es el 0, así que un valor fuera de rango se normaliza a 0.
+  assert.equal(attendeeValue("9", children), "0");
+  assert.equal(attendeeValue("-1", children), "0");
+  assert.equal(attendeeValue("dos", children), "0");
+  assert.equal(attendeeValue(null, children), "0");
+});
+
+test("attendeeValue: sin combo no hay nada que normalizar y el valor se queda tal cual (RF-4)", () => {
+  // Con `n` (campo libre) o cupo 0 no hay `<select>`: no se debe reventar ni inventar un valor.
+  assert.equal(attendeeValue("7", null), "7");
+  assert.equal(attendeeValue("7", []), "7");
+  assert.equal(attendeeValue("", null), "");
+  assert.equal(attendeeValue(null, undefined), "");
+  // Un valor válido del campo libre tampoco se toca.
+  const free = attendeeOptions(NO_LIMIT, "adults");
+  assert.equal(free, null);
+  assert.equal(attendeeValue("12", free), "12");
 });
 
 test("attendanceForm: sin respuesta previa usa los valores por defecto de hoy (RF-2, RF-9)", () => {
@@ -323,7 +384,8 @@ test("attendanceForm: sin respuesta previa usa los valores por defecto de hoy (R
     message: "",
     restrictions: "",
   });
-  // Con cupo cero la personalizada sigue precargando ceros: solo cabe rechazar (D21).
+  // Con cupo cero la personalizada sigue precargando ceros: solo cabe rechazar (D21) y no
+  // hay combo de adultos, así que la normalización no aplica (004 D21).
   assert.equal(attendanceForm(personalized({ adultsGuests: 0, childGuests: 0 }), null).adults, "0");
   assert.equal(attendanceForm(personalized({ adultsGuests: 0, childGuests: 0 }), null).children, "0");
 });
@@ -377,9 +439,44 @@ test("attendanceForm: un rechazo previo se precarga como «rechazar» y es rever
   const form = attendanceForm(generic(3), lookup.previousResponse);
   assert.equal(form.response, RESPONSE_STATES.REJECTED);
   assert.equal(form.name, "Invitada Ficticia");
-  assert.equal(form.adults, "0");
+  // El 0 heredado de un rechazo no es una opción del combo de adultos: se normaliza a 1
+  // (RF-4, R10; DT-13), y en el de niños el 0 sí es una opción válida.
+  assert.equal(form.adults, "1");
   assert.equal(form.children, "0");
   assert.equal(form.message, "Un mensaje");
+});
+
+// Los adultos que lleguen fuera del rango del combo (el 0 heredado) se muestran como **1**
+// (RF-4, R10; DT-13): lo que se ve es lo que se envía.
+test("attendanceForm: precarga los adultos normalizados y conserva el valor fuera del rango (RF-4, R10)", () => {
+  // Genérica con cupo 4: el 0 heredado de un rechazo se muestra como 1.
+  const rejected = lookupRow({ ...REGISTERED_ROW, state: RESPONSE_STATES.REJECTED, adultsAttendees: 0 });
+  const form = attendanceForm(generic(4), rejected.previousResponse);
+  assert.equal(form.response, RESPONSE_STATES.REJECTED);
+  assert.equal(form.adults, "1");
+
+  // Personalizada con cupo de adultos 2: una respuesta con más adultos que el cupo también
+  // se normaliza al menor (1)... pero un valor que **sí** es una opción del combo se conserva.
+  const personalizedPrevious = {
+    state: "confirmed",
+    adultsAttendees: 2,
+    childAttendees: 1,
+    message: "",
+    restrictions: "",
+  };
+  const personalizedForm = attendanceForm(personalized(), personalizedPrevious);
+  assert.equal(personalizedForm.adults, "2");
+  assert.equal(personalizedForm.children, "1");
+
+  // Cupo de adultos 0 (sin combo, solo cabe rechazar): la normalización **no** aplica (004 D21).
+  const empty = attendanceForm(personalized({ adultsGuests: 0, childGuests: 0 }), {
+    state: "rejected",
+    adultsAttendees: 0,
+    childAttendees: 0,
+    message: "",
+    restrictions: "",
+  });
+  assert.equal(empty.adults, "0");
 });
 
 test("attendanceForm: el teléfono no forma parte de la precarga (RF-5, M8)", () => {
