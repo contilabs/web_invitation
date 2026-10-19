@@ -17,7 +17,9 @@
 //   4. **`respondido`**: agradecimiento (copy `OK`, también para `rejected`), datos en solo
 //      lectura (`ResponseSummary`, con el teléfono aportado) y «Editar» (RF-9, RF-10);
 //   5. **`editando`**: el formulario en el orden de RF-3, con los combos de RF-4 (o campo
-//      libre con `n`), el nombre del titular `readOnly` y el nombre registrado editable;
+//      libre con `n`), el nombre del titular `readOnly` y el nombre registrado editable; los
+//      **cuatro campos de la asistencia** (adultos, niños, alergias y mensaje) solo existen
+//      con «Sí, asistiré» (RF-11, D17);
 //   6. **`cerrado`**: el aviso de plazo y, en la personalizada, sus datos en lectura; sin
 //      «Responder invitación» ni «Editar» (RF-7);
 //   7. **`degradado`**: el motivo, «Reintentar» cuando la causa lo permite y «Responder
@@ -107,6 +109,29 @@ function optionValue(value, options) {
   const values = options.map(Number);
   if (values.includes(current)) return String(current);
   return String(Math.max(values[0], Math.min(current, values[values.length - 1])));
+}
+
+// Los cuatro campos de la asistencia —adultos, niños, alergias y mensaje— **solo existen**
+// con «Sí, asistiré» (RF-11, D17): con «No podré asistir» o sin elegir nada no se pintan
+// —no se esconden por CSS ni quedan deshabilitados de adorno— y sus `<label>`/ayudas se van
+// con ellos (sin etiquetas huérfanas, RNF-1). El **nombre** y el **teléfono** no dependen de
+// esto y se pintan siempre, también al rechazar (004 RF-8/D26 intactas).
+function showsAttendanceFields(response) {
+  return response === RESPONSE_STATES.CONFIRMED;
+}
+
+// Aviso de esa aparición o desaparición para la **región viva** (RNF-1): es una región
+// `visually-hidden` que existe **siempre** —para que su cambio se anuncie— y solo cambia de
+// texto; el mismo texto repetido no vuelve a anunciarse, así que las escrituras del
+// formulario no la hacen hablar.
+function attendanceNotice(response) {
+  if (response === RESPONSE_STATES.CONFIRMED) {
+    return "Se muestran los campos de asistentes, alergias y mensaje.";
+  }
+  if (response === RESPONSE_STATES.REJECTED) {
+    return "No se muestran los campos de asistentes, alergias ni mensaje.";
+  }
+  return "Los campos de asistentes, alergias y mensaje aparecen al elegir «Sí, asistiré».";
 }
 
 // El foco entra al primer campo del paso revelado (RNF-1).
@@ -209,6 +234,8 @@ export function Rsvp({ wedding }) {
   const lookupPhone = useRef(null);
   const phoneRef = useRef(null);
   const formRef = useRef(null);
+  const attendanceRef = useRef(null);
+  const submitRef = useRef(null);
   const summaryRef = useRef(null);
   const noticeRef = useRef(null);
 
@@ -242,6 +269,8 @@ export function Rsvp({ wedding }) {
 
   const phoneComplete = isPhoneComplete(phone);
   const looking = block === BLOCK_STATES.LOOKING_UP;
+  // Los cuatro campos de la asistencia solo existen con «Sí, asistiré» (RF-11, D17).
+  const showsAttendance = showsAttendanceFields(form.response);
   const phoneChanged =
     !personalized &&
     lookupPhone.current !== null &&
@@ -333,6 +362,30 @@ export function Rsvp({ wedding }) {
   }, [sendStatus]);
 
   const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+
+  // Cambiar de opinión **no** vacía el formulario (RF-11, D17): los cuatro campos se dejan de
+  // pintar y lo ya escrito se queda en el estado, listo para reaparecer al reelegir «Sí,
+  // asistiré» (solo el 0 heredado de adultos vuelve como 1, R10 —eso, en T14—). Si el foco
+  // estaba en uno de los campos que desaparecen se lleva al bloque de asistencia, para que no
+  // se quede en un control que ya no está (RNF-1).
+  function changeAttendance(response) {
+    update("response", response);
+    const active = formRef.current?.ownerDocument?.activeElement;
+    if (active && active !== formRef.current && formRef.current?.contains(active)) {
+      if (!showsAttendanceFields(response) || !active.closest?.(".attendance")) {
+        attendanceRef.current?.focus();
+      }
+    }
+  }
+
+  // Guarda del foco **antes** de pintar el cambio (RF-11, RNF-1): si el foco estaba dentro de
+  // uno de los cuatro campos que van a desaparecer, se lleva al botón de enviar —que existe en
+  // los dos casos— al final del repintado. El foco de los radios de la asistencia, que siguen
+  // ahí, no se toca.
+  function keepFocusVisible(event) {
+    const active = event.currentTarget.ownerDocument?.activeElement;
+    if (active?.closest?.(".attendance-fields")) submitRef.current?.focus();
+  }
 
   function handleReveal() {
     const next = nextBlockState(block, BLOCK_EVENTS.REVEAL, { personalized });
@@ -589,6 +642,8 @@ export function Rsvp({ wedding }) {
                         className="field attendance"
                         role="radiogroup"
                         aria-labelledby="asistencia-titulo"
+                        ref={attendanceRef}
+                        tabIndex={-1}
                       >
                         <p className="attendance-title" id="asistencia-titulo">
                           ¿Nos acompañarás?
@@ -600,7 +655,7 @@ export function Rsvp({ wedding }) {
                               name="asistencia"
                               value={RESPONSE_STATES.CONFIRMED}
                               checked={form.response === RESPONSE_STATES.CONFIRMED}
-                              onChange={() => update("response", RESPONSE_STATES.CONFIRMED)}
+                              onChange={() => changeAttendance(RESPONSE_STATES.CONFIRMED)}
                               disabled={sendStatus === "sending"}
                               required
                             />
@@ -612,7 +667,7 @@ export function Rsvp({ wedding }) {
                               name="asistencia"
                               value={RESPONSE_STATES.REJECTED}
                               checked={form.response === RESPONSE_STATES.REJECTED}
-                              onChange={() => update("response", RESPONSE_STATES.REJECTED)}
+                              onChange={() => changeAttendance(RESPONSE_STATES.REJECTED)}
                               disabled={sendStatus === "sending"}
                               required
                             />
@@ -621,56 +676,72 @@ export function Rsvp({ wedding }) {
                         </div>
                       </div>
 
-                      {hasField("asistentes") && (
-                        <AttendeeField
-                          id="asistentes"
-                          label={personalized ? "Adultos que asistirán" : "Cuántos asistirán"}
-                          limit={limits.adults}
-                          value={form.adults}
-                          helpText={seatsHint(effectiveInvitation)}
-                          onChange={(value) => update("adults", value)}
-                        />
-                      )}
-
-                      {personalized && limits.children > 0 && (
-                        <AttendeeField
-                          id="ninos"
-                          label="Niños que asistirán"
-                          limit={limits.children}
-                          value={form.children}
-                          helpText={childrenHint(limits.children)}
-                          onChange={(value) => update("children", value)}
-                        />
-                      )}
-
-                      {hasField("alergias") && (
-                        <div className="field">
-                          <label htmlFor="alergias">Alergias o restricciones alimentarias</label>
-                          <input
-                            type="text"
-                            id="alergias"
-                            name="alergias"
-                            placeholder="Opcional"
-                            autoComplete="off"
-                            value={form.restrictions}
-                            onChange={(event) => update("restrictions", event.target.value)}
+                      {/* Los cuatro campos de la asistencia (RF-11, D17): existen **solo**
+                          con «Sí, asistiré»; el aparecer/desaparecer se anuncia en la
+                          región viva de justo debajo. */}
+                      <div
+                        className="attendance-fields contents"
+                        onBlurCapture={keepFocusVisible}
+                      >
+                        {showsAttendance && hasField("asistentes") && (
+                          <AttendeeField
+                            id="asistentes"
+                            label={personalized ? "Adultos que asistirán" : "Cuántos asistirán"}
+                            limit={limits.adults}
+                            value={form.adults}
+                            helpText={seatsHint(effectiveInvitation)}
+                            onChange={(value) => update("adults", value)}
                           />
-                        </div>
-                      )}
+                        )}
 
-                      {hasField("mensaje") && (
-                        <div className="field">
-                          <label htmlFor="mensaje">Mensaje para los novios</label>
-                          <textarea
-                            id="mensaje"
-                            name="mensaje"
-                            placeholder="Déjanos unas palabras"
-                            rows={3}
-                            value={form.message}
-                            onChange={(event) => update("message", event.target.value)}
-                          ></textarea>
-                        </div>
-                      )}
+                        {showsAttendance && personalized && limits.children > 0 && (
+                          <AttendeeField
+                            id="ninos"
+                            label="Niños que asistirán"
+                            limit={limits.children}
+                            value={form.children}
+                            helpText={childrenHint(limits.children)}
+                            onChange={(value) => update("children", value)}
+                          />
+                        )}
+
+                        {showsAttendance && hasField("alergias") && (
+                          <div className="field">
+                            <label htmlFor="alergias">Alergias o restricciones alimentarias</label>
+                            <input
+                              type="text"
+                              id="alergias"
+                              name="alergias"
+                              placeholder="Opcional"
+                              autoComplete="off"
+                              value={form.restrictions}
+                              onChange={(event) => update("restrictions", event.target.value)}
+                            />
+                          </div>
+                        )}
+
+                        {showsAttendance && hasField("mensaje") && (
+                          <div className="field">
+                            <label htmlFor="mensaje">Mensaje para los novios</label>
+                            <textarea
+                              id="mensaje"
+                              name="mensaje"
+                              placeholder="Déjanos unas palabras"
+                              rows={3}
+                              value={form.message}
+                              onChange={(event) => update("message", event.target.value)}
+                            ></textarea>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* La región viva del aparecer/desaparecer vive **debajo** de los
+                          campos que anuncia y **fuera** del bloque condicional: así sigue
+                          en el documento cuando los campos se van (el foco no cae en un
+                          aviso que desaparece) y solo su texto cambia (RNF-1, RF-11). */}
+                      <p className="visually-hidden" role="status">
+                        {attendanceNotice(form.response)}
+                      </p>
 
                       {/* El resultado se anuncia en una región viva y recibe el foco
                           (004 RNF-6). */}
@@ -689,6 +760,7 @@ export function Rsvp({ wedding }) {
                         type="submit"
                         className="button button-solid"
                         disabled={sendStatus === "sending"}
+                        ref={submitRef}
                       >
                         Enviar confirmación
                       </button>

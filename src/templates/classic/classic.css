@@ -976,6 +976,13 @@ p:last-child {
   gap: 1.1rem;
 }
 
+/* Los cuatro campos de la asistencia van envueltos en un contenedor que **no pinta nada**
+   (`display: contents`, RF-11): el bloque desaparece entero —con sus etiquetas y ayudas— sin
+   salirse de la rejilla del formulario. */
+.attendance-fields.contents {
+  display: contents;
+}
+
 .field {
   display: grid;
   gap: 0.45rem;

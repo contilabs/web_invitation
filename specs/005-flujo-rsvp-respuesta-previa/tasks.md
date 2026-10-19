@@ -196,7 +196,7 @@ RNF-4). Cada tarea cierra con `npm test` en verde y `npm run build` sin errores.
   el riesgo «enviar sin elegir asistencia» que la spec 005 original solo vigilaba.)
   Archivos: `src/utils/rsvp.js`, `src/utils/rsvp.test.js`.
 
-- [ ] **T13 · Visibilidad condicional de los cuatro campos de la asistencia (`Rsvp.jsx`).** _RF: RF-11; D17, R11; DT-14._
+- [x] **T13 · Visibilidad condicional de los cuatro campos de la asistencia (`Rsvp.jsx`).** _RF: RF-11; D17, R11; DT-14._
   Hecho cuando: en `editando`, los campos de **adultos, niños, alergias y mensaje** se pintan
   **solo** con «Sí, asistiré»; con «No podré asistir» o sin elegir **no existen** en el DOM (no
   se esconden por CSS ni quedan `disabled` de adorno), y el **nombre** y el **teléfono** se pintan
