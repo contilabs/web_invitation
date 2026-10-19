@@ -64,7 +64,7 @@ marca.
   cubre los siete estados, cada arranque y cada transición (incluido el doble clic); `npm test` en
   verde.
 
-- [ ] **T5 · Lógica pura de la consulta y de la respuesta (interpretación, cuerpo, combos y precarga).** _RF: RF-2, RF-4, RF-5, RF-8, RF-10; M2, M4; R1._
+- [x] **T5 · Lógica pura de la consulta y de la respuesta (interpretación, cuerpo, combos y precarga).** _RF: RF-2, RF-4, RF-5, RF-8, RF-10; M2, M4; R1._
   Hecho cuando: `src/utils/invitation.js` añade `interpretLookup(result)` (fila con respuesta → el
   modelo **más `name`**; sin fila o fila sin respuesta → `null`; `type` personal o respuesta fuera de
   contrato → `INVALID_DATA`; sin teléfono en la respuesta) y `attendeeLimits(invitation, lookupLimit)`
