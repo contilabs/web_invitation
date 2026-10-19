@@ -75,7 +75,7 @@ marca.
   los valores por defecto de hoy; el teléfono **no** forma parte de la respuesta); las pruebas
   co-locadas (`invitation.test.js`, `rsvp.test.js`) cubren esos casos y `npm test` en verde.
 
-- [ ] **T6 · Hook de la consulta por teléfono.** _RF: RF-5; M4, M10; RNF-2, RNF-4._
+- [x] **T6 · Hook de la consulta por teléfono.** _RF: RF-5; M4, M10; RNF-2, RNF-4._
   Hecho cuando: `src/hooks/useGuestLookup.js` expone `{ status, errorCode, result, lookup(phone) }`
   con `status ∈ idle | looking | ok | error`, valida los diez dígitos **antes** de llamar, **ignora**
   una segunda consulta mientras hay una en curso, no llama sin configuración lista, usa el mismo
