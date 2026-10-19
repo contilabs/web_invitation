@@ -171,8 +171,6 @@ export const wedding = {
   confirmacion: {
     titulo: "Confirmar asistencia",
     descripcion: "Confirma cuántas personas asistirán a nuestra boda",
-    fechaLimite: "2027-10-25T23:59:59-06:00",
-    maximoBoda: 100,
     camposHabilitados: ["nombre", "asistentes", "alergias", "mensaje"],
   },
 
@@ -204,10 +202,11 @@ export const wedding = {
   marca: {
     nombre: "Karina & Gerardo",
     dominio: null,
+    // El destino de la confirmación ya no vive aquí: el envío va al servicio de registro
+    // (RF-14). Solo queda el enlace de crédito.
     enlaces: {
       credito:
         "https://wa.me/524494144122?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20invitaci%C3%B3n%20digital",
-      rsvp: "https://formsubmit.co/karina.ldb18@gmail.com",
     },
   },
 };

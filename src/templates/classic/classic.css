@@ -180,7 +180,7 @@ section {
   margin-block: var(--espacio-seccion);
 }
 
-:where(a, button, input, textarea, [tabindex]):focus-visible {
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--ember);
   outline-offset: 3px;
   border-radius: 0.15rem;
@@ -1016,6 +1016,82 @@ p:last-child {
 .field textarea {
   min-height: 6.5rem;
   resize: vertical;
+}
+
+/* Combo de asistentes y panel de lectura de la respuesta (spec 005: RF-4, RF-10; RNF-1).
+   El combo es un <select> nativo con la misma piel que los campos; el panel es solo texto,
+   sin controles de formulario. */
+.form-group {
+  display: grid;
+  gap: 0.45rem;
+  text-align: left;
+}
+
+.form-label {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  color: var(--ink);
+  background-color: transparent;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--ember);
+}
+
+.form-help {
+  font-family: var(--fuente-texto);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.response-summary {
+  margin: 0 0 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  text-align: left;
+}
+
+.summary-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.85rem;
+  align-items: baseline;
+}
+
+.summary-label {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.summary-value {
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 /* Elección clara de asistencia: dos opciones dentro de un filete, como en

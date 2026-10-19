@@ -3,22 +3,31 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
 
 ## Estado actual
 - **Rama viva: `react-migration`** (specs en `specs/`, publicada en `origin` tras el rebase).
-- **Spec 001 cerrada salvo la pasada manual y el despliegue:** app React completa, rediseño
-  «Ascua», accesibilidad y rendimiento.
-- **Spec 002: fases 0–7 hechas;** su pasada manual se cubre con la de la spec 003 (misma lista).
-  Registro único (`src/data/wedding.js`) + interfaz dirigida por el registro.
-- **Spec 003: T1–T26 y T28 hechas;** estructura por capas (`app/`, `constants/`, `data/`,
-  `utils/`, `hooks/`, `providers/`, `services/`, `templates/`, `components/`, `test/`) y
-  nomenclatura en inglés. T26: paridad **30/30**. **Falta solo T27** (pasada manual).
-- **Spec 004 (`specs/004-servicio-invitados-rsvp`): T1–T9 hechas; T10 (documentación y
-  verificación) en curso.** Servicio de invitados y RSVP contra un Apps Script (`gas/Code.gs`),
-  con contrato en módulo + documento (`src/constants/contract.js`, `docs/servicio-invitados.md`).
-  `npm test` → **158/158** y build OK. Falta la verificación manual contra el despliegue vivo
-  (§13 del plan; checklist anotada en «Verificación» de `AGENTS.md`, la rellena el coordinador).
+- **Specs 001–003 cerradas salvo la pasada manual (T27) y el despliegue:** app React completa,
+  rediseño «Ascua», estructura por capas, nomenclatura en inglés, registro único
+  (`src/data/wedding.js`); paridad T26 **30/30**.
+- **Spec 004: T1–T9 hechas; T10 (verificación manual contra el despliegue vivo) pendiente.** Servicio
+  de invitados y RSVP contra un Apps Script (`gas/Code.gs`), con contrato en módulo + documento
+  (`src/constants/contract.js`, `docs/servicio-invitados.md`). Checklist en «Verificación» de `AGENTS.md`.
+- **Spec 005 (`specs/005-flujo-rsvp-respuesta-previa`): T1–T9 hechas (documentación y gobernanza),
+  T10 pendiente (verificación manual).** Flujo RSVP por máquina de estados (`src/utils/rsvpState.js`,
+  7 estados) con `lookup` por teléfono (lectura, sin escritura en `guests`), `useGuestLookup`,
+  `AttendeeSelect`, `ResponseSummary`, bloque `Rsvp` reescrito y contrato ampliado (`CONTRACT_VERSION
+  1.1.0`, `SERVICE_ACTIONS.LOOKUP`, `LOOKUP_FIELDS`). `npm test` en verde y `npm run build` OK.
 - Documentación: `docs/constitution.md` (6 principios, enmendada en T2 de la 004),
   `docs/servicio-invitados.md`, `README.md`, `AGENTS.md`, `PENDING_TASKS.md`.
 
 ## Decisiones (y por qué)
+- **Spec 005 · RSVP por máquina de estados y lookup:** el componente solo despacha eventos
+  (`initialBlockState`/`nextBlockState`, 7 estados). La consulta `lookup` por teléfono se usa solo
+  en genérica/pública (nunca en personalizada), exige diez dígitos antes de llamar, **no escribe**
+  en `guests` (no marca `viewed`) y **no devuelve** el teléfono ni datos ajenos. El cupo del combo
+  y de validación sale de `attendeeLimits` (DT-6); la precarga de la respuesta previa usa
+  `attendanceForm`/`interpretLookup`. El riesgo aceptado de enviar el teléfono en consulta queda
+  documentado (constitución principio 5, AGENTS.md).
+- **Spec 005 · contrato ampliado:** `CONTRACT_VERSION = "1.1.0"`, `SERVICE_ACTIONS.LOOKUP = "lookup"`
+  y `LOOKUP_FIELDS` añadidos a `src/constants/contract.js`; `docs/servicio-invitados.md` deriva lo
+  mismo y `test/serviceContract.test.js` exige sincronía con `gas/Code.gs`.
 - **Spec 004 · contrato módulo + documento:** `src/constants/contract.js` es la fuente única que
   consume la app; `docs/servicio-invitados.md` es el derivado y `test/serviceContract.test.js`
   exige la sincronía (RF-17, D18). Los literales del modelo (hojas, columnas, estados, códigos)
@@ -68,9 +77,10 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   el agente se omite en silencio (`opencode debug agents` lista solo los cargados).
 
 ## Próximos pasos
-- **Spec 004 · T10:** el coordinador verifica contra el despliegue vivo (tres tipos, escritura
-  por teléfono, casos de §13 del plan) y anota el veredicto en «Verificación» de `AGENTS.md`.
-- **Spec 003 · T27:** pasada manual (móvil y escritorio, tema, música tras «Ingresar», cuenta
-  regresiva, galería/visor, copiado y envío real del RSVP) y anotarla en «Verificación».
+- **Spec 004 · T10:** verificación manual contra el despliegue vivo (tres tipos, escritura por
+  teléfono, casos de §13 del plan); anotar veredicto en «Verificación» de `AGENTS.md`.
+- **Spec 005 · T10:** verificación manual por estados del RSVP (plan §12); anotar veredicto en
+  «Verificación» de `AGENTS.md`. La de **spec 003 · T27** (tema, música, galería/visor…) se cubre
+  en la misma pasada.
 - Publicación pendiente (host real, `og:image` absoluto, fuentes autoalojadas y las variables de
   entorno del servicio en el build): ver `PENDING_TASKS.md`.

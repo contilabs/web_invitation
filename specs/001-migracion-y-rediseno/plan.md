@@ -1,7 +1,7 @@
 # Plan técnico — Spec 001: Migración a React y rediseño
 
 - **Spec:** `spec.md`
-- **Constitución:** `docs/constitution.md`
+- **Constitución:** `../../docs/constitution.md`
 - **Naturaleza:** plan (sí puede nombrar stack, archivos y arquitectura; la spec no).
 
 ## 0. Enfoque
@@ -17,8 +17,8 @@ runner integrado de Node.
 | Principio | Cómo se cumple en este plan |
 | --- | --- |
 | 1. Stack React + Vite, sin otras dependencias | React es el runtime y Vite el build. **No se añade ninguna librería**: se retira Bootstrap y el carrusel/visor se reimplementan en React. |
-| 2. Spec = código | El plan deriva de la spec; los datos del evento quedan en un **único** módulo (RNF-8). _La redacción literal del principio («HTML y su constante en JS») queda obsoleta tras la migración; ver `PENDING_TASKS.md`._ |
-| 3. Interfaz separada de lógica | Lógica en `src/logica/*.js` (pura, sin React); interfaz en `src/componentes/*.jsx`. Los colores siguen en variables CSS. _La mención literal a `index.html` queda obsoleta; ver `PENDING_TASKS.md`._ |
+| 2. Spec = código | El plan deriva de la spec; los datos del evento quedan en un **único** módulo (RNF-8). _La redacción literal del principio («HTML y su constante en JS») queda obsoleta tras la migración; ver `../../PENDING_TASKS.md`._ |
+| 3. Interfaz separada de lógica | Lógica en `src/logica/*.js` (pura, sin React); interfaz en `src/componentes/*.jsx`. Los colores siguen en variables CSS. _La mención literal a `../../index.html` queda obsoleta; ver `PENDING_TASKS.md`._ |
 | 4. Tests sin instalar nada | Se usa **`node --test`**, el runner integrado de Node: no se instala nada. La UI se verifica a mano. |
 | 5. Datos del usuario a salvo | Lo único persistido sigue siendo el tema (`localStorage["kg-tema"]`). Sin terceros nuevos. |
 | 6. Idioma | Identificadores, textos y comentarios en español; los comentarios explican el porqué. |
@@ -27,17 +27,17 @@ runner integrado de Node.
 
 ### Se modifican
 
-- `index.html` — pasa a ser el punto de entrada de Vite: shell con `<div id="root">`, metas,
+- `../../index.html` — pasa a ser el punto de entrada de Vite: shell con `<div id="root">`, metas,
   fuentes y el **script anti-parpadeo del tema** en `<head>`. _RF-4, RNF-6, RNF-5._
 - `styles.css` / `darkMode.css` — se conservan los tokens y estilos; se retiran las clases y
   estructuras exclusivas de Bootstrap. _RF-11, RNF-1, RNF-2._
-- `package.json` — scripts `dev`, `build`, `preview`, `test` (`node --test`) y `"type": "module"`. _Soporte._
-- `README.md` / `AGENTS.md` — actualizar el arranque (ahora hay build) y vaciar los puntos de sincronía obsoletos. _Documentación._
+- `../../package.json` — scripts `dev`, `build`, `preview`, `test` (`node --test`) y `"type": "module"`. _Soporte._
+- `../../README.md` / `AGENTS.md` — actualizar el arranque (ahora hay build) y vaciar los puntos de sincronía obsoletos. _Documentación._
 - `script.js` / `darkMode.js` — **se eliminan** al migrar; su comportamiento se reparte en la nueva estructura.
 
 ### Se crean
 
-- `vite.config.js` — configuración del build y `base` para conservar la URL publicada (subruta de GitHub Pages). _RNF-6._
+- `../../vite.config.js` — configuración del build y `base` para conservar la URL publicada (subruta de GitHub Pages). _RNF-6._
 - `src/main.jsx` — monta React y fija el tema inicial antes de pintar. _RF-4._
 - `src/App.jsx` — compone las secciones en orden (portada → secciones → confirmación → regalos → galería). _RF-1, RF-2, RF-6._
 
@@ -53,7 +53,7 @@ runner integrado de Node.
 | `musica.js` | Estado siguiente y etiquetas accesibles de la música. | RF-5 |
 | `etiquetas.js` | Textos de interfaz/aria en español. | RF-4, RF-5 |
 
-**Pegamento con estado — `src/hooks/` (no puro):**
+**Pegamento con estado — `../../src/hooks` (no puro):**
 `useCuentaRegresiva.js` (RF-3) · `useInvitados.js` (RF-9) · `useTema.js` (RF-4) ·
 `useMusica.js` (RF-5) · `useEncabezado.js` (RF-6) · `useReveal.js` (RF-6) · `useGaleria.js` (RF-7).
 
@@ -90,7 +90,7 @@ existentes son 900/1800 px (y casos 700/1400 y 900/1280), sin original de cámar
 
 - **Qué se prueba:** solo las funciones puras de `src/logica/` (son `.js` sin JSX, Node las
   ejecuta directamente). Los componentes y efectos no se prueban aquí: se verifican a mano.
-- **Cómo:** `package.json` con `"test": "node --test"`. Sin instalar nada (runner integrado)
+- **Cómo:** `../../package.json` con `"test": "node --test"`. Sin instalar nada (runner integrado)
   → respeta el principio 4.
 - **Casos por RF:**
   - RF-3: fecha futura, fecha ya pasada (`terminado`), segundo exacto, cambio de día.
@@ -98,7 +98,7 @@ existentes son 900/1800 px (y casos 700/1400 y 900/1280), sin original de cámar
   - RF-7: salto circular adelante/atrás y extremos; total 0 y 1; elección de variante.
   - RF-4: guardado válido, guardado inválido, sin guardado + sistema claro/oscuro.
   - RF-5 y etiquetas: alternancia y cadenas en español.
-- **Documentación:** anotar en la sección «Verificación» de `AGENTS.md` el comando y lo que
+- **Documentación:** anotar en la sección «Verificación» de `../../AGENTS.md` el comando y lo que
   queda como verificación manual (UI, audio, portapapeles, envío del RSVP).
 
 ## 5. Cobertura de requisitos (RF ↔ partes)
@@ -108,7 +108,7 @@ existentes son 900/1800 px (y casos 700/1400 y 900/1280), sin original de cámar
 | RF-1 Portada | `Portada.jsx`, `App.jsx` | manual |
 | RF-2 Contenido | `Secciones.jsx`, `datosEvento.js` | manual |
 | RF-3 Cuenta regresiva | `cuentaRegresiva.js`, `useCuentaRegresiva.js`, `CuentaRegresiva.jsx` | `node --test` |
-| RF-4 Tema | `tema.js`, `useTema.js`, `ControlTema.jsx`, `main.jsx`, script en `index.html` | `node --test` |
+| RF-4 Tema | `tema.js`, `useTema.js`, `ControlTema.jsx`, `main.jsx`, script en `../../index.html` | `node --test` |
 | RF-5 Música | `musica.js`, `useMusica.js`, `ControlMusica.jsx` | `node --test` + manual (audio) |
 | RF-6 Navegación/aparición | `useEncabezado.js`, `useReveal.js`, `Encabezado.jsx` | manual |
 | RF-7 Galería | `galeria.js`, `useGaleria.js`, `Galeria.jsx`, `Visor.jsx` | `node --test` + manual |
@@ -144,10 +144,10 @@ existentes son 900/1800 px (y casos 700/1400 y 900/1280), sin original de cámar
 ## 7. Riesgos y pendientes
 
 - **Constitución desactualizada:** los principios 2 y 3 siguen describiendo el stack estático.
-  Actualizarlos antes o durante la implementación (ya en `PENDING_TASKS.md`).
+  Actualizarlos antes o durante la implementación (ya en `../../PENDING_TASKS.md`).
 - **Retirar Bootstrap:** hay que reproducir fielmente el carrusel (avance, controles, pausa)
   para no romper RF-7.
 - **`base` de Vite:** confirmar la URL real de publicación para no romper los enlaces ya
   repartidos (RNF-6).
 - **Casos límite pendientes** (audio que falla, RSVP sin red, imagen que no carga, etc.):
-  viven en `PENDING_TASKS.md` y se cubrirán en iteraciones posteriores.
+  viven en `../../PENDING_TASKS.md` y se cubrirán en iteraciones posteriores.

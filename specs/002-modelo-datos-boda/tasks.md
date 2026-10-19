@@ -5,14 +5,14 @@ Las tareas de `src/logica/` incluyen sus pruebas (`node --test`).
 
 ## Fase 0 — Gobernanza y documentos
 
-- [x] **T1 · Enmendar `docs/constitution.md` (principios 2, 3, 5 y 6).** _RF: soporte (§8)._
+- [x] **T1 · Enmendar `../../docs/constitution.md` (principios 2, 3, 5 y 6).** _RF: soporte (§8)._
   Hecho cuando: los cuatro principios describen el registro único, los textos fuera de la interfaz,
   el contrato del invitado como excepción de idioma y el GAS como mera referencia; ya no citan
-  «HTML y su constante en JS» ni «los textos estáticos viven en `index.html`».
-- [x] **T2 · Actualizar `AGENTS.md`.** _RF: RF-1, RF-16, RF-21, RNF-1._
+  «HTML y su constante en JS» ni «los textos estáticos viven en `../../index.html`».
+- [x] **T2 · Actualizar `../../AGENTS.md`.** _RF: RF-1, RF-16, RF-21, RNF-1._
   Hecho cuando: el «único origen» apunta a `src/datos/boda.js`, el inventario incluye **cita** e
   **historia** y la personalización se describe por enlace (`código`), sin `?invitados=N`.
-- [x] **T3 · Actualizar `README.md`.** _RF: RF-21._
+- [x] **T3 · Actualizar `../../README.md`.** _RF: RF-21._
   Hecho cuando: explica cómo reutilizar la invitación para otra pareja (cambiar el registro y volver
   a publicar) y qué tocar (registro, fotos con las mismas claves y anchos, fichas de invitación).
 
@@ -65,7 +65,7 @@ Las tareas de `src/logica/` incluyen sus pruebas (`node --test`).
 ## Fase 3 — Assets
 
 - [x] **T16 · `componentes/fotos.js` por clave.** _RF: RF-9, RNF-4._
-  Hecho cuando: `resolverFoto(clave)` devuelve `{ src, srcset, sizes }` de `assets/photos/opt/` y el
+  Hecho cuando: `resolverFoto(clave)` devuelve `{ src, srcset, sizes }` de `../../assets/photos/opt` y el
   módulo falla al arrancar si falta una clave esperada; ningún original entra en la primera carga.
 
 ## Fase 4 — Hooks
@@ -120,14 +120,14 @@ Las tareas de `src/logica/` incluyen sus pruebas (`node --test`).
   enlaces, y que las fichas tienen la forma del contrato.
 - [x] **T31 · `npm test` y `npm run build` en verde.** _RF: soporte._
   Hecho cuando: `npm test` pasa completo y `npm run build` termina sin errores, con fuentes, iconos y
-  audio emitidos en `dist/`.
+  audio emitidos en `../../dist`.
 - [x] **T32 · Verificación automática en Chrome headless.** _RF: RF-4, RF-9, RF-13, RF-18, RF-20, RNF-2._
   Hecho cuando: sin desbordamiento 320–1440 px en día y noche, las secciones se muestran u omiten
   según el registro, el plazo cierra el formulario y un registro inválido muestra el panel de error.
 - [ ] **T33 · Verificación manual (criterios de finalización).** _RF: RF-1…RF-22._
   Hecho cuando: reutilizar con otro registro, copiar datos, audio tras «Ingresar», envío real del RSVP
-  y una vuelta en un móvil físico quedan probados y anotados en «Verificación» de `AGENTS.md`.
-- [x] **T34 · Actualizar `MEMORY.md` y depurar `PENDING_TASKS.md`.** _RF: soporte._
+  y una vuelta en un móvil físico quedan probados y anotados en «Verificación» de `../../AGENTS.md`.
+- [x] **T34 · Actualizar `../../MEMORY.md` y depurar `PENDING_TASKS.md`.** _RF: soporte._
   Hecho cuando: MEMORY refleja el estado y las decisiones del spec 002 y PENDING ya no tiene entradas
   resueltas (contrato del GAS, `?invitados=N`, principios de la constitución).
 

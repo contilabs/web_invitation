@@ -1,27 +1,25 @@
-// Estado de apertura de la confirmación (T18, RF-18). El cálculo puro vive en
-// `utils/confirmation.js`; aquí solo se programa una revisión justo al pasar la fecha
-// límite, para que el formulario se cierre sin recargar la página.
+// Estado de apertura de la confirmación (RF-11; D9, D23).
+//
+// Recibe el plazo (`deadline`) por parámetro (valor resuelto del servicio). El «ahora»
+// se lee dentro del hook. Programa cierre al pasar el plazo sin recargar (setTimeout).
+// El cálculo puro vive en `utils/confirmation.js`.
 import { useEffect, useState } from "react";
 
-import { isConfirmationOpen, deadlineMs } from "../utils/confirmation.js";
+import { isConfirmationOpen, deadlineMs as deadlineMsUtil } from "../utils/confirmation.js";
 
-export function useConfirmation(wedding) {
-  const [open, setOpen] = useState(() =>
-    isConfirmationOpen(wedding, Date.now()),
-  );
+export function useConfirmation(deadline) {
+  const [open, setOpen] = useState(() => isConfirmationOpen(deadline, Date.now()));
 
   useEffect(() => {
-    const evaluate = () => setOpen(isConfirmationOpen(wedding, Date.now()));
+    const evaluate = () => setOpen(isConfirmationOpen(deadline, Date.now()));
     evaluate();
 
-    const deadline = deadlineMs(wedding);
-    const remaining = deadline - Date.now();
-    // Si no hay fecha límite válida o ya pasó, no hay nada que programar.
-    if (!Number.isFinite(deadline) || remaining <= 0) return;
-
+    const ms = deadlineMsUtil(deadline);
+    const remaining = ms - Date.now();
+    if (!Number.isFinite(ms) || remaining <= 0) return undefined;
     const timer = setTimeout(evaluate, remaining + 1000);
     return () => clearTimeout(timer);
-  }, [wedding]);
+  }, [deadline]);
 
   return { open };
 }

@@ -1,7 +1,10 @@
-// Pruebas de `restricciones.js` (RF-12, RF-20)
+// Pruebas de `restrictions.js` (RF-12, RF-20).
+//
+// Se retiró `hasChildrenConflict` (spec 004, T8; DT-8, D22): solo tenía sentido contra una
+// ficha local. Se conservan las pruebas de `allowsChildren` y `restrictionMessages`.
 import { strict as assert } from "node:assert";
 import test from "node:test";
-import { allowsChildren, hasChildrenConflict, restrictionMessages } from "./restrictions.js";
+import { allowsChildren, restrictionMessages } from "./restrictions.js";
 
 test("permiteNinos: no indicado → permitidos", () => {
   assert.equal(allowsChildren({ restricciones: {} }), true);
@@ -12,16 +15,6 @@ test("permiteNinos: explícito", () => {
   assert.equal(allowsChildren({ restricciones: { permiteNinos: true } }), true);
   assert.equal(allowsChildren({ restricciones: { permiteNinos: false } }), false);
   assert.equal(allowsChildren({ restricciones: { ninosPermitidos: false } }), false);
-});
-
-test("no hay conflicto si la boda permite niños", () => {
-  assert.equal(hasChildrenConflict({ restricciones: {} }, { childGuests: 2 }), false);
-});
-
-test("conflicto cuando la ficha trae niños y la boda no los permite", () => {
-  const wedding = { restricciones: { permiteNinos: false } };
-  assert.equal(hasChildrenConflict(wedding, { childGuests: 2 }), true);
-  assert.equal(hasChildrenConflict(wedding, { childGuests: 0 }), false);
 });
 
 test("mensajes de restricciones en español", () => {

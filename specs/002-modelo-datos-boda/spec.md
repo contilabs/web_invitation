@@ -216,6 +216,10 @@ invitado quedan fijos** en la aplicación, con **datos de ejemplo** en el reposi
 - El sistema deberá mantener la confirmación disponible haya o no un invitado identificado,
   **hasta la fecha límite** indicada en el registro. **La confirmación siempre se muestra**
   (no está sujeta al apagado de secciones de RF-4).
+  - **Derogación (spec 004):** para el caso «sin invitado identificado o servicio no
+    disponible», `specs/004-servicio-invitados-rsvp/spec.md` **deroga** este «siempre se
+    muestra»: el bloque de confirmación sigue **visible**, pero se muestra **deshabilitado**,
+    con el motivo y la opción de reintentar (nunca se confirma a ciegas).
 - El plazo se interpreta con la **misma zona horaria que el evento** (RF-3).
 - El envío es válido mientras el instante actual **no supere** la fecha límite; al superarla, el
   sistema deberá cerrar el formulario e indicarlo de forma visible.
@@ -292,7 +296,7 @@ música.
 
 ## 6. Casos límite
 
-Se detallan aquí los que definen comportamiento; el resto se depuran en `PENDING_TASKS.md`.
+Se detallan aquí los que definen comportamiento; el resto se depuran en `../../PENDING_TASKS.md`.
 
 - **Secciones y contenido:** sección opcional ausente; lista vacía (galería, hoteles, itinerario,
   opciones de regalo, párrafos de la historia); sección marcada como visible **pero vacía** (se
@@ -347,11 +351,11 @@ Se detallan aquí los que definen comportamiento; el resto se depuran en `PENDIN
 - Los comportamientos actuales siguen operativos (salvo `?invitados=N`): portada, tema, música,
   cuenta regresiva, galería y visor, confirmación y copiado de datos.
 - Verificación manual en navegador, escritorio y móvil, anotada en la sección «Verificación».
-- **Gobernanza:** `docs/constitution.md` (principios 2, 3, 5 y 6), `AGENTS.md` y `README.md` se
+- **Gobernanza:** `../../docs/constitution.md` (principios 2, 3, 5 y 6), `AGENTS.md` y `README.md` se
   actualizan con el nuevo modelo (registro único, textos fuera de la interfaz, contrato del
   invitado).
 
 ## 9. Dudas abiertas
 
 - Ninguna pendiente por ahora. Los casos límite y las dudas que surjan se registran y depuran
-  en `PENDING_TASKS.md`.
+  en `../../PENDING_TASKS.md`.

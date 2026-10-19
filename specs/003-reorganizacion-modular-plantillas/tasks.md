@@ -9,16 +9,16 @@ relaja: si vigila un nombre que cambia, se actualiza **comprobando lo mismo**. N
 
 **Prerequisito:** T1 (referencia congelada). Todo el plan respeta la constitución **enmendada** en T2.
 
-**Orden de documentos:** la constitución se enmienda primero (T2); `README.md` y `AGENTS.md` se
+**Orden de documentos:** la constitución se enmienda primero (T2); `../../README.md` y `AGENTS.md` se
 actualizan **al final** (T28), porque describen rutas y hacerlo antes dejaría la documentación en
 contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 0 — Preparación
 
 - [x] **T1 · Congelar la referencia de paridad.** _RF: RNF-1._
-  Hecho cuando: existe un commit con el estado actual y una copia del `dist/` construido desde él
+  Hecho cuando: existe un commit con el estado actual y una copia del `../../dist` construido desde él
   (con su fecha), guardada fuera del árbol de trabajo; sin esa copia la paridad no es comprobable.
-- [x] **T2 · Enmendar `docs/constitution.md`.** _RF: RF-3, RNF-6 (soporte de RF-1 y RF-2)._
+- [x] **T2 · Enmendar `../../docs/constitution.md`.** _RF: RF-3, RNF-6 (soporte de RF-1 y RF-2)._
   Hecho cuando: los principios 2 y 3 describen **responsabilidades y capas** en vez de rutas literales,
   el 6 exige nomenclatura de **código en inglés** conservando español en textos, datos, comentarios y
   documentación, y el 4 aclara qué es verificación automática y cómo se anota la manual; ninguna frase
@@ -38,7 +38,7 @@ contradicción con el código (principio 2, «spec = código»).
 - [x] **T5 · Mover a `utils/` las secciones, restricciones e invitaciones.** _RF: RF-1, RF-4._
   Hecho cuando: existen `utils/sections.js`, `utils/restrictions.js` y `utils/invitation.js`, sus pruebas
   pasan desde `utils/` con los mismos casos (incluido el **orden** de secciones y los tres tipos de
-  invitación) y ningún archivo de `src/` importa ya desde `logica/`.
+  invitación) y ningún archivo de `../../src` importa ya desde `logica/`.
 - [x] **T6 · Mover a `utils/` confirmación, regalos y validación.** _RF: RF-1, RF-4, RF-2 (aviso)._
   Hecho cuando: existen `utils/confirmation.js`, `utils/gifts.js` y `utils/validation.js`, el aviso por
   plantilla no implementada conserva **el mismo texto** y `npm test` pasa con los mismos casos.
@@ -48,15 +48,15 @@ contradicción con el código (principio 2, «spec = código»).
 
 ## Fase 2 — Datos
 
-- [x] **T8 · Mover `src/datos/` a `src/data/`.** _RF: RF-1, RNF-4._
+- [x] **T8 · Mover `src/datos/` a `../../src/data`.** _RF: RF-1, RNF-4._
   Hecho cuando: `data/wedding.js` y `data/guest-cards.js` contienen **exactamente** el mismo registro y
   las mismas fichas (mismas claves y mismos valores, incluido `plantilla: "clasica"`), sus pruebas pasan
-  desde `data/` y ninguna referencia a `datos/` queda en `src/`.
+  desde `data/` y ninguna referencia a `datos/` queda en `../../src`.
 
 ## Fase 3 — Capa de plantilla
 
 - [x] **T9 · Mover los dos CSS a `templates/classic/`.** _RF: RF-2, RNF-5._
-  Hecho cuando: `src/templates/classic/classic.css` y `classic-dark.css` son idénticos a los actuales,
+  Hecho cuando: `../../src/templates/classic/classic.css` y `classic-dark.css` son idénticos a los actuales,
   `index.html` los enlaza con el script del tema **antes** del primer `<link rel="stylesheet">` y pasan
   `npm run build` y la prueba de andamiaje (con las rutas nuevas).
 - [x] **T10 · Extraer iconos y tamaños de imagen a la plantilla.** _RF: RF-2, RF-4._
@@ -123,23 +123,23 @@ contradicción con el código (principio 2, «spec = código»).
 ## Fase 7 — App y shell
 
 - [x] **T22 · Mover la entrada y la composición a `app/`.** _RF: RF-1, RF-4._
-  Hecho cuando: existen `app/main.jsx`, `app/App.jsx` y `app/sectionRenderers.jsx`; `index.html` apunta a
+  Hecho cuando: existen `app/main.jsx`, `app/App.jsx` y `app/sectionRenderers.jsx`; `../../index.html` apunta a
   `/src/app/main.jsx`, la prueba de andamiaje apunta a `app/App.jsx`, el orden de eventos al entrar
   (cerrar portada → devolver el foco a `#inicio` → arrancar la música) se conserva y el build pasa.
 
 ## Fase 8 — Pruebas y cierre
 
-- [x] **T23 · Crear `test/contracts.test.js`.** _RF: RF-3, RF-5._
+- [x] **T23 · Crear `../../test/contracts.test.js`.** _RF: RF-3, RF-5._
   Hecho cuando: la prueba falla si alguien cambia la clave `kg-tema`, un id de ancla, los parámetros
   aceptados `codigo`/`code`/`inv`, los `name` de los campos del formulario o cualquier clave del registro
   o de las fichas.
-- [x] **T24 · Repasar `test/andamiaje.test.js` completo.** _RF: RF-3, RNF-2._
+- [x] **T24 · Repasar `../../test/andamiaje.test.js` completo.** _RF: RF-3, RNF-2._
   Hecho cuando: apunta a las rutas nuevas y **ninguna** de sus comprobaciones se ha relajado (script del
   tema antes del primer estilo, `kg-tema`, `dark-mode`, `<noscript>` en español, sin `?invitados=N`, sin
   originales de fotos y sin Bootstrap).
 - [x] **T25 · Limpieza y verificación básica.** _RF: RF-1, RF-3, RNF-2._
   Hecho cuando: no quedan huérfanos (`src/logica/`, `src/datos/`, `src/componentes/`, `styles.css` y
-  `darkMode.css` en la raíz no existen), **toda la nomenclatura de `src/` y de `test/` está en inglés**
+  `darkMode.css` en la raíz no existen), **toda la nomenclatura de `../../src` y de `test/` está en inglés**
   (salvo claves de datos y contratos, textos visibles, títulos de prueba y comentarios, que siguen en
   español), `npm test` pasa con las mismas pruebas lógicas que al empezar (solo renombradas) y
   `npm run build` termina sin errores.
@@ -150,8 +150,8 @@ contradicción con el código (principio 2, «spec = código»).
 - [ ] **T27 · Pasada manual y anotación.** _RF: RF-5, RNF-1._
   Hecho cuando: móvil y escritorio, tema, música tras «Ingresar», cuenta regresiva, galería y visor con
   teclado, copiado y **envío real** del RSVP funcionan, y el resultado queda anotado en la sección
-  «Verificación» de `AGENTS.md`.
-- [x] **T28 · Actualizar `README.md`, `AGENTS.md` y `MEMORY.md`.** _RF: RF-1, RNF-6 (spec §10)._
+  «Verificación» de `../../AGENTS.md`.
+- [x] **T28 · Actualizar `../../README.md`, `AGENTS.md` y `MEMORY.md`.** _RF: RF-1, RNF-6 (spec §10)._
   Hecho cuando: describen la estructura nueva y la convención de nombres, el «único origen» y el
-  inventario de `AGENTS.md` apuntan a `data/`, `utils/`, `services/` y `templates/`, y no queda ninguna
+  inventario de `../../AGENTS.md` apuntan a `data/`, `utils/`, `services/` y `templates/`, y no queda ninguna
   referencia a las rutas viejas.

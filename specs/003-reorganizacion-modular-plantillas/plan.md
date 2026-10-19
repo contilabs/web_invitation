@@ -9,11 +9,11 @@ plantilla y unifica la nomenclatura del código en inglés. Cubre **RF-1 a RF-5*
 ## 1. Punto de partida y referencia de paridad
 
 - **Inventario actual:** `src/App.jsx` y `src/main.jsx`; `src/datos/` (registro + fichas + pruebas);
-  `src/logica/` (13 módulos puros + 13 pruebas); `src/hooks/` (8 hooks); `src/componentes/` (14
+  `src/logica/` (13 módulos puros + 13 pruebas); `../../src/hooks` (8 hooks); `src/componentes/` (14
   componentes + `fotos.js`); `styles.css` y `darkMode.css` en la raíz; `test/andamiaje.test.js`;
   `index.html`; `assets/` (fotos, iconos, audio, sin tocar).
 - **Paso 0 obligatorio (RNF-1):** **congelar la referencia** antes de tocar nada: commit del estado
-  actual y copia del `dist/` construido, para comparar contra ella al final de cada paso. El árbol está
+  actual y copia del `../../dist` construido, para comparar contra ella al final de cada paso. El árbol está
   sin commitear; sin esa referencia la paridad no es comprobable.
 - **Punto de entrada que no cambia conceptualmente:** la invitación sigue resolviéndose por el código
   del enlace y se sirve igual (misma dirección y mismo `base` relativo).
@@ -24,7 +24,7 @@ La constitución fija hoy lo contrario de lo que exige la spec. **Antes de tocar
 enmendarla (y anotar la enmienda como se hizo en la spec 002). El resto del plan **respeta** la
 constitución enmendada:
 
-1. **Principio 1 (stack):** intacto. No se añade ninguna dependencia; `package.json` no cambia
+1. **Principio 1 (stack):** intacto. No se añade ninguna dependencia; `../../package.json` no cambia
    (solo React, Vite y su plugin). → *RF-1, RF-2, RNF-5*.
 2. **Principio 2 (spec = código):** se reformulan las **rutas literales** (`src/datos/boda.js`) por
    **responsabilidades** (`data/`: registro único de la boda + fichas separadas). El contenido y las
@@ -40,7 +40,7 @@ constitución enmendada:
    Pasa a: nomenclatura del código **en inglés**; textos visibles, datos, comentarios y documentación
    **en español**; la ficha del invitado conserva su excepción documentada. → *RF-3, RNF-6*.
 
-Además, la enmienda debe actualizar `README.md` y `AGENTS.md` (rutas nuevas y convención): es parte del
+Además, la enmienda debe actualizar `../../README.md` y `AGENTS.md` (rutas nuevas y convención): es parte del
 alcance de la spec (§10) y **no** cambia nada de lo que ve el invitado.
 
 ## 3. Estructura objetivo
@@ -67,7 +67,7 @@ src/
 test/             andamiaje.test.js (actualizada) · contracts.test.js (nueva)
 ```
 
-`assets/**`, `fonts/**`, `docs/**` (salvo la enmienda), `vite.config.js`, `package.json` y el shell no
+`assets/**`, `fonts/**`, `docs/**` (salvo la enmienda), `../../vite.config.js`, `package.json` y el shell no
 se mueven. → *RF-1*.
 
 ## 4. Convención de nombres (fija D-7 de la spec)
@@ -83,7 +83,7 @@ se mueven. → *RF-1*.
 
 ## 5. Mapa de archivos
 
-### 5.1 Lógica pura: `src/logica/` → `src/utils/` (RF-1, RF-4, RF-5)
+### 5.1 Lógica pura: `src/logica/` → `../../src/utils` (RF-1, RF-4, RF-5)
 
 Renombrado de archivo y de **exportaciones**; mismas funciones, mismos casos de prueba.
 
@@ -106,7 +106,7 @@ Renombrado de archivo y de **exportaciones**; mismas funciones, mismos casos de 
 Cada `src/logica/X.test.js` se mueve a `src/utils/X.test.js` con los mismos casos y aserciones (solo
 cambian las rutas de import). Los **títulos** de los tests son prosa: se quedan en español.
 
-### 5.2 Datos: `src/datos/` → `src/data/` (RF-1, RNF-4)
+### 5.2 Datos: `src/datos/` → `../../src/data` (RF-1, RNF-4)
 
 | Actual | Destino | Responsabilidad y nota |
 | --- | --- | --- |
@@ -147,11 +147,11 @@ Al partir `Secciones.jsx` **no** cambia ni un nodo del marcado: solo se reparte 
 
 | Actual | Destino | Nota |
 | --- | --- | --- |
-| `src/main.jsx` | `src/app/main.jsx` | Entrada; actualizar `index.html` y la prueba de andamiaje |
-| `src/App.jsx` | `src/app/App.jsx` | Composición; se le quita el `switch` de secciones (§6) |
-| `styles.css` | `src/templates/classic/classic.css` | Tokens de día + todas las reglas; mismo orden de cascada |
-| `darkMode.css` | `src/templates/classic/classic-dark.css` | Tokens de noche + ajustes oscuros |
-| `index.html` | (se conserva) | Cambian la ruta del `<link>` del CSS y la del `<script>` de entrada |
+| `src/main.jsx` | `../../src/app/main.jsx` | Entrada; actualizar `../../index.html` y la prueba de andamiaje |
+| `src/App.jsx` | `../../src/app/App.jsx` | Composición; se le quita el `switch` de secciones (§6) |
+| `styles.css` | `../../src/templates/classic/classic.css` | Tokens de día + todas las reglas; mismo orden de cascada |
+| `darkMode.css` | `../../src/templates/classic/classic-dark.css` | Tokens de noche + ajustes oscuros |
+| `../../index.html` | (se conserva) | Cambian la ruta del `<link>` del CSS y la del `<script>` de entrada |
 
 ## 6. Archivos nuevos y su responsabilidad
 
@@ -170,7 +170,7 @@ Al partir `Secciones.jsx` **no** cambia ni un nodo del marcado: solo se reparte 
 | `templates/classic/icons.js` | Clave del registro → icono del build (Iglesia, Mansión, Copas, Comida, Disco, Hotel; ceremonia/recepción) | RF-2, RF-4 |
 | `templates/classic/photoSizes.js` | Valores de `sizes` de cada uso de imagen (héroe, retrato, destacada, rejilla, tarjeta, confirmación) | RF-2, RNF-5 |
 | `types/wedding.js`, `types/guestCard.js` | `@typedef` en JSDoc del registro y de la ficha (no se ejecutan) | RF-1, RNF-6 |
-| `test/contracts.test.js` | Guarda los contratos que RF-3 **no** puede tocar (§10) | RF-3, RF-5 |
+| `../../test/contracts.test.js` | Guarda los contratos que RF-3 **no** puede tocar (§10) | RF-3, RF-5 |
 
 *Alternativas descartadas:* `types/` con TypeScript (la spec §7 lo prohíbe y añadiría dependencia);
 `styles/` global separado del template (rompería el orden de cascada → riesgo de paridad);
@@ -190,7 +190,7 @@ Al partir `Secciones.jsx` **no** cambia ni un nodo del marcado: solo se reparte 
 - **`services/photos.js`:** recibe los `sizes` y las claves estructurales de la plantilla, así que deja
   de tener constantes de presentación; mantiene la **validación al arrancar** (falla si falta una clave
   esperada, uniendo las claves del registro con las estructurales de la plantilla).
-- **El audio** (`assets/audio.mp3`) se queda donde está: es un recurso que importa la app, no una
+- **El audio** (`../../assets/audio.mp3`) se queda donde está: es un recurso que importa la app, no una
   decisión de aspecto; el registro ya prevé `ajustes.musica.fuente`. *Alternativa descartada:* moverlo
   al descriptor de la plantilla (mezclaría recursos con presentación sin necesidad hoy).
 
@@ -212,7 +212,7 @@ La **decisión** de qué plantillas existen sigue siendo pura (`constants/templa
 
 ## 9. Contratos que NO cambian (RF-3, RNF-4)
 
-Nada de esto se renombra; la prueba nueva `test/contracts.test.js` lo vigila:
+Nada de esto se renombra; la prueba nueva `../../test/contracts.test.js` lo vigila:
 
 - **Datos y claves:** todas las claves de `data/wedding.js` (`plantilla`, `pareja.nombre1`, `evento.*`,
   `ajustes.*`, `marca.enlaces.rsvp`, …) y de `data/guest-cards.js` (con su forma GAS: `codigo`, `tipo`,
@@ -227,7 +227,7 @@ Nada de esto se renombra; la prueba nueva `test/contracts.test.js` lo vigila:
   (`_subject`, `asistencia`, `nombre`, `acompanante`, `asistentes`, `alergias`, `mensaje`).
 - **Tema:** la clave `kg-tema` y los valores `dia`/`noche`; la clase `dark-mode` del `<html>` (ya está en
   inglés) y el atributo `data-tema` que se intercambian el script del `<head>` y `useTheme`.
-- **Recursos:** los nombres de `assets/photos/opt/**`, `assets/icons/**` y `assets/audio.mp3`; el
+- **Recursos:** los nombres de `assets/photos/opt/**`, `assets/icons/**` y `../../assets/audio.mp3`; el
   `og:image`, el favicon y las rutas del shell.
 - **Textos:** todo lo que lee el invitado (incluidos los avisos de `utils/validation.js`) y los
   comentarios/documentación, en español.
@@ -259,7 +259,7 @@ Nada de esto se renombra; la prueba nueva `test/contracts.test.js` lo vigila:
 - **DT-8 · Pruebas co-locadas y `node --test`.** Se conserva la convención. *Descartado:* Vitest o
   Testing Library (dependencias prohibidas por la constitución 1 y 4).
 - **DT-9 · El shell conserva lo documental.** Los `<link>` de fuentes, los metadatos, el favicon y el
-  script del tema se quedan en `index.html`; la **elección** tipográfica son los tokens del CSS de la
+  script del tema se quedan en `../../index.html`; la **elección** tipográfica son los tokens del CSS de la
   plantilla. *Descartado:* mover las fuentes al descriptor (el `@import` retrasaría la carga → RNF-5).
 - **DT-10 · Los ids de ancla se quedan en español.** Son enlaces compartibles (§9). *Descartado:*
   traducirlos (rompería enlaces ya repartidos y la spec lo excluye).
@@ -270,8 +270,8 @@ Cada paso cierra con: `npm test` en verde, `npm run build` sin errores y **compa
 referencia congelada** de las secciones afectadas. Nada se publica a medias (caso límite «estado
 intermedio» de la spec).
 
-0. **Congelar la referencia**: commit del estado actual + copia del `dist/` (RNF-1).
-1. **Enmienda de la constitución** y actualización de `README.md`/`AGENTS.md` (§2).
+0. **Congelar la referencia**: commit del estado actual + copia del `../../dist` (RNF-1).
+1. **Enmienda de la constitución** y actualización de `../../README.md`/`AGENTS.md` (§2).
 2. **`constants/` + `utils/`**: mover la lógica y sus pruebas, renombrando módulos y funciones; ajustar
    los imports que quedan en `componentes/` y `hooks/`.
 3. **`data/`**: mover registro y fichas con sus pruebas.
@@ -289,7 +289,7 @@ intermedio» de la spec).
     prueba de andamiaje.
 11. **Pruebas**: andamiaje actualizada + `contracts.test.js` nueva.
 12. **Cierre**: borrar huérfanos (comprobar que no queda ningún archivo viejo), verificación completa de
-    paridad y pasada manual; anotar en `AGENTS.md` («Verificación») y actualizar `MEMORY.md`.
+    paridad y pasada manual; anotar en `../../AGENTS.md` («Verificación») y actualizar `MEMORY.md`.
 
 ## 12. Estrategia de pruebas con `node --test`
 
@@ -299,11 +299,11 @@ intermedio» de la spec).
 - **Se mantiene el número de pruebas** (hoy 110): la reorganización no añade ni quita cobertura lógica.
 - **`data/wedding.test.js`** y **`data/guest-cards.test.js`**: no regresión del registro y forma de las
   fichas (siguen sin importar `services/photos.js`, que depende de Vite).
-- **`test/andamiaje.test.js` (modificada):** rutas nuevas de los CSS, del entry (`/src/app/main.jsx`) y
+- **`../../test/andamiaje.test.js` (modificada):** rutas nuevas de los CSS, del entry (`/src/app/main.jsx`) y
   de `App.jsx`; nombre nuevo de la clase del enlace de salto; se conservan tal cual el orden
   tema→estilos, la clave `kg-tema`, `dark-mode`, el `<noscript>` en español y la prohibición de Bootstrap
   (con la restricción de nombres de §4).
-- **`test/contracts.test.js` (nueva, RF-3/RF-5):** lee como texto los archivos y afirma que siguen ahí
+- **`../../test/contracts.test.js` (nueva, RF-3/RF-5):** lee como texto los archivos y afirma que siguen ahí
   los contratos de §9 (clave `kg-tema`, ids de ancla, parámetros `codigo`/`code`/`inv`, `name` de los
   campos del formulario, claves del registro y de las fichas). Es lo que impide que un renombrado
   «de paso» rompa la personalización, la confirmación o el tema.
@@ -313,7 +313,7 @@ intermedio» de la spec).
 
 ## 13. Verificación de paridad (RNF-1, RNF-2)
 
-- **Automática:** navegador headless sobre el `dist/` servido en local (método ya usado en la spec 002:
+- **Automática:** navegador headless sobre el `../../dist` servido en local (método ya usado en la spec 002:
   servidor propio + DevTools Protocol, script **fuera** del repo). Se ejecuta contra **las dos
   construcciones** (referencia congelada y versión nueva) y se comparan, con los mismos datos:
   estructura visible y orden de las piezas, textos, atributos visibles, geometría (rectángulos) y
@@ -323,7 +323,7 @@ intermedio» de la spec).
   confirmación cerrada.
 - **Humana (una sola vez al final):** la pasada manual de siempre (tema, música tras el gesto, cuenta
   regresiva, galería y visor con teclado, copiado y **envío real** del RSVP) y una vuelta en móvil.
-- **Registro:** el resultado se anota en la sección «Verificación» de `AGENTS.md` (constitución 4).
+- **Registro:** el resultado se anota en la sección «Verificación» de `../../AGENTS.md` (constitución 4).
 
 ## 14. Cobertura de requisitos
 
@@ -331,7 +331,7 @@ intermedio» de la spec).
 | --- | --- |
 | §3 estructura, §5 movimientos, §6 piezas nuevas | RF-1 |
 | §7 capa de plantilla, `templates/**`, `TemplateProvider`, `useTemplate`, `constants/templates.js` | RF-2 |
-| §4 convención, §5 renombrados y renombrado de clases, §9 contratos intactos, `test/contracts.test.js` | RF-3, RNF-6 |
+| §4 convención, §5 renombrados y renombrado de clases, §9 contratos intactos, `../../test/contracts.test.js` | RF-3, RNF-6 |
 | `constants/sections.js`, `utils/sections.js`, `sectionRenderers.jsx`, secciones repartidas, pruebas de datos | RF-4 |
 | Hooks y componentes sin cambio de comportamiento, anclas, audio, formulario, tema, música | RF-5 |
 | Referencia congelada, CSS movido entero, clases renombradas con comparación, `preload="none"`, `sizes` por variante | RNF-1, RNF-5 |
@@ -362,11 +362,11 @@ traducción de textos/comentarios/documentación y renombrado de recursos.
 
 ## 17. Criterios de finalización de este plan
 
-1. Constitución enmendada y `README.md`/`AGENTS.md` actualizados (§2).
+1. Constitución enmendada y `../../README.md`/`AGENTS.md` actualizados (§2).
 2. Estructura de §3 en su sitio, sin archivos huérfanos ni duplicados.
 3. `npm test` en verde con las mismas pruebas lógicas (renombradas) y los dos guardarraíles.
 4. `npm run build` sin errores y el sitio servido desde una subruta cualquiera.
 5. Paridad visual y funcional comprobada contra la referencia congelada en toda la matriz de §13.
 6. Presentación concentrada en `templates/` y ninguna otra área con decisiones de aspecto.
-7. Contratos de §9 intactos y vigilados por `test/contracts.test.js`.
-8. Documentación: la enmienda, la verificación y el estado anotados en `MEMORY.md` y en `AGENTS.md`.
+7. Contratos de §9 intactos y vigilados por `../../test/contracts.test.js`.
+8. Documentación: la enmienda, la verificación y el estado anotados en `../../MEMORY.md` y en `AGENTS.md`.

@@ -11,3 +11,13 @@ desktop.ini
 # Dependencias y resultado del build (Vite): se regeneran con npm install / npm run build
 node_modules/
 dist/
+
+# Configuración del despliegue del servicio (RF-15): son valores por publicación, no contenido
+# del repositorio; se dan por variables de entorno (ver docs/servicio-invitados.md).
+.env.local
+
+# Libros reales del servicio (el maestro y el libro de invitados): llevan datos personales de
+# invitados (nombres y teléfonos), así que nunca se versionan; se conservan en el disco de quien
+# publica y un `git add` accidental no debe subirlos (spec 004, D19/RNF-2; ver
+# specs/004-servicio-invitados-rsvp/spec.md).
+gas/*.xlsx

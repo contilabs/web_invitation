@@ -85,7 +85,7 @@ marca.
 
 ## Fase 3 — Presentación
 
-- [ ] **T7 · Piezas de interfaz reutilizables: combo y panel de lectura.** _RF: RF-4, RF-10; RNF-1, RNF-3._
+- [x] **T7 · Piezas de interfaz reutilizables: combo y panel de lectura.** _RF: RF-4, RF-10; RNF-1, RNF-3._
   Hecho cuando: `src/components/ui/AttendeeSelect.jsx` pinta un `<select>` nativo con su `<label>` y
   el texto de ayuda del cupo enlazado por `aria-describedby`; `src/components/ui/ResponseSummary.jsx`
   pinta el panel de datos en **solo lectura** (lista etiqueta/valor, sin controles de formulario;
@@ -93,7 +93,7 @@ marca.
   interfaz en español y sin dependencias nuevas; `npm run build` sin errores (su aspecto y su uso se
   comprueban en T8 y en T10).
 
-- [ ] **T8 · Rehacer la sección de confirmación (`Rsvp.jsx`).** _RF: RF-1, RF-2, RF-3, RF-4, RF-5, RF-6, RF-7, RF-9, RF-10; D15; RNF-1, RNF-3._
+- [x] **T8 · Rehacer la sección de confirmación (`Rsvp.jsx`).** _RF: RF-1, RF-2, RF-3, RF-4, RF-5, RF-6, RF-7, RF-9, RF-10; D15; RNF-1, RNF-3._
   Hecho cuando: `Rsvp.jsx` deriva el bloque de `rsvpState` (los siete estados) y avanza con
   `nextBlockState`; conserva el ancla `#confirmar`, el `<h2>` del registro (`confirmacion.titulo`) y
   el `#numero` de los lugares reservados (que pasa al contenido revelado); en `sin-respondido`

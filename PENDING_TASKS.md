@@ -55,3 +55,6 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 ## Gobernanza (detectado en la revisión QA; sin resolver)
 
 - Decidir si el rediseño puede usar librerías de UI (el principio 1 solo permite el stack elegido).
+- El riesgo aceptado del `lookup` por teléfono queda documentado en la spec 005 (principio 5 y
+  AGENTS.md); mantener esa restricción si se amplía el alcance (nunca en personalizada, sin
+  escritura, sin devolver teléfono/filas ajenas, sin persistirlo).

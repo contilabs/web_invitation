@@ -114,7 +114,7 @@ compartido siga funcionando. La equivalencia funcional se evalúa **con JavaScri
 
 ## 6. Casos límite
 
-- Se aplazan y se irán detallando y depurando en `PENDING_TASKS.md` (raíz del repo).
+- Se aplazan y se irán detallando y depurando en `../../PENDING_TASKS.md` (raíz del repo).
 
 ## 7. Fuera de alcance
 
@@ -137,4 +137,4 @@ compartido siga funcionando. La equivalencia funcional se evalúa **con JavaScri
 
 ## 9. Dudas abiertas
 
-- Ninguna pendiente por ahora. Los casos límite y las dudas que surjan se registran y depuran en `PENDING_TASKS.md`.
+- Ninguna pendiente por ahora. Los casos límite y las dudas que surjan se registran y depuran en `../../PENDING_TASKS.md`.

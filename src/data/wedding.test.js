@@ -2,18 +2,15 @@
 //
 // Comprueba que `src/data/wedding.js` conserva los datos de la boda actual (nombres, fecha,
 // ubicaciones, cuenta y enlaces) y que el registro es coherente con la validación pura.
-// No importa `services/photos.js`: usa `import.meta.glob`, que solo existe bajo Vite; la
-// resolución de las claves se comprueba con `registryErrors` (RF-20).
+// En la spec 004 el invitado lo resuelve el servicio, así que `registryErrors` valida **solo
+// el registro** (sin fichas; DT-8, D22) y el plazo y el destino del envío dejan de vivir aquí
+// (RF-11, RF-14). No importa `services/photos.js`: usa `import.meta.glob`, que solo existe
+// bajo Vite; la resolución de las claves se comprueba con `registryErrors` (RF-20).
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
 import { wedding } from "./wedding.js";
-import { guestCards } from "./guest-cards.js";
-import {
-  confirmationFields,
-  isConfirmationOpen,
-  deadlineMs,
-} from "../utils/confirmation.js";
+import { confirmationFields } from "../utils/confirmation.js";
 import {
   formatDate,
   formatTime,
@@ -30,7 +27,7 @@ import { registryWarnings, registryErrors } from "../utils/validation.js";
 const EVENT_INSTANT = new Date("2027-11-01T16:30:00-06:00").getTime();
 
 test("el registro de ejemplo es coherente (RF-20)", () => {
-  assert.deepEqual(registryErrors(wedding, guestCards), []);
+  assert.deepEqual(registryErrors(wedding), []);
   assert.deepEqual(registryWarnings(wedding), []);
 });
 
@@ -96,7 +93,7 @@ test("la transferencia expone un único dato copiable: la cuenta (RF-10)", () =>
   assert.equal(marked.length, 1, "debe haber exactamente un dato marcado como copiable");
 });
 
-test("conserva todos los enlaces de la boda en https (RF-5, RF-11, RF-14, RF-22)", () => {
+test("conserva todos los enlaces de la boda en https (RF-5, RF-16)", () => {
   const links = [];
   for (const location of Object.values(wedding.ubicaciones)) {
     if (location?.mapaUrl) links.push(["ubicaciones.mapaUrl", location.mapaUrl]);
@@ -109,12 +106,10 @@ test("conserva todos los enlaces de la boda en https (RF-5, RF-11, RF-14, RF-22)
     if (option.url) links.push(["regalos.url", option.url]);
   }
   links.push(["marca.enlaces.credito", wedding.marca.enlaces.credito]);
-  links.push(["marca.enlaces.rsvp", wedding.marca.enlaces.rsvp]);
 
   for (const [field, url] of links) {
     assert.match(String(url), /^https:\/\//, `${field} no es https: ${url}`);
   }
-  assert.match(wedding.marca.enlaces.rsvp, /formsubmit\.co/);
 });
 
 test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () => {
@@ -148,19 +143,19 @@ test("conserva la galería y la portada del registro (RF-9, RF-22)", () => {
   }
 });
 
-test("conserva el plazo, los campos y el máximo de la confirmación (RF-18, RF-22)", () => {
-  assert.equal(wedding.confirmacion.maximoBoda, 100);
+test("la confirmación conserva título, descripción y campos, sin plazo ni envío (RF-11, RF-14, RF-18)", () => {
+  assert.equal(wedding.confirmacion.titulo, "Confirmar asistencia");
+  assert.ok(String(wedding.confirmacion.descripcion ?? "").trim());
   assert.deepEqual(confirmationFields(wedding.confirmacion), [
     "nombre",
     "asistentes",
     "alergias",
     "mensaje",
   ]);
-
-  const limit = deadlineMs(wedding);
-  assert.ok(Number.isFinite(limit), "la fecha límite del registro no es válida");
-  assert.equal(isConfirmationOpen(wedding, limit - 1_000), true, "debería estar abierta antes del plazo");
-  assert.equal(isConfirmationOpen(wedding, limit + 1_000), false, "debería estar cerrada tras el plazo");
+  // El plazo lo da el servicio (RF-11) y el envío va al servicio (RF-14): el registro ya no
+  // declara ninguno de los dos.
+  assert.equal(wedding.confirmacion.fechaLimite, undefined);
+  assert.equal(wedding.marca.enlaces.rsvp, undefined);
 });
 
 test("los niños están permitidos cuando la boda no lo indica (RF-12)", () => {

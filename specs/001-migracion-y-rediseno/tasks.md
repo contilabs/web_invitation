@@ -7,25 +7,25 @@ Las tareas de `src/logica/` incluyen sus pruebas (`node --test`).
 
 - [x] **T1 · Andamiaje React + Vite.** _RF: soporte._
   Hecho cuando: `npm run dev` sirve una app React mínima y `npm run build` termina sin errores.
-  _Hecho: `package.json` + `vite.config.js` + `src/main.jsx`/`src/App.jsx`, con `index.html`
+  _Hecho: `../../package.json` + `vite.config.js` + `src/main.jsx`/`src/App.jsx`, con `index.html`
   como shell de Vite. React 19.3, Vite 8.3 y `@vitejs/plugin-react` 6.1._
-- [x] **T2 · `package.json` con scripts y `"type": "module"`.** _RF: soporte._
+- [x] **T2 · `../../package.json` con scripts y `"type": "module"`.** _RF: soporte._
   Hecho cuando: existen `dev`, `build`, `preview` y `test`, y `npm test` (`node --test`) corre sin instalar nada.
   _Hecho: 4 scripts + `"type": "module"` (quita el aviso ESM/CJS de Vite 8). Se añadió la
-  prueba de andamiaje `test/andamiaje.test.js` (excepción acordada a «solo funciones puras»
+  prueba de andamiaje `../../test/andamiaje.test.js` (excepción acordada a «solo funciones puras»
   del plan §4): vigila ESM, scripts y el shell de `index.html`. `npm test` → 4/4._
-- [x] **T3 · `vite.config.js` con `base` de publicación.** _RF: RNF-6._
+- [x] **T3 · `../../vite.config.js` con `base` de publicación.** _RF: RNF-6._
   Hecho cuando: `npm run build` genera rutas con el `base` correcto y `npm run preview` abre la app.
   _Hecho: `base: "./"` (relativo). No hay URL de publicación confirmada — ni CNAME, ni workflows,
   ni Pages activo — así que se optó por rutas relativas para valer en cualquier subruta/dominio.
-  Verificado en `dist/index.html` (`./assets/…`), con `vite preview` (200 en `/` y en
+  Verificado en `../../dist/index.html` (`./assets/…`), con `vite preview` (200 en `/` y en
   `/index.html?invitados=3`) y sirviendo el build en una subruta anidada `/web_invitation/`._
-- [x] **T4 · Shell de `index.html` (root + metas + fuentes + anti-parpadeo).** _RF: RF-4, RNF-5._
+- [x] **T4 · Shell de `../../index.html` (root + metas + fuentes + anti-parpadeo).** _RF: RF-4, RNF-5._
   Hecho cuando: la app monta y, con tema oscuro guardado, recargar no muestra parpadeo del tema claro.
   _Hecho: cabecera ya traída en T1; en T4 se añadió `meta[name=color-scheme]`, se subió el
   script de tema al inicio del `<head>` (antes de cualquier estilo) y se añadió `<noscript>` en
   español. El test de andamiaje comprueba el orden (script antes del primer `rel="stylesheet"`) y
-  que lea `kg-tema`. Verificado además en `dist/` (script antes del CSS inyectado) y en preview/dev.
+  que lea `kg-tema`. Verificado además en `../../dist` (script antes del CSS inyectado) y en preview/dev.
   La comprobación visual del anti-parpadeo queda a cargo del usuario._
 
 - [x] **T5 · Migrar CSS y retirar Bootstrap.** _RF: RF-11, RNF-1._
@@ -33,7 +33,7 @@ Las tareas de `src/logica/` incluyen sus pruebas (`node --test`).
   _Hecho: los selectores de Bootstrap del carrusel pasan a clases propias (`.diapositiva`,
   `.carrusel-flecha(-siguiente)`, `.carrusel-flecha-icono`) con flecha SVG propia; se añadió
   `position: relative` al carrusel y la utilidad `.visually-hidden` (la aportaba Bootstrap). Sin
-  cambio visual (RF-11). Guardarraíl en `test/andamiaje.test.js`: nada de `bootstrap`/`carousel`/
+  cambio visual (RF-11). Guardarraíl en `../../test/andamiaje.test.js`: nada de `bootstrap`/`carousel`/
   `data-bs` en los CSS, el shell ni las dependencias. `npm test` → 7/7; build/preview/dev verificados.
   `script.js`/`darkMode.js` aún citan la API de Bootstrap hasta su borrado (ver `PENDING_TASKS.md`)._
 
@@ -44,7 +44,7 @@ Las tareas de `src/logica/` incluyen sus pruebas (`node --test`).
   _Hecho: `NOMBRES`, `FECHA_ISO` (hora local, como el original) + `FECHA_MS` + `FECHA_TEXTO`,
   `LUGAR`, `CEREMONIA`/`RECEPCION`, `HOTELES`, `MESA_DE_REGALOS`, `CUENTA_BANCARIA` y `ENLACES`
   (crédito y endpoint del RSVP). Prueba de contrato en `datosEvento.test.js`. `script.js` aún
-  conserva una copia (legado; ver `PENDING_TASKS.md`)._
+  conserva una copia (legado; ver `../../PENDING_TASKS.md`)._
 - [x] **T7 · `logica/cuentaRegresiva.js` + tests.** _RF: RF-3._
   Hecho cuando: `node --test` pasa futuro, fecha ya pasada (`terminado`) y segundo exacto.
   _Hecho: `calcularRestante(objetivoMs, ahoraMs)`; recorta (no redondea) y marca `terminado` en
@@ -85,7 +85,7 @@ Las tareas de `src/logica/` incluyen sus pruebas (`node --test`).
   Hecho cuando: al abrir, el fondo queda inerte; «Ingresar» cierra la portada y deja el foco correcto.
   _Hecho: `inert` en `.contenido` y `.fixed-panel` mientras está abierta; al cerrar, foco al `#inicio`
   (hero) y `body.portada-cerrada`. Se creó `componentes/fotos.js`, que resuelve las 20 imágenes de
-  `assets/photos/opt/` con `import.meta.glob(..., ?url)` (único origen; corrige el 404 de `dist/`)._
+  `../../assets/photos/opt` con `import.meta.glob(..., ?url)` (único origen; corrige el 404 de `dist/`)._
 - [x] **T15 · `useEncabezado` + `Encabezado`.** _RF: RF-6._
   Hecho cuando: el encabezado aparece al dejar de verse el título de apertura.
   _Hecho: observa `#inicio` y añade `.inicio--fijo`; el hero (portada principal) vive en `Secciones.jsx`._
@@ -140,21 +140,21 @@ headless (dev y `preview`) con las 20 imágenes, los iconos y el audio resolvien
   portada que cierra con Escape/clic fuera y devuelve el foco a `#inicio`, diapositivas del carrusel como
   `<button>`, flechas del carrusel y del visor con `aria-label`, `<dialog>` con `showModal()`.
   Movimiento reducido al final de `styles.css` (`transition-duration: 0.001ms`) y `useGaleria` sin avance
-  automático. `test/andamiaje.test.js` vigila el enlace de salto dentro de `<main>`._
+  automático. `../../test/andamiaje.test.js` vigila el enlace de salto dentro de `<main>`._
 - [x] **T26 · Rendimiento de imágenes.** _RF: RNF-3._
   Hecho cuando: la primera carga no descarga originales y el visor usa una variante intermedia.
-  _Hecho: la página solo carga derivados de `assets/photos/opt/` (`srcset`+`sizes`, 1180 px), el visor usa
+  _Hecho: la página solo carga derivados de `../../assets/photos/opt` (`srcset`+`sizes`, 1180 px), el visor usa
   `elegirVariante(srcset, 1400)`, `<audio preload="none">` con `<source>` (no se descarga hasta el gesto) y
   `fetchPriority` alto en la portada y bajo en el hero. `calcularRestante` (T26) devuelve «terminado» si la
   fecha es `NaN` en lugar de esparcirlo. `test/andamiaje.test.js` falla si una foto se carga del original._
-- [x] **T27 · Documentación (`README.md` y «Verificación» de `AGENTS.md`).** _RF: soporte._
+- [x] **T27 · Documentación (`../../README.md` y «Verificación» de `AGENTS.md`).** _RF: soporte._
   Hecho cuando: el README explica `npm install/dev/build/test` y «Verificación» lista el comando y lo manual.
-  _Hecho: `README.md` reescrito para la app React + Vite (arranque, estructura, dónde editar los datos,
+  _Hecho: `../../README.md` reescrito para la app React + Vite (arranque, estructura, dónde editar los datos,
   `?invitados=N`, música, tema, fotos, despliegue); «Verificación» de `AGENTS.md` lista `npm test` y la
   pasada manual._
 - [ ] **T28 · Verificación final manual (criterios de finalización).** _RF: RF-1…RF-11._
   Hecho cuando: el checklist de las 11 RF está probado en escritorio y móvil y anotado.
-  _Verificado (automático, Chrome headless sobre `dist/`): `npm test` → 47/47; `npm run build` → OK;
+  _Verificado (automático, Chrome headless sobre `../../dist`): `npm test` → 47/47; `npm run build` → OK;
   sin desbordamiento horizontal en 320/375/768/1180/1440 px en día y noche; un solo `<h1>` con la portada
   cerrada; contraste ≥ 4.5 en todos los textos (mínimo 4.58 en `#numero`/`.hotel-enlace` en día); regla
   `:focus-visible` con `outline`; movimiento reducido sin transiciones ni avance del carrusel; 28 imágenes

@@ -9,7 +9,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import audioUrl from "../../assets/audio.mp3";
 
 import { wedding } from "../data/wedding.js";
-import { guestCards } from "../data/guest-cards.js";
 import { DEFAULT_TEMPLATE_ID } from "../constants/templates.js";
 import { resolveTemplate } from "../templates/index.js";
 import { TemplateProvider } from "../providers/TemplateProvider.jsx";
@@ -33,7 +32,7 @@ import { renderSection } from "./sectionRenderers.jsx";
 // Todo lo que se deriva del registro se calcula una sola vez (el registro no cambia en
 // tiempo de ejecución). La validación pura decide el aviso visible (RF-15, RF-20).
 const SECTIONS = visibleSections(wedding);
-const ERRORS = registryErrors(wedding, guestCards);
+const ERRORS = registryErrors(wedding);
 const WARNINGS = registryWarnings(wedding);
 
 const EVENT_INSTANT = eventInstant(wedding.evento);

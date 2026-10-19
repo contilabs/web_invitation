@@ -1,4 +1,8 @@
-// Lógica pura: restricciones con jerarquía boda → ficha (RF-12, RF-20)
+// Lógica pura: restricciones de la boda (RF-12, RF-20).
+//
+// Se retiró `hasChildrenConflict` (spec 004, T8): solo tenía sentido contra una ficha local,
+// y el invitado se resuelve en el servicio (DT-8, D22). `allowsChildren` y
+// `restrictionMessages` se conservan tal cual.
 
 function readChildrenPermission(restrictions) {
   if (!restrictions || typeof restrictions !== "object") return undefined;
@@ -12,14 +16,6 @@ export function allowsChildren(wedding) {
   const value = readChildrenPermission(wedding?.restricciones);
   // Si no se indica, se permiten (RF-12)
   return value === undefined ? true : value;
-}
-
-export function hasChildrenConflict(wedding, invitation) {
-  if (!allowsChildren(wedding)) {
-    const count = Number(invitation?.childGuests ?? invitation?.ninos ?? 0);
-    return Number.isFinite(count) && count > 0;
-  }
-  return false;
 }
 
 export function restrictionMessages(restrictions) {

@@ -1,9 +1,12 @@
-// Lógica pura: validación del registro (RF-1, RF-8, RF-12, RF-20)
+// Lógica pura: validación del registro de la boda (RF-1, RF-13, RF-20).
+//
+// `registryErrors` valida **solo el registro** (`wedding`): el invitado se resuelve en el
+// servicio de registro, así que ya no hay fichas locales que comprobar (DT-8, D22, RF-1).
+// `templateStatus` y `registryWarnings` se conservan.
 
 import { IMPLEMENTED_TEMPLATE_IDS } from "../constants/templates.js";
 
 import { eventInstant } from "./event.js";
-import { hasChildrenConflict } from "./restrictions.js";
 
 export function templateStatus(template) {
   if (template === null || template === undefined) return "unknown";
@@ -24,7 +27,7 @@ function galleryImages(wedding) {
   return [];
 }
 
-export function registryErrors(wedding, guestCards) {
+export function registryErrors(wedding) {
   const errors = [];
   if (!wedding || typeof wedding !== "object") {
     return [{ field: "boda", message: "No hay registro de la boda." }];
@@ -53,18 +56,6 @@ export function registryErrors(wedding, guestCards) {
       errors.push({ field: `galeria.imagenes[${index}]`, message: `La imagen ${index + 1} de la galería no tiene clave resoluble.` });
     }
   });
-
-  // Conflicto de niños boda ↔ ficha (RF-12, RF-20)
-  if (Array.isArray(guestCards)) {
-    for (const card of guestCards) {
-      if (hasChildrenConflict(wedding, card)) {
-        errors.push({
-          field: `invitaciones.${card?.codigo ?? "?"}`,
-          message: `La invitación ${card?.codigo ?? "?"} asigna niños pero la boda no los permite.`,
-        });
-      }
-    }
-  }
 
   return errors;
 }

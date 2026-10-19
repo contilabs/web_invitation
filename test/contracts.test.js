@@ -1,7 +1,8 @@
-// Prueba de contratos (T23, RF-3, RF-5): vigila que el renombrado de la spec 003 no toque lo
-// que ya está publicado o compartido (§9 del plan). No prueba lógica de la invitación: lee los
-// archivos como texto y afirma que los contratos siguen ahí. Si alguien renombra «de paso» una
-// clave, un ancla o un `name`, esta prueba lo frena.
+// Prueba de contratos (T8, RF-2, RF-14; spec 004, §9): vigila que lo que ya está publicado o
+// compartido siga estable y que el modelo del servicio no vuelva atrás. No prueba lógica de la
+// invitación: lee los archivos como texto y afirma que los contratos siguen ahí. Si alguien
+// renombra «de paso» una clave o un ancla, reintroduce un parámetro jubilado del enlace o
+// devuelve la confirmación a FormSubmit, esta prueba lo frena.
 import { readFileSync, readdirSync } from "node:fs";
 import { strict as assert } from "node:assert";
 import test from "node:test";
@@ -48,6 +49,7 @@ test("las anclas publicadas siguen con el mismo id en español", () => {
     "restricciones",
     "hospedaje",
     "cuenta-regresiva",
+    "numero",
   ];
   for (const anchor of anchors) {
     assert.ok(code.includes(`id="${anchor}"`), `falta el ancla #${anchor}`);
@@ -55,28 +57,37 @@ test("las anclas publicadas siguen con el mismo id en español", () => {
   assert.match(read("../index.html"), /id="root"/, "falta el punto de montaje #root");
 });
 
-test("el código de enlace sigue aceptando los mismos parámetros", () => {
+test("el enlace identifica la invitación con el parámetro `guest`", () => {
+  const contract = read("../src/constants/contract.js");
+  assert.match(contract, /GUEST_PARAM = "guest"/, "cambió el parámetro del enlace");
+
   const invitation = read("../src/utils/invitation.js");
-  assert.match(invitation, /\["codigo", "code", "inv"\]/, "cambiaron los parámetros del enlace");
+  assert.match(invitation, /GUEST_PARAM/, "la invitación no lee el parámetro del contrato");
 });
 
-test("la confirmación conserva el destino y los name del envío", () => {
-  const rsvp = read("../src/components/sections/Rsvp.jsx");
-  for (const field of [
-    "_subject",
-    "asistencia",
-    "nombre",
-    "acompanante",
-    "asistentes",
-    "alergias",
-    "mensaje",
-  ]) {
-    assert.ok(rsvp.includes(`name="${field}"`), `falta el campo «${field}» del formulario`);
+test("los parámetros jubilados del enlace no vuelven", () => {
+  const invitation = read("../src/utils/invitation.js");
+  for (const retired of ["codigo", "code", "inv"]) {
+    assert.ok(
+      !invitation.includes(`"${retired}"`),
+      `volvió el parámetro jubilado «${retired}» (RF-2)`,
+    );
   }
-  assert.match(code, /enlaces\?\.rsvp/, "la confirmación ya no lee el destino del registro");
 });
 
-test("el registro y las fichas conservan sus claves y sus valores de tipo", () => {
+test("la confirmación ya no usa FormSubmit ni lee el destino del registro", () => {
+  assert.doesNotMatch(
+    code,
+    /enlaces\?\.rsvp/,
+    "la confirmación volvió a leer el destino del registro (RF-14)",
+  );
+  assert.doesNotMatch(code, /formsubmit/i, "volvió el destino FormSubmit (RF-14)");
+
+  const rsvp = read("../src/components/sections/Rsvp.jsx");
+  assert.match(rsvp, /useRsvp/, "la confirmación ya no envía por el servicio");
+});
+
+test("el registro conserva sus claves y su plantilla, sin el plazo ni el envío", () => {
   const registry = read("../src/data/wedding.js");
   for (const key of [
     "plantilla:",
@@ -91,14 +102,8 @@ test("el registro y las fichas conservan sus claves y sus valores de tipo", () =
     assert.ok(registry.includes(key), `falta la clave «${key}» en el registro`);
   }
   assert.match(registry, /plantilla: "clasica"/, "cambió el id de la plantilla del registro");
-
-  const cards = read("../src/data/guest-cards.js");
-  for (const key of ["codigo:", "tipo:", "lugaresReservados:", "guestName:", "partnerName:"]) {
-    assert.ok(cards.includes(key), `falta la clave «${key}» en las fichas`);
-  }
-  for (const type of ['"personalizada"', '"reutilizable"', '"generica"']) {
-    assert.ok(cards.includes(type), `falta el tipo de invitación ${type}`);
-  }
+  assert.doesNotMatch(registry, /\bfechaLimite\b/, "volvió el plazo al registro (RF-11)");
+  assert.doesNotMatch(registry, /\brsvp\b/, "volvió el destino del envío al registro (RF-14)");
 });
 
 test("los recursos publicados siguen en su ruta", () => {

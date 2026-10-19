@@ -1,108 +1,71 @@
-// Forma del contrato y reglas de las fichas de ejemplo (T30, RF-16, RF-17, RF-19, RNF-7).
+// Forma de las fichas de ejemplo (spec 004, T8; RF-1, RF-2, RF-11, RF-13, RF-14; D22).
 //
-// El repositorio solo lleva fichas de ejemplo: comprueba que tienen la forma del contrato
-// del servicio de registro y que respetan los límites por tipo (una genérica, hasta diez
-// reutilizables con límite 1–10), sin datos personales reales.
+// La app **no** usa `guest-cards.js` en ejecución: la invitación la resuelve el servicio de
+// registro. Estas fichas son **fixtures** de esta prueba y deben conservar la **forma nueva**
+// del contrato: los tres tipos, el teléfono (ficticio, 10 dígitos), los límites (incluido
+// `"n"` del código reservado `PUBLIC`) y los cuatro estados reversibles. Los literales del
+// modelo salen del módulo del contrato (fuente única; RF-17).
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import { wedding } from "./wedding.js";
 import { guestCards } from "./guest-cards.js";
 import {
-  INVITATION_TYPES,
-  guestLimit,
-  reservedSeats,
-  resolveInvitation,
-} from "../utils/invitation.js";
+  GUEST_TYPES,
+  NO_LIMIT,
+  PHONE_DIGITS,
+  RESPONSE_STATES,
+} from "../constants/contract.js";
 
-const normalize = (value) => String(value ?? "").trim().toLowerCase();
-const byType = (type) => guestCards.filter((card) => card.tipo === type);
+const byType = (type) => guestCards.filter((card) => card.guest_type === type);
 
-// Campos del contrato del servicio de registro (Google Apps Script) presentes en la ficha.
-const CONTRACT_KEYS = [
-  "guestName",
-  "partnerName",
-  "adultsGuests",
-  "childGuests",
-  "emailGuests",
-  "phoneGuests",
-];
-
-test("hay una sola invitación genérica y no más de diez reutilizables (RF-16)", () => {
-  assert.equal(byType("generica").length, 1);
-  assert.ok(byType("reutilizable").length > 0);
-  assert.ok(byType("reutilizable").length <= 10);
+test("las fichas cubren los tres tipos de invitación (RF-5, D22)", () => {
+  const types = [...new Set(guestCards.map((card) => card.guest_type))].sort();
+  assert.deepEqual(types, Object.values(GUEST_TYPES).slice().sort());
 });
 
-test("cada reutilizable lleva un límite entero de 1 a 10 (RF-16, RF-17)", () => {
-  for (const card of byType("reutilizable")) {
+test("cada ficha trae un teléfono ficticio de 10 dígitos y distinto (RF-8, D23)", () => {
+  const phones = guestCards.map((card) => String(card.phone ?? ""));
+  const tenDigits = new RegExp(`^\\d{${PHONE_DIGITS}}$`);
+  for (const phone of phones) {
+    assert.match(phone, tenDigits, `teléfono inválido en una ficha: «${phone}»`);
+  }
+  assert.equal(new Set(phones).size, phones.length, "hay teléfonos repetidos en las fichas");
+});
+
+test("la genérica lleva un límite entero y la pública, el valor sin tope (RF-9)", () => {
+  const generic = byType(GUEST_TYPES.GENERIC);
+  assert.ok(generic.length > 0, "no hay ninguna ficha genérica");
+  for (const card of generic) {
     assert.ok(
-      Number.isInteger(card.limite) && card.limite >= 1 && card.limite <= 10,
-      `límite inválido en ${card.codigo}: ${card.limite}`,
+      Number.isInteger(card.limit) && card.limit > 0,
+      `límite inválido en una ficha genérica: ${card.limit}`,
     );
   }
-});
 
-test("los códigos son únicos y no vacíos tras normalizar (RF-16)", () => {
-  const codes = guestCards.map((card) => normalize(card.codigo));
-  for (const code of codes) assert.ok(code, "hay una ficha sin código");
-  assert.equal(new Set(codes).size, codes.length, "hay códigos duplicados");
-});
-
-test("la personalizada tiene la forma del contrato (RF-19)", () => {
-  const personalized = byType("personalizada");
-  assert.equal(personalized.length, 1);
-
-  const card = personalized[0];
-  for (const key of CONTRACT_KEYS) {
-    assert.ok(key in card, `la ficha personalizada no trae «${key}»`);
-  }
-  assert.ok(String(card.guestName ?? "").trim(), "la personalizada no trae nombre");
-  assert.ok(Number.isInteger(card.adultsGuests) && card.adultsGuests >= 1);
-});
-
-test("la personalizada trae lugares reservados y la genérica no (RF-17)", () => {
-  const personalized = byType("personalizada")[0];
-  const reserved = reservedSeats(resolveInvitation(guestCards, personalized.codigo));
-  assert.ok(Number.isInteger(reserved) && reserved >= 1);
-
-  const generic = byType("generica")[0];
-  assert.equal(reservedSeats(resolveInvitation(guestCards, generic.codigo)), null);
-});
-
-test("ni las reutilizables ni la genérica registran nombre (RF-16)", () => {
-  const cards = [...byType("reutilizable"), ...byType("generica")];
-  for (const card of cards) {
-    assert.equal(card.guestName, undefined, `${card.codigo} no debería llevar nombre`);
+  const publicCard = byType(GUEST_TYPES.PUBLIC);
+  assert.ok(publicCard.length > 0, "no hay ninguna ficha pública");
+  for (const card of publicCard) {
+    assert.equal(card.limit, NO_LIMIT, `la pública debería ser «${NO_LIMIT}»`);
   }
 });
 
-test("cada ficha resuelve por su código, con su tipo y su límite (RF-16)", () => {
-  for (const card of guestCards) {
-    const direct = resolveInvitation(guestCards, card.codigo);
-    assert.equal(direct.type, card.tipo, `no resuelve ${card.codigo}`);
-
-    const normalized = resolveInvitation(guestCards, `  ${String(card.codigo).toUpperCase()}  `);
-    assert.equal(normalized.type, card.tipo, `no normaliza ${card.codigo}`);
-
-    if (card.tipo === "reutilizable") {
-      assert.equal(direct.limit, card.limite, `no conserva el límite de ${card.codigo}`);
-    }
-  }
+test("entre todas las fichas aparecen los cuatro estados (RF-10)", () => {
+  const states = [...new Set(guestCards.map((card) => card.status))].sort();
+  assert.deepEqual(states, Object.values(RESPONSE_STATES).slice().sort());
 });
 
-test("ningún límite supera el máximo de la boda (RF-17)", () => {
-  for (const card of guestCards) {
-    const limit = guestLimit(resolveInvitation(guestCards, card.codigo), wedding);
+test("la personalizada trae su titular y su cupo; la genérica y la pública, su id entero", () => {
+  for (const card of byType(GUEST_TYPES.PERSONAL)) {
+    assert.ok(String(card.guest_name ?? "").trim(), "la personalizada no trae titular");
     assert.ok(
-      limit <= wedding.confirmacion.maximoBoda,
-      `${card.codigo} supera el máximo de la boda`,
+      Number.isInteger(card.adults_guests) && card.adults_guests >= 0,
+      `cupo inválido en una personalizada: ${card.adults_guests}`,
     );
   }
-});
-
-test("un código desconocido no personaliza nada (RF-17)", () => {
-  const invitation = resolveInvitation(guestCards, "no-existe");
-  assert.equal(invitation.type, INVITATION_TYPES.UNKNOWN);
-  assert.equal(reservedSeats(invitation), null);
+  for (const card of [...byType(GUEST_TYPES.GENERIC), ...byType(GUEST_TYPES.PUBLIC)]) {
+    assert.ok(
+      Number.isInteger(card.guest_id),
+      `«${card.phone}» debería traer un guest_id entero (lo asigna el servicio)`,
+    );
+  }
 });

@@ -1,7 +1,7 @@
 # Plan técnico — Spec 002: Modelo de datos reutilizable de la invitación
 
 - **Spec:** `spec.md`
-- **Constitución:** `docs/constitution.md`
+- **Constitución:** `../../docs/constitution.md`
 - **Naturaleza:** plan (sí puede nombrar stack, archivos y arquitectura; la spec no).
 - **Base:** la app React + Vite ya terminada (spec 001, T1–T27). Este plan **reorganiza los
   datos** y **mueve los textos de las secciones al registro**; no cambia el aspecto.
@@ -21,7 +21,7 @@ tener textos y datos incrustados: solo **leen, resuelven y pintan**.
 La **lógica se aísla en módulos puros** (`src/logica/*.js`, sin React y sin DOM) para poder
 probarla con `node --test`. Los **datos** se separan de la lógica en `src/datos/` (son datos, no
 funciones). El **pegamento con estado** (reloj, `localStorage`, `<audio>`, `IntersectionObserver`,
-`URLSearchParams`) sigue en `src/hooks/` y la **presentación** en `src/componentes/`.
+`URLSearchParams`) sigue en `../../src/hooks` y la **presentación** en `src/componentes/`.
 
 Requisito transversal: **RF-20** obliga a que un dato requerido inválido o un conflicto de
 configuración **se vea** (no se sustituya en silencio). Por eso la validación es una función pura
@@ -38,7 +38,7 @@ español. En esta iteración el contrato es **solo referencia**: no se conecta n
 | Principio | Cómo se cumple en este plan |
 | --- | --- |
 | 1. Stack React + Vite, sin otras dependencias | No se añade ninguna librería: el catálogo en TypeScript de referencia se **traduce a JavaScript + JSDoc**, la zona horaria se resuelve con **`Intl`** (incluido en Node y el navegador) y no se usa router. |
-| 2. Spec = código | El plan deriva de la spec; **este spec exige enmendar la redacción** del principio: ya no hay «HTML y su constante en JS» que sincronizar, sino **un único registro**. Además, como parte del cambio se actualizan `README.md`/`AGENTS.md` (criterio de gobernanza, spec §8). Ver §7 y `PENDING_TASKS.md`. |
+| 2. Spec = código | El plan deriva de la spec; **este spec exige enmendar la redacción** del principio: ya no hay «HTML y su constante en JS» que sincronizar, sino **un único registro**. Además, como parte del cambio se actualizan `../../README.md`/`AGENTS.md` (criterio de gobernanza, spec §8). Ver §7 y `PENDING_TASKS.md`. |
 | 3. Interfaz separada de lógica | Lógica pura en `src/logica/*.js`; datos en `src/datos/*.js`; interfaz en `src/componentes/*.jsx`. Los colores siguen en variables CSS. **Los textos de contenido salen de los componentes** y pasan al registro (RNF-1). Se enmienda el principio: los **mensajes del sistema** (fallo visible, aviso de plantilla, cierre del plazo) son **copy de interfaz**, como el aviso de `<noscript>` del spec 001. |
 | 4. Tests sin instalar nada | `node --test` (runner integrado). La UI y los flujos (audio, portapapeles, envío) se verifican a mano. |
 | 5. Datos del usuario a salvo | El repositorio solo lleva **fichas de ejemplo** (RNF-7); los **datos personales reales no se versionan** (llegan sin versionar en el despliegue o, más adelante, del servicio). El contrato del GAS es **solo referencia**: **no** se da de alta ningún tercero nuevo. Lo único persistido en el navegador sigue siendo el tema (`localStorage["kg-tema"]`). |
@@ -80,7 +80,7 @@ español. En esta iteración el contrato es **solo referencia**: no se conecta n
 - `Cita.jsx` — sección **cita** (texto + autor opcional). _RF-7._
 - `Historia.jsx` — sección **historia** (título + párrafos en orden). _RF-8._
 
-**Hooks (`src/hooks/`):**
+**Hooks (`../../src/hooks`):**
 
 - `useInvitacion.js` — lee el código del enlace y resuelve tipo/límite/invitado/lugares. _RF-16,
   RF-17._
@@ -113,7 +113,7 @@ español. En esta iteración el contrato es **solo referencia**: no se conecta n
 - `src/componentes/ControlMusica.jsx` — se muestra u omite y usa la fuente según el registro.
   _RF-13._
 - `src/componentes/fotos.js` — se convierte en **resolución por clave**: el registro guarda una
-  clave de imagen y aquí se obtiene `{ src, srcset, sizes }` de `assets/photos/opt/`; el `alt`
+  clave de imagen y aquí se obtiene `{ src, srcset, sizes }` de `../../assets/photos/opt`; el `alt`
   viene del registro. Sin rutas a mano y sin originales. _RF-9 · RNF-4._
 - `src/App.jsx` — compone **solo las secciones visibles y en orden** (según `secciones.js`), monta
   el panel de error/avisos, decide portada/panel y fija `document.title`/descripción desde el
@@ -121,15 +121,15 @@ español. En esta iteración el contrato es **solo referencia**: no se conecta n
 - `src/hooks/useMusica.js` / `useGaleria.js` / `useReveal.js` / `useEncabezado.js` /
   `useCuentaRegresiva.js` — reciben parámetros del registro en vez de constantes. _RF-3, RF-6,
   RF-9, RF-13, RF-14._
-- `AGENTS.md` — el «único origen» deja de ser `src/logica/datosEvento.js` y pasa a
+- `../../AGENTS.md` — el «único origen» deja de ser `src/logica/datosEvento.js` y pasa a
   `src/datos/boda.js`; actualizar el inventario de secciones (aparecen **cita** e **historia**), el
   modelo de datos y la personalización por enlace. _RF-1, RF-16, RF-21 · RNF-1._
-- `README.md` — documentar el registro y **cómo reutilizar la invitación para otra pareja**
+- `../../README.md` — documentar el registro y **cómo reutilizar la invitación para otra pareja**
   (RF-21). _RF-21._
-- `MEMORY.md` — estado y decisiones del spec 002.
-- `docs/constitution.md` — **enmendar los principios 2, 3, 5 y 6** (ver §7). _Criterio de
+- `../../MEMORY.md` — estado y decisiones del spec 002.
+- `../../docs/constitution.md` — **enmendar los principios 2, 3, 5 y 6** (ver §7). _Criterio de
   gobernanza (spec §8)._
-- `PENDING_TASKS.md` — registrar la copia **local** del contrato del GAS y la retirada de
+- `../../PENDING_TASKS.md` — registrar la copia **local** del contrato del GAS y la retirada de
   `?invitados=N`. _RF-16, RF-19._
 
 ### Se eliminan
@@ -180,7 +180,7 @@ etiquetas accesibles (RF-13).
 
 - **Qué se prueba:** solo la lógica pura de `src/logica/` (`.js` sin JSX) y la **coherencia del
   registro de ejemplo** de `src/datos/`. Los componentes y los efectos se verifican a mano.
-- **Cómo:** `package.json` con `"test": "node --test"` (ya existe). Sin instalar nada → principio 4.
+- **Cómo:** `../../package.json` con `"test": "node --test"` (ya existe). Sin instalar nada → principio 4.
 - **Pruebas co-locadas** (`src/logica/*.test.js`), un archivo por módulo, con los casos por RF:
   - **RF-2:** nombre con todos los campos, sin apellidos, con nombres intermedios, campos vacíos;
     nombre para mostrar definido vs. ausente.
@@ -215,7 +215,7 @@ etiquetas accesibles (RF-13).
     errores.
   - **RF-22:** el registro de ejemplo conserva los datos actuales (nombres, fecha, ubicaciones,
     cuenta, enlaces) — una prueba de **no regresión** sobre `src/datos/boda.js`.
-- **Documentación:** anotar en la sección «Verificación» de `AGENTS.md` el comando y lo que queda
+- **Documentación:** anotar en la sección «Verificación» de `../../AGENTS.md` el comando y lo que queda
   como verificación manual (tema, audio, portapapeles, envío del RSVP, reutilización para otra
   pareja).
 
@@ -243,7 +243,7 @@ etiquetas accesibles (RF-13).
 | RF-18 Confirmación/plazo | `confirmacion.js`, `useConfirmacion.js`, `Confirmacion.jsx` | `node --test` |
 | RF-19 Registro del invitado | `datos/invitaciones.js` (forma del GAS, fijo) | `node --test` |
 | RF-20 Fallo visible | `validacion.js`, `AvisoDeError.jsx`, `App.jsx`, `restricciones.js` | `node --test` + manual |
-| RF-21 Reutilización | `datos/boda.js`, `README.md`, `AGENTS.md` | manual |
+| RF-21 Reutilización | `datos/boda.js`, `../../README.md`, `AGENTS.md` | manual |
 | RF-22 Continuidad | `datos/boda.js`, componentes y hooks conservados | `node --test` (no regresión) + manual |
 
 ## 6. Decisiones técnicas (y alternativa descartada)
@@ -316,7 +316,7 @@ etiquetas accesibles (RF-13).
 
 - **Enmienda de la constitución (criterio de gobernanza, spec §8):** los principios **2**
   («Cambiar un dato obliga a actualizar HTML y su constante en JS a la vez»), **3** («el markup y
-  los textos estáticos viven en `index.html`»), **5** (terceros) y **6** (idioma) describen la web
+  los textos estáticos viven en `../../index.html`»), **5** (terceros) y **6** (idioma) describen la web
   estática y quedan desalineados con este modelo. Hay que reescribirlos: los datos viven en **un
   único registro** (`src/datos/boda.js`) y en las **fichas**; los textos de contenido **salen** de
   la interfaz; la **ficha del invitado** es una excepción de idioma; el servicio del GAS es
@@ -336,9 +336,9 @@ etiquetas accesibles (RF-13).
   claves en inglés; cuando se conecte, hará falta un **mapeador** a las claves en español. Se
   anota como pendiente de la siguiente iteración.
 - **Fotos de otra pareja:** al reutilizar, hay que dejar archivos con las **mismas claves y
-  anchos** en `assets/photos/opt/`; `fotos.js` debe seguir fallando al arrancar si falta una
+  anchos** en `../../assets/photos/opt`; `fotos.js` debe seguir fallando al arrancar si falta una
   clave esperada (guardarraíl de RNF-4). Una referencia huérfana es un error visible (RF-20).
 - **Casos límite del spec §6** (apartado completo): se cubren con las funciones puras y se
-  anotan/depuran en `PENDING_TASKS.md`.
+  anotan/depuran en `../../PENDING_TASKS.md`.
 - **Verificación manual obligatoria** (no automatizable): reutilización para otra pareja,
   portapapeles, audio y envío del RSVP, anotada en la sección «Verificación».
