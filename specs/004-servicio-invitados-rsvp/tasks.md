@@ -14,6 +14,14 @@ pruebas van **antes** que sus consumidores (§11 del plan).
 `MEMORY.md` y `PENDING_TASKS.md` se actualizan **al final** (T10), porque describen rutas y
 comportamiento y hacerlo antes dejaría la documentación en contradicción con el código.
 
+> **Fase 4 (T11–T17) — el cambio de requisitos posterior (§10 de la spec).** Viene **después** de
+> las T1–T10 y **no las rehace**: la spec 004 ya está implementada y verificada. Lo que trae es la
+> **hoja `public` independiente** (RF-19) y la **lectura tolerante de las celdas vacías** (RF-20),
+> con las decisiones **D29–D34**. Cuando el §10 contradiga el cuerpo de la spec, **manda el §10**.
+> **Regla de cierre de la fase:** la misma que la de cada tarea —`npm test` en verde y `npm run
+> build` sin errores— y, además, **nada de rellenar ni de corregir filas del libro**: el arreglo
+> del `INVALID_DATA` es **de lectura** (RF-20, D33).
+
 ## Fase 1 — Higiene y contrato
 
 - [x] **T1 · Excluir los libros reales del repositorio.** _RF: RF-17; RNF-2; D19._
@@ -99,3 +107,86 @@ comportamiento y hacerlo antes dejaría la documentación en contradicción con 
   libro correcto; y la pasada manual de §13 del plan (edición por el mismo teléfono, boda inactiva,
   código desconocido, sin `slug`, modo demo, teléfono corto, cupo 0, plazo vencido y servicio caído)
   está hecha y anotada en «Verificación».
+
+> **Nota.** La comprobación contra el despliegue real **de la Fase 4** (hoja `public`, celda vacía y
+> regresión) es la **T17**; la T10 se queda con la parte **documental** de las specs 004/005.
+
+## Fase 4 — Hoja `public` y lectura tolerante (cambio de §10)
+
+- [x] **T11 · Contrato: la hoja `public`, la segunda caché y la versión `1.3.0`.** _RF: RF-17, RF-19,
+  RF-20; RNF-10; D18, D32, D34._
+  Hecho cuando: `src/constants/contract.js` declara `PUBLIC_SHEET` (nombre `public`, columnas
+  `public_id` y `limit`) y `MASTER_SHEET.columns.PUBLIC_JSON_CACHE` (`public_json_cache`), y su
+  `CONTRACT_VERSION` es `"1.3.0"` **en los dos lados** (el módulo y la **declaración** de
+  `gas/Code.gs`, para que la prueba de sincronía no quede en rojo entre T11 y T12); en
+  `docs/servicio-invitados.md` quedan la hoja `public` **columna a columna**, la regla de **qué hoja
+  se mira según el tipo**, la **segunda caché**, la **regla de la celda vacía** y la versión `1.3.0`;
+  la **tabla de códigos** del módulo y del documento sigue coincidiendo **en conjunto y en el
+  mensaje de cada código** (ningún código ni mensaje nuevo); `npm test` en verde.
+
+- [x] **T12 · Servicio: la hoja `public` en `gas/Code.gs` y la celda vacía como cero.** _RF: RF-19,
+  RF-20; D29, D30, D31, D32, D33, D34._
+  Hecho cuando: `gas/Code.gs` declara `SHEET_NAMES.PUBLIC` (`'public'`), las columnas de esa hoja
+  **aparte** (`public_id`, `limit`) y `MASTER_COLUMNS.PUBLIC_JSON_CACHE`; `resolveCode_` resuelve
+  **por tipo** (genérica: `generic` y, si el libro tiene `public` y el código **no** está en
+  `generic`, `public`; pública: `public`, y `generic` ya no hace falta) con el **mismo idioma** del
+  `limit` en las dos hojas (entero > 0 = cupo, `"n"` = sin tope) y **`MALFORMED_GUEST`** cuando el
+  código existe pero su `limit` no cumple la regla de **su** hoja; la caché `public_json_cache` se
+  escribe con la **misma** regla de refresco que `generic_json_cache`; `adults_attendees` y
+  `child_attendees` **vacías** se leen como **cero** en `resolvePersonal_`, en `lookupResponse_` y en
+  la escritura, mientras que una celda **presente** incoherente (`"x"`, `-1`, `1,5`) sigue
+  respondiendo `INVALID_DATA`; `CONTRACT_VERSION` es `'1.3.0'`; **no se rellena ni se borra ninguna
+  fila** del libro; `npm test` en verde.
+
+- [x] **T13 · `gas/README.md`: el reparto nuevo y el aviso de redespliegue.** _RF: RF-19, RF-20;
+  D29, D31, D34._
+  Hecho cuando: el **paso 2** documenta la hoja `public` con sus dos cabeceras exactas (`public_id` y
+  `limit`) y la columna `public_json_cache` del maestro, y dice que el código público **sale** de
+  `generic`; el **punto 8** explica que la fila `PUBLIC` que se queda en `generic` responde
+  **`MALFORMED_GUEST`** (no `INVALID_DATA`) y que el arreglo es **borrar la fila** y llevar el
+  código a la hoja `public` (un arreglo **de datos**, no de código), y dice **qué hoja se mira**
+  según el tipo; hay un aviso de **redespliegue** (todo cambio en `Code.gs` exige una versión nueva
+  de la implementación y la salud delata el despliegue viejo con `contract: "1.2.0"`); no queda
+  ninguna instrucción que rellene filas.
+
+- [ ] **T14 · Vigilancia del contrato y del servicio (estática, sin ejecutar Apps Script).**
+  _RF: RF-17, RF-19; RNF-10; D18, D34._
+  Hecho cuando: `test/serviceContract.test.js` **no relaja** su regla: recoge del **módulo** los
+  literales de la hoja `public` y de `public_json_cache` (sin escribirlos a mano) y **falla** si el
+  documento no los reproduce; comprueba que `gas/Code.gs` declara la **misma** versión que el módulo
+  y que declara la hoja `public` y su columna de caché, **leídos como texto** (sin ejecutar Apps
+  Script); la tabla de códigos del módulo y del documento sigue coincidiendo en conjunto y en el
+  mensaje de cada código; `npm test` en verde.
+
+- [ ] **T15 · Revisión de la lógica pura de la app (la celda vacía y el `limit` de `public`).**
+  _RF: RF-19, RF-20; RNF-9, RNF-10; D30, D33._
+  Hecho cuando: las pruebas de `utils/invitation.test.js` y `utils/rsvp.test.js` dejan constancia de
+  que una respuesta con asistentes **ausentes o vacíos** se lee como **cero** y **no** invalida la
+  invitación, y de que `{ type: "generic", limit: "n" }` (la caída de D29) se acepta como **sin
+  tope** (`guestLimit`, `seatsText`, `attendeeLimits`, `validateRsvp`); **solo** si la revisión
+  encuentra un punto que no lo tolera, se ajusta `src/utils/` **con su prueba pura** y **sin** tocar
+  la interfaz; `npm test` en verde.
+
+- [ ] **T16 · Nota en la spec 005 y gobernanza.** _RF: RF-19, RF-20; D31._
+  Hecho cuando: `specs/005-flujo-rsvp-respuesta-previa/spec.md` deja constancia de que su
+  **RF-17/D22 queda derogado** (el `PUBLIC` con `"n"` dentro de una boda genérica **ya no** vale
+  por sin tope: es `MALFORMED_GUEST` y su arreglo es borrar la fila) y de que su **§14.8, punto
+  13**, queda **matizado** (se sustituye por «`PUBLIC` en la hoja `public` → sin tope» y por «código
+  mal formado → `MALFORMED_GUEST`»); `AGENTS.md` recoge la hoja `public`, la resolución por tipo, la
+  celda vacía como cero, la versión `1.3.0` y el diagnóstico de `gas/README.md`; `MEMORY.md` los
+  resume; y en `PENDING_TASKS.md` **desaparece** la entrada del «`PUBLIC` en la hoja `generic`» (ya
+  no aplica: el arreglo es de datos, ya está hecho y la nota vive en `gas/README.md`).
+
+- [ ] **T17 · Verificación manual contra el despliegue real (puntos 14–18 y regresión).**
+  _RF: RF-19, RF-20; RNF-3, RNF-10._
+  Hecho cuando: con el script **redesplegado** (la salud devuelve `contract: "1.3.0"`; un despliegue
+  viejo delata `"1.2.0"`) y un **libro de prueba**, se comprueban los puntos **14–18** de §13.1 del
+  plan: (14) la hoja `public` resuelve en una boda `public` (con `PUBLIC`/`"n"` y con otro
+  `public_id` de límite entero) y, sin esa hoja, → `INVALID_DATA`; (15) en una boda `generic` con
+  hoja `public`, un código de `generic` resuelve, uno **solo** de `public` también y uno que no está
+  en ninguna → `UNKNOWN_GUEST`; (16) la fila `PUBLIC` remanente en `generic` → `MALFORMED_GUEST` y,
+  borrada, el mismo enlace resuelve contra `public`; (17) `lookup` de un teléfono **ya registrado**
+  con `child_attendees` **vacío** → `ok: true` con `childAttendees: 0`, y la fila **no** cambia;
+  (18) una celda **presente** incoherente → `INVALID_DATA`; y la **regresión** de los tres tipos,
+  el `viewed`, el plazo, el rechazo y la actualización por teléfono. **El veredicto lo anota el
+  coordinador** en «Verificación» de `AGENTS.md`, **no** el implementador.
