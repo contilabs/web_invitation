@@ -6,6 +6,14 @@ del **estado real de la spec 004** (implementada y verificada contra el servicio
 árbol imaginario. Los identificadores de código van en inglés; los textos visibles, los datos, los
 comentarios y la documentación, en español (RNF-4, constitución principio 6).
 
+> **Cómo leer este plan.** Las **§1–§16** traducen la spec del cuerpo (§1–§12). La **§17** traduce el
+> **primer cambio de requisitos posterior** (§13 de la spec: RF-12…RF-15, D19/D20, R12/R13). La
+> **§18** traduce el **segundo cambio posterior** (§14 de la spec: RF-16/RF-17, D21/D22, R14/R15).
+> Ambas viven **después** del cuerpo: donde la más reciente contradiga a la anterior, **manda la más
+> reciente** (**§18 sobre §17**, §17 sobre §1–§16; y la spec §14 manda sobre su propio §13). La §17
+> enumera **qué queda superado** de las §1–§16; la §18 enumera **qué queda superado** de las §1–§16
+> **y de la §17**.
+
 ## 1. Punto de partida y referencia
 
 - **Árbol actual:** app React de la spec 004, con `app/`, `constants/`, `data/`, `utils/` (lógica
@@ -401,6 +409,13 @@ si vigila un nombre que cambia, se actualiza **comprobando lo mismo**.
    5), `AGENTS.md`, `MEMORY.md`, `PENDING_TASKS.md`, `gas/README.md` y el veredicto en
    «Verificación». La verificación manual **de la 004** sigue pendiente y **no** forma parte de
    estas tareas (§1).
+8. **[Cambio de §13 — §17, Fase 6 (T16–T23).]** Va **después** de la Fase 5 y **no** reescribe nada:
+   lógica pura primero (**T16**: `rsvpPayload` con el mensaje del rechazo + `responseSummaryData`),
+   luego la interfaz (**T17**–**T18**: gating del mensaje y región viva; copy del rechazo y saludo),
+   el **arreglo de la precarga del rechazo** en la composición pura (**T23**, DT-17: `state` en
+   `responseSummaryData`), el servicio (**T19**: `lookupResponse_` solo exige `phone`) con su
+   comprobación manual y documento (**T20**), la verificación manual del cambio (**T21**) y la
+   gobernanza (**T22**). El contrato **no** cambia (`1.1.0`).
 
 ## 11. Estrategia de pruebas con `node --test`
 
@@ -436,7 +451,8 @@ si vigila un nombre que cambia, se actualiza **comprobando lo mismo**.
   contra el **módulo** del contrato, no contra el servicio vivo (RNF-5), y la igualdad de versión se
   comprueba leyendo `gas/Code.gs` como texto.
 - **Manual en navegador (escritorio y móvil), contra el servicio redesplegado con `lookup`**
-  (spec §10):
+  (spec §10). Los puntos **8–11** son del **cambio de requisitos** (§17.6) y se añaden a los siete del
+  cuerpo:
   1. **personalizada sin** respuesta previa: ningún dato del invitado fuera del bloque →
      «Responder invitación» → formulario con el **nombre antes** que el acompañante y la asistencia
      → envío → agradecimiento + datos en lectura + «Editar» → «Editar» precarga todo;
@@ -449,8 +465,9 @@ si vigila un nombre que cambia, se actualiza **comprobando lo mismo**.
      actualiza esa misma fila;
   4. **cambiar el teléfono** en el formulario tras la consulta: no se vuelve a consultar, se avisa
      y la respuesta se guarda con el teléfono nuevo;
-  5. **selección de asistentes**: combos con rangos completos y opción 0 (que «confirmar» rechaza),
-     cupo 0 (sin combo, solo rechazar) y campo libre con `n`;
+  5. **selección de asistentes** (estado real de la Fase 5, §17.7): combos **por campo** —
+     adultos `1..cupo` **sin** el 0, niños `0..cupo`—, cupo 0 (sin combo, solo rechazar), campo libre
+     con `n` (`min={1}`) y la normalización de un 0 heredado de adultos a 1;
   6. **plazo vencido** (personalizada con y sin respuesta; genérica/pública sin paso de teléfono),
      **degradación** con el servicio caído (incluida la consulta `lookup` fallida, con su
      reintento) y **modo demo**; **doble clic** en «Continuar»/«Responder invitación»/«Editar» sin
@@ -525,3 +542,583 @@ declarar un máximo para `PUBLIC` (`n`) y verificar contra el servicio vivo en l
 5. `npm test` en verde con las pruebas nuevas y `npm run build` sin errores (RNF-5).
 6. La verificación manual de §12 está hecha contra el despliegue vivo y anotada en «Verificación»
    (T10); la verificación manual de la **004** sigue pendiente y sin marcar (§1).
+7. El **cambio de requisitos de la spec §13** queda cubierto por la **§17** (T16–T23), con lo que la
+   §17 marca como superado de las §1–§16 ya actualizado.
+
+## 17. Cambio de requisitos de la spec §13 (RF-12…RF-15, D19/D20, R12/R13)
+
+Traduce el **cambio posterior** que vive en la **§13 de la spec** (aprobado por quien la pide). Parte
+del **estado real del código** ya implementado (spec 005 con las fases 1–5 hechas: `Rsvp.jsx`,
+`src/utils/rsvp.js`, `ResponseSummary.jsx` y `gas/Code.gs` **como están hoy**), no de un modelo
+imaginario. Se añade **después** de la §16 para no reescribir lo ya implementado y verificado; **no**
+repite tareas (esas van en `tasks.md`, Fase 6) ni cambia el contrato.
+
+### 17.1 Qué pide el cambio y en qué capa cae
+
+| Pedido | RF | Capa | Efecto |
+| --- | --- | --- | --- |
+| Copy propia del rechazo | **RF-12**, D20, R12 | **Interfaz** (rótulo con el componente) | «Lamentamos que no puedas acompañarnos. Gracias por tu respuesta.» en `respondido` y en el envío aceptado de un `rejected`; no toca el contrato. |
+| Mensaje también al rechazar | **RF-13**, D18/D17 matizadas | **Interfaz + composición del envío + lógica pura del panel** | El `message` se escribe, se envía, se muestra y se precarga en un rechazo; adultos, niños y restricciones siguen fuera. |
+| Saludo con el nombre (personalizada) | **RF-14**, D19 | **Interfaz** | «Hola, \<nombre completo\>» en el contenido revelado (y sobre el panel en `respondido`); nunca en la vista colapsada. |
+| La consulta tolera cabeceras que no usa | **RF-15**, R13 | **Servicio** (`gas/Code.gs`) + su comprobación manual | `lookupResponse_` exige **solo `phone`**; la escritura no se relaja. |
+
+**No cambia:** el contrato (`CONTRACT_VERSION` sigue `1.1.0`), el modelo del libro, los códigos de
+error, la escritura del servicio ni `test/serviceContract.test.js` (su regla es la misma). La copy del
+rechazo es un **rótulo de interfaz** y vive **con su componente** (`AGENTS.md`), **no** en
+`src/constants/contract.js`; la prueba de sincronía vigila una lista **cerrada** de objetos del módulo
+y una copy no entraría en ella (spec §13.4).
+
+### 17.2 Mapa de archivos del cambio
+
+- **`src/utils/rsvp.js` (lógica pura, ampliada).**
+  - **`rsvpPayload` (modificada)** — hoy, con `response === "rejected"`, `return payload` **antes** de
+    `message`/`restrictions`/`adults`/`children` (línea ~149). Pasa a **dejar viajar solo el
+    `message`** en un rechazo: se mantiene el `return` que omite `adults`, `children` y
+    `restrictions`, pero **antes** se añade el `message` con la misma regla que en una confirmación
+    (`text(message) !== null` → se incluye; sin mensaje, no se manda el campo). El resto del cuerpo
+    (acción, slug, código, respuesta, teléfono, nombre) **no** cambia. *Alternativa descartada:*
+    quitar el `return` y enviar también asistentes/alergias en un rechazo (rompería D18/004 D26, que
+    siguen fuera, y el servicio escribiría asistentes que el invitado no confirmó).
+  - **`responseSummaryData(answer, personalized)` (nueva, pura)** — la composición del **panel de solo
+    lectura** (RF-13, RF-10; DT-13 de esta §17), movida desde `summaryData` de `Rsvp.jsx`. Entradas:
+    la respuesta (`answer`) y si la invitación es personalizada. Devuelve el objeto que consume
+    `ResponseSummary` con los mismos campos que hoy (`name`, `adultsAttendees`, `childAttendees`,
+    `message`, `restrictions`, `datetime`, `phone`), con la **misma regla** de hoy **menos** el
+    mensaje: en un rechazo, `adultsAttendees`/`childAttendees`/`restrictions` van **ausentes**
+    (`undefined`, no `0` ni `""`, que sí se pintarían) y el **`message` sí se conserva** (se devuelve
+    `answer.message`); en una confirmación, todo como hoy. Sin `answer` → `null`. Sin React, sin DOM
+    y sin reloj (RNF-4/RNF-9). *Alternativa descartada:* dejarlo en el componente (como `summaryData`
+    hoy): la composición de un rechazo es una **decisión de negocio** —qué se muestra y qué no—, no
+    presentación, y así se prueba con `node --test` (era la contradicción I3 de la spec).
+    - **FIX (T23): la composición conserva también el `state`** — además de los campos visibles, el
+      objeto devuelto mantiene **`state: answer.state`** (el estado de la respuesta: `confirmed`/
+      `rejected`/`updated`), porque es lo que `attendanceForm` necesita para precargar el formulario.
+      `ResponseSummary` **no** lo pinta: su API es una lista **cerrada** de props y `state` no es una
+      de ellas, así que la prop se queda sin consumir en el panel (no aparece como campo visible y no
+      se toca la pieza). Con esto, el panel y el «Editar» comparten **una sola fuente** compuesta
+      (DT-17).
+- **`src/utils/rsvp.test.js` (ampliada).** Los casos nuevos de `rsvpPayload` (rechazo con mensaje →
+  viaja; rechazo sin mensaje → rechazo válido sin `message`; rechazo nunca manda adultos/niños/
+  restricciones; confirmación como hoy), de `responseSummaryData` (rechazo **conserva** el mensaje y
+  **omite** adultos/niños/restricciones; confirmación como hoy; `personalized` decide los niños;
+  `null` sin respuesta) **y el caso que hoy falta (T23): el objeto compuesto conserva `state` y
+  `attendanceForm(invitation, responseSummaryData(answer, personalized))` de un rechazo arranca en
+  `rejected`** (no en `confirmed`), sin tocar el estado en el resto de casos. Se implementa **tests
+  primero** (ver T16 y T23).
+- **`src/components/sections/Rsvp.jsx` (modificado).**
+  - **`summaryData` (local, retirada)** → se sustituye por la llamada a **`responseSummaryData`**
+    (importada de `utils/rsvp.js`); `answeredData` se compone con la función pura (RF-13).
+  - **`handleEdit` (sin cambio de forma, con la fuente ya arreglada)** — sigue pasando **`answeredData`**
+    a `attendanceForm(effectiveInvitation, answeredData)`; el arreglo de T23 va en la composición pura
+    (el `state` que ahora conserva), **no** en esta llamada: así el panel y el «Editar» comparten una
+    sola fuente (DT-17) y no hay una segunda vía en el componente.
+  - **`showsAttendanceFields(response)` (ajustada)** — hoy devuelve `true` solo con `confirmed`, y
+    ese único booleano gatea **los cuatro** campos. Se parte el gating en dos:
+    - `showsAttendanceFields(response)` → **adultos, niños y alergias** (sigue `true` solo con
+      `confirmed`);
+    - el campo **mensaje** se pinta con `confirmed` **o** `rejected` (un predicado propio, p. ej.
+      `showsMessageField`, o la comprobación inline `form.response === confirmed || rejected`).
+    El mensaje **no** se pinta sin elegir asistencia.
+  - **`attendanceNotice(response)` (ajustada)** — el aviso de `rejected` deja de decir «ni mensaje»:
+    pasa a «No se muestran los campos de asistentes ni alergias.» (el mensaje **sí** se muestra,
+    RF-13, I2 de la spec). El aviso de `confirmed` y el de «sin elegir» no cambian.
+  - **Copy del rechazo (nueva, local)** — una constante de interfaz en el módulo del componente (p.
+    ej. `const REJECTION_NOTICE = "Lamentamos que no puedas acompañarnos. Gracias por tu respuesta.";`)
+    usada en dos sitios donde hoy se usa `serviceNotice(CODES.OK).message`:
+    - el aviso de `respondido` (línea ~607-609): elige la copy del rechazo cuando la respuesta
+      registrada es `rejected` (por `answer.state`), y la de `OK` en cualquier otra;
+    - el agradecimiento tras un **envío aceptado** de un `rejected`: se resuelve con el estado
+      enviado (`form.response`/`answered.state`), no con el código `OK`.
+    La copy **no** va a `contract.js` (D20, §13.4) y **no** se toca `serviceNotice` ni el código `OK`.
+  - **Saludo con el nombre (RF-14, D19)** — un `<p className="rsvp-lead">` (o similar, texto visible,
+    no un control) con «Hola, {invitation.guestName}», **solo** en la personalizada:
+    - en **`editando`**: como **primer** elemento del contenido revelado, **antes** del campo del
+      nombre (solo lectura) y **antes** de «Hemos reservado … en tu honor» (orden fijado en la spec
+      §5/RF-3: saludo → nombre → lugares reservados → resto);
+    - en **`respondido`**: **sobre** el `ResponseSummary` (antes del panel), no dentro ni debajo de
+      sus pares etiqueta/valor (I1);
+    - **nunca** en las vistas colapsada/`telefono`/`consultando`/`cerrado`/`degradado` ni en la
+      genérica/pública.
+    El nombre sale de `invitation.guestName` **tal cual** (no se adivina el nombre de pila).
+  - **Sin dependencias nuevas** (RNF-3): el saludo, la copy y los avisos son HTML/React ya presentes.
+- **`src/components/ui/ResponseSummary.jsx`** — **no cambia de API**: ya pinta la fila del mensaje
+  cuando el valor no está vacío; el cambio de «qué se le pasa» es de `responseSummaryData`, no de la
+  pieza. (Se revisa que no haya que tocarlo; si lo hubiera, se documenta aquí.)
+- **`gas/Code.gs` (modificado, RF-15/R13).** En **`lookupResponse_`** (~líneas 566-578), la
+  comprobación de cabeceras pasa de exigir `[PHONE, GUEST_NAME, STATUS]` a exigir **solo
+  `[PHONE]`** (`firstMissingColumn_(headerMap, [GUEST_COLUMNS.PHONE])`): la consulta **no** necesita
+  `guest_name` (el nombre registrado es **opcional**, como el `message`) ni `status` (su ausencia vale
+  por **primera respuesta**: el código ya trata `null`/`viewed` como `response: null`). La lectura de
+  la fila ya usa `cellOf_` (devuelve vacío si la columna no está) y `parseCount_`, así que **no** hay
+  más cambios en la lectura: el resto del camino es el de hoy. **No** se toca el camino `personal`
+  (`resolvePersonal_`), ni la escritura (`registerCodeResponse_`), ni `CONTRACT_VERSION`. *Alternativa
+  descartada:* devolver `INVALID_DATA` «amable» cuando falte una cabecera opcional (seguiría
+  rompiendo el reporte: el libro real no declara esas cabeceras) y relajar también `phone` (no habría
+  fila que localizar).
+- **`gas/README.md` (ampliado).** La comprobación manual de `lookup` (punto 6) gana los casos de
+  §13.3 de la spec: libro **sin `guest_name`/`status`** → la consulta **no** falla (devuelve la fila
+  con `name: null`, `state: null`/`response: null`); libro **sin `phone`** → **sí** falla con
+  `INVALID_DATA`; `generic_json_cache` ausente → **no** es el fallo (la caché es una copia, 004
+  RF-18). Se añade el **aviso de redespliegue**: la tolerancia vive en el script, así que hasta
+  desplegar una **nueva versión** la consulta sigue exigiendo las tres cabeceras.
+  - **Nota de diagnóstico (caso real, T20): «`INVALID_DATA` al resolver un código = dato del libro,
+    no de la app».** Un `INVALID_DATA` que aparece **antes** de leer ninguna fila sale de
+    **`resolveCode_`** (`gas/Code.gs`, ~líneas 377-384), que aplica la regla del **tipo** de la boda
+    sobre el `limit` del código: una boda **`public`** exige que el `limit` sea exactamente **`"n"`**;
+    una boda **`generic`** exige un **entero > 0**; cualquier otro valor → **`INVALID_DATA`**.
+    Consecuencia que hay que dejar escrita: **un código `PUBLIC` (con `limit = "n"`) dentro de una
+    boda `generic` nunca resuelve** — da `INVALID_DATA` con o sin teléfono, en `resolve` y en
+    `lookup`—. No es un defecto de la **app** ni de la acción `lookup`: la app **no** inventa
+    `PUBLIC` (solo lo usa si el enlace lo trae) y el fallo ocurre al resolver el **código**, antes de
+    mirar el teléfono. El arreglo de ese caso es **de datos** (borrar la fila `PUBLIC` de la hoja
+    `generic` de una boda que es solo de genéricos), **no** de código: el servicio **no** se toca y
+    **no** se añade ningún código de error nuevo (decisión cerrada). Lo que sí conviene documentar para
+    quien diagnostica: **cómo distinguirlo** de los otros `INVALID_DATA` y de los fallos que **no** son
+    este (teléfono ausente → `MISSING_FIELDS`; código inexistente → `UNKNOWN_GUEST`; cabecera que la
+    consulta necesita y falta → `INVALID_DATA` después de resolver el código; caché ausente → no es el
+    fallo). Detalle de este aviso, en T20.
+- **`docs/servicio-invitados.md` (ampliado, derivado).** En la sección de `lookup` (§1, tabla de la
+  respuesta) y/o en §5: aclarar que la **consulta tolera** `guest_name`/`status` ausentes (nombres
+  opcionales; `status` ausente = primera respuesta) y que **un rechazo puede llevar mensaje** (RF-13).
+  **No** recoge la copy del rechazo (vive con el componente, §13.4). No cambia la línea de versión
+  (`1.1.0`) ni los códigos de error.
+- **`test/serviceContract.test.js`** — **no cambia de regla**: la copy no es literal del módulo (§13.4).
+  Se revisa que siga verde con el documento actualizado (el documento **no** introduce la copy).
+
+### 17.3 Funciones puras del cambio (con su firma)
+
+| Función | Módulo | Entradas | Salida | RF |
+| --- | --- | --- | --- | --- |
+| `rsvpPayload({…})` (modificada) | `utils/rsvp.js` | el formulario y la respuesta elegida | cuerpo JSON; en un rechazo, con `message` y **sin** adultos/niños/restricciones | RF-13 |
+| `responseSummaryData(answer, personalized)` (nueva) | `utils/rsvp.js` | respuesta + tipo | objeto para `ResponseSummary`; en un rechazo conserva `message` y omite adultos/niños/restricciones | RF-13, RF-10 |
+
+Ambas sin React, sin DOM y sin reloj: se cubren con `node --test` (RNF-4, RNF-9). La **copy** y el
+**saludo** son textos de interfaz y **no** son funciones puras (viven con el componente, RNF-3/§13.4).
+
+### 17.4 Decisiones de implementación (DT-13…DT-16)
+
+- **DT-13 · `rsvpPayload` envía el mensaje en un rechazo; los demás campos del rechazo siguen fuera.**
+  Se añade el `message` **antes** del `return` del rechazo, con la regla de «solo si tiene valor».
+  *Descartado:* enviar todo el rechazo (rompe D18/004 D26) y dejar el mensaje fuera (es lo que el
+  cambio pide). El contrato **no** cambia: `message` ya es un campo del envío.
+- **DT-14 · La composición del panel de lectura vive en lógica pura (`responseSummaryData`).** Se saca
+  de `Rsvp.jsx` (`summaryData`) a `utils/rsvp.js` con su prueba co-locada; la regla del rechazo se
+  prueba sin DOM (era la contradicción I3 de la spec). *Descartado:* dejarla en el componente (no
+  verificable) y que `ResponseSummary` decida por su cuenta (mezclaría presentación con negocio; su
+  API no cambia).
+- **DT-15 · La copy del rechazo es un rótulo de interfaz en `Rsvp.jsx`, no una entrada del módulo.**
+  La regla de `AGENTS.md` («los rótulos de interfaz que no son datos viven con su componente») y la
+  lista cerrada de la prueba de sincronía lo exigen. *Descartado:* declararla en
+  `src/constants/contract.js` (el módulo aloja literales del modelo del servicio, no copy de interfaz;
+  además `test/serviceContract.test.js` no la vigilaría) y que el servicio devuelva un código nuevo
+  (tocaría la forma del contrato y su versión por puro texto, D20).
+- **DT-16 · El saludo se pinta con el dato ya resuelto (`invitation.guestName`), sin derivar el nombre
+  de pila.** Orden por estado: en `editando` abre el contenido (saludo → nombre → lugares reservados →
+  resto); en `respondido`, sobre el panel. *Descartado:* mostrar solo el nombre de pila (prohibido:
+  la constitución no admite deducciones) y poner el saludo en la vista colapsada (rompería D15/HU-14).
+- **DT-17 · El panel y el «Editar» comparten una sola fuente compuesta: `responseSummaryData` conserva
+  el `state` (arreglo de T23).** Al pulsar «Editar» sobre un rechazo, `handleEdit` pasa **`answeredData`**
+  a `attendanceForm`; como `responseSummaryData` **no** devolvía `state`, `attendanceForm` no lo
+  encontraba y caía a `CONFIRMED`: el formulario se precargaba como una **confirmación**. El arreglo
+  vive en la **composición pura** (una sola fuente para el panel y para la precarga), no en una segunda
+  vía en el componente: `responseSummaryData` mantiene **`state: answer.state`** junto a los campos
+  visibles. `ResponseSummary` **no** lo pinta (su API es una lista cerrada de props y `state` no está
+  entre ellas), así que el estado deja de ser un campo visible y la pieza **no** cambia. *Alternativas
+  descartadas:* parchear solo la llamada de `handleEdit` (una segunda fuente —la respuesta cruda— junto
+  a la compuesta: es justo la duplicidad que este cambio quería evitar) y añadir `state` a la API de
+  `ResponseSummary` (pintaría el estado como un campo visible y cambiaría una pieza que no lo necesita).
+
+### 17.5 Estrategia de pruebas del cambio (`node --test`)
+
+- **Ampliadas:** `utils/rsvp.test.js` —
+  - `rsvpPayload` con `response: "rejected"` y mensaje → el cuerpo **incluye** `message` y **no**
+    incluye `adults`/`children`/`restrictions`; sin mensaje → rechazo válido sin `message`; con
+    `confirmed` → igual que hoy (mensaje y el resto);
+  - `responseSummaryData` con una respuesta `rejected` → **conserva** el mensaje y **omite** adultos,
+    niños y restricciones (no `0` ni `""`); con `confirmed` y `personalized` → como hoy; `null` sin
+    respuesta;
+  - **[T23]** `responseSummaryData` de un rechazo **conserva `state`** (`answer.state`), y
+    **`attendanceForm(invitation, responseSummaryData(answer, personalized))`** con una respuesta
+    `rejected` arranca en **`rejected`** (antes del arreglo, como `answeredData` no llevaba `state`,
+    `attendanceForm` caía a `CONFIRMED` y «Editar» precargaba una confirmación: la brecha que T23
+    cierra); con `confirmed`/`updated` el arranque sigue siendo `confirmed`.
+- **No cambia:** `test/serviceContract.test.js` (misma regla; la copy no es del módulo),
+  `test/contracts.test.js` (nada publicado se renombra) ni `src/utils/invitation.test.js`
+  (`interpretLookup` ya tolera `name: null`).
+- **Lo que `node --test` no cubre** (y por eso va a la verificación manual): la copy del rechazo en la
+  interfaz, el saludo con el nombre (DOM), el gating del mensaje con «No podré asistir», la región
+  viva, y la **tolerancia de cabeceras del servicio** (Apps Script en ejecución: no hay runner).
+
+### 17.6 Verificación manual añadida a §12 (puntos nuevos)
+
+Se **añaden** a la lista de §12 (numeración que continúa; el punto 5 de §12 queda **actualizado**,
+ver §17.7):
+
+- **8. Copy del rechazo (RF-12, D20).** Al registrar/abrir una respuesta `rejected` (personalizada con
+  respuesta previa y genérica/pública tras un envío de rechazo), el aviso de `respondido` muestra
+  «Lamentamos que no puedas acompañarnos. Gracias por tu respuesta.»; una confirmación sigue mostrando
+  la copy `OK`.
+- **9. Mensaje en un rechazo (RF-13).** Con «No podré asistir», el campo del mensaje **existe**,
+  es opcional, viaja, se ve en el panel de solo lectura (`respondido` y `cerrado` con respuesta) y se
+  precarga al pulsar «Editar»; la **región viva** del rechazo ya **no** dice «ni mensaje»; la fila del
+  libro guarda el mensaje con 0 asistentes y sin restricciones.
+  **[T23 — precarga de un rechazo]** Al pulsar **«Editar»** sobre una respuesta **rechazada**, el
+  formulario arranca en **«No podré asistir»** (no en «Sí, asistiré»): se ve el mensaje precargado y
+  **no** se ven adultos, niños ni alergias; el **panel** de solo lectura que queda detrás **no**
+  muestra el estado como un campo (sigue siendo nombre, mensaje, fecha…). Guardar otra vez sin cambiar
+  la asistencia sigue registrando un rechazo.
+- **10. Saludo con el nombre (RF-14, D19).** En la personalizada, «Responder invitación» abre el
+  contenido con «Hola, \<nombre completo\>» **antes** del nombre (solo lectura) y de los lugares
+  reservados; antes de pulsar **no** se ve; en `respondido`, el saludo va **sobre** el panel de solo
+  lectura; en la genérica/pública **no** aparece.
+- **11. Tolerancia de la consulta (RF-15, R13).** Con el script **redesplegado**, una boda
+  genérica/pública cuyo libro **no** declare `guest_name`/`status` deja de responder `INVALID_DATA`:
+  la fila se devuelve con `name: null` y `response: null` (primera respuesta); sin la columna `phone`
+  **sí** falla con `INVALID_DATA`; `generic_json_cache` ausente **no** es el fallo. (Detalle en
+  `gas/README.md`.)
+- **Punto 5 de §12 actualizado:** los combos son **por campo** (adultos `1..cupo` sin el 0, niños
+  `0..cupo`) y el campo libre de `n` lleva `min={1}` (estado real de la Fase 5; ver §17.7).
+- **12. Diagnóstico de un `INVALID_DATA` al resolver (caso real, no un RF nuevo).** Al probar un enlace
+  hay que usar un **código genérico real** (p. ej. `4236_GEN`), **no** `PUBLIC`: una boda `generic`
+  cuya hoja `generic` tenga una fila `PUBLIC` con `limit = "n"` responde **`INVALID_DATA`** al resolver
+  ese código (con o sin teléfono, en `resolve` y en `lookup`), porque `resolveCode_` aplica la regla del
+  **tipo** (`generic` → entero > 0; `public` → `"n"`). La comprobación distingue ese caso de los demás
+  (sin teléfono → `MISSING_FIELDS`; código inexistente → `UNKNOWN_GUEST`) y confirma que la app **no**
+  inventa `PUBLIC`. **Arreglo:** borrar la fila `PUBLIC` de la hoja `generic` (dato del libro), **no**
+  tocar el servicio ni el contrato. Documentado en `gas/README.md` (T20).
+
+### 17.7 Qué de las §1–§16 queda superado por este cambio
+
+- **§4.4 `respondido`** («agradecimiento (copy `OK` del contrato, válido también para `rejected`)») →
+  **superado** por DT-15: en un `rejected` se pinta la copy del rechazo.
+- **§7 (tabla de funciones puras)** y **§5 (archivos nuevos)** → **ampliados** con
+  `responseSummaryData` (RF-13; conserva también el `state`, DT-17) ; `rsvpPayload` cambia de
+  comportamiento (mensaje en el rechazo).
+- **§10 (estrategia de implementación)** y **§11 (pruebas)** → **ampliados**: el cambio va **después**
+  de la Fase 5, lógica pura primero (T16), luego presentación (T17–T18), el arreglo de la precarga del
+  rechazo en la composición pura (T23, DT-17), servicio (T19) y su documentación (T20), verificación
+  manual (T21) y gobernanza al final (T22).
+- **§12 punto 5** («combos con rangos completos y opción 0») → **superado** por el estado real de la
+  Fase 5 (rango por campo, ver §17.6).
+- **§8 (contratos que NO cambian)** → **intacto**: el cambio **no** toca el contrato, el modelo del
+  libro, los códigos de error ni las APIs de los hooks; la copy no es contrato (§13.4).
+- **§13 (cobertura)** → **ampliada** en la tabla de abajo.
+- **§14 (riesgos)** → se añade el riesgo operativo del redespliegue (la versión no cambia, así que un
+  script viejo y la app «coinciden» en `1.1.0`): mitigación en `gas/README.md` y punto manual 11.
+
+### 17.8 Cobertura de requisitos del cambio
+
+| Parte del plan | RF/RNF |
+| --- | --- |
+| §17.2 `rsvpPayload` (mensaje en el rechazo) | RF-13 |
+| §17.2 `responseSummaryData` (§17.3, DT-13, DT-17) | RF-13, RF-10 |
+| §17.2 `ResponseSummary` (sin cambio de API) | RF-13 |
+| §17.2 `showsAttendanceFields`/mensaje y `attendanceNotice` (región viva) | RF-13 (I2) |
+| §17.2 copy del rechazo en `respondido` y en el envío aceptado (DT-15) | RF-12, D20, R12 |
+| §17.2 saludo con el nombre en `editando`/`respondido` (DT-16) | RF-14, D19 |
+| §17.2 `lookupResponse_` exige solo `phone` | RF-15, R13 |
+| §17.2 `gas/README.md` (casos + redespliegue) y §17.6 punto 11 | RF-15, R13 |
+| §17.2 `docs/servicio-invitados.md` (tolerancia + rechazo con mensaje) | RF-13, RF-15 |
+| §17.2 `gas/README.md` (nota de diagnóstico `INVALID_DATA` por `limit`/tipo) y §17.6 punto 12 | RNF-5, §13 (R13) |
+| §17.5 pruebas puras; §17.6 verificación manual | RNF-4, RNF-5, RNF-9 |
+| §17.2 sin dependencias nuevas; copy/saludo en el componente | RNF-3, §13.4 |
+
+### 17.9 Riesgos del cambio
+
+- **Que la copy del rechazo choque con «la app no incrusta copy de contrato».** → DT-15: la copy es un
+  **rótulo de interfaz** (no un literal del modelo); el módulo sigue siendo la fuente de lo que sí es
+  contrato y la prueba de sincronía no cambia.
+- **Que `rsvpPayload` envíe de más en un rechazo.** → DT-13 y prueba pura: en un rechazo solo viaja el
+  `message`; la prueba fija que adultos, niños y restricciones **no** se envían.
+- **Que el panel borre el mensaje del rechazo.** → `responseSummaryData` lo **conserva** y su
+  prueba lo fija (sustituye a `summaryData`).
+- **Que la precarga de «Editar» pierda el estado del rechazo (DT-17, T23).** `responseSummaryData`
+  **no** devolvía `state` y `attendanceForm` caía a `CONFIRMED`: «Editar» sobre un rechazo precargaba
+  una confirmación. → `responseSummaryData` conserva `state` (una sola fuente para el panel y la
+  precarga) y una prueba pura alimenta `attendanceForm` con su salida y exige `rejected`; el punto
+  manual 9 lo comprueba en el navegador. `ResponseSummary` no cambia (no pinta el estado).
+- **Que el saludo se cuele en la vista colapsada o en la genérica/pública.** → DT-16 y punto manual 10:
+  solo en `editando`/`respondido` de la personalizada.
+- **Que la tolerancia de cabeceras oculte un fallo real.** → R13: solo se relajan `guest_name`/`status`;
+  `phone` sigue obligatoria y los fallos de verdad siguen dando `INVALID_DATA`; la comprobación manual
+  distingue ambos casos.
+- **Riesgo operativo: el redespliegue no es detectable por la versión.** Como el contrato **no** sube de
+  `1.1.0`, un `gas/Code.gs` viejo y la app coinciden en versión; el **redespliegue** es un paso manual
+  obligatorio (`gas/README.md`) y el punto manual 11 falla si no se hizo (seguiría dando
+  `INVALID_DATA`). No se añade un marcador de versión solo para esto.
+- **Un `INVALID_DATA` que parece de la app y es de los datos (caso real, §17.6 punto 12).** Un código
+  `PUBLIC` en una boda `generic` (o cualquier `limit` que no cuadre con el tipo) hace que
+  `resolveCode_` devuelva `INVALID_DATA` antes de leer ninguna fila. → Riesgo **de diagnóstico**, no de
+  código: la nota de `gas/README.md` (T20) explica la regla del tipo y los dos casos de `limit`, cómo
+  distinguirlo de `MISSING_FIELDS`/`UNKNOWN_GUEST` y que el arreglo es **de datos**; no se cambia el
+  contrato ni el servicio (opción descartada por el usuario: un código de error específico nuevo).
+  **[Superado por §18:]** el «código de error específico nuevo» **sí** se hace (era la opción
+  descartada en §17): `MALFORMED_GUEST` (RF-16) y, además, `PUBLIC` con `"n"` **sí** resuelve en una
+  boda `generic` (RF-17). De esta §17.9 sigue vigente la explicación de la regla del tipo y que la app
+  **no** inventa `PUBLIC`.
+
+---
+
+## 18. Cambio de requisitos de la spec §14 (RF-16/RF-17, D21/D22, R14/R15)
+
+Traduce el **segundo cambio posterior**, que vive en la **§14 de la spec** (aprobado por quien la
+pide). Parte del **estado real del código** ya implementado (spec 005 con las fases 1–6 hechas:
+`contract.js`, `gas/Code.gs`, `docs/servicio-invitados.md`, `src/utils/invitation.js` **como están
+hoy**) y de la **evidencia en vivo** del §14.0 (una boda `generic` con una fila `PUBLIC` con
+`limit = "n"` que **siempre** responde `INVALID_DATA`). Se añade **después** de la §17 para no
+reescribir lo implementado; **no** repite tareas (esas van en `tasks.md`, Fase 7).
+
+### 18.1 Qué pide el cambio y en qué capa cae
+
+| Pedido | RF | Capa | Efecto |
+| --- | --- | --- | --- |
+| Código de error propio para una fila de código mal formada | **RF-16**, D21, R14 | **Contrato (módulo + documento) y servicio** | `MALFORMED_GUEST` nuevo; `INVALID_DATA` se reserva a lo que impide leer/escribir; `CONTRACT_VERSION` **1.1.0 → 1.2.0** **en módulo y script a la vez, en la misma tarea (T24)**, y el documento lo reproduce. |
+| `PUBLIC` con `"n"` vale por «sin tope» en una boda genérica | **RF-17**, D22, R15 | **Servicio** (regla del tipo) **+ la app** (lectura) | `resolveCode_` acepta `PUBLIC` con `"n"` en `generic`; `codeLimit`/`interpretInvitation`/`interpretLookup` aceptan `{ type: "generic", limit: "n" }`. |
+
+**No cambia:** el modelo del libro (hojas, columnas, estados), la acción `lookup` ni su forma, el
+`guest_type` del maestro, la copy del rechazo (§13.4), la lista cerrada de la prueba de sincronía ni
+su **regla** (sigue exigiendo la tabla de códigos y la igualdad de versión, leída como texto).
+
+### 18.2 Mapa de archivos del cambio
+
+- **`src/constants/contract.js` (contrato, ampliado).**
+  - **`SERVICE_ERRORS` gana una entrada nueva** para el código mal formado:
+    `{ code: "MALFORMED_GUEST", message: "El código de esta invitación no es válido.", retryable: true }`.
+    El **mensaje** va en **español** (es texto de interfaz, RF-16); el **`code`** en inglés por
+    excepción documentada (literales del modelo del servicio). `retryable: true` porque quien publica
+    puede corregir la fila (como `INVALID_DATA`).
+  - **`CONTRACT_VERSION` sube de `"1.1.0"` a `"1.2.0"`** (DT-18): cambio **de forma** (un código de
+    error más en la tabla), subida **menor** porque nada se retira ni se renombra. La sube **esta
+    misma tarea (T24) en el módulo y en `gas/Code.gs` a la vez**: el guardarraíl de
+    `test/serviceContract.test.js` (misma versión en módulo y script) **no** se relaja ni se pone en
+    rojo en ningún momento (ver §18.4, DT-18, y §18.2, el script).
+  - **Nada más cambia:** ni tipos, ni estados, ni acciones, ni los campos de `resolve`/`lookup`/
+    `respond`, ni `NO_LIMIT`, ni `PUBLIC_CODE`, ni las hojas ni las columnas. La entrada de
+    `INVALID_DATA` **no** se renombra ni se retira (solo cambia su **reparto** en la prosa del
+    documento).
+- **`docs/servicio-invitados.md` (documento derivado, ampliado).**
+  - la línea de versión pasa a **`1.2.0`**;
+  - la **tabla de códigos de error** (004 §4.1) gana **`MALFORMED_GUEST`** con su causa y su mensaje
+    (derivados del módulo) y **matiza** la causa de `INVALID_DATA` (deja de incluir el código mal
+    formado: sigue para libro/hoja/cabecera de verdad y datos incoherentes);
+  - la prosa de **`lookup`/`resolve`** aclara que un código **existente** cuyo `limit` no cumple la
+    regla del tipo responde **`MALFORMED_GUEST`** (no `INVALID_DATA`), que `UNKNOWN_GUEST` sigue
+    siendo «el código no está en su hoja» y que **`PUBLIC` con `"n"` vale por sin tope también en una
+    boda `generic`**;
+  - **no** recoge ninguna copy de interfaz ni cambia la forma de las respuestas correctas.
+- **`gas/Code.gs` (servicio, modificado).** **`CONTRACT_VERSION` pasa a `'1.2.0'` (la misma que el
+  módulo) en la tarea del contrato (T24), a la vez que el módulo** —el guardarraíl de
+  `test/serviceContract.test.js` exige que los dos declaren la misma versión, así que subirlos en
+  tareas distintas dejaría la prueba en **rojo** entre ambas—. En la tarea del servicio (T26),
+  `ERROR_CODES` gana `MALFORMED_GUEST: 'MALFORMED_GUEST'` y en **`resolveCode_`** (~líneas 350-397) la
+  regla del tipo cambia (DT-19):
+  - boda **`public`**: el código tiene que ser `PUBLIC` (si no, `UNKNOWN_GUEST`, sin cambio) y su
+    `limit`, **exactamente `"n"`**; cualquier otro valor → **`MALFORMED_GUEST`** (antes `INVALID_DATA`);
+  - boda **`generic`**: si el código es el reservado **`PUBLIC`** (RF-17), el `limit` tiene que ser
+    **exactamente `"n"`** → se acepta y vale por **sin tope** (`limit = "n"`); un `PUBLIC` con otro
+    `limit` → **`MALFORMED_GUEST`**; un código genérico corriente exige un **entero > 0** y, si no,
+    **`MALFORMED_GUEST`** (antes `INVALID_DATA`).
+  - **No** se toca `lookupResponse_` (su tolerancia de cabeceras de §13/T19 sigue) ni
+    `registerCodeResponse_` (su escritura ya cubre `"n"` con `limit !== NO_LIMIT && adults > limit →
+    OVER_LIMIT`, ~línea 850) ni `resolvePersonal_`.
+- **`test/serviceContract.test.js` (guardarraíl) — sin cambio de regla.** Ya exige que la tabla de
+  códigos del documento coincida **en conjunto y en el mensaje** con `SERVICE_ERRORS` y que
+  `gas/Code.gs` declare la **misma** `CONTRACT_VERSION` (leída como texto). El código nuevo entra solo
+  desde el módulo y la versión sube **en T24 en módulo y script a la vez**, de modo que el guardarraíl
+  queda **verde en todo momento**; se **revisa** que la prueba siga verde sin tocarla (si hubiera que
+  tocarla, sería señal de que algo se salió del contrato: parar y revisar).
+- **`src/utils/invitation.js` (lógica pura de la app, modificada).** `codeLimit(type, value)` (~líneas
+  81-87) deja de atar `"n"` **solo** a `public`: pasa a aceptar `"n"` **también** en `generic` (DT-20).
+  Con eso `interpretInvitation` (rama `else`, ~línea 171) e `interpretLookup` (~línea 204) aceptan
+  `{ type: "generic", limit: "n" }` sin descartar la invitación. **El resto de la lectura ya es
+  coherente** (comprobado en el código, §14.7 de la spec): `guestLimit` (`Infinity` con `NO_LIMIT`,
+  sin mirar el tipo), `seatsText` («sin tope» con `NO_LIMIT`, sin mirar el tipo), `attendeeLimits`
+  (`adults: "n"` en genérica y pública por igual, `children: 0`), `isWithinGuestLimit(total, Infinity)`
+  (`true`), `validateRsvp` (usa `guestLimit(invitation)` → sin tope pasa) y `rsvpPayload` (no deciden
+  por tipo). **No** se toca ningún otro punto.
+- **`src/utils/invitation.test.js` (ampliada).** Los casos nuevos (DT-20, tests primero): un
+  `GENERIC_RESULT` con `limit: "n"` **no** cae en `INVALID_DATA` y la invitación sale con `limit: "n"`,
+  `guestLimit: Infinity` y `seatsText` «sin tope»; un `LOOKUP_GENERIC` con `limit: "n"` tampoco cae en
+  `INVALID_DATA`; un genérico con `limit` no entero > 0 (`"x"`, `0`, `-1`, vacío) **sigue** siendo
+  `INVALID_DATA` (es un dato fuera de contrato: el **servicio** es quien emite `MALFORMED_GUEST`, la
+  app solo lee). Se **revisa** que los casos actuales que afirman `INVALID_DATA` con `"n"` en
+  `generic` (p. ej. la tabla de límites de ~línea 228 y la de `interpretLookup` de ~línea 345) se
+  **sustituyen** por los nuevos donde el `"n"` ahora es válido en genérica, conservando los que
+  siguen siéndolo para `limit` ilegible.
+- **`src/utils/rsvp.test.js` — revisión (sin código nuevo).** `validateRsvp` con una invitación
+  `{ type: "generic", limit: "n" }` (o con `guestLimit: Infinity`) **pasa** el cupo: se añade/ajusta el
+  caso para fijarlo (hoy `guestLimit` ya devuelve `Infinity`). No cambia ninguna función de `rsvp.js`.
+- **`src/data/guest-cards.js` y `guest-cards.test.js` — revisión.** Son **fixtures** (la app no los
+  importa en ejecución) y su prueba exige que las fichas `generic` tengan un `limit` **entero > 0**
+  (~líneas 36-41) y las `public`, `"n"`. Ese fixture representa una boda genérica **corriente**, así
+  que **sigue siendo válido** y **no** se toca; si el plan necesita un fixture nuevo para «genérica
+  sin tope» (una fila `PUBLIC` en una boda `generic`), se **añade** como ficha aparte **sin** aflojar
+  la regla de las fichas corrientes. Decisión: **no** se añade fixture (el caso se cubre con los
+  literales de `invitation.test.js`); si hiciera falta para la verificación manual, se documenta.
+- **`gas/README.md` (ampliado).** La **nota de diagnóstico** (punto 8, T20) **deja de** decir que un
+  `PUBLIC` en una boda `generic` «nunca resuelve»: pasa a describir el **reparto nuevo** —`PUBLIC` con
+  `"n"` en boda genérica → **sin tope** (RF-17); cualquier otro `limit` que no cuadre con su regla →
+  **`MALFORMED_GUEST`** (RF-16), que ya **no** es `INVALID_DATA`—, añade el código nuevo a la **tabla
+  de distinción de fallos** (sin teléfono → `MISSING_FIELDS`; código inexistente → `UNKNOWN_GUEST`;
+  código que existe con `limit` mal formado → `MALFORMED_GUEST`; libro/hoja/cabecera real →
+  `INVALID_DATA`) y el **aviso de redespliegue** (el cambio vive en el script; hasta publicar una
+  versión nueva sigue el reparto viejo).
+- **Gobernanza (`AGENTS.md`, `MEMORY.md`, `PENDING_TASKS.md`) al final.** El código nuevo, la regla de
+  `PUBLIC` con `"n"` en boda genérica, la versión `1.2.0`, la nota de `gas/README.md` y los puntos
+  manuales nuevos; la verificación de la 004 y la de §13 siguen pendientes y **no** se marcan aquí.
+
+### 18.3 Funciones puras del cambio (con su firma)
+
+| Función | Módulo | Entradas | Salida | RF |
+| --- | --- | --- | --- | --- |
+| `codeLimit(type, value)` (modificada) | `utils/invitation.js` | tipo y `limit` crudo | `"n"` (public **o** generic) \| entero > 0 (generic) \| `null` (fuera de contrato) | RF-17 |
+| `interpretInvitation(result)` (sin cambio de firma) | `utils/invitation.js` | respuesta de `resolve` | modelo; acepta `{type:"generic", limit:"n"}` | RF-17 |
+| `interpretLookup(result)` (sin cambio de firma) | `utils/invitation.js` | respuesta de `lookup` | modelo; acepta `{type:"generic", limit:"n"}` | RF-17 |
+
+Solo cambia **una regla** dentro de `codeLimit`; `guestLimit`, `seatsText`, `attendeeLimits`,
+`isWithinGuestLimit`, `validateRsvp` y `rsvpPayload` **se leen tal cual** (ya soportan `"n"`). El
+**código nuevo del contrato** (`MALFORMED_GUEST`) lo **consume la app desde el módulo** (`Rsvp.jsx`
+pinta el aviso por `serviceNotice(code).message`, 004 RF-17 intacta): **no** hay función pura nueva ni
+literal en componentes.
+
+### 18.4 Decisiones de implementación (DT-18, DT-19, DT-20)
+
+- **DT-18 · El código nuevo es `MALFORMED_GUEST` y el contrato sube a `1.2.0`, en módulo y script a la
+  vez (en la misma tarea).** Se declara en `SERVICE_ERRORS` (fuente única) con su mensaje en español y
+  `retryable: true`; el documento lo deriva y la prueba de sincronía lo vigila. La **versión** la suben
+  `src/constants/contract.js` **y** `gas/Code.gs` en la **misma** tarea (T24): repartirla entre dos
+  tareas dejaría en rojo el guardarraíl de `test/serviceContract.test.js` (exige la misma versión en
+  los dos lados), que **no** se relaja ni se toca. Es un cambio **de forma** (un código más), por eso
+  **sí** sube, a diferencia de §13 (una copy de interfaz no sube). *Descartado:* reutilizar
+  `INVALID_DATA` (es exactamente lo que confunde, RF-16); reutilizar `UNKNOWN_GUEST` (diría «el código
+  no está en su hoja», que es falso); nombrarlo `INVALID_GUEST_CODE` (se leería como «el enlace es
+  inválido», cuando el fallo es de la **fila**); subir a `2.0.0` (nada se retira ni se renombra);
+  **repartir la subida entre dos tareas** (módulo en una y script en otra: el guardarraíl quedaría en
+  rojo entre ambas).
+- **DT-19 · La regla del tipo se parte en dos en `resolveCode_`: «existe mal formado» ≠ «no está» ≠
+  «no se puede leer».** El código **que no está** en su hoja sigue `UNKNOWN_GUEST`; el que **está** y
+  su `limit` no cumple la regla → `MALFORMED_GUEST`; lo que impide **leer/escribir** (libro, hoja,
+  cabecera) sigue `INVALID_DATA`. Dentro de una boda **`generic`**, el código reservado **`PUBLIC`**
+  con `"n"` se acepta (sin tope) y con cualquier otro `limit` es `MALFORMED_GUEST`; un genérico
+  corriente exige entero > 0. *Descartado:* hacer que `PUBLIC` en `generic` herede el `limit` de la
+  fila (inventaría un cupo); aceptar `"n"` en **cualquier** código genérico (convertiría un cupo mal
+  escrito en invitación sin tope); dejar el reparto como estaba (el veredicto seguiría opaco).
+- **DT-20 · La app lee `"n"` en una invitación genérica sin cambiar su modelo.** Se relaja **una sola**
+  regla (`codeLimit`) porque hoy ataría `"n"` a `public` y `interpretInvitation`/`interpretLookup`
+  **descartarían** una invitación que el servicio considera válida (fallo silencioso, peor que el
+  actual). El **tipo** sigue siendo `generic` (no se convierte en `public`), no se ofrecen niños (D12)
+  y `n` sigue siendo «sin tope» sin máximo (R1). *Descartado:* tratar la genérica sin tope como
+  `public` en la app (cambiaría el tipo y el comportamiento); duplicar la regla en el componente
+  (debe vivir en la lógica pura, RNF-4); **no** tocar la app (dejaría al servicio y a la app en
+  veredictos opuestos).
+
+### 18.5 Estrategia de pruebas del cambio (`node --test`)
+
+- **Ampliadas:** `utils/invitation.test.js` —
+  - `interpretInvitation({ ...GENERIC_RESULT, limit: "n" })` → **no** `INVALID_DATA`; la invitación
+    sale con `limit: "n"`, `guestLimit: Infinity`, `seatsText` «sin tope»;
+  - `interpretLookup({ ...LOOKUP_GENERIC, limit: "n" })` → **no** `INVALID_DATA`;
+  - un genérico con `limit` no entero > 0 (`"x"`, `0`, `-1`, vacío, `null`) → **sigue** `INVALID_DATA`
+    (dato fuera de contrato; el código del **servicio** es `MALFORMED_GUEST`, la app solo lee);
+  - la pública sigue como hoy (`"n"` válido, entero → `INVALID_DATA`).
+- **Ajustadas:** `utils/rsvp.test.js` — `validateRsvp` con una invitación genérica sin tope **pasa**
+  el cupo (`guestLimit: Infinity`); no cambia ninguna función.
+- **Revisada (sin cambio de regla):** `test/serviceContract.test.js` — debe seguir verde con el código
+  nuevo y la versión `1.2.0` **subida en módulo y script en la misma tarea** (su guardarraíl de «misma
+  versión» nunca queda en rojo); si exigiera tocarla, **parar y revisar** (señal de salida del
+  contrato).
+- **Lo que `node --test` no cubre** (y va a la verificación manual): el `resolveCode_` **en ejecución**
+  (Apps Script no tiene runner), el aviso del código nuevo en la interfaz y el redespliegue.
+
+### 18.6 Verificación manual añadida a §12 (puntos nuevos)
+
+Se **añaden** a la lista de §12 (numeración que continúa). El punto **12** de §17.6 (usar un código
+genérico real al probar enlaces) queda **superado** por el punto **13** de aquí (ya **no** hace falta
+evitar `PUBLIC`).
+
+- **13. Código mal formado → `MALFORMED_GUEST` (RF-16).** Con un libro de **prueba** cuya hoja
+  `generic` tenga un código con `limit` inválido (`"x"`, `0` o vacío): `resolve` y `lookup` de ese
+  código responden **`MALFORMED_GUEST`** (no `INVALID_DATA`); la app muestra su **aviso propio**
+  («El código de esta invitación no es válido.»), **no** el de «datos incompletos», con su reintento;
+  un código **inexistente** sigue siendo `UNKNOWN_GUEST` y un libro **sin `phone`** sigue siendo
+  `INVALID_DATA`.
+- **14. `PUBLIC` con `"n"` en una boda genérica → sin tope (RF-17).** En una boda **`generic`** de
+  prueba con una fila `PUBLIC` (`limit = "n"`): `resolve` y `lookup` de `PUBLIC` responden `ok: true`
+  con `type: "generic"` y `limit: "n"`; la app **no** descarta la invitación (no aparece «los datos de
+  esta invitación están incompletos»), anuncia **sin tope**, ofrece el **campo numérico libre** (sin
+  máximo) y el envío con `PUBLIC` **no** devuelve `OVER_LIMIT` por cupo. Un `PUBLIC` con `limit`
+  **distinto** de `"n"` (p. ej. `3`) responde **`MALFORMED_GUEST`**. Los códigos corrientes `…_GEN`
+  siguen resolviendo con su `limit` numérico y su combo `1..cupo`; el punto manual **11** (tolerancia
+  de cabeceras) sigue pasando.
+
+### 18.7 Qué de las §1–§17 queda superado por este cambio
+
+- **§17.2 nota de diagnóstico de `gas/README.md`** («un `PUBLIC` en una boda `generic` **nunca**
+  resuelve» y «el arreglo es **de datos**») → **superado**: con RF-17 ese código **sí** resuelve (sin
+  tope); la nota pasa a describir el reparto nuevo y `MALFORMED_GUEST` (DT-19, §18.2). El arreglo de
+  datos sigue siendo opcional pero **ya no** es obligatorio.
+- **§17.6 punto 12** («usar un código genérico real, no `PUBLIC`») → **superado** por el punto 14 de
+  §18.6: ya **no** hay que evitar `PUBLIC`.
+- **§17.9 último riesgo** (el `INVALID_DATA` opaco por `limit`/tipo, con «código de error específico
+  nuevo» como **opción descartada**) → **superado**: esa opción **se toma** (RF-16) y `PUBLIC` con
+  `"n"` **sí** resuelve (RF-17).
+- **§17.1** («no cambia el contrato; `CONTRACT_VERSION` sigue `1.1.0`; `test/serviceContract.test.js`
+  sin cambio de regla») → **la parte de la versión queda superada**: el contrato **sí** sube
+  (`1.2.0`, DT-18), **en módulo y script a la vez en la misma tarea (T24)**. La **regla** de la prueba
+  **sí** sigue igual (se dice lo mismo: la tabla y la versión deben coincidir) y **el guardarraíl no
+  se relaja en ningún momento**: por eso la subida **no** se reparte entre dos tareas.
+- **§8 (contratos que NO cambian)** → **matizada**: la frase «los códigos de error de 004 §4.1
+  (ninguno se retira ni se renombra; `lookup` no añade ninguno)» se mantiene en que **no** se retira ni
+  renombra ninguno y en que `lookup` **no** añade ninguno **propio**; pero la tabla **gana**
+  `MALFORMED_GUEST` (es de la **resolución del código**, no de `lookup`).
+- **§13 (cobertura) y §12 (verificación)** → **ampliadas** con la tabla y los puntos de abajo.
+- **§16 criterio 1** («sin ningún código de error nuevo») y **§10 paso 1** → **matizados**: el
+  contrato gana **un** código (`MALFORMED_GUEST`), declarado a la vez en módulo + script **en T24**, y
+  el documento lo reproduce.
+- **§10 (estrategia de implementación)** y **§11 (pruebas)** → **ampliados**: el cambio va **después**
+  de la Fase 6, contrato con la versión subida en módulo y script a la vez (T24) y lógica pura después
+  (T25), luego la **regla del tipo** del servicio (T26, **sin** volver a tocar la versión) y su
+  documentación (T27), la verificación manual (T28) y la gobernanza (T29).
+- **§17.7 y §17.8 (superados y cobertura de §17)** → **se conservan**; este §18.7 y §18.8 son los que
+  añaden lo superado y la cobertura **de este** cambio.
+
+### 18.8 Cobertura de requisitos del cambio
+
+| Parte del plan | RF/RNF |
+| --- | --- |
+| §18.2 `contract.js` + `gas/Code.gs` (`MALFORMED_GUEST` y `CONTRACT_VERSION` `1.2.0` **en módulo y script a la vez, en T24**) | RF-16, R14 |
+| §18.2 `docs/servicio-invitados.md` (tabla ampliada + reparto de `INVALID_DATA`) | RF-16 |
+| §18.2 `gas/Code.gs` `resolveCode_` (reparto + `PUBLIC`/`"n"` en `generic`, **sin** volver a tocar la versión, T26) | RF-16, RF-17, D21, D22 |
+| §18.2 `codeLimit`/`interpretInvitation`/`interpretLookup` (acepta `{generic, "n"}`) | RF-17, R15 |
+| §18.5 `invitation.test.js` (genérica sin tope; `limit` ilegible sigue fallando) | RF-17, RNF-4 |
+| §18.2 `test/serviceContract.test.js` (sin cambio de regla; verde porque la versión sube en los dos lados a la vez) | RF-16, RNF-5 |
+| §18.2 `gas/README.md` (reparto nuevo + tabla + redespliegue) y §18.6 puntos 13–14 | RF-16, RF-17, RNF-5 |
+| §18.4 DT-18/DT-19/DT-20 (nombre, reparto, lectura de la app) | RF-16, RF-17, D21, D22 |
+| §18.2 sin dependencias nuevas; gobernanza al final | RNF-3, §5.2 de la spec |
+
+### 18.9 Riesgos del cambio
+
+- **Que el código nuevo se quede sin documentar o sin declarar en el módulo.** → DT-18: se declara en
+  `SERVICE_ERRORS` (fuente única) y `test/serviceContract.test.js` exige que el documento no lo omita
+  ni cambie su mensaje; el documento lo deriva y el script declara la misma versión.
+- **Que subir la versión se olvide en uno de los dos lados (o se reparta entre dos tareas y deje el
+  guardarraíl en rojo).** → DT-18: la versión sube **en la misma tarea (T24), en `src/constants/contract.js`
+  y en `gas/Code.gs` a la vez**; el módulo la declara como literal y `test/serviceContract.test.js` la
+  compara con `gas/Code.gs` (leído como texto), de modo que el guardarraíl queda verde en todo momento y
+  **nunca** se relaja. T26 **no** vuelve a tocar la versión (solo la regla del tipo).
+- **Que la app descarte una invitación genérica sin tope (el fallo silencioso de §14.7).** → DT-20: se
+  relaja `codeLimit` y se prueban `interpretInvitation`/`interpretLookup` con `{generic, "n"}`.
+- **Que `PUBLIC` sin tope sirva de puerta a un cupo mal escrito.** → La excepción es **solo** para el
+  código reservado `PUBLIC` con **`"n"`**; cualquier otro `limit` cae en `MALFORMED_GUEST` (D22,
+  RF-17).
+- **Que el diagnóstico vuelva a ser opaco en el otro sentido** (creer que todo `INVALID_DATA` es un
+  código mal formado). → `INVALID_DATA` conserva sus causas y `gas/README.md` recoge la tabla de
+  distinción completa.
+- **Que la regla del tipo se duplique o diverja entre módulo y script.** → La regla vive **una vez**
+  en cada lado con la misma forma (`public` → `"n"`; `generic` → entero > 0 **o** `PUBLIC` con `"n"`);
+  la prueba de sincronía vigila la tabla de códigos y la versión, y la verificación manual cubre el
+  servicio.
+- **Que el fixture de fichas (genérica entera > 0) parezca contradecir RF-17.** → El fixture
+  representa una boda genérica **corriente**; RF-17 solo añade el caso `PUBLIC`/`"n"`, que **no** se
+  representa con una ficha nueva (se cubre con literales puros). La prueba del fixture **no** se
+  relaja.

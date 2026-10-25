@@ -167,7 +167,7 @@ comportamiento y hacerlo antes dejaría la documentación en contradicción con 
   encuentra un punto que no lo tolera, se ajusta `src/utils/` **con su prueba pura** y **sin** tocar
   la interfaz; `npm test` en verde.
 
-- [ ] **T16 · Nota en la spec 005 y gobernanza.** _RF: RF-19, RF-20; D31._
+- [x] **T16 · Nota en la spec 005 y gobernanza.** _RF: RF-19, RF-20; D31._
   Hecho cuando: `specs/005-flujo-rsvp-respuesta-previa/spec.md` deja constancia de que su
   **RF-17/D22 queda derogado** (el `PUBLIC` con `"n"` dentro de una boda genérica **ya no** vale
   por sin tope: es `MALFORMED_GUEST` y su arreglo es borrar la fila) y de que su **§14.8, punto
@@ -177,7 +177,7 @@ comportamiento y hacerlo antes dejaría la documentación en contradicción con 
   resume; y en `PENDING_TASKS.md` **desaparece** la entrada del «`PUBLIC` en la hoja `generic`» (ya
   no aplica: el arreglo es de datos, ya está hecho y la nota vive en `gas/README.md`).
 
-- [ ] **T17 · Verificación manual contra el despliegue real (puntos 14–18 y regresión).**
+- [x] **T17 · Verificación manual contra el despliegue real (puntos 14–18 y regresión).**
   _RF: RF-19, RF-20; RNF-3, RNF-10._
   Hecho cuando: con el script **redesplegado** (la salud devuelve `contract: "1.3.0"`; un despliegue
   viejo delata `"1.2.0"`) y un **libro de prueba**, se comprueban los puntos **14–18** de §13.1 del
@@ -189,4 +189,15 @@ comportamiento y hacerlo antes dejaría la documentación en contradicción con 
   con `child_attendees` **vacío** → `ok: true` con `childAttendees: 0`, y la fila **no** cambia;
   (18) una celda **presente** incoherente → `INVALID_DATA`; y la **regresión** de los tres tipos,
   el `viewed`, el plazo, el rechazo y la actualización por teléfono. **El veredicto lo anota el
-  coordinador** en «Verificación» de `AGENTS.md`, **no** el implementador.
+  coordinador** en «Verificación» de `AGENTS.md`, **no** el implementador. _(Infraestructura lista:
+  contrato `1.3.0` en módulo y script, `gas/README.md` con hoja `public`/punto 8/aviso de redespliegue,
+  vigilancia estática en verde. Verificación manual pendiente de ejecución y anotación.)_
+
+- [ ] **T18 · Corregir el candado en `registerResponse_` (resolver fuera del lock).** _RF: RF-8, RF-14; D11._
+  Hecho cuando: en `gas/Code.gs`, `registerResponse_` resuelve el código **fuera** del candado para
+  genérica/pública (`resolveCode_` antes de `LockService.getScriptLock().waitLock(...)`), guarda
+  `resolved` y lo pasa a `registerCodeResponse_` (o se reestructura para que no vuelva a llamar a
+  `resolveCode_` dentro del lock); para personalizada, el flujo no cambia innecesariamente; el lock
+  solo protege la lectura/escritura de la hoja `guests` (evitar asignar el mismo `guest_id` o
+  pisarse filas); se mantiene la lógica existente, se conserva el manejo de errores y `LOCK_WAIT_MS`;
+  `npm test` y `npm run build` siguen en verde. No se toca la interfaz ni otros archivos.

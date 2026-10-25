@@ -1,7 +1,19 @@
 # PENDING_TASKS.md — Invitación digital
-
 Casos límite, dudas y trabajo diferido que complementan `MEMORY.md`.
 No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se elimina.**
+
+## Verificación manual pendiente (specs 004 y 005)
+
+- **Spec 004 · T10 y spec 005 · T10/T21.** Con el Apps Script **redesplegado**, contra un despliegue
+  real (escritorio y móvil): los puntos de la 004 (tres tipos con envío real y su fila; misma
+  respuesta con el mismo teléfono que actualiza; boda inactiva/código desconocido/sin `slug`/modo
+  demo; teléfono corto, cupo 0, plazo vencido y servicio caído; `viewed` sin sobrescribir) y los de
+  la 005 (§12 puntos 1–11: estados del RSVP, `lookup` con y sin fila, copy y mensaje del rechazo, el
+  saludo de la personalizada y la consulta tolerante sin `guest_name`/`status`). Usa un **código
+  genérico real** (`4236_GEN`), **no** `PUBLIC` (ver «Casos límite» y `gas/README.md`). **Único
+  control de que el redespliegue se hizo.** Anotar veredicto en «Verificación» de `AGENTS.md`.
+- **Spec 003 · T27.** Reutilizar la app con otro registro, copiar datos por portapapeles, audio tras
+  «Ingresar» y una vuelta en un **móvil físico**. Se puede cubrir en la misma pasada.
 
 ## Casos límite por cubrir
 
@@ -30,6 +42,7 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
    correcto por `aria-modal` + `inert` (el hero no se expone), pero valorar si conviene bajar el
    del hero a `<h2>`/`<p>` mientras la portada está abierta.
 
+
 ## Trabajo diferido
 
 - **Tope global de asistentes.** Fuera de alcance en la spec 002 y también en la 004 (§16 del
@@ -55,6 +68,3 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 ## Gobernanza (detectado en la revisión QA; sin resolver)
 
 - Decidir si el rediseño puede usar librerías de UI (el principio 1 solo permite el stack elegido).
-- El riesgo aceptado del `lookup` por teléfono queda documentado en la spec 005 (principio 5 y
-  AGENTS.md); mantener esa restricción si se amplía el alcance (nunca en personalizada, sin
-  escritura, sin devolver teléfono/filas ajenas, sin persistirlo).

@@ -1,6 +1,17 @@
 # Especificación — Servicio de invitados y confirmación (libro maestro y libro de invitados)
 
-**Estado:** aprobada por quien la pide; en revisión de cierre tras el QA (sin requisitos abiertos).
+**Estado:** aprobada por quien la pide; en revisión de cierre tras el QA; **ampliada por el cambio de
+requisitos de §10** (hoja `public` independiente y lectura tolerante de las celdas vacías), pendiente
+de aprobación de quien la pide.
+
+> **Cómo leer esta spec.** El cuerpo (§1–§9) es la versión ya implementada y verificada de esta spec.
+> El **§10** recoge el **cambio de requisitos posterior** pedido por quien la usa —la hoja `public`
+> independiente (RF-19) y la lectura tolerante de las celdas de asistentes vacías (RF-20), con las
+> decisiones **D29**–**D34**— y dice **dónde toca** el cuerpo. Cuando un punto del §10 contradiga el
+> cuerpo, **manda el §10**. Los identificadores del §10 (`RF-19`, `RF-20`, `D29`…`D34`) **no**
+> colisionan con los del cuerpo (`RF-1`…`RF-18`, `D1`…`D28`); los de la spec 005 se citan **con el
+> prefijo «005»** (`005 RF-16`, `005 RF-17`, `005 D21`…), porque allí `RF-16`/`RF-17` y `D21`/`D22`
+> significan otra cosa.
 
 ## 1. Contexto y objetivo
 
@@ -17,10 +28,10 @@ que esta spec parte del estado real de la spec 003.
 
 Los **libros reales** que se van a usar **no** tienen esa forma: el servicio se organiza en **un libro
 maestro** (una fila por boda, con el id del libro de invitados de cada una, su tipo de invitación, su
-plazo y si está activa) y en **un libro de invitados por boda**, con dos hojas (`guests` y `generic`);
-hay **tres** tipos de invitación (personalizada, genérica y pública); el **teléfono** es obligatorio
-en las invitaciones que no vienen precargadas; y los estados se llaman `viewed`, `confirmed`,
-`updated` y `rejected`.
+plazo y si está activa) y en **un libro de invitados por boda**, con **hasta tres** hojas (`guests`,
+`generic` y `public`); hay **tres** tipos de invitación (personalizada, genérica y pública); el
+**teléfono** es obligatorio en las invitaciones que no vienen precargadas; y los estados se llaman
+`viewed`, `confirmed`, `updated` y `rejected`.
 
 **Objetivo:** redefinir por completo la conexión con el servicio para que (1) **resuelva la
 invitación** a partir del enlace y del maestro (quién es el invitado, de qué tipo es su invitación y
@@ -37,7 +48,8 @@ las invitaciones genéricas y públicas es la única forma de saber **quién** r
 **Precisión de vocabulario (evita ambigüedad):**
 - «**el maestro**»: el libro de cálculo que identifica las bodas (hoja `files`, una fila por boda).
 - «**el libro de invitados**»: el libro propio de **una** boda, referenciado desde el maestro por
-  `guests_sheet_id`; tiene dos hojas, `guests` y `generic`.
+  `guests_sheet_id`; tiene **hasta tres** hojas: `guests` (siempre), `generic` (en la boda genérica) y
+  `public` (en la boda pública) (RF-4, RF-19).
 - «**el servicio de registro**»: el servicio externo (Google Apps Script) que lee el maestro y el
   libro de invitados y escribe la respuesta; es un **tercero (Google)**.
 - «**la app**» (o «la invitación»): el sitio estático (React + Vite) que ve el invitado.
@@ -52,8 +64,9 @@ las invitaciones genéricas y públicas es la única forma de saber **quién** r
 - «**configuración del despliegue**»: los valores que fija quien publica (ubicación del servicio y
   `slug` de la boda); **no** viajan en el enlace ni en el registro de la boda.
 - «**código de enlace**»: el valor del parámetro `guest` del enlace; es un `guest_id` (invitación
-  personalizada) o un `generic_id` de la hoja `generic` (invitación genérica o pública). Se compara
-  **normalizado**: sin espacios en los extremos y **sin distinguir mayúsculas y minúsculas** (RF-2).
+  personalizada), un `generic_id` de la hoja `generic` (invitación genérica) o un `public_id` de la
+  hoja `public` (invitación pública). Se compara **normalizado**: sin espacios en los extremos y **sin
+  distinguir mayúsculas y minúsculas** (RF-2, RF-19).
 - «**cupo**»: los lugares que la invitación permite ocupar; vive en la columna `adults_guests` de la
   fila (precargado en la personalizada, escrito por el servicio en la genérica y la pública).
 
@@ -62,7 +75,7 @@ las invitaciones genéricas y públicas es la única forma de saber **quién** r
 > **Aviso de privacidad.** Los libros reales contienen **datos personales** (nombres y teléfonos de
 > personas concretas). Por eso: **no se versionan** (RNF-2), esta spec **no** reproduce ningún dato
 > personal y todos sus ejemplos usan marcadores opacos (`<slug>`, `<guest>`, `<generic_id>`,
-> «Titular», «Acompañante»).
+> `<public_id>`, «Titular», «Acompañante»).
 
 **Los nombres de columna de este apartado son los del libro y son literales.** Si difieren de los
 que se dijeron al pedir esta spec, **manda el libro** y la divergencia queda anotada.
@@ -80,6 +93,7 @@ exactas, en este orden:
 | `deadline` | fecha y hora (número con formato de fecha/hora) | Plazo de confirmación, **el único**: lo da el servicio (RF-11). |
 | `guest_type` | texto | Tipo de invitación de la boda: `personal`, `generic` o `public` (RF-5). |
 | `generic_json_cache` | texto | **Caché** de los códigos de la hoja `generic` de esa boda (RF-18). |
+| `public_json_cache` | texto | **Caché** de los códigos de la hoja `public` de esa boda (RF-19, D32). |
 
 Anotaciones (divergencias con la petición y avisos del ejemplo):
 
@@ -88,8 +102,9 @@ Anotaciones (divergencias con la petición y avisos del ejemplo):
   `slug` y también si dos filas **activas** comparten `guests_sheet_id` (el modelo es un libro por
   boda; M2, M6, D28, RF-3).
 - **Columnas obligatorias del maestro:** `slug`, `is_active`, `guests_sheet_id` y `guest_type`.
-  `deadline` **puede estar vacía** (sin plazo, RF-11) y `generic_json_cache` **puede faltar o estar
-  vacía** (es una caché, RF-18): que falten esas dos **no** invalida la boda (I9).
+  `deadline` **puede estar vacía** (sin plazo, RF-11) y las **dos cachés** (`generic_json_cache` y
+  `public_json_cache`) **pueden faltar o estar vacías** (son cachés, RF-18, RF-19): que falten esas
+  tres **no** invalida la boda (I9).
 - La columna del id del libro de invitados es **`guests_sheet_id`** (en **plural**), **no**
   `guest_sheet_id`.
 - El maestro trae además la columna **`deadline`**, que la petición no listó; es el **único** plazo
@@ -101,12 +116,15 @@ Anotaciones (divergencias con la petición y avisos del ejemplo):
   ocurre con `datetime` en la hoja `guests`. El modelo exige **valores fijos** (no fórmulas): la
   puesta en marcha del servicio lo obliga y la verificación manual lo comprueba (I11, D28, RF-11, §8).
 - `generic_json_cache` aparece **vacío** en el ejemplo: se llena cuando el servicio lee la hoja
-  `generic` de esa boda (RF-18).
+  `generic` de esa boda (RF-18). `public_json_cache` aparece **vacía** (o ni aparece): se llena cuando
+  el servicio lee la hoja `public` de esa boda (RF-19, D32).
 
-#### El libro de invitados (dos hojas)
+#### El libro de invitados (hasta tres hojas)
 
 **Un libro por boda.** El maestro guarda su id en `guests_sheet_id`; es lo que permite **atribuir
-cada respuesta a su boda** sin añadir ninguna columna de boda a la hoja `guests` (D5).
+cada respuesta a su boda** sin añadir ninguna columna de boda a la hoja `guests` (D5). El libro tiene
+**siempre** la hoja `guests` y, según el tipo de la boda, la hoja `generic` y/o la hoja `public`
+(RF-4, RF-19, D29).
 
 Hoja **`guests`** — las respuestas de los invitados de esa boda. Cabeceras exactas:
 
@@ -143,20 +161,38 @@ Hoja **`generic`** — los códigos predefinidos. Cabeceras exactas:
 
 | Columna | Tipo en el libro | Significado |
 | --- | --- | --- |
-| `generic_id` | texto | El **código** de la invitación: es el valor del parámetro `guest` del enlace en las invitaciones genéricas y públicas. |
-| `limit` | número en casi todas las filas; **texto `n`** en la última | **Cupo** (en **adultos**) que ese código permite **en cada respuesta** (RF-9). |
+| `generic_id` | texto | El **código** de la invitación genérica: es el valor del parámetro `guest` del enlace en las invitaciones genéricas (RF-19). |
+| `limit` | número | **Cupo** (en **adultos**) que ese código permite **en cada respuesta** (RF-9). |
 
 Puntos de la hoja `generic`:
 
-- Es la **única columna mezclada** del libro: los códigos corrientes llevan límites **enteros mayores
-  que cero** (en el ejemplo, de 1 a 10) y el código literal **`PUBLIC`** lleva el **texto `n`**, que
-  significa **sin tope** (D12, D21, RF-9). Un `limit` entero **≤ 0** es inválido (RF-13).
+- Los códigos que hay en ella llevan **límites enteros mayores que cero** (en el ejemplo, de 1 a 10).
+  Un `limit` entero **≤ 0** es inválido (RF-13) y un `limit` que **no** sea un entero mayor que cero es
+  un **código mal formado**: responde `MALFORMED_GUEST` (005 RF-16, D21).
 - Los códigos se comparan **normalizados**: sin espacios en los extremos y **sin distinguir mayúsculas
   y minúsculas** (RF-2, D24).
-- **`PUBLIC` es un valor reservado** del modelo (la invitación pública de la boda), no un código
-  corriente.
+- **El código reservado `PUBLIC` sale de esta hoja** (D31, RF-19): la invitación pública vive en la
+  hoja `public`. Si se **deja** una fila `PUBLIC` en `generic`, es **un código genérico más**: con
+  `limit = "n"` no cumple la regla de esta hoja y responde `MALFORMED_GUEST` (RF-19, D31).
 - **Un mismo código sirve a muchos invitados:** el límite es **por respuesta**, no una bolsa que se
   agote (RF-9).
+
+Hoja **`public`** — el código de la invitación pública. Cabeceras exactas:
+
+| Columna | Tipo en el libro | Significado |
+| --- | --- | --- |
+| `public_id` | texto | El **código** de la invitación pública: es el valor del parámetro `guest` del enlace en las invitaciones públicas (RF-19). |
+| `limit` | número en casi todas las filas; **texto `n`** en la normal | **Cupo** (en **adultos**) que ese código permite **en cada respuesta**; el texto **`n`** significa **sin tope** (RF-9, D30). |
+
+Puntos de la hoja `public`:
+
+- **Solo la necesita el tipo `public`**, donde es **obligatoria** (RF-4, RF-19); en los otros tipos
+  **puede** estar (y entonces es donde se busca el código público de una boda genérica, D29).
+- Habla **el mismo idioma** que la hoja `generic`: un **entero mayor que cero** es el cupo por
+  respuesta y el texto **`n`** es **sin tope** (D30). El caso normal es el código reservado
+  **`PUBLIC`** con `"n"`.
+- Los códigos se comparan **normalizados** (RF-2, D24) y **un mismo código sirve a muchos
+  invitados**: el límite es **por respuesta** (RF-9).
 
 #### Cómo se leen los libros
 
@@ -169,9 +205,9 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 - **D1 — Solo el invitado y su respuesta salen del repositorio.** El contenido de la boda no se pide
   al servicio; sigue en el registro local (RF-16).
 - **D2 — El enlace identifica la invitación (`guest`); la boda, por configuración.** El parámetro
-  `guest` lleva el código de enlace (`guest_id` o `generic_id`); el `slug` de la boda y la ubicación
-  del servicio son **configuración del despliegue** (RF-2, RF-15). Los parámetros `codigo`/`code`/
-  `inv` quedan **jubilados, sin alias** (RF-2).
+  `guest` lleva el código de enlace (`guest_id`, `generic_id` o `public_id`; RF-19); el `slug` de la
+  boda y la ubicación del servicio son **configuración del despliegue** (RF-2, RF-15). Los
+  parámetros `codigo`/`code`/`inv` quedan **jubilados, sin alias** (RF-2).
 - **D3 — Tres tipos, decididos por el maestro; una boda, un tipo.** Personalizada, genérica y
   pública; el tipo lo declara la columna `guest_type` del maestro y **no** se infiere de la forma de
   la respuesta ni se mezcla dentro de una boda (RF-5).
@@ -210,8 +246,9 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   adultos y niños por separado, acotados a los cupos de su fila; la genérica y la pública piden solo
   adultos dentro del límite del código, y `PUBLIC` (`"n"`) **no tiene tope** (RF-9).
 - **D13 — La caché de códigos la escribe el servicio.** `generic_json_cache` es un **mapa JSON**
-  `código → límite` (incluida `"PUBLIC": "n"`) que el servicio escribe al leer la hoja `generic` de
-  esa boda; la hoja `generic` es la **fuente** y la caché una **copia** (RF-18).
+  `código → límite` que el servicio escribe al leer la hoja `generic` de esa boda, y
+  `public_json_cache` el equivalente de la hoja `public` (D32, RF-19); cada hoja es la **fuente** y su
+  caché una **copia** (RF-18).
 - **D14 — `is_active` en falso es «boda ya no accesible».** El servicio **deniega** el acceso y la
   app lo muestra como degradación visible con motivo propio, **distinto** de «boda desconocida»
   (RF-3, RF-12). Es un dato que se usará en futuras iteraciones: no se inventa panel ni gestión.
@@ -244,10 +281,10 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   queda reducido a **ejemplos ficticios** para el desarrollo y las **pruebas puras**; **no**
   personaliza en ejecución ni las usa el **modo demo** (I5, RF-1, RF-15).
 - **D23 — Zona horaria, caché y teléfono corto.** El `deadline` del maestro se interpreta en la **zona
-  del libro/hoja de cálculo**; `generic_json_cache` se reescribe **solo cuando está vacía o ilegible**
-  (o cuando el código pedido no está en ella); un teléfono que **no llega a 10 dígitos** se **rechaza
-  visiblemente**; `confirmacion.maximoBoda` **sale de la lógica de cupos** (M8, RF-8, RF-9, RF-11,
-  RF-18).
+  del libro/hoja de cálculo**; las cachés del maestro (`generic_json_cache` y `public_json_cache`) se
+  reescriben **solo cuando están vacías o ilegibles** (o cuando el código pedido no está en ellas); un
+  teléfono que **no llega a 10 dígitos** se **rechaza visiblemente**; `confirmacion.maximoBoda` **sale
+  de la lógica de cupos** (M8, RF-8, RF-9, RF-11, RF-18).
 - **D24 — El código `guest` se compara normalizado.** Sin espacios en los extremos y **sin distinguir
   mayúsculas y minúsculas**, para que `PUBLIC` y los códigos en mayúsculas resuelvan aunque el enlace
   llegue en minúsculas (I6, RF-2).
@@ -325,7 +362,7 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 - El sistema deberá dejar de usar los parámetros `codigo`/`code`/`inv` (**jubilados, sin alias**);
   las pruebas que los congelaban se actualizan (§8).
 - El parámetro del enlace conserva el nombre **`guest`** aunque el modelo llame a sus columnas
-  `guest_id` y `generic_id` (divergencia anotada en §1.1).
+  `guest_id`, `generic_id` y `public_id` (divergencia anotada en §1.1, RF-19).
 - El servicio deberá comparar el código **normalizado**: sin espacios en los extremos y **sin
   distinguir mayúsculas y minúsculas**, para que `PUBLIC` y los códigos en mayúsculas resuelvan aunque
   el enlace llegue en minúsculas (D24).
@@ -357,15 +394,17 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   motivo propio (RF-12), sin personalizar y sin dar por registrada ninguna respuesta.
 - El maestro identifica la boda y **dónde** están sus invitados; no contiene datos de invitados.
 
-**RF-4 — El libro de invitados: dos hojas, leídas por el nombre de su cabecera**
+**RF-4 — El libro de invitados: hasta tres hojas, leídas por el nombre de su cabecera**
 
 - El servicio deberá leer el libro de invitados por el **nombre de la cabecera** de la fila 1, nunca
   por la posición de la columna; las columnas que no necesite pueden quedarse vacías y las **filas
   sin datos** se ignoran.
-- El servicio deberá reconocer las hojas del libro por su nombre literal: `guests` (las respuestas) y
-  `generic` (los códigos predefinidos). La hoja `guests` es **obligatoria en los tres tipos**; la hoja
-  `generic` solo es **obligatoria** en la **genérica** y la **pública**, que son las que resuelven un
-  código contra ella (I4, D20).
+- El servicio deberá reconocer las hojas del libro por su nombre literal: `guests` (las respuestas),
+  `generic` (los códigos genéricos predefinidos) y `public` (el código de la invitación pública). La
+  hoja `guests` es **obligatoria en los tres tipos**; la hoja `generic` es **obligatoria** en la
+  **genérica** —que es la que resuelve sus códigos contra ella—; la hoja `public` es **obligatoria**
+  en la **pública** (RF-19, D29, I4, D20). En los tipos donde una hoja no hace falta, **su ausencia
+  no es un fallo**.
 - El sistema deberá tratar los datos del libro con los significados literales de §1.1:
   `adults_guests` y `child_guests` son **cupos**, `adults_attendees` y `child_attendees` son
   **quienes asisten**, el estado vive en `status` y el momento, en `datetime`.
@@ -390,10 +429,12 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   La app **no** deberá pedir el teléfono en este tipo.
 - DONDE la invitación sea **genérica** (`generic`), el código de enlace deberá ser un **`generic_id`**
   de la hoja `generic` con un **límite** propio. Cada código es un enlace distinto y sirve a muchos
-  invitados; el cupo es **por respuesta** (RF-9).
-- DONDE la invitación sea **pública** (`public`), el código de enlace deberá ser el código reservado
-  **`PUBLIC`** de la hoja `generic`, que sirve a todos los invitados de esa boda con **un solo
-  enlace** y **sin tope** (RF-9).
+  invitados; el cupo es **por respuesta** (RF-9). SI el libro **también** tiene hoja `public` y el
+  código pedido **no está** en `generic`, el servicio deberá buscarlo **en `public`** (RF-19, D29).
+- DONDE la invitación sea **pública** (`public`), el código de enlace deberá ser un **`public_id`** de
+  la hoja `public`, que es **obligatoria** en ese tipo; la hoja `generic` **ya no hace falta** para
+  servirlo. El caso normal es el código reservado **`PUBLIC`** con `limit = "n"`: sirve a todos los
+  invitados de esa boda con **un solo enlace** y **sin tope** (RF-9, RF-19, D30).
 - En la **genérica** y la **pública**, la app deberá pedir el **nombre** y el **teléfono** al
   contestar (RF-8); no precargará nombre ni cupo.
 - SI el `guest_type` del maestro no es uno de los tres, o falta, ENTONCES el sistema deberá fallar de
@@ -407,9 +448,10 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   (`adults_attendees`, `child_attendees`, `message`, `dietary_restrictions`, `datetime`) para poder
   editarla.
 - CUANDO la invitación sea **genérica** o **pública**, el servicio deberá devolver el código de
-  enlace y el **límite** de ese código (el cupo que tendrá la respuesta); **no** precargará nombre ni
-  cupo y **no** puede devolver una respuesta previa, porque el teléfono que la identifica lo escribe
-  el invitado al contestar (RF-8).
+  enlace y el **límite** de ese código (el cupo que tendrá la respuesta; sale de la hoja `generic` o
+  de la hoja `public` que corresponda por su tipo, RF-19); **no** precargará nombre ni cupo y **no**
+  puede devolver una respuesta previa, porque el teléfono que la identifica lo escribe el invitado al
+  contestar (RF-8).
 - El servicio **no** deberá devolver al navegador el **teléfono** de una fila precargada: es un dato
   de la pareja y la app no lo necesita para personalizar (RNF-2).
 - El sistema deberá devolver el estado **tal cual lo trae el libro** (`viewed`, `confirmed`,
@@ -463,8 +505,8 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 - El servicio deberá acotar los asistentes al **cupo del código** y rechazar lo que lo supere
   (RF-9).
 - **El código usado no se registra:** la hoja `guests` **no declara ninguna columna** para el
-  `generic_id`. El sistema **no** deberá inventar una columna ni escribir fuera de lo declarado; del
-  código solo queda su **límite**, escrito en `adults_guests` (D7).
+  `generic_id` ni para el `public_id`. El sistema **no** deberá inventar una columna ni escribir
+  fuera de lo declarado; del código solo queda su **límite**, escrito en `adults_guests` (D7).
 - El teléfono **no** se persiste en el navegador: se escribe en el libro porque es la llave
   (RNF-2).
 
@@ -474,16 +516,17 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   los niños (`child_guests`) de **su** fila, y el sistema deberá mostrar esos lugares junto al
   formulario. `child_guests` vacío vale por **cero**: la invitación no ofrece niños.
 - DONDE la invitación sea **genérica** o **pública**, el cupo será el **límite** (`limit`) del código
-  del enlace, y **solo cuenta adultos**: la genérica y la pública **no** ofrecen niños. `limit` con
-  el texto **`n`** (el código `PUBLIC`) significa **sin tope**: la app **no** deberá inventar un
-  máximo.
+  del enlace —de la hoja `generic` o de la hoja `public` que corresponda por su tipo (RF-19)—, y
+  **solo cuenta adultos**: la genérica y la pública **no** ofrecen niños. `limit` con el texto **`n`**
+  (el código `PUBLIC`) significa **sin tope**: la app **no** deberá inventar un máximo.
 - El cupo es **por envío**: cada invitado que use un código puede traer hasta su límite **en su
   propia respuesta**; el código **no** se agota.
 - Un número **igual** al cupo deberá ser válido **cuando el cupo es mayor que cero**; un número **por
   encima** deberá impedirse y indicarse de forma visible **antes** de enviar. Con **cupo cero** no se
   puede confirmar asistencia: lo único posible es **rechazar** (D21).
-- Un `limit` de código **entero ≤ 0** es **inválido** (RF-13); el código `PUBLIC` (`"n"`) **no** tiene
-  tope (D21).
+- Un `limit` de código **entero ≤ 0** es **inválido** (RF-13); el código que **existe** pero cuyo
+  `limit` **no cumple la regla de su hoja** responde **`MALFORMED_GUEST`** (005 RF-16, D21) y no
+  `INVALID_DATA`; el código `PUBLIC` (`"n"`) **no** tiene tope (D21, D30).
 - El sistema no deberá enviar una respuesta que supere el cupo; el servicio también deberá
   rechazarla (`OVER_LIMIT`, §4.1).
 
@@ -561,19 +604,21 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   sistema deberá fallar de forma **visible**, sin personalizar con datos incompletos. Se consideran
   inválidos:
   - un maestro sin la hoja `files`, sin las columnas **obligatorias** (`slug`, `is_active`,
-    `guests_sheet_id`, `guest_type`; `deadline` y `generic_json_cache` pueden faltar o estar vacías,
-    §1.1), con un `guest_type` que no sea uno de los tres, con dos filas que comparten `slug` o con dos
-    filas **activas** que comparten `guests_sheet_id`;
+    `guests_sheet_id`, `guest_type`; `deadline`, `generic_json_cache` y `public_json_cache` pueden
+    faltar o estar vacías, §1.1), con un `guest_type` que no sea uno de los tres, con dos filas que
+    comparten `slug` o con dos filas **activas** que comparten `guests_sheet_id`;
   - un libro de invitados al que le falta la hoja que su tipo necesita (`guests` en todos; `generic` en
-    la genérica y la pública), o con la **cabecera** incompleta;
+    la genérica; `public` en la pública), o con la **cabecera** incompleta (RF-19);
   - una invitación **personalizada** sin `guest_name`, con `adults_guests` ilegible o negativo, o
     con `child_guests` ilegible o negativo (vacío sí vale: es cero);
-  - un código **genérico** cuyo `limit` no sea un **entero mayor que cero**, o una invitación
-    **pública** cuyo `limit` no sea el valor especial `n`;
+  - un código cuyo `limit` **no cumpla la regla de su hoja** (un entero mayor que cero en `generic` y en
+    `public`, o el texto `n` en el código reservado `PUBLIC`): esto **no** es `INVALID_DATA`, es el
+    **código mal formado** `MALFORMED_GUEST` (005 RF-16, D21, RF-19);
   - un `status` **no vacío** que no sea uno de los cuatro estados de RF-10 (un `status` vacío vale
     por `viewed` / sin respuesta, RF-10);
-  - cifras de asistentes que no sean enteros ≥ 0; una fila **sin respuesta** (`viewed` o `status`
-    vacío) **puede** tener esas celdas vacías y **no** se le exige el cuadre (D21).
+  - cifras de asistentes **presentes** que no sean enteros ≥ 0; una celda de asistentes **vacía** vale
+    por **cero** y **no** invalida la fila (RF-20, D33), tanto si la fila tiene respuesta como si no
+    (D21).
 - El sistema no deberá inventar nombre, acompañante, cupo, límite, estado, teléfono ni código que el
   libro no entregue.
 - SI el fallo ocurre, ENTONCES el sistema deberá mostrar el aviso y dejar la confirmación
@@ -644,23 +689,23 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   visible (RF-13) antes que adivinarlo.
 - Ni el módulo ni el documento deberán contener datos personales reales ni credenciales.
 
-**RF-18 — Caché de códigos del maestro (`generic_json_cache`)**
+**RF-18 — Caché de códigos del maestro (`generic_json_cache` y `public_json_cache`)**
 
 - El maestro declara en `generic_json_cache` un **mapa JSON `código → límite`** con los códigos de la
-  hoja `generic` de esa boda (incluida `"PUBLIC": "n"`; las claves son los códigos de la hoja y la
-  búsqueda se hace **normalizada**, RF-2), para poder resolver un código **sin abrir el libro de
-  invitados** (D13).
-- El servicio deberá **escribir** la caché cuando **lea la hoja `generic`** de esa boda; la hoja
-  `generic` es la **fuente** y la caché una **copia**. El servicio **no** deberá escribir la caché como
-  efecto de la respuesta de un invitado.
+  hoja `generic` de esa boda, y en `public_json_cache` el mapa equivalente con los códigos de la hoja
+  `public` (las claves son los códigos de su hoja y la búsqueda se hace **normalizada**, RF-2), para
+  poder resolver un código **sin abrir el libro de invitados** (D13, D32, RF-19).
+- El servicio deberá **escribir** la caché de **su** hoja cuando la **lea** (`generic` →
+  `generic_json_cache`; `public` → `public_json_cache`); cada hoja es la **fuente** y su caché una
+  **copia**. El servicio **no** deberá escribir la caché como efecto de la respuesta de un invitado.
 - MIENTRAS la caché sea **legible** y contenga el código pedido, el servicio deberá resolverlo **sin
   volver a abrir el libro** del invitado (para eso existe: evitar abrir el libro solo para validar un
   código).
 - SI la caché está **vacía** o es **ilegible**, o **no contiene el código pedido**, ENTONCES el servicio
-  deberá leer la hoja `generic` y **refrescar la caché** con lo leído: el servicio reescribe la caché
-  **solo en ese caso**, para no escribir de más (D23).
-- SI al leer la hoja `generic` el contenido **discrepa** de la caché, ENTONCES deberá mandar la **hoja
-  `generic`** (la fuente) y la caché se actualiza con lo leído.
+  deberá leer la hoja correspondiente y **refrescar la caché** con lo leído: el servicio reescribe la
+  caché **solo en ese caso**, para no escribir de más (D23).
+- SI al leer la hoja el contenido **discrepa** de la caché, ENTONCES deberá mandar la **hoja** (la
+  fuente) y la caché se actualiza con lo leído.
 - SI ni la caché ni la hoja permiten resolver el código, ENTONCES el servicio deberá fallar de forma
   visible (`UNKNOWN_GUEST`, RF-12).
 
@@ -690,6 +735,13 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 | `OVER_LIMIT` | Los asistentes superan el cupo (RF-9). | «Superaste el número de lugares de tu invitación.» |
 | `MISSING_FIELDS` | Falta el nombre o el teléfono en una genérica o pública, **también al rechazar** (RF-8, D26). | «Escribe tu nombre y tu teléfono para responder.» |
 | `INVALID_PHONE` | El teléfono normalizado no llega a 10 dígitos (RF-8). | «Revisa el teléfono: deben ser 10 dígitos.» |
+
+> **Dos precisiones sobre esta tabla.** (1) El **código `MALFORMED_GUEST`** —un código que **existe**
+> pero cuyo `limit` **no** cumple la regla de su hoja— lo añadió la spec **005 §14** (005 RF-16): desde
+> entonces ese fallo **no** es `INVALID_DATA` y el **mensaje** de `INVALID_DATA` **no** cambia.
+> (2) El cambio de **§10** **no añade ningún código** ni altera **ningún** mensaje: lo que hace es
+> **aclarar** la causa de `INVALID_DATA` —una cifra de asistentes **presente** que no sea un entero
+> ≥ 0 (RF-20)— y **remitir** a `MALFORMED_GUEST` para el código mal formado (§10.4).
 
 ## 5. Requisitos no funcionales
 
@@ -773,8 +825,9 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 - **Servicio no configurado (modo demo):** no se llama al servicio; invitación completa, aviso de
   modo demo y confirmación deshabilitada (RF-15).
 - **Datos inválidos o incoherentes** (cabecera incompleta, `guest_type` desconocido, `limit` entero
-  ≤ 0 en un código genérico, `limit` que no sea `n` en la pública, `status` no vacío desconocido,
-  cifras ilegibles): fallo visible, sin personalización y confirmación deshabilitada (RF-13).
+  ≤ 0 en un código genérico, `limit` que no sea `n` en el código público, `status` no vacío desconocido,
+  cifras **presentes** ilegibles): fallo visible, sin personalización y confirmación deshabilitada (RF-13,
+  RF-20).
 - **Fila precargada «vista» sin respuesta** (`status` = `viewed`, asistentes vacíos): el invitado
   puede confirmar; la app no la da por contestada (RF-10).
 - **Estado vacío** en la fila: se trata como `viewed` / sin respuesta (RF-10).
@@ -805,6 +858,20 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 - **Teléfono de otra persona:** como es la llave, una respuesta con el teléfono de otra fila
   actualizaría esa fila; el servicio no puede distinguirlo (D5).
 - **Código `PUBLIC` con `limit = "n"`:** sin tope; la app no inventa un máximo (RF-9, D12).
+- **Libro con hoja `public` y boda `generic`:** un código que **no está** en `generic` se busca en
+  `public`; si tampoco está ahí, `UNKNOWN_GUEST` (RF-19, D29).
+- **Fila `PUBLIC` que se deja además en `generic`:** manda `generic` (el código **sí** está en esa
+  hoja) y, con `limit = "n"`, **no** cumple su regla → `MALFORMED_GUEST`; el arreglo es **borrar esa
+  fila** y llevar el código público a la hoja `public` (RF-19, D31).
+- **Fila con respuesta y celdas de asistentes vacías** (típico de la genérica y la pública, que
+  dejan `child_guests` y `child_attendees` vacíos): se leen como **cero**; la fila **no** es inválida y
+  la **consulta por teléfono no responde `INVALID_DATA`** (RF-20, D33).
+- **Celda de asistentes presente pero incoherente** (`"x"`, `-1`, `1,5`): `INVALID_DATA` (RF-13,
+  RF-20).
+- **Libro sin hoja `public` en una boda `public`:** fallo visible (`INVALID_DATA`); la hoja es
+  **obligatoria** en ese tipo (RF-4, RF-19).
+- **Libro sin hoja `public` en una boda `generic`:** **no** es un fallo: la hoja solo es obligatoria en
+  la pública (RF-4, RF-19).
 - **Código genérico o público con niños:** no se ofrecen; el límite del código cuenta **adultos**
   (D12, RF-9).
 - **Código de la hoja `generic` usado por muchos invitados:** el límite es **por respuesta**; el
@@ -846,9 +913,11 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
   002).
 - **Notificaciones a la pareja** (correo, WhatsApp o similares) al recibir una respuesta: la
   respuesta queda en el libro y no se avisa a nadie.
-- **Cambiar el modelo de los libros** (añadir hojas, columnas, tipos, códigos o estados): esta spec
-  **consume** los libros tal como están. Crear el maestro y los libros de invitados, dar de alta las
-  bodas y los códigos y publicar el script es **trabajo externo** a la app.
+- **Cambiar el modelo de los libros** (añadir hojas, columnas, tipos, códigos o estados) **por
+  iniciativa propia**: esta spec **consume** los libros tal como están. La **única** incorporación es
+  la hoja **`public`** (`public_id`, `limit`), que entra **por petición expresa** y con su regla de
+  resolución (RF-19, D29, §10). Crear el maestro y los libros de invitados, dar de alta las bodas y
+  los códigos y publicar el script es **trabajo externo** a la app.
 - **Gestionar `is_active`** (activar y desactivar bodas desde la app): es un dato del maestro, sin
   panel ni lógica de gestión en esta iteración (D14).
 - **Regenerar, migrar o reimportar los libros reales** (ni desde el modelo anterior, ni desde otros
@@ -913,6 +982,12 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 - La **caché de códigos** (`generic_json_cache`) se escribe al leer la hoja `generic` (cuando está
   vacía, ilegible o no trae el código), tiene la forma del mapa `código → límite` y la hoja `generic`
   manda si discrepan (RF-18, D23).
+- **El código público vive en su propia hoja `public`** (`public_id`, `limit`): el tipo `public`
+  resuelve ahí, el tipo `generic` cae en ella si el código no está en `generic` y el maestro gana la
+  caché `public_json_cache` (RF-19, D29, D32).
+- **La consulta por teléfono de una fila ya registrada** devuelve la respuesta anterior aunque sus
+  celdas de asistentes estén **vacías** (se leen como **cero**); solo una celda **presente** e
+  incoherente es un fallo (RF-20, D33).
 - La **tabla de códigos de error** (§4.1) está en el módulo y el documento la reproduce; la app
   distingue cada causa por su código (RF-12, RF-14, RNF-10).
 - **HU-6 cumplida:** un envío real llega a la hoja `guests` del libro de la boda, con el nombre y el
@@ -1021,9 +1096,10 @@ servicio no necesita pueden quedarse vacías. Las filas vacías se ignoran (RF-4
 
 ## 9. Dudas abiertas
 
-**No queda ninguna duda abierta.** Todo lo que estaba pendiente se resolvió; se listan las decisiones
-para que queden registradas (las de las vueltas anteriores en §9.1 y §9.2, las de la segunda vuelta del
-QA en §9.3 y las de la gobernanza de cierre en §9.4).
+**Las dudas del cuerpo están todas resueltas** (todo lo que estaba pendiente se resolvió; se listan
+las decisiones para que queden registradas: las de las vueltas anteriores en §9.1 y §9.2, las de la
+segunda vuelta del QA en §9.3 y las de la gobernanza de cierre en §9.4). Las del **cambio de
+requisitos de §10** quedan **abiertas** y se listan en **§10.9**, con su recomendación y su motivo.
 
 ### 9.1 Resueltas antes del QA (vuelta anterior)
 
@@ -1129,3 +1205,374 @@ QA en §9.3 y las de la gobernanza de cierre en §9.4).
    `validation.js` (§8); las pruebas no importan fichas.
 5. **Estado de la spec.** Deja de ser borrador: aprobada por quien la pide y en revisión de cierre
    tras el QA, sin requisitos abiertos.
+
+## 10. Cambio de requisitos posterior (hoja `public` independiente y lectura tolerante de celdas vacías)
+
+Esta sección sigue el **mismo patrón** que el **§13** y el **§14** de la spec 005: se añade al
+final, con identificadores que **no** colisionan **dentro de esta spec** (el cuerpo llega a `RF-18` y
+a `D28`; aquí se usan **`RF-19`**/`**RF-20**` y **`D29`**…**`D34`**). **Aviso de colisión con otras
+specs:** la spec 005 usa `RF-16`/`RF-17` y `D21`/`D22` para **otra** cosa; al citarlos desde aquí se
+escribe **«005 RF-16»**, **«005 RF-17»**, **«005 D21»**, etc. Dice **dónde toca** el cuerpo y **qué
+deroga o matiza** respecto de la 004 y de la 005. Cuando algo de aquí contradiga el cuerpo, **manda
+esta sección**. El cambio lo pidió quien usa la invitación **después** de implementadas y validadas la
+004, la 005 y sus §13/§14, y parte del **estado real del código y del libro** (no de un modelo
+imaginario).
+
+### 10.0 Contexto: los dos casos reales que motivan el cambio
+
+- **Caso A — la hoja del código público.** El libro de invitados de una boda **tenía** el código
+  público en la hoja `generic`, junto a los códigos genéricos, y **eso ya no es así**: el código
+  público **se ha movido** a una **hoja propia** llamada **`public`**, con las columnas **`public_id`**
+  y **`limit`**, «para no ensuciar los datos de `generic`».
+- **Lo que hace hoy el servicio** (comprobado en `gas/Code.gs`): `SHEET_NAMES` (~líneas 42-46) solo
+  declara `MASTER`, `GUESTS` y `GENERIC`; `resolveCode_` (~354-410) resuelve el código **solo** en la
+  hoja `generic` (con la caché `generic_json_cache` y, si no está, con `readGenericLimits_`), y
+  `readGenericLimits_` (~433-463) busca la hoja por su nombre literal. **Consecuencia:** un código que
+  está en la hoja `public` **no se encuentra** → el servicio responde **`UNKNOWN_GUEST`** («No
+  encontramos esta invitación.»). La app **no** es la causa: no inventa códigos, solo usa el que
+  trae el enlace.
+- **Caso B — el teléfono ya registrado que responde `INVALID_DATA`.** En una **invitación
+  genérica**, con un teléfono **ya registrado**, la **consulta por teléfono** (`lookup`, 005 RF-8)
+  responde `{"ok":false,"code":"INVALID_DATA"}` en lugar de devolver la respuesta anterior.
+- **Diagnóstico del caso B (comprobado en el código):** `lookupResponse_` (~líneas 616-621) lee
+  `adults_attendees` y `child_attendees` con `parseCount_`, que devuelve `null` para una celda
+  **vacía** (~983-990), y responde `INVALID_DATA` si alguna de las dos es `null`. Pero la **escritura**
+  de la genérica y la pública deja `child_guests` y `child_attendees` **vacíos** a propósito
+  (`registerCodeResponse_`, ~915-916), porque esos dos tipos **no ofrecen niños** (D12). Resultado:
+  **toda** fila genérica o pública **con respuesta** falla la consulta; el invitado ve «Los datos de
+  esta invitación están incompletos.» y **no** ve su respuesta anterior.
+- **El mismo defecto, latente, en la personalizada:** `resolvePersonal_` (~315-319) exige lo mismo, así
+  que una fila personalizada con respuesta y `child_attendees` vacío también respondería
+  `INVALID_DATA`.
+- **La app no es la causa:** `count()` (`src/utils/invitation.js` ~46-50 y `src/utils/rsvp.js` ~33)
+  **ya** trata un valor ausente o vacío como **cero**; el desajuste está entre el **servicio** (celda
+  vacía = inválida) y la **app** (celda vacía = cero).
+- **Los dos casos son independientes:** el primero es un cambio del **modelo del libro** (una hoja
+  nueva) y el segundo, un cambio de la **regla de lectura** (celda vacía = cero). Los decide quien
+  pide el cambio y ambos tocan el **servicio** (`gas/Code.gs`).
+
+### 10.1 Los dos pedidos y su reparto (contrato/servicio ↔ datos)
+
+| # | Pedido (texto de quien la pide, resumido) | Requisitos | ¿De quién es el cambio? |
+| --- | --- | --- | --- |
+| 12 | «Acabo de cambiar la clave pública a una hoja independiente para no ensuciar los datos de `generic`. La hoja se llama `public`, las columnas `public_id`, `limit`.» | **RF-19**, **D29**, **D30**, **D31**, **D32** | **Modelo del libro y servicio**: una hoja nueva en el libro de invitados y la regla de resolución por tipo. **No** es solo un cambio de datos: el servicio tiene que **leer** esa hoja. |
+| 13 | «Estoy usando un teléfono ya registrado en una invitación genérica… me contesta con `{"ok":false,"code":"INVALID_DATA"}`.» | **RF-20**, **D33** | **Servicio** (regla de lectura de las celdas de asistentes). **No** cambia la forma del intercambio (no hay campo ni acción nuevos): la forma del modelo del libro la aporta el pedido 12. |
+
+**Lo que el pedido 13 NO pide (y no se hace):** inventar un dato, «rellenar» la fila del libro ni
+devolver un teléfono o una fila ajena. La fila **se queda como está**; lo que cambia es **cómo se
+lee**: una celda vacía vale por cero.
+
+### 10.2 Decisiones del cambio (D29–D34)
+
+- **D29 — Cada tipo resuelve en su hoja, y la genérica puede caer en `public` si el código no está en
+  `generic`.** `personal` → **`guest_id`** en `guests`; `generic` → **`generic`** (obligatoria) y, si
+  el libro **también** tiene hoja `public` y el código pedido **no está** en `generic`, **se busca en
+  `public`**; `public` → **`public`** (obligatoria) y la hoja `generic` **ya no hace falta** para
+  servirla. El orden es **el del tipo**: primero su hoja, y solo después la otra.
+  **Por qué:** es lo que hace falta para que el cambio de datos del caso A **sirva de algo** sin
+  tocar el maestro (la boda sigue siendo `generic`) y sin convertir `generic` en un cajón de sastre.
+  **Alternativas descartadas:** (a) cambiar el `guest_type` de la boda a `public` —obligaría a
+  repartirse un enlace único y a perder los códigos genéricos—; (b) buscar **siempre** en las dos
+  hojas, sin prioridad —haría que un código duplicado se resolviera por la hoja «menos probable», que
+  es como aparecen los fallos difíciles de diagnosticar—; (c) que el servicio **no** mirara `public` en
+  una boda genérica —entonces el código público de una boda genérica **no resolvería nunca**—.
+- **D30 — El `limit` de `public` habla el mismo idioma que el de `generic`.** Un **entero mayor que
+  cero** es el **cupo por respuesta** de ese código y el texto **`n`** es **sin tope** (el caso
+  normal: el código reservado `PUBLIC` con `"n"`). **Por qué:** un mismo modelo de datos para las
+  dos hojas hace que el servicio, la app y el documento puedan aplicar **la misma** regla, y evita que
+  «sin tope» dependa de la hoja.
+  **Alternativas descartadas:** (a) obligar a `n` en `public` —deja sin poder hacer una invitación
+  pública **con tope**, que es un caso real—; (b) inventar un valor por hoja —obligaría a la app a
+  conocer la hoja de cada código, que es justo lo que el servicio debe resolver—; (c) dejar el
+  `limit` de `public` **libre** (texto o número sin regla) —convertiría un dato mal escrito en un
+  cupo inventado—.
+- **D31 — La hoja `generic` queda con códigos genéricos de límite entero > 0; se deroga el RF-17 de
+  la spec 005.** El código reservado `PUBLIC` **sale** de `generic` y vive en `public`. Una fila
+  `PUBLIC` **que se deje** en `generic` pasa a ser **un código genérico más**: con `limit = "n"` no
+  cumple la regla de esa hoja y responde **`MALFORMED_GUEST`** (005 RF-16, D21) —**no**
+  `INVALID_DATA`—. El arreglo es de **datos**: **borrar esa fila** (o darle un límite entero).
+  **Por qué:** es lo que pidió quien pide el cambio («para no ensuciar los datos de `generic`») y lo
+  que hace el modelo coherente: una hoja, un idioma.
+  **Alternativas descartadas:** (a) **mantener** la excepción de 005 RF-17 (`PUBLIC` con `"n"` en una
+  boda genérica = sin tope) —dejaría **dos** sitios donde decir «sin tope» y mantendría el fallo
+  opaco—; (b) **borrar** la fila automáticamente —el servicio **no** modifica datos del libro—; (c)
+  aceptar `n` en **cualquier** código de `generic` —un cupo mal escrito se convertiría en una
+  invitación sin tope—.
+- **D32 — El maestro gana una segunda caché: `public_json_cache`.** `generic_json_cache` **se
+  conserva** tal como está (mapa JSON `código → límite` de la hoja `generic`) y `public_json_cache`
+  es su equivalente para la hoja `public`; **las dos** son **opcionales** y se refrescan **solo**
+  cuando están vacías, son ilegibles o no traen el código pedido (RF-18, D23).
+  **Por qué:** la caché existe para **no abrir el libro** solo para validar un código; el patrón ya
+  existe y **duplicarlo** es más barato que cambiar el formato de la que ya hay.
+  **Alternativas descartadas:** (a) **un solo** mapa con un espacio de nombres por hoja
+  (`generic:…`, `public:…`) —**rompe** el formato de la caché existente y obliga a **migrar** a
+  mano—; (b) meter los dos mapas en **una** celda con una estructura nueva —lo mismo, con el añadido
+  de que se pierde la caché si alguien edita la celda—; (c) **no** cachear `public` —la hoja es
+  pequeña, pero entonces `public` abriría el libro en cada resolución y quedaría detrás de `generic`
+  solo por costumbre—.
+- **D33 — Una celda de asistentes vacía vale por cero en toda lectura.** `adults_attendees` y
+  `child_attendees` **vacías** se leen como **cero** en los **tres** tipos y en **todas** las lecturas
+  (resolver, consultar por teléfono y escribir). Solo es **incoherente** una celda **presente** que
+  **no** sea un entero ≥ 0 (`"x"`, `-1`, `1,5`): eso sigue siendo `INVALID_DATA`.
+  **Por qué:** el servicio **escribe** esas celdas vacías **a propósito** (D12) y la app **ya** las
+  lee como cero; el fallo del caso B es, exactamente, que el servicio no lo hacía.
+  **Alternativas descartadas:** (a) **dejar** la celda vacía como inválida y obligar a la escritura a
+  **rellenar** `child_attendees` con `0` —cambia el modelo de los libros (una fila que no ofrece
+  niños pasa a llevar un cero) y no arregla las filas **ya** escritas—; (b) tratar la celda vacía como
+  **cero** solo en la consulta —dejaría el mismo fallo en la personalizada—; (c) ignorar la columna si
+  falta —eso es otra cosa: una **cabecera** ausente es un fallo real (RF-13)—.
+- **D34 — El contrato sube a `1.3.0`.** `CONTRACT_VERSION` sube de `1.2.0` a **`1.3.0`** **a la vez**
+  en el **módulo** (`src/constants/contract.js`) y en el **script** (`gas/Code.gs`).
+  **Por qué:** el **modelo de los libros** cambia (una hoja nueva con sus columnas y una columna de
+  caché nueva en el maestro) y el **módulo** es la fuente única de ese modelo (RF-17, D18): el
+  contrato cambia de **contenido**, aunque **no** cambien la forma de las llamadas ni de las
+  respuestas. De paso, la versión es la **señal** de que el despliegue es el nuevo: la salud del
+  servicio (`doGet`) devuelve `contract`.
+  **Alternativas descartadas:** (a) **no** subir la versión —el módulo cambiaría (literales nuevos)
+  sin que nada lo delate, y un despliegue viejo quedaría **indetectable**—; (b) subirla solo en el
+  script —la prueba de sincronía **falla** si el módulo y el script no coinciden—; (c) subirla a
+  `2.0.0` —no hay ruptura de forma: no se retira ni se renombra nada (005 §14.5).
+
+### 10.3 RF nuevos (criterios en EARS)
+
+**RF-19 — El código público vive en su propia hoja `public`, y cada tipo resuelve en su hoja**
+(pedido 12; D29, D30, D31, D32)
+
+- El libro de invitados de una boda **podrá** tener una tercera hoja, llamada exactamente **`public`**,
+  con las cabeceras exactas **`public_id`** y **`limit`** (RF-4, §1.1).
+- DONDE la boda sea **`public`**, el código de enlace **deberá** ser un **`public_id`** de la hoja
+  `public`, que es **obligatoria** en ese tipo; la hoja `generic` **no hace falta** para servirla y su
+  ausencia **no** es un fallo (D29).
+- DONDE la boda sea **`generic`**, la hoja `generic` **deberá** ser la que resuelva el código; SI el
+  libro **también** tiene hoja `public` y el código pedido **no** está en `generic`, ENTONCES el
+  servicio **deberá** buscarlo en `public` (D29). Los códigos se comparan **normalizados** (RF-2).
+- DONDE la boda sea **`personal`**, el código es un `guest_id` de `guests` y **ni** `generic` **ni**
+  `public` hacen falta (RF-5).
+- El `limit` de la hoja `public` **deberá** hablar **el mismo idioma** que el de la hoja `generic`: un
+  **entero mayor que cero** es el **cupo por respuesta** de ese código y el texto **`n`** significa
+  **sin tope** (el caso normal: el código reservado `PUBLIC` con `"n"`); el servicio **no** deberá
+  inventar un máximo (RF-9, D30).
+- CUANDO el código **exista** en la hoja que le toca por su tipo **pero** su `limit` **no** cumpla la
+  regla de esa hoja, el servicio **deberá** responder **`MALFORMED_GUEST`** (005 RF-16, D21) y **no**
+  `INVALID_DATA`.
+- SI la hoja `public` **existe** pero **le falta** la cabecera `public_id` o la cabecera `limit`,
+  ENTONCES el sistema **deberá** fallar de forma **visible** (`INVALID_DATA`, RF-13).
+- La hoja `generic` **deberá** quedar con **códigos genéricos** de límite **entero mayor que cero**:
+  el código reservado `PUBLIC` **sale** de ella (D31). SI una fila `PUBLIC` **se deja** en `generic`,
+  ENTONCES será **un código genérico más** y, con `limit = "n"`, responderá **`MALFORMED_GUEST`**; su
+  arreglo es **borrar esa fila** (D31).
+
+**RF-20 — La lectura tolera las celdas de asistentes vacías** (pedido 13; D33)
+
+- Una **celda vacía** de `adults_attendees` o de `child_attendees` **deberá** leerse como **cero** en
+  **toda** lectura y en los **tres** tipos: una fila **con respuesta** cuyas celdas de asistentes estén
+  vacías **no** es una fila inválida y **no** deberá producir `INVALID_DATA` (D33).
+- Solo una celda **presente** cuyo valor **no** sea un entero ≥ 0 (`"x"`, `-1`, `1,5`) **será**
+  incoherente, y ENTONCES el sistema **deberá** fallar de forma **visible** (`INVALID_DATA`, RF-13).
+- CUANDO la **consulta por teléfono** (`lookup`, 005 RF-8) encuentre una fila **ya registrada** en una
+  invitación **genérica** o **pública**, el servicio **deberá** devolver **esa** respuesta (con
+  `child_attendees` = **0**) y **no** `INVALID_DATA` (D33).
+- La lectura de una fila **personalizada** con respuesta **deberá** seguir la misma regla: su
+  `child_attendees` vacío es **cero** (esa invitación no ofrece niños) y **no** deberá producir
+  `INVALID_DATA` (D33).
+- La regla **no** relaja el resto del cuadre de RF-13: un `status` fuera de los cuatro estados, un
+  `limit` que no cumpla la regla de su hoja (`MALFORMED_GUEST`), un `phone` ilegible o una cabecera
+  que falta **siguen** siendo fallos visibles (RF-12, RF-13).
+
+### 10.4 Qué queda derogado o matizado (de la spec 004 y de la spec 005)
+
+- **004 §1 (vocabulario) — MATIZADO.** El «código de enlace» puede ser un **`public_id`** de la hoja
+  `public` (RF-19).
+- **004 §1.1 (modelo de datos) — MATIZADO.** El libro de invitados pasa de «dos hojas» a **hasta
+  tres** (`guests`, `generic` y `public`); el maestro gana la columna **opcional** `public_json_cache`;
+  la hoja `generic` **deja** de llevar el código reservado `PUBLIC` (RF-19, D31, D32).
+- **004 RF-4 (hojas del libro) — MATIZADO.** El servicio reconoce la hoja `public` y su obligatoriedad
+  depende del **tipo** (RF-19, D29).
+- **004 RF-5 (qué código resuelve cada tipo) — MATIZADO.** El tipo `public` resuelve en `public` (y
+  `generic` **ya no** hace falta para servirlo) y el tipo `generic` cae en `public` si el código no
+  está en `generic` (RF-19, D29).
+- **004 RF-6 (lectura de la invitación) — MATIZADO (una frase).** El límite que devuelve el servicio
+  sale de la hoja que corresponde al tipo (RF-19).
+- **004 RF-9 (cupo) — MATIZADO.** El `limit` de `public` sigue el mismo idioma que el de `generic`
+  (D30) y un `limit` que no cumple la regla de su hoja es `MALFORMED_GUEST`, no `INVALID_DATA`
+  (005 RF-16).
+- **004 RF-13 (datos inválidos) — MATIZADO.** (a) La lista de hojas obligatorias cambia con el tipo
+  (RF-19); (b) un `limit` que no cumpla la regla de su hoja **sale** de la lista (es
+  `MALFORMED_GUEST`, 005 RF-16); (c) las cifras de asistentes **presentes** que no sean enteros ≥ 0
+  **siguen** siendo inválidas, pero una celda **vacía** **deja** de serlo (RF-20, D33).
+- **004 RF-18 (caché) — MATIZADO.** La caché de la hoja `generic` **se conserva** y la de `public` es
+  su equivalente (D32).
+- **004 D13 y D23 (caché) — MATIZADOS.** Hablan de las **dos** cachés, con la misma regla de refresco
+  (D32).
+- **004 §7 («cambiar el modelo de los libros») — MATIZADO.** La hoja `public` entra **por petición
+  expresa**; lo demás sigue fuera de alcance (RF-19).
+- **004 §4.1 (tabla de códigos) — SIN CAMBIOS.** Este cambio **no** añade **ningún** código ni altera
+  **ningún** mensaje; lo que hace es **aclarar** la causa de `INVALID_DATA` (una cifra **presente**
+  incoherente) y **remitir** a `MALFORMED_GUEST` para el código mal formado (005 RF-16).
+- **005 §14 (RF-16, D21) — INTACTO.** `MALFORMED_GUEST` sigue siendo el error del código mal formado y
+  `INVALID_DATA` sigue reservado a lo que impide leer o escribir de verdad.
+- **005 §14 (RF-17, D22) — DEROGADO.** La excepción que hacía que el código reservado `PUBLIC` con
+  `"n"` **dentro de una boda genérica** valiera por «sin tope» **deja de aplicar**: `PUBLIC` vive en
+  la hoja `public` (D31). En una boda genérica, un `PUBLIC` con `"n"` en la hoja `generic` es un
+  **código mal formado** (`MALFORMED_GUEST`) y su arreglo es **borrar esa fila**.
+- **005 §14.8 (verificación manual, punto 13) — MATIZADO.** El caso «`PUBLIC` en una boda genérica →
+  sin tope» **se sustituye** por «`PUBLIC` en la hoja `public` → sin tope», y por «código mal formado →
+  `MALFORMED_GUEST`» (§10.7).
+- **`gas/README.md` (punto 8, nota de diagnóstico) — MATIZADA.** La frase «una fila `PUBLIC` en la
+  hoja `generic` de una boda `generic` nunca resuelve» **sigue siendo cierta**, pero **el motivo
+  cambia**: ya no es `INVALID_DATA` sino **`MALFORMED_GUEST`**, y el arreglo pasa a ser «**borrar la
+  fila** de `generic` **y** llevar el código público a la hoja `public`». La nota debe explicar además
+  **qué hoja se mira** según el tipo (RF-19, D29).
+- **005 §10 (puntos de verificación manual) — MATIZADOS.** Los puntos que usaban el código `PUBLIC` en
+  la hoja `generic` **se rehacen** contra la hoja `public` (§10.7).
+- **004 RF-1, RF-2, RF-3, RF-7, RF-8, RF-10, RF-11, RF-12, RF-14, RF-15, RF-16, RF-17 y RNF-1…RNF-10 —
+  INTACTOS.** No cambian el modelo de la escritura, la llave por teléfono, el plazo, el contrato en
+  módulo + documento ni la verificación.
+
+### 10.5 Contrato: qué cambia, qué sube de versión y qué no
+
+- **Lo que cambia (contenido del modelo):** el **módulo** `src/constants/contract.js` gana la hoja
+  **`public`** (con sus columnas **`public_id`** y **`limit`**) y la columna **`public_json_cache`** del
+  maestro, y su `CONTRACT_VERSION` pasa a **`1.3.0`**. El **documento** `docs/servicio-invitados.md`
+  deriva lo mismo.
+- **Lo que NO cambia:** la **tabla de códigos de error** (ningún código nuevo, ningún mensaje nuevo),
+  los **tipos** (`personal`, `generic`, `public`), los **estados**, las **acciones** (`resolve`,
+  `respond`, `lookup`), los **campos** de petición y de respuesta, el parámetro **`guest`**, el
+  **teléfono** (10 dígitos), el **tiempo de espera** (10 s), los valores especiales `PUBLIC` y `n`, y
+  la **forma** de las tres llamadas.
+- **Por qué sube la versión:** el modelo de los libros cambia y el módulo es su fuente única (D34).
+  La **prueba de sincronía** (`test/serviceContract.test.js`) **no cambia de regla**: sigue exigiendo
+  que el documento no omita ningún literal del módulo, que la **tabla de códigos coincida en conjunto
+  y en el mensaje de cada uno** y que `gas/Code.gs` declare la **misma** versión (leída como texto);
+  lo que sí cambia es su **listado de literales**, que se recoge de los objetos del módulo: al
+  declarar la hoja `public`, sus dos columnas entran **solas** en la vigilancia.
+- **Redespliegue:** el cambio vive en `gas/Code.gs` y **exige** publicar una **versión nueva** del
+  script (RF-17, D18). Como la versión **sube** a `1.3.0`, un despliegue viejo **se delata**: la salud
+  del servicio (`GET` a la URL) devuelve `contract: "1.2.0"`.
+
+### 10.6 Dónde toca el plan (sin redactar tareas)
+
+- **Contrato (módulo):** `src/constants/contract.js` gana `PUBLIC_SHEET` (nombre `public`, columnas
+  `public_id` y `limit`) y `MASTER_SHEET.columns.PUBLIC_JSON_CACHE`, y `CONTRACT_VERSION` pasa a
+  `1.3.0`. La tabla de códigos **no** se toca (RF-19, D32, D34).
+- **Contrato (documento):** `docs/servicio-invitados.md` deriva la hoja `public` (columna a columna),
+  la regla de **qué hoja se mira según el tipo**, la segunda caché, la regla de la celda vacía y la
+  versión `1.3.0`; sus apartados de tipos y de cachés se actualizan (RF-19, RF-20).
+- **Servicio (`gas/Code.gs`):** `SHEET_NAMES` gana `PUBLIC`; las columnas de esa hoja se declaran
+  aparte (`public_id`, `limit`); `MASTER_COLUMNS` gana `PUBLIC_JSON_CACHE`; `resolveCode_` **deja** de
+  mirar solo `generic` y resuelve **por tipo** (D29), con la regla del `limit` de `public` (D30); la
+  lectura de las **celdas de asistentes** pasa a tratar la celda **vacía** como **cero** (D33) —tanto
+  en `lookupResponse_` como en `resolvePersonal_`—; `CONTRACT_VERSION` pasa a `1.3.0` (D34).
+- **Prueba de sincronía (`test/serviceContract.test.js`):** **no** cambia de regla; su **listado de
+  literales** tiene que incluir los de la hoja nueva (lo natural es recogerlos del módulo, como ya se
+  hace con las demás hojas).
+- **App (`src/utils/invitation.js`, `src/utils/rsvp.js` y sus pruebas):** **revisar, no asumir**. En
+  el código actual `count()` **ya** trata la celda vacía como **cero** (RF-20) y `codeLimit()` **ya**
+  admite `n` en `generic` y en `public` (005 §14.7), así que **lo previsible es que la app no
+  cambie**; si el plan encuentra un punto que **no** tolera la celda vacía o que **no** admite el
+  `limit` de la hoja `public`, lo ajusta **con su prueba pura** antes de tocar la interfaz (RNF-9,
+  RNF-10).
+- **`gas/README.md`:** el paso 2 (hoja `public`) y el punto 8 (diagnóstico) se actualizan con el
+  reparto nuevo (D29, D31) y con el aviso de **redespliegue** (la versión `1.3.0` lo delata).
+- **Verificación (§8 de esta spec y «Verificación» de `AGENTS.md`):** los puntos manuales nuevos
+  (§10.7) y la regresión de los de la 004 y la 005.
+- **Gobernanza (`AGENTS.md`, `MEMORY.md`, `PENDING_TASKS.md`):** la hoja `public`, la regla de
+  resolución por tipo, la celda vacía como cero, la versión `1.3.0` y el diagnóstico de `gas/README.md`,
+  al cerrar las tareas.
+
+### 10.7 Verificación del cambio
+
+- **Automática (`npm test` con `node --test`, con `npm run build` en verde), contra el módulo del
+  contrato y la lógica pura (RNF-10 intacta; nunca contra el servicio vivo):**
+  - **Contrato:** el módulo declara la hoja `public` con sus dos columnas y la columna
+    `public_json_cache`; su `CONTRACT_VERSION` es `1.3.0`; el documento los reproduce y la tabla de
+    códigos sigue coincidiendo **en conjunto y en el mensaje de cada código**; `gas/Code.gs` declara
+    la **misma** versión.
+  - **Lógica pura de la app:** la lectura de una respuesta con asistentes ausentes o vacíos da **cero**
+    y no invalida la invitación (RF-20); un `limit` de la hoja `public` —entero o `n`— se acepta en
+    su tipo (RF-19).
+- **Manual (Apps Script en ejecución: no hay runner; el veredicto va en «Verificación» de
+  `AGENTS.md`), con el script **redesplegado** (la salud debe devolver `contract: "1.3.0"`) y un libro
+  de prueba:**
+  14. **La hoja `public`.** En una boda `public` con la hoja `public` (`public_id`, `limit`) y la fila
+      `PUBLIC` con `limit = "n"`: `resolve` y `lookup` de `PUBLIC` responden `ok: true` con
+      `type: "public"` y `limit: "n"`, y la app anuncia **sin tope**. Un `public_id` **distinto** de
+      `PUBLIC` con un `limit` entero **también** resuelve, con su cupo (D29). Una boda `public` **sin**
+      hoja `public` → `INVALID_DATA` visible.
+  15. **La genérica con hoja `public`.** En una boda `generic` con sus códigos en `generic` y **además**
+      la hoja `public`: un código de `generic` resuelve con su límite; un código **solo** de `public`
+      también resuelve (caída de D29); un código que **no está en ninguna** → `UNKNOWN_GUEST`.
+  16. **La fila `PUBLIC` que se queda en `generic`.** Con esa fila, el código `PUBLIC` **no** resuelve:
+      responde **`MALFORMED_GUEST`** («El código de esta invitación no es válido.»), **no**
+      `INVALID_DATA` (D31). **Borrada** la fila, el mismo enlace resuelve contra la hoja `public`.
+  17. **La consulta por teléfono con la fila ya registrada (el caso B).** En una boda `generic`, con un
+      teléfono **ya registrado** en una fila cuya respuesta dejó `child_attendees` **vacío**: `lookup`
+      responde **`ok: true`** con `response` (con `childAttendees` = **0**) en lugar de `INVALID_DATA`;
+      la app muestra la respuesta anterior y permite editarla. La fila **no** cambia (`status`,
+      `datetime` y asistentes igual).
+  18. **La celda incoherente (lo que sigue fallando).** Una celda de asistentes **con** un valor que no
+      es un entero ≥ 0 (p. ej. `"x"`) → `INVALID_DATA` (RF-20, RF-13): el cambio **no** relaja el
+      cuadre, solo la celda vacía.
+- **Regresión de lo que ya funcionaba:** los códigos `…_GEN` de una boda `generic` siguen resolviendo
+  con su `limit` numérico y su combo `1..cupo`; la **personalizada** sigue precargando nombre,
+  acompañante y cupo y **no** pide teléfono; el `viewed` se sigue escribiendo al abrir una
+  personalizada sin respuesta; el plazo, el rechazo y la actualización por teléfono siguen igual; y el
+  punto 7 de `gas/README.md` (tolerancia de cabeceras de `lookup`) sigue pasando.
+
+### 10.8 Riesgos y su mitigación
+
+- **Que la fila `PUBLIC` que se queda en `generic` sea un callejón sin salida.** Mitigación: el fallo
+  es **explícito** (`MALFORMED_GUEST`, con su mensaje propio) y `gas/README.md` (punto 8) dice **qué
+  hacer**: borrar la fila y llevar el código público a la hoja `public`. La app **no** puede
+  «arreglar» el libro.
+- **Que un libro con la hoja `public` a medias (sin `public_id` o sin `limit`) no lo note nadie.**
+  Mitigación: es `INVALID_DATA` **visible** (RF-19, RF-13) y el paso 2 de `gas/README.md` lista las
+  dos cabeceras exactas.
+- **Que un despliegue viejo siga sirviendo el script anterior.** Mitigación: la versión sube a
+  `1.3.0` y la **salud** del servicio la delata (`contract`); la comprobación manual empieza por ahí
+  (§10.7).
+- **Que el servicio empiece a tratar un vacío como cero en un sitio donde no debía.** Mitigación: la
+  regla **no** relaja nada más: una celda **presente** e incoherente sigue siendo `INVALID_DATA` y el
+  resto del cuadre de RF-13 no cambia (§10.7, punto 18).
+- **Que leer «cero» en una celda vacía esconda un dato mal escrito.** Mitigación: el servicio deja
+  esas celdas vacías **a propósito** (D12) y un dato mal escrito es un caso distinto —celda
+  **presente**— que **sigue** fallando (D33).
+- **Que la fila pública quede con `adults_guests` vacío («sin tope») y alguien lo lea como un cupo de
+  cero.** Mitigación: ninguna lectura del servicio toma `adults_guests` de una fila genérica o pública
+  como cupo —el cupo sale del **código**—, y la app no inventa máximos (RF-9, D30).
+- **Que la segunda caché (`public_json_cache`) se olvide de refrescar.** Mitigación: la **misma** regla
+  que la de `generic` (vacía, ilegible o sin el código → se lee la hoja y se refresca) y la nota de
+  `gas/README.md` sobre «la caché es una copia» se extiende a las dos (D32, RF-18).
+- **Que la app descarte una invitación válida.** Mitigación: el plan **revisa** la lectura de la app
+  contra el modelo nuevo antes de tocar nada (§10.6) y la lógica pura tiene sus pruebas (RNF-9).
+
+### 10.9 Dudas abiertas (con recomendación y motivo)
+
+1. **Qué pasa con una fila `PUBLIC` que se queda en la hoja `generic`.** Hoy se decide **derogarla**
+   (D31: es un código mal formado → `MALFORMED_GUEST`) y **exigir que se borre**. **Motivo:** una
+   hoja, un idioma; y es lo que pidió quien pide el cambio («no ensuciar `generic`»).
+   **Alternativa:** mantener la excepción de 005 RF-17 (`PUBLIC` con `"n"` en una boda genérica = sin
+   tope), con lo que la fila seguiría funcionando y no habría que tocar los libros. **No** se
+   recomienda: dejaría **dos** sitios donde decir «sin tope» y mantendría el fallo opaco.
+2. **Qué forma tiene la caché de los códigos de `public`.** Se decide una **segunda columna** en el
+   maestro, `public_json_cache`, con el mismo formato que `generic_json_cache` (D32). **Motivo:** el
+   patrón ya existe y no obliga a migrar nada a mano.
+   **Alternativa:** un **único** mapa con prefijo por hoja (`generic:…`, `public:…`), que **rompe** el
+   formato de la caché existente y obliga a **migrar** a mano. **No** se recomienda.
+3. **En el tipo `public`, resuelve cualquier `public_id` o solo el reservado `PUBLIC`.** Se decide que
+   resuelve **cualquier** `public_id` de la hoja, con `PUBLIC` + `"n"` como el caso normal (D29, D30).
+   **Motivo:** simetría con `generic` (allí cualquier `generic_id` resuelve) y la hoja existe para eso;
+   fijar `PUBLIC` dejaría la hoja sin uso.
+   **Alternativa:** solo el reservado `PUBLIC`, y cualquier otro `public_id` → `UNKNOWN_GUEST`. **No**
+   se recomienda: no aporta nada y hace la hoja redundante.
+4. **Si la caída de `generic` a `public` (D29) admite cualquier código o solo el reservado `PUBLIC`.**
+   Se decide que **cualquier** código. **Motivo:** la misma simetría del punto 3, y porque quien
+   organiza puede querer varios códigos públicos (por ejemplo, uno por familia) sin tocar el
+   `guest_type` de la boda.
+   **Alternativa:** restringir la caída al reservado `PUBLIC` (más conservador, pero obliga a quien
+   organiza a **renombrar** los códigos que quiera servir). **No** se recomienda: es la misma
+   incoherencia que había antes del cambio.
+
+**Decidido y sin duda (para que no se reabra):** **D33** (la celda vacía vale por cero: es lo que
+**arregla** el caso B y lo que la app **ya** hace) y **D34** (la versión sube a `1.3.0`: el modelo de
+los libros cambia y el módulo es su fuente única).
