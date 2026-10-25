@@ -413,6 +413,10 @@ export function Rsvp({ wedding }) {
   useEffect(() => {
     if (sendStatus === "ok") {
       setSendNotice(null);
+      // Una primera respuesta todavía no pasó por `lookup`, pero su teléfono ya identifica
+      // la fila creada. Se conserva como llave al editar para no convertir la edición en otra
+      // alta (RF-8, D11).
+      if (!personalized) lookupPhone.current = submitted.current?.phone ?? null;
       setAnswered(submitted.current ?? null);
       setBlock(
         (current) => nextBlockState(current, BLOCK_EVENTS.SUBMIT_OK, { personalized }) ?? current,
