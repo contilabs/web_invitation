@@ -14,14 +14,20 @@
 //      la región viva (M3); el veredicto de `useGuestLookup` mueve el bloque: fila con
 //      respuesta → `respondido`, sin fila → `editando` limpio, fallo → `degradado` (y
 //      `INVALID_PHONE`/`MISSING_FIELDS` de vuelta a `telefono`, M4);
-//   4. **`respondido`**: agradecimiento (copy `OK`, también para `rejected`), datos en solo
-//      lectura (`ResponseSummary`, con el teléfono aportado) y «Editar» (RF-9, RF-10); en un
-//      **rechazo** el panel no muestra nada de la asistencia (D18);
+//   4. **`respondido`**: agradecimiento (la copy del rechazo si la respuesta registrada es un
+//      rechazo y la copy `OK` en cualquier otra, RF-12), el saludo de la personalizada **sobre**
+//      los datos en solo lectura (`ResponseSummary`, con el teléfono aportado) y «Editar»
+//      (RF-9, RF-10, RF-14); en un **rechazo** el panel conserva su mensaje y no muestra nada de
+//      la asistencia (RF-13, D18);
 //   5. **`editando`**: el formulario en el orden de RF-3, con los combos de RF-4 (o campo
-//      libre con `n`, con mínimo 1) y el nombre registrado editable; los **cuatro campos de
-//      la asistencia** (adultos, niños, alergias y mensaje) solo existen con «Sí, asistiré»
-//      (RF-11, D17) y, mientras están a la vista, el valor del combo se **normaliza** a una de
-//      sus opciones para que lo que se ve sea lo que se envía (R10, DT-13);
+//      libre con `n`, con mínimo 1) y el nombre registrado editable; en la personalizada el
+//      contenido abre con el saludo «Hola, ‹nombre completo›» (RF-14) y sigue con el nombre del
+//      titular (solo lectura) y los lugares reservados; los campos de la
+//      asistencia se gatean en dos grupos (RF-11, D17; RF-13): **adultos, niños y alergias**
+//      solo existen con «Sí, asistiré» y el **mensaje** también con «No podré asistir»; sin
+//      elegir asistencia no se pinta ninguno y, mientras los combos están a la vista, el valor
+//      se **normaliza** a una de sus opciones para que lo que se ve sea lo que se envía (R10,
+//      DT-13);
 //   6. **`cerrado`**: el aviso de plazo y, en la personalizada, sus datos en lectura —de un
 //      rechazo, sin la asistencia (D18)—; sin «Responder invitación» ni «Editar» (RF-7);
 //   7. **`degradado`**: el motivo, «Reintentar» cuando la causa lo permite y «Responder
@@ -30,7 +36,10 @@
 // Los datos del invitado **no** salen de las fichas de ejemplo ni se inventan (004 RF-1,
 // RF-13): la resolución y la consulta llegan de los hooks y la configuración de
 // `services/config.js`. El envío va al servicio (`useRsvp` → `services/registration.js`) y la
-// copia de cada aviso sale del contrato (`SERVICE_ERRORS`, fuente única; RNF-7).
+// copia de cada aviso sale del contrato (`SERVICE_ERRORS`, fuente única; RNF-7); la **copy del
+// rechazo** y el **saludo** son rótulos de interfaz y viven aquí, con el componente (RF-12,
+// RF-14; D20, RNF-3), y la composición del panel de lectura la sirve `responseSummaryData` de
+// la lógica pura (RF-13, DT-14).
 //
 // Importa: `src/utils/rsvpState.js` (máquina), `src/utils/rsvp.js` + `src/utils/invitation.js`
 // (decisiones puras), `src/hooks/useGuestLookup.js` (consulta), `src/hooks/useInvitation.js`
@@ -55,6 +64,7 @@ import {
   attendeeValue,
   isPhoneComplete,
   phoneDigits,
+  responseSummaryData,
 } from "../../utils/rsvp.js";
 import {
   BLOCK_EVENTS,
@@ -70,6 +80,12 @@ const CODES = Object.fromEntries(SERVICE_ERRORS.map(({ code }) => [code, code]))
 
 // Id del panel que asocia el botón que revela el contenido (RNF-1, DT-9).
 const PANEL_ID = "rsvp-respuesta";
+
+// Copy del aviso cuando la respuesta registrada es un **rechazo** (RF-12, D20, R12; §13.4): es
+// un **rótulo de interfaz** y por eso vive con su componente —como los demás rótulos de
+// `Rsvp.jsx`—, **no** en el módulo del contrato (que aloja literales del modelo del servicio).
+// Una confirmación sigue mostrando la copy `OK` de `SERVICE_ERRORS` (RF-12 no aplica).
+const REJECTION_NOTICE = "Lamentamos que no puedas acompañarnos. Gracias por tu respuesta.";
 
 // Aviso por código: el mensaje y si la causa se puede reintentar viven en el contrato
 // (`SERVICE_ERRORS`), nunca escritos aquí (004 RF-12, RNF-7). Un código desconocido se trata
@@ -104,33 +120,24 @@ function childrenHint(limit) {
   return `Puedes llevar hasta ${limit} ${limit === 1 ? "niño" : "niños"}.`;
 }
 
-// El resumen de un **rechazo** no muestra nada de la asistencia (D18, DT-15): quien no
-// asiste no confirmó adultos, ni niños, ni mensaje, ni restricciones, así que esos datos se
-// pasan **ausentes** —`undefined`, no un `0` ni una cadena vacía, que sí se pintarían
-// (`ResponseSummary` pinta todo lo que no esté vacío)—. En una confirmación se muestran como
-// hoy. Los niños, además, solo existen en la personalizada (004 D12); la decisión es de quien
-// usa el panel, que no cambia de API (RF-9, RF-11).
-function summaryData(answer, personalized) {
-  if (!answer) return null;
-  const rejected = answer.state === RESPONSE_STATES.REJECTED;
-  return {
-    name: answer.name,
-    adultsAttendees: rejected ? undefined : answer.adultsAttendees,
-    childAttendees: rejected || !personalized ? undefined : answer.childAttendees,
-    message: rejected ? undefined : answer.message,
-    restrictions: rejected ? undefined : answer.restrictions,
-    datetime: answer.datetime,
-    phone: answer.phone,
-  };
+// Los campos de la asistencia están partidos en dos grupos (RF-11, D17; RF-13 los matiza):
+//
+//   - **adultos, niños y alergias** —solo existen con «Sí, asistiré» (`showsAttendanceFields`);
+//   - **mensaje** —existe con «Sí, asistiré» **y** con «No podré asistir» (`showsMessageField`,
+//     RF-13): quien no asiste también puede dejar unas palabras;
+//
+// y ninguno de los dos, con «No podré asistir» o sin elegir nada, se pinta —no se esconden por
+// CSS ni quedan deshabilitados de adorno— y sus `<label>`/ayudas se van con ellos (sin etiquetas
+// huérfanas, RNF-1). El **nombre** y el **teléfono** no dependen de esto y se pintan siempre,
+// también al rechazar (004 RF-8/D26 intactas).
+function showsAttendanceFields(response) {
+  return response === RESPONSE_STATES.ACCEPTED;
 }
 
-// Los cuatro campos de la asistencia —adultos, niños, alergias y mensaje— **solo existen**
-// con «Sí, asistiré» (RF-11, D17): con «No podré asistir» o sin elegir nada no se pintan
-// —no se esconden por CSS ni quedan deshabilitados de adorno— y sus `<label>`/ayudas se van
-// con ellos (sin etiquetas huérfanas, RNF-1). El **nombre** y el **teléfono** no dependen de
-// esto y se pintan siempre, también al rechazar (004 RF-8/D26 intactas).
-function showsAttendanceFields(response) {
-  return response === RESPONSE_STATES.CONFIRMED;
+// El mensaje es el único campo de la asistencia que también existe al rechazar (RF-13): sin
+// elegir asistencia **no** se pinta.
+function showsMessageField(response) {
+  return response === RESPONSE_STATES.ACCEPTED || response === RESPONSE_STATES.DECLINED;
 }
 
 // Aviso de esa aparición o desaparición para la **región viva** (RNF-1): es una región
@@ -138,11 +145,11 @@ function showsAttendanceFields(response) {
 // texto; el mismo texto repetido no vuelve a anunciarse, así que las escrituras del
 // formulario no la hacen hablar.
 function attendanceNotice(response) {
-  if (response === RESPONSE_STATES.CONFIRMED) {
+  if (response === RESPONSE_STATES.ACCEPTED) {
     return "Se muestran los campos de asistentes, alergias y mensaje.";
   }
-  if (response === RESPONSE_STATES.REJECTED) {
-    return "No se muestran los campos de asistentes, alergias ni mensaje.";
+  if (response === RESPONSE_STATES.DECLINED) {
+    return "No se muestran los campos de asistentes ni alergias.";
   }
   return "Los campos de asistentes, alergias y mensaje aparecen al elegir «Sí, asistiré».";
 }
@@ -152,6 +159,15 @@ function focusFirstField(container) {
   const first = container?.querySelector?.("input, select, textarea");
   if (first) first.focus();
   else container?.focus?.();
+}
+
+function ServiceWait({ children }) {
+  return (
+    <p className="service-wait" role="status" aria-live="polite">
+      <span className="service-wait-spinner" aria-hidden="true" />
+      <span>{children}</span>
+    </p>
+  );
 }
 
 // Campo de asistentes (RF-4, R1, R8): combo con las opciones de **su** campo cuando el cupo
@@ -267,14 +283,27 @@ export function Rsvp({ wedding }) {
     : "";
 
   // Lo que se muestra en lectura: la respuesta de esta sesión o la que ya traía la
-  // personalizada (D13: el estado «respondido» se construye con lo que la app ya tiene). Un
-  // **rechazo** limpia los campos de la asistencia antes de pintarlos (D18, DT-15).
+  // personalizada (D13: el estado «respondido» se construye con lo que la app ya tiene). La
+  // composición del panel —qué se muestra en un rechazo— es una decisión de negocio y la
+  // resuelve la lógica pura `responseSummaryData` (RF-13, DT-14): un rechazo **conserva** su
+  // mensaje y deja fuera adultos, niños y restricciones (D18 matizada solo en el mensaje).
   const answer =
     answered ??
     (personalized && invitation?.previousResponse
       ? { ...invitation.previousResponse, name: invitation.guestName, phone: null }
       : null);
-  const answeredData = summaryData(answer, personalized);
+  const answeredData = responseSummaryData(answer, personalized);
+
+  // El aviso de `respondido` y del envío aceptado (RF-12, D20): la copy del rechazo cuando la
+  // respuesta registrada es un rechazo y la copy `OK` del contrato en cualquier otra. La fecha
+  // decide por la respuesta registrada, nunca por el código `OK` que devuelve el servicio.
+  const answeredNotice =
+    answer?.state === RESPONSE_STATES.DECLINED ? REJECTION_NOTICE : serviceNotice(CODES.OK).message;
+
+  // El saludo con el nombre (RF-14, D19): solo en la personalizada y siempre con el nombre del
+  // titular **tal cual** lo trae el registro (`invitation.guestName`), sin adivinar el nombre de
+  // pila. El dato vive dentro del contenido revelado, nunca en la vista colapsada (D15/HU-14).
+  const greeting = personalized && invitation?.guestName ? `Hola, ${invitation.guestName}` : null;
 
   // Causa del bloque deshabilitado: la configuración (modo demo o error de resolución) o el
   // fallo de la consulta, que es el único camino que deja `degradado` con el servicio listo.
@@ -290,12 +319,16 @@ export function Rsvp({ wedding }) {
 
   const phoneComplete = isPhoneComplete(phone);
   const looking = block === BLOCK_STATES.LOOKING_UP;
-  // Los cuatro campos de la asistencia solo existen con «Sí, asistiré» (RF-11, D17).
+  // Los campos de la asistencia se gatean en dos grupos (RF-11, D17; RF-13): adultos, niños y
+  // alergias solo con «Sí, asistiré»; el mensaje también con «No podré asistir».
   const showsAttendance = showsAttendanceFields(form.response);
-  const phoneChanged =
-    !personalized &&
-    lookupPhone.current !== null &&
-    phoneDigits(phone) !== phoneDigits(lookupPhone.current);
+  const showsMessage = showsMessageField(form.response);
+  // Cuando `lookup` encontró una respuesta, el teléfono ya es la llave de esa fila:
+  // al editar se conserva y no se puede convertir la edición en una alta nueva.
+  // En el primer registro `lookupPhone` sigue siendo `null`, así que el campo permanece
+  // editable.
+  const phoneLocked = !personalized && lookupPhone.current !== null;
+  const waitingForService = status === "loading" || looking || sendStatus === "sending";
 
   // Las opciones del combo de cada campo, por **su** rango (RF-4, R8): adultos `1..cupo` (sin
   // el 0) y niños `0..cupo`; `null` con cupo 0 (sin combo) o con un límite sin tope. Se
@@ -407,11 +440,12 @@ export function Rsvp({ wedding }) {
 
   const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
 
-  // Cambiar de opinión **no** vacía el formulario (RF-11, D17): los cuatro campos se dejan de
-  // pintar y lo ya escrito se queda en el estado, listo para reaparecer al reelegir «Sí,
-  // asistiré» (el efecto de normalización devuelve el 0 heredado de adultos como 1, R10). Si el
-  // foco estaba en uno de los campos que desaparecen se lleva al bloque de asistencia, para que no
-  // se quede en un control que ya no está (RNF-1).
+  // Cambiar de opinión **no** vacía el formulario (RF-11, D17): los campos se dejan de pintar
+  // —del rechazo solo desaparecen adultos, niños y alergias; el mensaje sigue— y lo ya escrito
+  // se queda en el estado, listo para reaparecer al reelegir «Sí, asistiré» (el efecto de
+  // normalización devuelve el 0 heredado de adultos como 1, R10). Si el foco estaba en uno de
+  // los campos que desaparecen se lleva al bloque de asistencia, para que no se quede en un
+  // control que ya no está (RNF-1).
   function changeAttendance(response) {
     update("response", response);
     const active = formRef.current?.ownerDocument?.activeElement;
@@ -423,9 +457,9 @@ export function Rsvp({ wedding }) {
   }
 
   // Guarda del foco **antes** de pintar el cambio (RF-11, RNF-1): si el foco estaba dentro de
-  // uno de los cuatro campos que van a desaparecer, se lleva al botón de enviar —que existe en
-  // los dos casos— al final del repintado. El foco de los radios de la asistencia, que siguen
-  // ahí, no se toca.
+  // uno de los campos que van a desaparecer, se lleva al botón de enviar —que existe en los dos
+  // casos— al final del repintado. El foco de los radios de la asistencia y del mensaje, que
+  // siguen ahí, no se toca.
   function keepFocusVisible(event) {
     const active = event.currentTarget.ownerDocument?.activeElement;
     if (active?.closest?.(".attendance-fields")) submitRef.current?.focus();
@@ -512,17 +546,23 @@ export function Rsvp({ wedding }) {
             />
           </figure>
 
-          <div className="rsvp-panel">
+          <div className="rsvp-panel" aria-busy={waitingForService}>
             {status === "loading" ? (
               /* La carga no bloquea el resto de la página (004 RNF-5). */
-              <p className="help-text" role="status">
+              <ServiceWait>
                 Estamos revisando tu invitación…
-              </p>
+              </ServiceWait>
             ) : (
               <>
                 {/* Vista colapsada: solo «Responder invitación», con su estado anunciado
                     (RF-3, D15, RNF-1). En `degradado` se ofrece deshabilitado (RF-7). */}
                 {(block === BLOCK_STATES.NOT_ANSWERED || block === BLOCK_STATES.DEGRADED) && (
+                  <>
+                    {block === BLOCK_STATES.NOT_ANSWERED && !personalized && invitation?.seatsText && (
+                      <p className="rsvp-lead">
+                        Hemos reservado <span id="numero">{invitation.seatsText}</span> en tu honor
+                      </p>
+                    )}
                   <button
                     type="button"
                     className="button button-solid"
@@ -533,6 +573,7 @@ export function Rsvp({ wedding }) {
                   >
                     Responder invitación
                   </button>
+                  </>
                 )}
 
                 {/* degradado: el motivo, «Reintentar» cuando la causa lo permite y sin
@@ -581,9 +622,9 @@ export function Rsvp({ wedding }) {
 
                       {/* consultando: sin formulario y el estado en la región viva (M3). */}
                       {looking && (
-                        <p className="help-text" role="status">
+                        <ServiceWait>
                           Estamos buscando tu respuesta…
-                        </p>
+                        </ServiceWait>
                       )}
                       {!looking && lookupNotice && (
                         <p className="help-text" role="status">
@@ -601,19 +642,20 @@ export function Rsvp({ wedding }) {
                     </form>
                   )}
 
-                  {/* respondido: agradecimiento, datos en lectura y «Editar» (RF-9). */}
+                  {/* respondido: agradecimiento (copy del rechazo si lo es, RF-12), el saludo
+                      de la personalizada **sobre** el panel (RF-14) y «Editar» (RF-9). */}
                   {block === BLOCK_STATES.ANSWERED && answeredData && (
                     <>
                       <p className="rsvp-lead" role="status" tabIndex={-1} ref={summaryRef}>
-                        {serviceNotice(CODES.OK).message}
+                        {answeredNotice}
                       </p>
+                      {greeting && <p className="rsvp-lead">{greeting}</p>}
                       <ResponseSummary
                         name={answeredData.name}
                         adultsAttendees={answeredData.adultsAttendees}
                         childAttendees={answeredData.childAttendees}
                         message={answeredData.message}
                         restrictions={answeredData.restrictions}
-                        datetime={answeredData.datetime}
                         phone={answeredData.phone}
                         extraRows={companionRow}
                       />
@@ -626,9 +668,14 @@ export function Rsvp({ wedding }) {
                   {/* editando: el orden de RF-3 y los combos de RF-4 (RF-2, RF-10). */}
                   {block === BLOCK_STATES.EDITING && invitation && (
                     <form ref={formRef} onSubmit={handleSubmit}>
-                      {/* El teléfono de la genérica y la pública queda visible y editable
-                          por encima del resto de campos (D6); cambiarlo **no** vuelve a
-                          consultar (M8) y la respuesta se guarda con el que se escriba. */}
+                      {/* El saludo de la personalizada abre el contenido revelado (RF-14,
+                          D19): «Hola, ‹nombre completo del titular›», el dato **tal cual** lo
+                          trae el registro, antes del nombre (solo lectura) y de los lugares
+                          reservados (RF-3: saludo → nombre → lugares reservados → resto). */}
+                      {greeting && <p className="rsvp-lead">{greeting}</p>}
+
+                      {/* En el primer registro el teléfono es editable; al editar una respuesta
+                          previa queda bloqueado porque es la llave de la fila (D6). */}
                       {!personalized && (
                         <div className="field">
                           <label htmlFor="telefono">Tu teléfono</label>
@@ -641,22 +688,26 @@ export function Rsvp({ wedding }) {
                             inputMode="numeric"
                             value={phone}
                             onChange={(event) => setPhone(event.target.value)}
+                            readOnly={phoneLocked}
+                            aria-readonly={phoneLocked}
                             required
                           />
                           <p className="help-text">
-                            Diez dígitos: así reconocemos tu respuesta si vuelves a contestar.
+                            {phoneLocked
+                              ? "Este teléfono identifica tu respuesta y no puede cambiarse."
+                              : "Diez dígitos: así reconocemos tu respuesta si vuelves a contestar."}
                           </p>
-                          {phoneChanged && (
-                            <p className="help-text" role="status">
-                              Guardaremos tu respuesta con el teléfono que escribas.
-                            </p>
-                          )}
                         </div>
                       )}
 
-                      <p className="rsvp-lead">
-                        Hemos reservado <span id="numero">{invitation.seatsText}</span> en tu honor
-                      </p>
+                      {/* En la genérica y la pública los lugares reservados van antes del
+                          nombre (orden de siempre); en la personalizada el nombre del titular
+                          (solo lectura) va primero y los lugares reservados detrás (RF-3/RF-14). */}
+                      {!personalized && (
+                        <p className="rsvp-lead">
+                          Hemos reservado <span id="numero">{invitation.seatsText}</span> en tu honor
+                        </p>
+                      )}
 
                       {hasField("nombre") && (
                         <div className="field">
@@ -678,6 +729,12 @@ export function Rsvp({ wedding }) {
                         </div>
                       )}
 
+                      {personalized && (
+                        <p className="rsvp-lead">
+                          Hemos reservado <span id="numero">{invitation.seatsText}</span> en tu honor
+                        </p>
+                      )}
+
                       {/* El acompañante, después del nombre y antes de la asistencia
                           (RF-3); su forma visible no cambia. */}
                       {partner && <p className="help-text">Te acompañará <strong>{partner}</strong>.</p>}
@@ -697,9 +754,9 @@ export function Rsvp({ wedding }) {
                             <input
                               type="radio"
                               name="asistencia"
-                              value={RESPONSE_STATES.CONFIRMED}
-                              checked={form.response === RESPONSE_STATES.CONFIRMED}
-                              onChange={() => changeAttendance(RESPONSE_STATES.CONFIRMED)}
+                              value={RESPONSE_STATES.ACCEPTED}
+                              checked={form.response === RESPONSE_STATES.ACCEPTED}
+                              onChange={() => changeAttendance(RESPONSE_STATES.ACCEPTED)}
                               disabled={sendStatus === "sending"}
                               required
                             />
@@ -709,9 +766,9 @@ export function Rsvp({ wedding }) {
                             <input
                               type="radio"
                               name="asistencia"
-                              value={RESPONSE_STATES.REJECTED}
-                              checked={form.response === RESPONSE_STATES.REJECTED}
-                              onChange={() => changeAttendance(RESPONSE_STATES.REJECTED)}
+                              value={RESPONSE_STATES.DECLINED}
+                              checked={form.response === RESPONSE_STATES.DECLINED}
+                              onChange={() => changeAttendance(RESPONSE_STATES.DECLINED)}
                               disabled={sendStatus === "sending"}
                               required
                             />
@@ -720,9 +777,10 @@ export function Rsvp({ wedding }) {
                         </div>
                       </div>
 
-                      {/* Los cuatro campos de la asistencia (RF-11, D17): existen **solo**
-                          con «Sí, asistiré»; el aparecer/desaparecer se anuncia en la
-                          región viva de justo debajo. */}
+                      {/* Los campos de la asistencia (RF-11, D17; RF-13): adultos, niños y
+                          alergias existen **solo** con «Sí, asistiré»; el mensaje, con «Sí» o
+                          con «No». El aparecer/desaparecer se anuncia en la región viva de
+                          justo debajo. */}
                       <div
                         className="attendance-fields contents"
                         onBlurCapture={keepFocusVisible}
@@ -766,7 +824,7 @@ export function Rsvp({ wedding }) {
                           </div>
                         )}
 
-                        {showsAttendance && hasField("mensaje") && (
+                        {showsMessage && hasField("mensaje") && (
                           <div className="field">
                             <label htmlFor="mensaje">Mensaje para los novios</label>
                             <textarea
@@ -792,9 +850,9 @@ export function Rsvp({ wedding }) {
                       {/* El resultado se anuncia en una región viva y recibe el foco
                           (004 RNF-6). */}
                       {sendStatus === "sending" && (
-                        <p className="help-text" role="status">
+                        <ServiceWait>
                           Estamos enviando tu respuesta…
-                        </p>
+                        </ServiceWait>
                       )}
                       {sendNotice && (
                         <p className="help-text" role="status" tabIndex={-1} ref={noticeRef}>
@@ -828,7 +886,6 @@ export function Rsvp({ wedding }) {
                           childAttendees={answeredData.childAttendees}
                           message={answeredData.message}
                           restrictions={answeredData.restrictions}
-                          datetime={answeredData.datetime}
                           phone={answeredData.phone}
                           extraRows={companionRow}
                         />

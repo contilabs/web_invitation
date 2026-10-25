@@ -1667,6 +1667,31 @@ footer a:hover {
   color: var(--ink-2);
 }
 
+.service-wait {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.service-wait-spinner {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  border: 2px solid var(--ember-suave);
+  border-top-color: var(--ember);
+  border-radius: 50%;
+  animation: serviceWaitSpin 0.85s linear infinite;
+}
+
+@keyframes serviceWaitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .rsvp-closed {
   padding: clamp(1.5rem, 4vw, 2.5rem) 0;
 }
