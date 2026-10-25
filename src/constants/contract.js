@@ -1,4 +1,5 @@
-// Contrato del servicio de registro (spec 004: RF-17; D18, D25, D27; spec 005: RF-8; D5).
+// Contrato del servicio de registro (spec 004: RF-17; D18, D25, D27; spec 005: RF-8; D5;
+// spec 004 §10: RF-19, RF-20; D29–D34).
 //
 // Este módulo es la **fuente única** del contrato: lo consume la app y su documento
 // humano (`docs/servicio-invitados.md`) se **deriva** de él; `test/serviceContract.test.js`
@@ -16,8 +17,12 @@
 
 // Versión del contrato. Se sube **a la vez** en la app y en el servicio cuando cambia la
 // forma de una llamada o de una respuesta. No viaja en el enlace. `1.1.0` añade la acción
-// `lookup` (spec 005, RF-8): cambio **aditivo**, sin retirar ni renombrar nada.
-export const CONTRACT_VERSION = "1.1.0";
+// `lookup` (spec 005, RF-8) y `1.2.0` añade el código `MALFORMED_GUEST` (spec 005, RF-16):
+// ambas son cambios **aditivos**, sin retirar ni renombrar nada. `1.3.0` (spec 004 §10, D34)
+// cambia el **modelo de los libros** —la hoja `public` del libro de invitados y la columna
+// `public_json_cache` del maestro— y **no** cambia la forma de las llamadas: ni las acciones,
+// ni los campos, ni los tipos, ni los códigos de error.
+export const CONTRACT_VERSION = "1.4.0";
 
 // Parámetro del enlace que identifica la invitación (RF-2). El `slug` de la boda es
 // configuración del despliegue, nunca un parámetro del enlace.
@@ -42,6 +47,7 @@ export const MASTER_SHEET = {
     DEADLINE: "deadline",
     GUEST_TYPE: "guest_type",
     GENERIC_JSON_CACHE: "generic_json_cache",
+    PUBLIC_JSON_CACHE: "public_json_cache",
   },
 };
 
@@ -64,8 +70,10 @@ export const GUEST_SHEET = {
   },
 };
 
-// Libro de invitados: hoja `generic` con los códigos predefinidos (§1.1). Solo es
-// obligatoria en las invitaciones genérica y pública (RF-4).
+// Libro de invitados: hoja `generic` con los **códigos genéricos** predefinidos (§1.1,
+// RF-19). Obligatoria en la invitación **genérica**; en la **pública** ya no hace falta para
+// servirla (D29). El código reservado `PUBLIC` **sale** de aquí: vive en la hoja `public`
+// (D31).
 export const GENERIC_SHEET = {
   name: "generic",
   columns: {
@@ -74,25 +82,38 @@ export const GENERIC_SHEET = {
   },
 };
 
-// Estados de la respuesta (RF-10): los cuatro del libro, **todos reversibles** mientras el
-// plazo esté abierto (no hay estado terminal) y se devuelven tal cual, sin traducir.
+// Libro de invitados: hoja `public` con los **códigos públicos** (§1.1, RF-19). Es
+// **opcional** en general, pero **obligatoria** en las bodas de tipo `public` (D29). Su `limit`
+// habla **el mismo idioma** que el de `generic`: un entero mayor que cero es el **cupo por
+// respuesta** de ese código y el texto `"n"` significa **sin tope** (D30). El código reservado
+// `PUBLIC` **vive aquí** (D31).
+export const PUBLIC_SHEET = {
+  name: "public",
+  columns: {
+    PUBLIC_ID: "public_id",
+    LIMIT: "limit",
+  },
+};
+
+// Estados de la respuesta (RF-10): una respuesta aceptada o declinada puede editarse sin
+// crear un estado adicional; `viewed` representa que aún no hay respuesta.
 export const RESPONSE_STATES = {
   VIEWED: "viewed",
-  CONFIRMED: "confirmed",
-  UPDATED: "updated",
-  REJECTED: "rejected",
+  ACCEPTED: "accepted",
+  DECLINED: "declined",
 };
 
 // Estados que valen por «sin respuesta» (RF-10): `viewed`; un `status` vacío se trata
 // igual y su fila queda **exenta** del cuadre de asistentes (D21).
 export const NO_RESPONSE_STATES = [RESPONSE_STATES.VIEWED];
 
-// Valor especial de `limit` (columna de la hoja `generic`): **sin tope** (RF-9, D12). Lo
-// lleva el código reservado `PUBLIC`; la app no inventa un máximo.
+// Valor especial de `limit` (columna de las hojas `generic` y `public`): **sin tope** (RF-9,
+// D30). Lo lleva el código reservado `PUBLIC`, que vive en la hoja `public` (D31); la app no
+// inventa un máximo.
 export const NO_LIMIT = "n";
 
-// Código reservado de la hoja `generic`: la invitación pública de la boda, la que se
-// comparte con todos y no tiene tope (RF-5, RF-9).
+// Código reservado de la hoja `public`: la invitación pública de la boda, la que se
+// comparte con todos y no tiene tope (RF-5, RF-9, RF-19).
 export const PUBLIC_CODE = "PUBLIC";
 
 // El teléfono se normaliza a **10 dígitos** y se guarda como **texto** (RF-8, D6, D23).
@@ -217,6 +238,11 @@ export const SERVICE_ERRORS = [
   {
     code: "UNKNOWN_GUEST",
     message: "No encontramos esta invitación.",
+    retryable: true,
+  },
+  {
+    code: "MALFORMED_GUEST",
+    message: "El código de esta invitación no es válido.",
     retryable: true,
   },
   {

@@ -13,7 +13,7 @@ import {
   SERVICE_ACTIONS,
   SERVICE_ERRORS,
 } from "../constants/contract.js";
-import { interpretInvitation, interpretLookup } from "./invitation.js";
+import { INVITATION_TYPES, guestLimit, interpretInvitation, interpretLookup } from "./invitation.js";
 import {
   attendeeOptions,
   attendeeValue,
@@ -22,6 +22,7 @@ import {
   isPhoneComplete,
   lookupPayload,
   phoneDigits,
+  responseSummaryData,
   rsvpPayload,
   validateRsvp,
 } from "./rsvp.js";
@@ -83,51 +84,51 @@ test("isPhoneComplete exige exactamente diez dígitos (RF-8, D23)", () => {
 
 test("la personalizada se envía con sus cupos y sin teléfono (RF-7, RF-8)", () => {
   const invitation = personalized();
-  assert.deepEqual(validateRsvp({ response: "confirmed", adults: 2, children: 1 }, invitation), {
+  assert.deepEqual(validateRsvp({ response: "accepted", adults: 2, children: 1 }, invitation), {
     ok: true,
     errorCode: null,
   });
   // El borde del cupo es válido.
-  assert.equal(validateRsvp({ response: "confirmed", adults: 2, children: 0 }, invitation).ok, true);
+  assert.equal(validateRsvp({ response: "accepted", adults: 2, children: 0 }, invitation).ok, true);
   // Sin nombre ni teléfono: en la personalizada no se piden (RF-5).
-  assert.equal(validateRsvp({ response: "confirmed", adults: 1 }, invitation).ok, true);
+  assert.equal(validateRsvp({ response: "accepted", adults: 1 }, invitation).ok, true);
 });
 
 test("la personalizada no admite más asistentes que su cupo (RF-9)", () => {
   const invitation = personalized();
-  assert.equal(validateRsvp({ response: "confirmed", adults: 3, children: 0 }, invitation).errorCode, "OVER_LIMIT");
-  assert.equal(validateRsvp({ response: "confirmed", adults: 1, children: 2 }, invitation).errorCode, "OVER_LIMIT");
-  assert.equal(validateRsvp({ response: "confirmed", adults: 1, children: -1 }, invitation).errorCode, "OVER_LIMIT");
-  assert.equal(validateRsvp({ response: "confirmed", adults: "dos", children: 0 }, invitation).errorCode, "OVER_LIMIT");
+  assert.equal(validateRsvp({ response: "accepted", adults: 3, children: 0 }, invitation).errorCode, "OVER_LIMIT");
+  assert.equal(validateRsvp({ response: "accepted", adults: 1, children: 2 }, invitation).errorCode, "OVER_LIMIT");
+  assert.equal(validateRsvp({ response: "accepted", adults: 1, children: -1 }, invitation).errorCode, "OVER_LIMIT");
+  assert.equal(validateRsvp({ response: "accepted", adults: "dos", children: 0 }, invitation).errorCode, "OVER_LIMIT");
 });
 
 test("con cupo cero solo cabe rechazar (RF-9, D21)", () => {
   const invitation = personalized({ adultsGuests: 0, childGuests: 0 });
-  assert.equal(validateRsvp({ response: "confirmed", adults: 0, children: 0 }, invitation).errorCode, "OVER_LIMIT");
-  assert.equal(validateRsvp({ response: "rejected", adults: 0, children: 0 }, invitation).ok, true);
+  assert.equal(validateRsvp({ response: "accepted", adults: 0, children: 0 }, invitation).errorCode, "OVER_LIMIT");
+  assert.equal(validateRsvp({ response: "declined", adults: 0, children: 0 }, invitation).ok, true);
 });
 
 test("la genérica exige nombre y teléfono, también al rechazar (RF-8, D26)", () => {
   const invitation = generic(3);
-  assert.equal(validateRsvp({ response: "confirmed", adults: 2 }, invitation).errorCode, "MISSING_FIELDS");
+  assert.equal(validateRsvp({ response: "accepted", adults: 2 }, invitation).errorCode, "MISSING_FIELDS");
   assert.equal(
-    validateRsvp({ response: "confirmed", name: "Invitada Ficticia", adults: 2 }, invitation).errorCode,
+    validateRsvp({ response: "accepted", name: "Invitada Ficticia", adults: 2 }, invitation).errorCode,
     "MISSING_FIELDS",
   );
   assert.equal(
-    validateRsvp({ response: "rejected", name: "Invitada Ficticia" }, invitation).errorCode,
+    validateRsvp({ response: "declined", name: "Invitada Ficticia" }, invitation).errorCode,
     "MISSING_FIELDS",
   );
   assert.equal(
-    validateRsvp({ response: "rejected", phone: "5512345678" }, invitation).errorCode,
+    validateRsvp({ response: "declined", phone: "5512345678" }, invitation).errorCode,
     "MISSING_FIELDS",
   );
-  assert.equal(validateRsvp({ response: "rejected" }, invitation).errorCode, "MISSING_FIELDS");
+  assert.equal(validateRsvp({ response: "declined" }, invitation).errorCode, "MISSING_FIELDS");
 });
 
 test("un teléfono que no llega a diez dígitos se rechaza antes de enviar (RF-8, D23)", () => {
   const invitation = generic(3);
-  const form = { response: "confirmed", name: "Invitada Ficticia", adults: 2 };
+  const form = { response: "accepted", name: "Invitada Ficticia", adults: 2 };
   assert.equal(validateRsvp({ ...form, phone: "551234567" }, invitation).errorCode, "INVALID_PHONE");
   assert.equal(validateRsvp({ ...form, phone: "55123456789" }, invitation).errorCode, "INVALID_PHONE");
   assert.equal(validateRsvp({ ...form, phone: "+52 55 1234 5678" }, invitation).errorCode, "INVALID_PHONE");
@@ -136,7 +137,7 @@ test("un teléfono que no llega a diez dígitos se rechaza antes de enviar (RF-8
 
 test("la genérica acota los asistentes a su límite (RF-9)", () => {
   const invitation = generic(3);
-  const form = { response: "confirmed", name: "Invitada Ficticia", phone: "5512345678" };
+  const form = { response: "accepted", name: "Invitada Ficticia", phone: "5512345678" };
   assert.equal(validateRsvp({ ...form, adults: 3 }, invitation).ok, true);
   assert.equal(validateRsvp({ ...form, adults: 4 }, invitation).errorCode, "OVER_LIMIT");
   assert.equal(validateRsvp({ ...form, adults: 0 }, invitation).errorCode, "OVER_LIMIT");
@@ -145,16 +146,38 @@ test("la genérica acota los asistentes a su límite (RF-9)", () => {
 
 test("la pública (`n`) no tiene tope: la app no inventa un máximo (RF-9, D12)", () => {
   const invitation = publicInvitation();
-  const form = { response: "confirmed", name: "Invitada Ficticia", phone: "5512345678" };
+  const form = { response: "accepted", name: "Invitada Ficticia", phone: "5512345678" };
   assert.equal(validateRsvp({ ...form, adults: 12 }, invitation).ok, true);
   assert.equal(validateRsvp({ ...form, adults: 200 }, invitation).ok, true);
+  assert.equal(validateRsvp({ ...form }, invitation).errorCode, "OVER_LIMIT");
+});
+
+test("validateRsvp acepta una genérica con limit 'n' (caída de D29) sin inventar máximo (RF-19)", () => {
+  const invitation = generic(NO_LIMIT);
+  assert.equal(invitation.type, INVITATION_TYPES.GENERIC);
+  assert.equal(guestLimit(invitation), Infinity);
+  const form = { response: "accepted", name: "Invitada Ficticia", phone: "5512345678" };
+  assert.equal(validateRsvp({ ...form, adults: 50 }, invitation).ok, true);
+  assert.equal(validateRsvp({ ...form, adults: 0 }, invitation).errorCode, "OVER_LIMIT");
+});
+
+test("la genérica sin tope (`n`, RF-17) no acota: confirmar con muchos adultos pasa (RF-9)", () => {
+  // Una boda genérica cuyo código es el reservado `PUBLIC` con `"n"` vale por **sin tope**
+  // (RF-17): el tipo sigue siendo genérico y la validación previa no inventa un máximo.
+  const invitation = generic(NO_LIMIT);
+  assert.equal(invitation.type, INVITATION_TYPES.GENERIC);
+  assert.equal(guestLimit(invitation), Infinity);
+  const form = { response: "accepted", name: "Invitada Ficticia", phone: "5512345678" };
+  assert.equal(validateRsvp({ ...form, adults: 12 }, invitation).ok, true);
+  assert.equal(validateRsvp({ ...form, adults: 500 }, invitation).ok, true);
+  // Sigue exigiendo al menos un asistente (004 RF-9/D21 intactas).
   assert.equal(validateRsvp({ ...form }, invitation).errorCode, "OVER_LIMIT");
 });
 
 // La asistencia elegida es obligatoria (RF-11, R11): la garantía **no** es el `required` de
 // los radios del navegador —eso es una ayuda—, sino esta validación pura. Un formulario sin
 // elegir asistencia recibiría, si no, un **rechazo silencioso** del servicio (trata cualquier
-// respuesta distinta de `confirmed` como `rejected`).
+// respuesta distinta de `accepted` como `declined`).
 test("sin asistencia elegida no se envía: lo rechaza la validación previa (RF-11, R11)", () => {
   const invitation = generic(3);
   const form = { name: "Invitada Ficticia", phone: "5512345678", adults: 2 };
@@ -182,7 +205,7 @@ test("sin asistencia elegida no se envía: lo rechaza la validación previa (RF-
   assert.ok(codes.includes("INVALID_RESPONSE"));
   // Un valor con espacios alrededor **sí** es válido: el texto se recorta como en el resto
   // del módulo (`text`), no es una asistencia distinta.
-  assert.equal(validateRsvp({ ...form, response: " rejected " }, invitation).ok, true);
+  assert.equal(validateRsvp({ ...form, response: " declined " }, invitation).ok, true);
 });
 
 test("el orden de la validación se conserva: asistencia después de nombre y teléfono (RF-11, R11)", () => {
@@ -197,13 +220,13 @@ test("el orden de la validación se conserva: asistencia después de nombre y te
   );
   // Un rechazo **válido** sigue pasando sin mirar los asistentes (D26 intacta).
   assert.equal(
-    validateRsvp({ response: "rejected", name: "Invitada Ficticia", phone: "5512345678" }, invitation).ok,
+    validateRsvp({ response: "declined", name: "Invitada Ficticia", phone: "5512345678" }, invitation).ok,
     true,
   );
   // Confirmar sin ningún asistente sigue dando `OVER_LIMIT` (uno de los dos valores válidos;
   // 004 RF-9/D21 intactas).
   assert.equal(
-    validateRsvp({ response: "confirmed", name: "Invitada Ficticia", phone: "5512345678", adults: 0 }, invitation)
+    validateRsvp({ response: "accepted", name: "Invitada Ficticia", phone: "5512345678", adults: 0 }, invitation)
       .errorCode,
     "OVER_LIMIT",
   );
@@ -216,22 +239,22 @@ test("el orden de la validación se conserva: asistencia después de nombre y te
 
 test("sin invitación no se envía: se hereda su código de error (RF-12)", () => {
   const invitation = interpretInvitation({ ok: false, code: "UNKNOWN_GUEST" });
-  const result = validateRsvp({ response: "confirmed", adults: 1 }, invitation);
+  const result = validateRsvp({ response: "accepted", adults: 1 }, invitation);
   assert.equal(result.ok, false);
   assert.equal(result.errorCode, "UNKNOWN_GUEST");
   // También con un código propio de la causa «sin `guest`» (RF-12).
   assert.equal(
-    validateRsvp({ response: "confirmed", adults: 1 }, interpretInvitation({ ok: false, code: "MISSING_GUEST" })).errorCode,
+    validateRsvp({ response: "accepted", adults: 1 }, interpretInvitation({ ok: false, code: "MISSING_GUEST" })).errorCode,
     "MISSING_GUEST",
   );
-  assert.equal(validateRsvp({ response: "confirmed", adults: 1 }, null).errorCode, "MISSING_GUEST");
+  assert.equal(validateRsvp({ response: "accepted", adults: 1 }, null).errorCode, "MISSING_GUEST");
 });
 
 test("rsvpPayload usa los nombres de campo del contrato (RF-14)", () => {
   const payload = rsvpPayload({
     slug: "boda-ficticia",
     code: "gen-0007",
-    response: "confirmed",
+    response: "accepted",
     name: "  Invitada Ficticia  ",
     phone: "(55) 1234-5678",
     adults: 2,
@@ -243,7 +266,7 @@ test("rsvpPayload usa los nombres de campo del contrato (RF-14)", () => {
     action: "respond",
     slug: "boda-ficticia",
     code: "gen-0007",
-    response: "confirmed",
+    response: "accepted",
     adults: 2,
     children: 0,
     phone: "5512345678",
@@ -257,53 +280,62 @@ test("rsvpPayload usa los nombres de campo del contrato (RF-14)", () => {
 });
 
 test("rsvpPayload: en la personalizada no manda teléfono y omite lo opcional vacío (RF-8)", () => {
-  const payload = rsvpPayload({ slug: "boda-ficticia", code: "inv-0001", response: "confirmed", adults: 1, children: 0 });
+  const payload = rsvpPayload({ slug: "boda-ficticia", code: "inv-0001", response: "accepted", adults: 1, children: 0 });
   assert.equal(REQUEST_FIELDS.PHONE in payload, false);
   assert.equal(REQUEST_FIELDS.NAME in payload, false);
   assert.equal(REQUEST_FIELDS.MESSAGE in payload, false);
   assert.equal(REQUEST_FIELDS.RESTRICTIONS in payload, false);
   assert.equal(payload[REQUEST_FIELDS.ACTION], "respond");
   assert.equal(payload[REQUEST_FIELDS.ADULTS], 1);
-  assert.equal(payload[REQUEST_FIELDS.RESPONSE], "confirmed");
+  assert.equal(payload[REQUEST_FIELDS.RESPONSE], "accepted");
 });
 
-// Un rechazo **no** envía los campos ocultos (RF-11, D18): los asistentes, las alergias y el
-// mensaje no se ven al rechazar, así que no viajan, aunque el formulario los tuviera escritos
-// de antes. El servicio (sin cambios) escribe los asistentes en **0** y los textos **vacíos**
+// Un rechazo **no** envía los campos de la asistencia (RF-11, D18): los asistentes y las
+// alergias están ocultos al rechazar, así que no viajan, aunque el formulario los tuviera
+// escritos de antes. El **mensaje sí viaja** desde RF-13 (el invitado puede dejar un mensaje
+// aunque no asista); es lo único que se añade al rechazo (D18 matizada solo en el mensaje).
+// El servicio (sin cambios) escribe los asistentes en **0** y las restricciones **vacías**
 // cuando no llegan, así que el contrato no cambia (RF-8 intacto).
-test("rsvpPayload: un rechazo no envía los campos de la asistencia (RF-11, D18)", () => {
+test("rsvpPayload: un rechazo envía el mensaje pero no los demás campos de la asistencia (RF-11, RF-13, D18)", () => {
   const payload = rsvpPayload({
     slug: "boda-ficticia",
     code: "gen-0007",
-    response: "rejected",
+    response: "declined",
     name: "  Invitada Ficticia  ",
     phone: "(55) 1234-5678",
     adults: 3,
     children: 2,
-    message: "Un mensaje que ya no aplica",
+    message: "Un mensaje de despedida",
     restrictions: "Sin gluten",
   });
   assert.deepEqual(payload, {
     action: "respond",
     slug: "boda-ficticia",
     code: "gen-0007",
-    response: "rejected",
+    response: "declined",
     phone: "5512345678",
     name: "Invitada Ficticia",
+    message: "Un mensaje de despedida",
   });
   // El nombre y el teléfono **sí** viajan: son obligatorios también al rechazar (004 D26).
-  for (const field of [REQUEST_FIELDS.ADULTS, REQUEST_FIELDS.CHILDREN, REQUEST_FIELDS.MESSAGE, REQUEST_FIELDS.RESTRICTIONS]) {
+  for (const field of [REQUEST_FIELDS.ADULTS, REQUEST_FIELDS.CHILDREN, REQUEST_FIELDS.RESTRICTIONS]) {
     assert.equal(field in payload, false, `un rechazo no debe llevar ${field}`);
   }
+  // El mensaje **sí** viaja en un rechazo (RF-13): es lo único que se añade.
+  assert.equal(payload[REQUEST_FIELDS.MESSAGE], "Un mensaje de despedida");
+  // Sin mensaje, el rechazo es válido y el campo no se manda.
+  const silent = rsvpPayload({ slug: "boda-ficticia", code: "gen-0007", response: "declined", adults: 0, children: 0 });
+  assert.equal(REQUEST_FIELDS.MESSAGE in silent, false);
+  assert.equal(silent[REQUEST_FIELDS.RESPONSE], "declined");
   // Todos los campos que sí viajan son del contrato.
   for (const key of Object.keys(payload)) {
     assert.ok(Object.values(REQUEST_FIELDS).includes(key), `el campo ${key} no está en el contrato`);
   }
   // Una **confirmación** los sigue llevando como hoy (nada cambia fuera del rechazo).
-  const confirmed = rsvpPayload({
+  const accepted = rsvpPayload({
     slug: "boda-ficticia",
     code: "gen-0007",
-    response: "confirmed",
+    response: "accepted",
     name: "Invitada Ficticia",
     phone: "5512345678",
     adults: 3,
@@ -311,10 +343,94 @@ test("rsvpPayload: un rechazo no envía los campos de la asistencia (RF-11, D18)
     message: "Un mensaje",
     restrictions: "Sin gluten",
   });
-  assert.equal(confirmed[REQUEST_FIELDS.ADULTS], 3);
-  assert.equal(confirmed[REQUEST_FIELDS.CHILDREN], 2);
-  assert.equal(confirmed[REQUEST_FIELDS.MESSAGE], "Un mensaje");
-  assert.equal(confirmed[REQUEST_FIELDS.RESTRICTIONS], "Sin gluten");
+  assert.equal(accepted[REQUEST_FIELDS.ADULTS], 3);
+  assert.equal(accepted[REQUEST_FIELDS.CHILDREN], 2);
+  assert.equal(accepted[REQUEST_FIELDS.MESSAGE], "Un mensaje");
+  assert.equal(accepted[REQUEST_FIELDS.RESTRICTIONS], "Sin gluten");
+});
+
+// Composición del panel de solo lectura (RF-13; DT-14): la decisión de **qué se muestra** en
+// un rechazo es de negocio y vive aquí, en lógica pura —no en el componente—. Lo que cambia
+// respecto a hoy (`summaryData` de `Rsvp.jsx`) es solo el **mensaje**: en un rechazo se
+// conserva (RF-13, D18 matizada solo en el mensaje); adultos, niños y restricciones siguen
+// **ausentes** (`undefined`, no `0` ni `""`, que sí se pintarían, DT-15).
+test("responseSummaryData: un rechazo conserva el mensaje y omite asistentes y restricciones (RF-13)", () => {
+  const declined = {
+    name: "Invitada Ficticia",
+    state: RESPONSE_STATES.DECLINED,
+    adultsAttendees: 0,
+    childAttendees: 0,
+    message: "Nos hará falta tu compañía",
+    restrictions: "Sin gluten",
+    datetime: "2027-09-01T10:00:00-06:00",
+    phone: "5512345678",
+  };
+  const data = responseSummaryData(declined, true);
+  // El mensaje **se conserva** en un rechazo (RF-13).
+  assert.equal(data.message, "Nos hará falta tu compañía");
+  // Adultos, niños y restricciones quedan **ausentes** (nunca 0 ni ""), D18 vigente para ellos.
+  assert.equal(data.adultsAttendees, undefined);
+  assert.equal(data.childAttendees, undefined);
+  assert.equal(data.restrictions, undefined);
+  // El resto del panel se mantiene tal cual.
+  assert.equal(data.name, "Invitada Ficticia");
+  assert.equal(data.datetime, "2027-09-01T10:00:00-06:00");
+  assert.equal(data.phone, "5512345678");
+});
+
+test("responseSummaryData: un rechazo sin mensaje no pinta el mensaje vacío (RF-13)", () => {
+  const data = responseSummaryData({ state: RESPONSE_STATES.DECLINED, message: "", restrictions: "" }, false);
+  assert.equal(data.message, undefined);
+  assert.equal(data.restrictions, undefined);
+  assert.equal(data.adultsAttendees, undefined);
+  assert.equal(data.childAttendees, undefined);
+  // Un mensaje en blanco tampoco se cuela: es ausente para el panel (no se pinta vacío).
+  assert.equal(responseSummaryData({ state: RESPONSE_STATES.DECLINED, message: "   " }, false).message, undefined);
+});
+
+test("responseSummaryData: una confirmación se comporta como hoy (RF-13)", () => {
+  const accepted = {
+    name: "Invitada Ficticia",
+    state: RESPONSE_STATES.ACCEPTED,
+    adultsAttendees: 2,
+    childAttendees: 1,
+    message: "Un mensaje",
+    restrictions: "Sin gluten",
+    datetime: "2027-09-01T10:00:00-06:00",
+    phone: "5512345678",
+  };
+  assert.deepEqual(responseSummaryData(accepted, true), {
+    name: "Invitada Ficticia",
+    // El estado se conserva junto a los campos visibles (T23, DT-17): `ResponseSummary` no lo
+    // pinta —su API es una lista cerrada de props—, pero lo necesita la precarga del «Editar».
+    state: RESPONSE_STATES.ACCEPTED,
+    adultsAttendees: 2,
+    childAttendees: 1,
+    message: "Un mensaje",
+    restrictions: "Sin gluten",
+    datetime: "2027-09-01T10:00:00-06:00",
+    phone: "5512345678",
+  });
+  // La decisión de `personalized` sobre los niños sigue vigente: solo la personalizada los tiene (004 D12).
+  assert.equal(responseSummaryData(accepted, false).childAttendees, undefined);
+});
+
+// El estado de la respuesta viaja en el objeto compuesto (T23, DT-17): es lo que
+// `attendanceForm` necesita para precargar la asistencia. Sin él, «Editar» sobre un rechazo
+// caía a `accepted` y precargaba una confirmación (la brecha que dejó T18).
+test("responseSummaryData: conserva el estado de la respuesta (T23, DT-17)", () => {
+  for (const state of [RESPONSE_STATES.ACCEPTED, RESPONSE_STATES.DECLINED, RESPONSE_STATES.ACCEPTED]) {
+    assert.equal(responseSummaryData({ state, message: "" }, true).state, state);
+  }
+  // Un estado ausente o en blanco no se inventa: viaja tal cual (la precarga decide después).
+  assert.equal(responseSummaryData({ state: null }, true).state, null);
+  assert.equal(responseSummaryData({ state: undefined }, true).state, undefined);
+  assert.equal(responseSummaryData({ state: "" }, true).state, "");
+});
+
+test("responseSummaryData: sin respuesta devuelve null (RF-13)", () => {
+  assert.equal(responseSummaryData(null, true), null);
+  assert.equal(responseSummaryData(undefined, false), null);
 });
 
 test("interpretRsvpResult distingue el resultado del envío (RF-14)", () => {
@@ -352,7 +468,7 @@ const lookupRow = (response) =>
 
 const REGISTERED_ROW = {
   name: "Invitada Ficticia",
-  state: "confirmed",
+  state: "accepted",
   adultsAttendees: 2,
   childAttendees: 0,
   message: "Un mensaje",
@@ -506,7 +622,7 @@ test("attendanceForm: sin respuesta previa usa los valores por defecto de hoy (R
 test("attendanceForm: precarga la fila de la consulta, con el nombre registrado (RF-5, RF-10)", () => {
   const lookup = lookupRow(REGISTERED_ROW);
   assert.deepEqual(attendanceForm(generic(3), lookup.previousResponse), {
-    response: RESPONSE_STATES.CONFIRMED,
+    response: RESPONSE_STATES.ACCEPTED,
     name: "Invitada Ficticia",
     adults: "2",
     children: "0",
@@ -523,7 +639,7 @@ test("attendanceForm: precarga la respuesta previa de la personalizada con su ti
     guest: { name: "Titular Ejemplo", adultsGuests: 2, childGuests: 1 },
     limit: null,
     response: {
-      state: "updated",
+      state: "accepted",
       adultsAttendees: 1,
       childAttendees: 1,
       message: "Un mensaje",
@@ -533,7 +649,7 @@ test("attendanceForm: precarga la respuesta previa de la personalizada con su ti
     deadline: null,
   });
   const form = attendanceForm(invitation, invitation.previousResponse);
-  assert.equal(form.response, RESPONSE_STATES.CONFIRMED);
+  assert.equal(form.response, RESPONSE_STATES.ACCEPTED);
   // El titular de la invitación manda: la identidad de la personalizada no se cambia (RF-2),
   // aunque la respuesta previa trajera otro nombre (la consulta no aplica a ese tipo).
   assert.equal(form.name, "Titular Ejemplo");
@@ -548,9 +664,9 @@ test("attendanceForm: precarga la respuesta previa de la personalizada con su ti
 });
 
 test("attendanceForm: un rechazo previo se precarga como «rechazar» y es reversible (RF-2)", () => {
-  const lookup = lookupRow({ ...REGISTERED_ROW, state: RESPONSE_STATES.REJECTED, adultsAttendees: 0 });
+  const lookup = lookupRow({ ...REGISTERED_ROW, state: RESPONSE_STATES.DECLINED, adultsAttendees: 0 });
   const form = attendanceForm(generic(3), lookup.previousResponse);
-  assert.equal(form.response, RESPONSE_STATES.REJECTED);
+  assert.equal(form.response, RESPONSE_STATES.DECLINED);
   assert.equal(form.name, "Invitada Ficticia");
   // El 0 heredado de un rechazo no es una opción del combo de adultos: se normaliza a 1
   // (RF-4, R10; DT-13), y en el de niños el 0 sí es una opción válida.
@@ -563,15 +679,15 @@ test("attendanceForm: un rechazo previo se precarga como «rechazar» y es rever
 // (RF-4, R10; DT-13): lo que se ve es lo que se envía.
 test("attendanceForm: precarga los adultos normalizados y conserva el valor fuera del rango (RF-4, R10)", () => {
   // Genérica con cupo 4: el 0 heredado de un rechazo se muestra como 1.
-  const rejected = lookupRow({ ...REGISTERED_ROW, state: RESPONSE_STATES.REJECTED, adultsAttendees: 0 });
-  const form = attendanceForm(generic(4), rejected.previousResponse);
-  assert.equal(form.response, RESPONSE_STATES.REJECTED);
+  const declined = lookupRow({ ...REGISTERED_ROW, state: RESPONSE_STATES.DECLINED, adultsAttendees: 0 });
+  const form = attendanceForm(generic(4), declined.previousResponse);
+  assert.equal(form.response, RESPONSE_STATES.DECLINED);
   assert.equal(form.adults, "1");
 
   // Personalizada con cupo de adultos 2: una respuesta con más adultos que el cupo también
   // se normaliza al menor (1)... pero un valor que **sí** es una opción del combo se conserva.
   const personalizedPrevious = {
-    state: "confirmed",
+    state: "accepted",
     adultsAttendees: 2,
     childAttendees: 1,
     message: "",
@@ -583,13 +699,64 @@ test("attendanceForm: precarga los adultos normalizados y conserva el valor fuer
 
   // Cupo de adultos 0 (sin combo, solo cabe rechazar): la normalización **no** aplica (004 D21).
   const empty = attendanceForm(personalized({ adultsGuests: 0, childGuests: 0 }), {
-    state: "rejected",
+    state: "declined",
     adultsAttendees: 0,
     childAttendees: 0,
     message: "",
     restrictions: "",
   });
   assert.equal(empty.adults, "0");
+});
+
+// La brecha que cierra T23 (DT-17): el «Editar» del componente alimenta `attendanceForm` con
+// la salida de `responseSummaryData` (`answeredData`), **no** con la respuesta cruda. Como la
+// composición no incluía `state`, `attendanceForm` no encontraba el estado y caía a
+// `CONFIRMED`: pulsar «Editar» sobre un rechazo precargaba una confirmación. Estos casos
+// recorren la **misma** vía que el componente (una sola fuente para el panel y la precarga).
+test("attendanceForm: «Editar» sobre un rechazo arranca en «rechazar», no en «confirmar» (T23, DT-17)", () => {
+  const declined = lookupRow({ ...REGISTERED_ROW, state: RESPONSE_STATES.DECLINED, adultsAttendees: 0 });
+  const form = attendanceForm(generic(3), responseSummaryData(declined.previousResponse, false));
+  assert.equal(form.response, RESPONSE_STATES.DECLINED);
+  assert.notEqual(form.response, RESPONSE_STATES.ACCEPTED);
+  // El mensaje del rechazo se precarga (RF-13) y los adultos siguen normalizados al combo.
+  assert.equal(form.message, "Un mensaje");
+  assert.equal(form.adults, "1");
+  // Lo que sí difiere de la respuesta cruda es lo que la composición decide **no** mostrar en
+  // un rechazo: las restricciones quedan fuera (D18 vigente para ellas), así que tampoco se
+  // precargan; el resto —incluido el estado— coincide con la vía cruda.
+  assert.equal(form.restrictions, "");
+  const raw = attendanceForm(generic(3), declined.previousResponse);
+  assert.deepEqual({ ...form, restrictions: raw.restrictions }, raw);
+
+  // En la personalizada pasa lo mismo, con su titular y su cupo.
+  const personalRejected = interpretInvitation({
+    ok: true,
+    action: "resolve",
+    type: GUEST_TYPES.PERSONAL,
+    guest: { name: "Titular Ejemplo", adultsGuests: 2, childGuests: 1 },
+    response: { state: RESPONSE_STATES.DECLINED, adultsAttendees: 0, childAttendees: 0, message: "No podremos" },
+    deadline: null,
+  });
+  const personalForm = attendanceForm(
+    personalRejected,
+    responseSummaryData(personalRejected.previousResponse, true),
+  );
+  assert.equal(personalForm.response, RESPONSE_STATES.DECLINED);
+  assert.equal(personalForm.name, "Titular Ejemplo");
+  assert.equal(personalForm.message, "No podremos");
+});
+
+test("attendanceForm: una confirmación o una actualización siguen arrancando en «confirmar» (T23)", () => {
+  for (const state of [RESPONSE_STATES.ACCEPTED, RESPONSE_STATES.ACCEPTED]) {
+    const lookup = lookupRow({ ...REGISTERED_ROW, state });
+    const form = attendanceForm(generic(3), responseSummaryData(lookup.previousResponse, false));
+    assert.equal(form.response, RESPONSE_STATES.ACCEPTED, `el estado ${state} no precarga «confirmar»`);
+    assert.equal(form.name, "Invitada Ficticia");
+    assert.equal(form.adults, "2");
+    assert.equal(form.children, "0");
+    assert.equal(form.message, "Un mensaje");
+    assert.equal(form.restrictions, "Sin gluten");
+  }
 });
 
 test("attendanceForm: el teléfono no forma parte de la precarga (RF-5, M8)", () => {

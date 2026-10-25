@@ -126,6 +126,41 @@ test("la personalizada sin acompañante y sin niños vale por cero niños (RF-9,
   assert.equal(invitation.seatsText, "2 lugares");
 });
 
+test("los asistentes ausentes o vacíos en la respuesta se leen como cero y no invalidan la invitación (RF-19, RF-20)", () => {
+  const invitation = interpretInvitation({
+    ...PERSONAL_RESULT,
+    response: {
+      state: "accepted",
+      adultsAttendees: "",
+      childAttendees: null,
+      message: "",
+      restrictions: null,
+      datetime: "",
+    },
+  });
+  assert.equal(invitation.type, INVITATION_TYPES.PERSONALIZED);
+  assert.equal(invitation.errorCode, null);
+  assert.deepEqual(invitation.previousResponse, {
+    state: "accepted",
+    adultsAttendees: 0,
+    childAttendees: 0,
+    message: null,
+    restrictions: null,
+    datetime: null,
+  });
+});
+
+test("{ type: 'generic', limit: 'n' } (caída de D29) se acepta como sin tope: guestLimit, seatsText, attendeeLimits (RF-19)", () => {
+  const invitation = interpretInvitation({ ...GENERIC_RESULT, limit: NO_LIMIT });
+  assert.equal(invitation.type, INVITATION_TYPES.GENERIC);
+  assert.equal(invitation.errorCode, null);
+  assert.equal(invitation.limit, NO_LIMIT);
+  assert.equal(guestLimit(invitation), Infinity);
+  assert.equal(seatsText(invitation), "sin tope");
+  assert.deepEqual(attendeeLimits(invitation), { adults: NO_LIMIT, children: 0 });
+  assert.equal(isWithinGuestLimit(250, guestLimit(invitation)), true);
+});
+
 test("la personalizada con cupo cero solo cabe rechazar (RF-9, D21)", () => {
   const invitation = interpretInvitation({
     ...PERSONAL_RESULT,
@@ -142,7 +177,7 @@ test("la personalizada con respuesta previa la devuelve para poder editarla (RF-
   const invitation = interpretInvitation({
     ...PERSONAL_RESULT,
     response: {
-      state: "confirmed",
+      state: "accepted",
       adultsAttendees: 2,
       childAttendees: 0,
       message: "Un mensaje",
@@ -151,7 +186,7 @@ test("la personalizada con respuesta previa la devuelve para poder editarla (RF-
     },
   });
   assert.deepEqual(invitation.previousResponse, {
-    state: "confirmed",
+    state: "accepted",
     adultsAttendees: 2,
     childAttendees: 0,
     message: "Un mensaje",
@@ -223,13 +258,34 @@ test("la genérica y la pública traen el límite del código, sin nombre ni cup
   assert.equal(publicInvitation.seatsText, "sin tope");
 });
 
+test("la genérica admite `n` (sin tope) igual que la pública (RF-17, D22; 004 RF-9/D12)", () => {
+  // El código reservado `PUBLIC` con `limit = "n"` en una boda genérica vale por **sin tope**
+  // (RF-17): la app **no** descarta esa invitación y el tipo sigue siendo genérico (no se
+  // convierte en pública). El resto de la lectura lo trata como «sin tope» sin mirar el tipo.
+  const invitation = interpretInvitation({ ...GENERIC_RESULT, limit: NO_LIMIT });
+  assert.equal(invitation.type, INVITATION_TYPES.GENERIC);
+  assert.equal(invitation.errorCode, null);
+  assert.equal(invitation.limit, NO_LIMIT);
+  assert.equal(guestLimit(invitation), Infinity);
+  assert.equal(invitation.seatsText, "sin tope");
+  assert.deepEqual(attendeeLimits(invitation, NO_LIMIT), { adults: NO_LIMIT, children: 0 });
+  assert.equal(isWithinGuestLimit(200, guestLimit(invitation)), true);
+});
+
 test("un límite de código inválido falla de forma visible (RF-9, RF-13, D21)", () => {
-  for (const limit of [0, -1, "0", "n", "tres", null, undefined]) {
+  // El límite ilegible de la genérica **sigue** siendo un dato fuera de contrato: el código
+  // `MALFORMED_GUEST` lo emite el **servicio** al resolver (RF-16); la app solo lee.
+  for (const limit of [0, -1, "0", "x", "tres", null, undefined, ""]) {
     const invitation = interpretInvitation({ ...GENERIC_RESULT, limit });
     assert.equal(invitation.errorCode, "INVALID_DATA", `acepta el límite ${limit} en la genérica`);
   }
-  // La pública solo admite el valor especial `n`.
-  for (const limit of [3, 0, "N", null, undefined]) {
+  // La pública (y desde RF-17 la genérica) solo admiten `n` o un entero mayor que cero.
+  for (const limit of [3, 0, "N", "PUBLIC", null, undefined]) {
+    const invitation = interpretInvitation({ ...PUBLIC_RESULT, limit });
+    const expected = limit === 3 ? 3 : null;
+    assert.equal(invitation.limit, expected, `interpreta el límite ${limit} de la pública`);
+  }
+  for (const limit of [0, "N", "PUBLIC", null, undefined]) {
     const invitation = interpretInvitation({ ...PUBLIC_RESULT, limit });
     assert.equal(invitation.errorCode, "INVALID_DATA", `acepta el límite ${limit} en la pública`);
   }
@@ -250,9 +306,11 @@ const LOOKUP_GENERIC = {
 
 const LOOKUP_PUBLIC = { ...LOOKUP_GENERIC, type: GUEST_TYPES.PUBLIC, limit: NO_LIMIT };
 
+const LOOKUP_GENERIC_NO_LIMIT = { ...LOOKUP_GENERIC, limit: NO_LIMIT };
+
 const LOOKUP_ROW = {
   name: "  Invitada Ficticia  ",
-  state: "updated",
+  state: "accepted",
   adultsAttendees: 2,
   childAttendees: 0,
   message: "Un mensaje",
@@ -291,7 +349,7 @@ test("interpretLookup devuelve el modelo de la respuesta **más** `name` (RF-8, 
   assert.equal(lookup.deadline, "2027-10-25T23:59:59-06:00");
   assert.deepEqual(lookup.previousResponse, {
     name: "Invitada Ficticia",
-    state: "updated",
+    state: "accepted",
     adultsAttendees: 2,
     childAttendees: 0,
     message: "Un mensaje",
@@ -303,7 +361,7 @@ test("interpretLookup devuelve el modelo de la respuesta **más** `name` (RF-8, 
 test("interpretLookup: un nombre que falta no invalida la fila (RF-8, DT-2)", () => {
   const lookup = interpretLookup({
     ...LOOKUP_GENERIC,
-    response: { state: "confirmed", adultsAttendees: 1 },
+    response: { state: "accepted", adultsAttendees: 1 },
   });
   assert.equal(lookup.ok, true);
   assert.equal(lookup.previousResponse.name, null);
@@ -326,7 +384,19 @@ test("interpretLookup: la pública viaja con `n` sin tope (RF-8, M2)", () => {
   const lookup = interpretLookup(LOOKUP_PUBLIC);
   assert.equal(lookup.type, INVITATION_TYPES.PUBLIC);
   assert.equal(lookup.limit, NO_LIMIT);
-  assert.equal(interpretLookup({ ...LOOKUP_PUBLIC, limit: 4 }).errorCode, "INVALID_DATA");
+  // Un entero mayor que cero también es un límite legible (la regla del **tipo** es del
+  // servicio: él emitiría `MALFORMED_GUEST`, RF-16; la app solo lee el número).
+  assert.equal(interpretLookup({ ...LOOKUP_PUBLIC, limit: 4 }).limit, 4);
+});
+
+test("interpretLookup: la genérica sin tope (`n`) no se descarta (RF-17, D22)", () => {
+  // La consulta de un código `PUBLIC` con `"n"` en una boda genérica devuelve el mismo modelo
+  // que la pública: la app lo acepta y el tipo sigue siendo genérico (RF-17).
+  const lookup = interpretLookup(LOOKUP_GENERIC_NO_LIMIT);
+  assert.equal(lookup.ok, true);
+  assert.equal(lookup.errorCode, null);
+  assert.equal(lookup.type, INVITATION_TYPES.GENERIC);
+  assert.equal(lookup.limit, NO_LIMIT);
 });
 
 test("interpretLookup: la consulta no aplica a la personalizada ni a un tipo ajeno (RF-8)", () => {
@@ -341,9 +411,21 @@ test("interpretLookup: la consulta no aplica a la personalizada ni a un tipo aje
 });
 
 test("interpretLookup: un límite o un estado fuera de contrato fallan visiblemente (RF-8, RF-13)", () => {
-  for (const limit of [0, -1, "0", "tres", null, undefined]) {
-    const lookup = interpretLookup({ ...LOOKUP_GENERIC, limit });
-    assert.equal(lookup.errorCode, "INVALID_DATA", `acepta el límite ${limit}`);
+  // Un límite que no sea legible ni `n` sigue siendo un dato fuera de contrato (el
+  // `MALFORMED_GUEST` del servicio es cosa suya, RF-16); el `"n"` se acepta en ambas.
+  for (const limit of [0, -1, "0", "x", "tres", null, undefined]) {
+    assert.equal(
+      interpretLookup({ ...LOOKUP_GENERIC, limit }).errorCode,
+      "INVALID_DATA",
+      `acepta el límite ${limit} en la genérica`,
+    );
+  }
+  for (const limit of [0, -1, "0", "N", null, undefined]) {
+    assert.equal(
+      interpretLookup({ ...LOOKUP_PUBLIC, limit }).errorCode,
+      "INVALID_DATA",
+      `acepta el límite ${limit} en la pública`,
+    );
   }
   for (const state of ["quizas", 1, true]) {
     const lookup = interpretLookup({ ...LOOKUP_GENERIC, response: { state } });

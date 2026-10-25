@@ -32,16 +32,21 @@
 // ============================================================================
 
 // Versión del contrato (literales, hojas, columnas, acciones y códigos de error). No
-// viaja en el enlace. La `1.1.0` añade la acción `lookup` (spec 005, RF-8): cambio
-// **aditivo**, sin retirar ni renombrar nada.
-const CONTRACT_VERSION = '1.1.0';
+// viaja en el enlace. La `1.1.0` añade la acción `lookup` (spec 005, RF-8) y la `1.2.0` el
+// código `MALFORMED_GUEST` (spec 005, RF-16): ambas son cambios **aditivos**, sin retirar
+// ni renombrar nada. La `1.3.0` (spec 004 §10, D34) cambia el **modelo de los libros** —la
+// hoja `public` y la columna `public_json_cache` del maestro— y **no** cambia la forma de
+// las llamadas.
+const CONTRACT_VERSION = '1.4.0';
 
 // Hojas de los libros: el maestro tiene una sola (`files`) y cada boda tiene su libro de
-// invitados con dos (`guests` para las respuestas y `generic` para los códigos).
+// invitados con **hasta tres** (`guests` para las respuestas, `generic` para los códigos
+// genéricos y `public` para los códigos públicos).
 const SHEET_NAMES = {
   MASTER: 'files',
   GUESTS: 'guests',
   GENERIC: 'generic',
+  PUBLIC: 'public',
 };
 
 // Maestro (`files`): una fila por boda. Se lee por el **nombre de la cabecera**, nunca
@@ -53,10 +58,12 @@ const MASTER_COLUMNS = {
   DEADLINE: 'deadline',
   GUEST_TYPE: 'guest_type',
   GENERIC_JSON_CACHE: 'generic_json_cache',
+  PUBLIC_JSON_CACHE: 'public_json_cache',
 };
 
 // Columnas **obligatorias** del maestro: sin cualquiera de estas cuatro no se puede
-// resolver la boda. `deadline` y `generic_json_cache` pueden faltar o estar vacías (RF-13).
+// resolver la boda. `deadline`, `generic_json_cache` y `public_json_cache` pueden faltar o
+// estar vacías (RF-13, D32).
 const MASTER_REQUIRED_COLUMNS = [
   MASTER_COLUMNS.SLUG,
   MASTER_COLUMNS.IS_ACTIVE,
@@ -86,19 +93,49 @@ const GENERIC_COLUMNS = {
   LIMIT: 'limit',
 };
 
-// Estados de la respuesta (RF-10): los cuatro del libro, todos reversibles y sin traducir.
-const RESPONSE_STATES = {
-  VIEWED: 'viewed',
-  CONFIRMED: 'confirmed',
-  UPDATED: 'updated',
-  REJECTED: 'rejected',
+// Libro de invitados, hoja `public`: los códigos públicos y su límite. Sus cabeceras se
+// declaran **aparte** de las de `generic` porque el código se llama `public_id` (RF-19).
+const PUBLIC_COLUMNS = {
+  PUBLIC_ID: 'public_id',
+  LIMIT: 'limit',
 };
 
-// Valor especial de `limit` (hoja `generic`): **sin tope** (RF-9, D12). Lo lleva el código
-// reservado `PUBLIC`.
+// Las dos hojas de **códigos** del libro de invitados, cada una con su cabecera de código, su
+// columna de `limit`, su **columna de caché** en el maestro y su **regla de `limit`** (D30,
+// D31): la hoja `generic` solo admite un **entero mayor que cero** (el código reservado `PUBLIC`
+// **sale** de ella) y la hoja `public` admite además el texto `n` —sin tope—.
+const CODE_SHEETS = {
+  GENERIC: {
+    name: SHEET_NAMES.GENERIC,
+    idColumn: GENERIC_COLUMNS.GENERIC_ID,
+    limitColumn: GENERIC_COLUMNS.LIMIT,
+    cacheColumn: MASTER_COLUMNS.GENERIC_JSON_CACHE,
+    allowsNoLimit: false,
+  },
+  PUBLIC: {
+    name: SHEET_NAMES.PUBLIC,
+    idColumn: PUBLIC_COLUMNS.PUBLIC_ID,
+    limitColumn: PUBLIC_COLUMNS.LIMIT,
+    cacheColumn: MASTER_COLUMNS.PUBLIC_JSON_CACHE,
+    allowsNoLimit: true,
+  },
+};
+
+// Estados de la respuesta: una respuesta aceptada o declinada puede editarse sin crear
+// un estado adicional; `viewed` representa que aún no hay respuesta.
+const RESPONSE_STATES = {
+  VIEWED: 'viewed',
+  ACCEPTED: 'accepted',
+  DECLINED: 'declined',
+};
+
+// Valor especial de `limit`: **sin tope** (RF-9, D12, D30). Lo lleva el código reservado
+// `PUBLIC`, que vive en la hoja `public` (D31): la hoja `generic` **no** lo admite.
 const NO_LIMIT = 'n';
 
-// Código reservado de la hoja `generic`: la invitación pública de la boda (RF-5).
+// Código reservado de la hoja `public`: la invitación pública de la boda (RF-5, RF-19, D31).
+// El servicio **no** lo trata de forma especial: es un `public_id` más, con su propio `limit`
+// (el texto `n` es «sin tope»).
 const PUBLIC_CODE = 'PUBLIC';
 
 // Tipos de invitación: los declara `guest_type` en el maestro —**una boda, un tipo**— y el
@@ -116,13 +153,12 @@ const GUEST_TYPE_VALUES = [GUEST_TYPES.PERSONAL, GUEST_TYPES.GENERIC, GUEST_TYPE
 // vacío se trata igual y su fila queda exenta del cuadre de asistentes (D21).
 const NO_RESPONSE_STATES = ['viewed'];
 
-// Los cuatro estados que admite la columna `status` (RF-10): cualquier otro valor no vacío
+// Los tres estados que admite la columna `status` (RF-10): cualquier otro valor no vacío
 // es un dato incoherente y se falla de forma visible (RF-13).
 const RESPONSE_STATE_VALUES = [
   RESPONSE_STATES.VIEWED,
-  RESPONSE_STATES.CONFIRMED,
-  RESPONSE_STATES.UPDATED,
-  RESPONSE_STATES.REJECTED,
+  RESPONSE_STATES.ACCEPTED,
+  RESPONSE_STATES.DECLINED,
 ];
 
 // Acciones del servicio (RF-14): resolver la invitación, registrar la respuesta y
@@ -144,6 +180,9 @@ const ERROR_CODES = {
   INACTIVE_WEDDING: 'INACTIVE_WEDDING',
   UNKNOWN_GUEST: 'UNKNOWN_GUEST',
   GUEST_SHEET_UNAVAILABLE: 'GUEST_SHEET_UNAVAILABLE',
+  // El código **existe** pero su `limit` no cumple la regla de su tipo (RF-16, D21): antes se
+  // confundía con `INVALID_DATA`, que queda reservado a lo que impide leer o escribir.
+  MALFORMED_GUEST: 'MALFORMED_GUEST',
   INVALID_DATA: 'INVALID_DATA',
   INVALID_RESPONSE: 'INVALID_RESPONSE',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
@@ -202,6 +241,7 @@ function doPost(e) {
   } catch (error) {
     // Última red: pase lo que pase, la app recibe JSON del contrato y no una página de
     // error de Apps Script (RF-14).
+    console.error('doPost error: ' + (error && error.stack ? error.stack : error));
     return response_({ ok: false, code: ERROR_CODES.SERVICE_UNAVAILABLE });
   }
 }
@@ -283,14 +323,12 @@ function resolvePersonal_(wedding, code) {
   // `adults_guests` es obligatorio y ninguno de los dos puede ser negativo ni ilegible.
   const guestName = text_(cellOf_(row, headerMap, GUEST_COLUMNS.GUEST_NAME));
   const adultsGuests = parseCount_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_GUESTS));
-  const childGuestsCell = cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_GUESTS);
-  const childGuests = text_(childGuestsCell) === null ? 0 : parseCount_(childGuestsCell);
+  const childGuests = parseGuestCount_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_GUESTS), true);
   const status = text_(cellOf_(row, headerMap, GUEST_COLUMNS.STATUS));
   if (guestName === null || adultsGuests === null || childGuests === null) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
-
-  // Un `status` no vacío tiene que ser uno de los cuatro estados del libro (RF-10, RF-13);
+  // Un `status` no vacío tiene que ser uno de los tres estados del libro (RF-10, RF-13);
   // el vacío y `viewed` valen por «sin respuesta» (RF-10, D8).
   if (status !== null && RESPONSE_STATE_VALUES.indexOf(status) === -1) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
@@ -301,15 +339,16 @@ function resolvePersonal_(wedding, code) {
     // La fila todavía **no tiene respuesta**: el servicio deja `viewed` en su `status` al
     // abrirla (RF-6, RF-10, D8) y no toca nada más. Una fila sin respuesta queda **exenta**
     // del cuadre de asistentes: sus celdas pueden estar vacías (D21). Si ya había respuesta
-    // (`confirmed`, `updated` o `rejected`) no se escribe nada: la rama de abajo solo lee.
+    // (`accepted` o `declined`) no se escribe nada: la rama de abajo solo lee.
     const statusColumn = headerMap[GUEST_COLUMNS.STATUS] + 1;
     sheet.getRange(rowNumber, statusColumn).setValue(RESPONSE_STATES.VIEWED);
   } else {
     // Respuesta previa, **tal cual** la trae el libro, para poder editarla (RF-6, RF-10). En
     // una fila con respuesta los asistentes tienen que ser enteros ≥ 0 (RF-13); un mensaje o
-    // unas restricciones ausentes no invalidan nada (RF-13).
-    const adultsAttendees = parseCount_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_ATTENDEES));
-    const childAttendees = parseCount_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_ATTENDEES));
+    // unas restricciones ausentes no invalidan nada (RF-13). Una celda vacía vale por cero
+    // (D33, RF-20).
+    const adultsAttendees = parseAttendees_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_ATTENDEES));
+    const childAttendees = parseAttendees_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_ATTENDEES));
     if (adultsAttendees === null || childAttendees === null) {
       return { ok: false, code: ERROR_CODES.INVALID_DATA };
     }
@@ -342,47 +381,99 @@ function resolvePersonal_(wedding, code) {
   };
 }
 
-// Invitación **genérica** o **pública** (RF-5, RF-6, RF-9, RF-18): el código es un
-// `generic_id` de la hoja `generic` y el cupo es el `limit` de ese código. Estas
-// invitaciones no precargan ningún dato del invitado: al resolver todavía no hay teléfono,
-// así que **no** devuelven ninguna respuesta previa; la de **esa** fila la consulta
-// `lookup` con el teléfono que el invitado aporta en la página (spec 005, RF-8).
+// Invitación **genérica** o **pública** (RF-5, RF-6, RF-9, RF-18, RF-19): el código se
+// resuelve **por tipo** con la hoja que le toca; en la genérica puede caer en `public` si
+// el código no está en `generic` (D29). Estas invitaciones no precargan ningún dato del
+// invitado: al resolver todavía no hay teléfono, así que **no** devuelven ninguna respuesta
+// previa; la de **esa** fila la consulta `lookup` con el teléfono que el invitado aporta en
+// la página (spec 005, RF-8).
 function resolveCode_(wedding, code) {
-  // La pública se sirve con **un solo** código de enlace: el reservado `PUBLIC` (RF-5).
-  // Cualquier otro código no está en la hoja que le toca por su tipo (RF-12): es un
-  // **invitado desconocido**, no un dato del libro incoherente.
-  if (wedding.guestType === GUEST_TYPES.PUBLIC && code !== PUBLIC_CODE) {
-    return { ok: false, code: ERROR_CODES.UNKNOWN_GUEST };
+  const sheets = codeSheetsForType_(wedding.guestType);
+  let lastMissingSheet = null;
+
+  for (let s = 0; s < sheets.length; s += 1) {
+    // Cada entrada combina la definición de la hoja (`def`) con si es obligatoria;
+    // las funciones de lectura/validación reciben la definición interna, no el envoltorio.
+    const sheetEntry = sheets[s];
+    const sheetDef = sheetEntry.def;
+
+    // Caché del maestro para **esta** hoja (D32): mientras traiga el código con un `limit`
+    // válido para esa hoja, se resuelve sin abrir el libro.
+    const cached = readCodeCache_(wedding[cacheFieldForSheet_(sheetDef.name)]);
+    if (cached !== null && hasKey_(cached, code)) {
+      const limit = validateCodeLimit_(cached[code], sheetDef);
+      if (limit.ok) {
+        return resolvedCodeResult_(wedding, limit.limit);
+      }
+      // La caché trae el código pero su `limit` no cumple la regla de esa hoja (p. ej. se
+      // movió de `generic` a `public`): la hoja es la fuente y manda.
+    }
+
+    const read = readCodeLimits_(wedding, sheetEntry);
+    if (!read.ok) {
+      if (read.sheetMissing) {
+        if (sheetEntry.required) {
+          return { ok: false, code: ERROR_CODES.INVALID_DATA };
+        }
+        lastMissingSheet = sheetDef.name;
+        continue;
+      }
+      return read;
+    }
+    if (read.cacheChanged) {
+      writeCodeCache_(wedding.slug, sheetDef, read.limits);
+    }
+    if (!hasKey_(read.limits, code)) {
+      continue;
+    }
+    const limit = validateCodeLimit_(read.limits[code], sheetDef);
+    if (!limit.ok) {
+      return { ok: false, code: limit.code };
+    }
+    return resolvedCodeResult_(wedding, limit.limit);
   }
 
-  // La caché del maestro existe para resolver un código **sin abrir** el libro del invitado
-  // (RF-18, D13). La hoja `generic` es la **fuente** y la caché una **copia**, así que se
-  // reescribe **solo** cuando la caché está vacía, es ilegible o no trae el código pedido
-  // (D23): mientras la caché resuelva, no se abre el libro ni se escribe de más.
-  const cached = readGenericCache_(wedding.cache);
-  let limit = null;
-  if (cached !== null && hasKey_(cached, code)) {
-    limit = cached[code];
-  } else {
-    const generic = readGenericLimits_(wedding);
-    if (!generic.ok) return generic;
-    writeGenericCache_(wedding.slug, generic.limits);
-    if (!hasKey_(generic.limits, code)) return { ok: false, code: ERROR_CODES.UNKNOWN_GUEST };
-    limit = generic.limits[code];
+  if (lastMissingSheet !== null) {
+    // Se agotaron las hojas opcionales sin encontrar el código; si la única obligatoria
+    // faltaba ya se habría devuelto `INVALID_DATA` arriba.
   }
+  return { ok: false, code: ERROR_CODES.UNKNOWN_GUEST };
+}
 
-  // El límite del código (RF-9, RF-13): `"n"` en la pública —sin tope— y un **entero mayor
-  // que cero** en la genérica; cualquier otra cosa es un dato incoherente, nunca un cupo
-  // adivinado (D21).
-  if (wedding.guestType === GUEST_TYPES.PUBLIC) {
-    if (text_(limit) !== NO_LIMIT) return { ok: false, code: ERROR_CODES.INVALID_DATA };
-    limit = NO_LIMIT;
-  } else {
-    const parsed = parseCount_(limit);
-    if (parsed === null || parsed <= 0) return { ok: false, code: ERROR_CODES.INVALID_DATA };
-    limit = parsed;
+function codeSheetsForType_(guestType) {
+  if (guestType === GUEST_TYPES.PUBLIC) {
+    return [{ def: CODE_SHEETS.PUBLIC, required: true }];
   }
+  if (guestType === GUEST_TYPES.GENERIC) {
+    return [
+      { def: CODE_SHEETS.GENERIC, required: true },
+      { def: CODE_SHEETS.PUBLIC, required: false },
+    ];
+  }
+  return [];
+}
 
+function cacheFieldForSheet_(sheetName) {
+  if (sheetName === SHEET_NAMES.PUBLIC) return 'publicCache';
+  return 'cache';
+}
+
+function validateCodeLimit_(limit, sheetDef) {
+  const textLimit = text_(limit);
+  if (textLimit === NO_LIMIT) {
+    if (sheetDef.allowsNoLimit) {
+      return { ok: true, limit: NO_LIMIT };
+    }
+    return { ok: false, code: ERROR_CODES.MALFORMED_GUEST };
+  }
+  const parsed = parseCount_(limit);
+  if (parsed === null || parsed <= 0) {
+    return { ok: false, code: ERROR_CODES.MALFORMED_GUEST };
+  }
+  return { ok: true, limit: parsed };
+}
+
+function resolvedCodeResult_(wedding, limit) {
   return {
     ok: true,
     action: SERVICE_ACTIONS.RESOLVE,
@@ -413,11 +504,14 @@ function openGuestBook_(wedding) {
   }
 }
 
-// Lee la hoja `generic` del libro de esa boda (RF-4, RF-18) y devuelve
+// Lee la hoja de códigos de una boda (RF-4, RF-18, RF-19) y devuelve
 // `{ ok: true, limits }` con el mapa `código normalizado → límite` **tal cual lo trae la
 // hoja**, que es la fuente de la caché. La hoja `guests` sigue siendo obligatoria aquí
-// (RF-4): un libro al que le falta no es el libro de invitados de esa boda.
-function readGenericLimits_(wedding) {
+// (RF-4): un libro al que le falta no es el libro de invitados de esa boda. Si la hoja no
+// existe, devuelve `{ ok: false, code: INVALID_DATA, sheetMissing: true }` cuando es obligatoria
+// o lo indica para que `resolveCode_` lo distinga (D29).
+function readCodeLimits_(wedding, sheetEntry) {
+  const sheetDef = sheetEntry.def;
   const book = openGuestBook_(wedding);
   if (!book.ok) return book;
 
@@ -425,35 +519,41 @@ function readGenericLimits_(wedding) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
 
-  const sheet = book.book.getSheetByName(SHEET_NAMES.GENERIC);
-  if (!sheet) return { ok: false, code: ERROR_CODES.INVALID_DATA };
+  const sheet = book.book.getSheetByName(sheetDef.name);
+  if (!sheet) {
+    if (sheetEntry.required) {
+      return { ok: false, code: ERROR_CODES.INVALID_DATA };
+    }
+    return { ok: false, code: ERROR_CODES.INVALID_DATA, sheetMissing: true };
+  }
 
   const headerMap = readHeaderMap_(sheet);
   if (
-    !hasKey_(headerMap, GENERIC_COLUMNS.GENERIC_ID) ||
-    !hasKey_(headerMap, GENERIC_COLUMNS.LIMIT)
+    !hasKey_(headerMap, sheetDef.idColumn) ||
+    !hasKey_(headerMap, sheetDef.limitColumn)
   ) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
 
-  // Las filas sin `generic_id` no son filas de código y se ignoran (RF-4). El límite se
+  // Las filas sin el id de código no son filas de código y se ignoran (RF-4). El límite se
   // guarda como **texto** (`"n"`, `"3"`), que es lo que la caché guarda y lo que el propio
   // `parseCount_` vuelve a interpretar al resolver.
   const rows = sheet.getDataRange().getValues();
   const limits = Object.create(null);
   for (let r = 1; r < rows.length; r += 1) {
-    const genericId = normalizeCode_(cellOf_(rows[r], headerMap, GENERIC_COLUMNS.GENERIC_ID));
-    if (genericId === null) continue;
-    limits[genericId] = text_(cellOf_(rows[r], headerMap, GENERIC_COLUMNS.LIMIT));
+    const codeId = normalizeCode_(cellOf_(rows[r], headerMap, sheetDef.idColumn));
+    if (codeId === null) continue;
+    limits[codeId] = text_(cellOf_(rows[r], headerMap, sheetDef.limitColumn));
   }
-  return { ok: true, limits: limits };
+  return { ok: true, limits: limits, cacheChanged: true };
 }
 
-// Caché del maestro (`generic_json_cache`) leída como mapa `código → límite` con las claves
-// **normalizadas** para comparar (RF-2, RF-18). Devuelve `null` si la celda está vacía, no
-// es JSON o no es un objeto: quien la use entonces lee la hoja `generic`, que es la fuente
-// (D13). Un mapa sin entradas tampoco resuelve ningún código.
-function readGenericCache_(value) {
+// Caché del maestro (`generic_json_cache` / `public_json_cache`) leída como mapa
+// `código → límite` con las claves **normalizadas** para comparar (RF-2, RF-18). Devuelve
+// `null` si la celda está vacía, no es JSON o no es un objeto: quien la use entonces lee la
+// hoja correspondiente, que es la fuente (D13, D32). Un mapa sin entradas tampoco resuelve
+// ningún código.
+function readCodeCache_(value) {
   const raw = text_(value);
   if (raw === null) return null;
 
@@ -477,19 +577,23 @@ function readGenericCache_(value) {
   return cache;
 }
 
-// Escribe en el maestro la **copia** de los códigos que se acaban de leer de la hoja
-// `generic` (RF-18, D13). Solo se llama desde `resolveCode_` y solo cuando la caché estaba
-// vacía, era ilegible o no traía el código pedido (D23).
-function writeGenericCache_(slug, limits) {
+function readGenericCache_(value) {
+  return readCodeCache_(value);
+}
+
+// Escribe en el maestro la **copia** de los códigos que se acaban de leer de la hoja de
+// códigos (RF-18, D13, D32). Solo se llama desde `resolveCode_` y solo cuando la caché estaba
+// vacía, era ilegible o no traía el código pedido.
+function writeCodeCache_(slug, sheetDef, limits) {
   const master = readMaster_();
   if (!master.ok) return;
-  // La columna puede **faltar** en el maestro (`generic_json_cache` no es obligatoria, §1.1):
-  // sin ella no hay dónde guardar la copia y la invitación se resuelve con lo leído.
-  if (!hasKey_(master.headerMap, MASTER_COLUMNS.GENERIC_JSON_CACHE)) return;
+  // La columna puede **faltar** en el maestro (las cachés no son obligatorias, §1.1): sin
+  // ella no hay dónde guardar la copia y la invitación se resuelve con lo leído.
+  if (!hasKey_(master.headerMap, sheetDef.cacheColumn)) return;
 
   for (let r = 0; r < master.rows.length; r += 1) {
     if (text_(cellOf_(master.rows[r], master.headerMap, MASTER_COLUMNS.SLUG)) !== slug) continue;
-    const column = master.headerMap[MASTER_COLUMNS.GENERIC_JSON_CACHE] + 1;
+    const column = master.headerMap[sheetDef.cacheColumn] + 1;
     try {
       master.sheet.getRange(r + 2, column).setValue(JSON.stringify(limits));
     } catch (error) {
@@ -498,6 +602,10 @@ function writeGenericCache_(slug, limits) {
     }
     return;
   }
+}
+
+function writeGenericCache_(slug, limits) {
+  writeCodeCache_(slug, CODE_SHEETS.GENERIC, limits);
 }
 
 // Momento de la última respuesta (la celda `datetime` de la fila) como texto ISO 8601 en la
@@ -563,17 +671,14 @@ function lookupResponse_(payload) {
   const sheet = book.book.getSheetByName(SHEET_NAMES.GUESTS);
   if (!sheet) return { ok: false, code: ERROR_CODES.INVALID_DATA };
 
-  // Cabeceras que esta consulta necesita (RF-4, RF-13): sin `phone` no hay fila que
-  // localizar, sin `guest_name` no hay nombre registrado que devolver y sin `status` no se
-  // sabe si la fila ya tiene respuesta.
+  // Cabeceras que esta consulta **necesita** (RF-15, R13): solo `phone`, que es la llave de
+  // la fila. Las demás que lee son **toleradas**: `guest_name` es el nombre registrado, que
+  // es opcional (como el `message`) porque el teléfono ya llega en la petición, y la
+  // ausencia de `status` vale por **primera respuesta**: los lee `cellOf_`, que devuelve
+  // vacío si la columna no está declarada. `phone` sigue siendo obligatoria: sin ella no hay
+  // fila que localizar y el fallo es **real** (RF-13), no una cabecera que no hacía falta.
   const headerMap = readHeaderMap_(sheet);
-  if (
-    firstMissingColumn_(headerMap, [
-      GUEST_COLUMNS.PHONE,
-      GUEST_COLUMNS.GUEST_NAME,
-      GUEST_COLUMNS.STATUS,
-    ]) !== null
-  ) {
+  if (firstMissingColumn_(headerMap, [GUEST_COLUMNS.PHONE]) !== null) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
 
@@ -590,7 +695,7 @@ function lookupResponse_(payload) {
 
   let response = null;
   if (row !== null) {
-    // Un `status` no vacío tiene que ser uno de los cuatro estados del libro (RF-10, RF-13);
+    // Un `status` no vacío tiene que ser uno de los tres estados del libro (RF-10, RF-13);
     // el vacío y `viewed` valen por «sin respuesta» (RF-10, D8) y se tratan como primera
     // respuesta.
     const status = text_(cellOf_(row, headerMap, GUEST_COLUMNS.STATUS));
@@ -603,10 +708,10 @@ function lookupResponse_(payload) {
       // es lo único que la consulta añade al modelo de `resolve` (RF-8, DT-2). Los
       // asistentes de una fila con respuesta son enteros ≥ 0 (RF-13); un mensaje o unas
       // restricciones ausentes no invalidan nada y la respuesta **no** lleva el teléfono.
-      const adultsAttendees = parseCount_(
+      const adultsAttendees = parseAttendees_(
         cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_ATTENDEES)
       );
-      const childAttendees = parseCount_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_ATTENDEES));
+      const childAttendees = parseAttendees_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_ATTENDEES));
       if (adultsAttendees === null || childAttendees === null) {
         return { ok: false, code: ERROR_CODES.INVALID_DATA };
       }
@@ -641,8 +746,8 @@ function lookupResponse_(payload) {
 
 // Entra el cuerpo del `POST` (`{ action: "respond", slug, code, response, … }`) y sale
 // `{ ok: true, code: "OK" }` o `{ ok: false, code }`. El servicio es la **autoridad** sobre
-// la respuesta: hace valer el plazo del maestro y el cupo, decide el estado (`confirmed`,
-// `updated` o `rejected`) y escribe en el libro de invitados de esa boda (RF-14). El tipo lo
+// la respuesta: hace valer el plazo del maestro y el cupo, decide el estado (`accepted` o
+// `declined`) y escribe en el libro de invitados de esa boda (RF-14). El tipo lo
 // declara el maestro (una boda, un tipo) y el camino de escritura es distinto en cada uno.
 function registerResponse_(payload) {
   // Sin `slug` no se sabe de qué boda es el libro y sin código no hay a quién contestar
@@ -656,7 +761,7 @@ function registerResponse_(payload) {
   // El invitado solo puede **confirmar** o **rechazar** (RF-10, D26): cualquier otro valor es
   // una respuesta que el contrato no admite (RF-14).
   const response = text_(payload && payload.response);
-  if (response !== RESPONSE_STATES.CONFIRMED && response !== RESPONSE_STATES.REJECTED) {
+  if (response !== RESPONSE_STATES.ACCEPTED && response !== RESPONSE_STATES.DECLINED) {
     return { ok: false, code: ERROR_CODES.INVALID_RESPONSE };
   }
 
@@ -737,32 +842,30 @@ function registerPersonalResponse_(book, code, payload, response, now) {
   if (row === null) return { ok: false, code: ERROR_CODES.UNKNOWN_GUEST };
 
   // La fila se comprueba **antes** de escribir nada, para no dejar una respuesta en una fila
-  // incoherente (RF-13): un `status` no vacío tiene que ser uno de los cuatro estados del
+  // incoherente (RF-13): un `status` no vacío tiene que ser uno de los tres estados del
   // libro y los cupos, enteros ≥ 0 (un `child_guests` vacío vale por cero, RF-9).
   const status = text_(cellOf_(row, headerMap, GUEST_COLUMNS.STATUS));
   if (status !== null && RESPONSE_STATE_VALUES.indexOf(status) === -1) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
   const adultsGuests = parseCount_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_GUESTS));
-  const childGuestsCell = cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_GUESTS);
-  const childGuests = text_(childGuestsCell) === null ? 0 : parseCount_(childGuestsCell);
+  const childGuests = parseGuestCount_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_GUESTS), true);
   if (adultsGuests === null || childGuests === null) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
 
   // Una fila con `status` vacío o `viewed` **no tiene respuesta** todavía: lo que llega es la
-  // primera y deja `confirmed`; si ya había respuesta, la edición deja `updated` (RF-10).
-  const answered = status !== null && NO_RESPONSE_STATES.indexOf(status) === -1;
+  // primera y deja `accepted`; una edición conserva el mismo estado (RF-10).
 
   let adultsAttendees = 0;
   let childAttendees = 0;
-  let state = RESPONSE_STATES.REJECTED;
-  if (response === RESPONSE_STATES.CONFIRMED) {
+  let state = RESPONSE_STATES.DECLINED;
+  if (response === RESPONSE_STATES.ACCEPTED) {
     const adults = parseCount_(payload && payload.adults);
     const children = parseCount_(payload && payload.children);
     // Los asistentes tienen que ser enteros ≥ 0 (RF-13) y no pueden superar el cupo de **su**
     // fila (RF-9). Confirmar sin ningún asistente no confirma a nadie: con cupo cero el único
-    // camino válido es `rejected` (D21).
+    // camino válido es `declined` (D21).
     if (adults === null || children === null) {
       return { ok: false, code: ERROR_CODES.INVALID_RESPONSE };
     }
@@ -772,9 +875,9 @@ function registerPersonalResponse_(book, code, payload, response, now) {
     if (adults + children === 0) return { ok: false, code: ERROR_CODES.OVER_LIMIT };
     adultsAttendees = adults;
     childAttendees = children;
-    state = answered ? RESPONSE_STATES.UPDATED : RESPONSE_STATES.CONFIRMED;
+    state = RESPONSE_STATES.ACCEPTED;
   }
-  // Al **rechazar** se escriben los asistentes en cero y el estado es `rejected` aunque ya
+  // Al **declinar** se escriben los asistentes en cero y el estado es `declined` aunque ya
   // hubiera una respuesta: un rechazo no es la edición de una confirmación (RF-10).
 
   const message = text_(payload && payload.message);
@@ -825,13 +928,14 @@ function registerCodeResponse_(wedding, book, code, payload, response, now) {
   }
 
   // El código se resuelve **igual que al leer** la invitación: con la caché del maestro y, si
-  // esta no lo trae, con la hoja `generic` (RF-18, D23). De ahí sale el **cupo** de esta
-  // respuesta: un entero mayor que cero en la genérica y `"n"` —sin tope— en la pública
-  // (RF-9, D21). El código no cuadra con el tipo o el límite es ilegible → dato incoherente.
+  // esta no lo trae, con la hoja correspondiente (`generic` o, en una boda genérica, `public`
+  // si no está en `generic`) (RF-18, RF-19, D23, D29). De ahí sale el **cupo** de esta
+  // respuesta: un entero mayor que cero en la genérica y `"n"` —sin tope— en la pública o
+  // en un código `public` de una boda genérica (RF-9, D21, D30). El código no cuadra con el
+  // tipo o el límite es ilegible → dato incoherente.
   const resolved = resolveCode_(wedding, code);
   if (!resolved.ok) return resolved;
   const limit = resolved.limit;
-
   // La genérica y la pública identifican por **teléfono**, así que exigen nombre y teléfono
   // **también al rechazar**: el rechazo necesita los mismos datos que la confirmación
   // (RF-8, D26).
@@ -846,7 +950,7 @@ function registerCodeResponse_(wedding, book, code, payload, response, now) {
   // Estos tipos solo cuentan **adultos** (D12) y la cifra tiene que ser un entero ≥ 0: si el
   // cuerpo trae otra cosa, la respuesta es inválida, nunca un cupo adivinado (RF-13, RF-14).
   let adultsAttendees = 0;
-  if (response === RESPONSE_STATES.CONFIRMED) {
+  if (response === RESPONSE_STATES.ACCEPTED) {
     const adults = parseCount_(payload && payload.adults);
     if (adults === null) return { ok: false, code: ERROR_CODES.INVALID_RESPONSE };
     // El cupo es el del código de **este** envío y `PUBLIC` (`"n"`) no tiene tope (RF-9).
@@ -877,18 +981,16 @@ function registerCodeResponse_(wedding, book, code, payload, response, now) {
   }
 
   // La fila de ese teléfono se comprueba **antes** de escribir nada (RF-13): un `status` no
-  // vacío que no sea uno de los cuatro estados del libro es un dato incoherente. Con la fila
-  // delante se decide el estado (RF-10): `updated` si ya tenía una respuesta (`confirmed`,
-  // `updated` o `rejected`), `confirmed` si estaba vacía o `viewed`; al rechazar el estado es
-  // `rejected` y no hay edición que valga.
+  // vacío que no sea uno de los tres estados del libro es un dato incoherente. Con la fila
+  // delante se decide el estado (RF-10): una aceptación o declinación reemplaza la respuesta
+  // anterior sin crear un estado adicional; al declinar el estado es `declined`.
   const status = row === null ? null : text_(cellOf_(row, headerMap, GUEST_COLUMNS.STATUS));
   if (status !== null && RESPONSE_STATE_VALUES.indexOf(status) === -1) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
-  let state = RESPONSE_STATES.REJECTED;
-  if (response === RESPONSE_STATES.CONFIRMED) {
-    const answered = status !== null && NO_RESPONSE_STATES.indexOf(status) === -1;
-    state = answered ? RESPONSE_STATES.UPDATED : RESPONSE_STATES.CONFIRMED;
+  let state = RESPONSE_STATES.DECLINED;
+  if (response === RESPONSE_STATES.ACCEPTED) {
+    state = RESPONSE_STATES.ACCEPTED;
   }
 
   const message = text_(payload && payload.message);
@@ -968,15 +1070,22 @@ function cellOf_(row, headerMap, columnName) {
   return row[headerMap[columnName]];
 }
 
-// Entero ≥ 0 de una celda o de un parámetro, o `null` si no es interpretable (RF-13). No
-// redondea: un valor con decimales, negativo o de texto no numérico no vale como cifra.
-function parseCount_(value) {
-  if (typeof value === 'number') {
-    return Number.isInteger(value) && value >= 0 ? value : null;
-  }
-  const text = text_(value);
-  if (text === null) return null;
-  return /^\d+$/.test(text) ? parseInt(text, 10) : null;
+// Lector tolerante de asistentes: una celda **vacía** vale por **cero**; una celda
+// **presente** con un valor que no sea un entero ≥ 0 es incoherente y devuelve `null`
+// (D33, RF-20).
+function parseAttendees_(value) {
+  const textValue = text_(value);
+  if (textValue === null) return 0;
+  return parseCount_(value);
+}
+
+// Un `child_guests` vacío vale por cero; `adults_guests` es obligatorio (RF-9, RF-13).
+function parseGuestCount_(value, allowZero) {
+  const textValue = text_(value);
+  if (textValue === null) return allowZero ? 0 : null;
+  const parsed = parseCount_(value);
+  if (parsed === null) return null;
+  return parsed;
 }
 
 // Teléfono **normalizado a solo dígitos** (RF-8, D6, D23). La celda del libro puede traer el
@@ -997,6 +1106,22 @@ function firstMissingColumn_(headerMap, columnNames) {
     if (!hasKey_(headerMap, columnNames[i])) return columnNames[i];
   }
   return null;
+}
+
+// Entero no negativo, o `null` si el valor está vacío o no representa un entero.
+// Las hojas pueden devolver números o texto; no se aceptan decimales, booleanos ni
+// valores coercionados como fechas/objetos para evitar inventar cupos.
+function parseCount_(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) && Number.isInteger(value) && value >= 0 ? value : null;
+  }
+  if (typeof value !== 'string') return null;
+
+  const raw = value.trim();
+  if (!/^\d+$/.test(raw)) return null;
+
+  const parsed = Number(raw);
+  return Number.isSafeInteger(parsed) ? parsed : null;
 }
 
 // Texto recortado, o `null` si está vacío: para el servicio, una celda vacía y una ausente
@@ -1196,6 +1321,8 @@ function findWedding_(slug) {
   const deadline = readDeadline_(master, rowNumber);
   if (!deadline.ok) return deadline;
 
+  // El objeto de la boda gana las cachés (D32): `cache` para la hoja `generic` y `publicCache`
+  // para la hoja `public`. La columna puede faltar en el maestro (opcional).
   return {
     ok: true,
     slug: wanted,
@@ -1204,6 +1331,7 @@ function findWedding_(slug) {
     guestType: guestType,
     deadline: deadline.value,
     cache: text_(cellOf_(row, master.headerMap, MASTER_COLUMNS.GENERIC_JSON_CACHE)),
+    publicCache: text_(cellOf_(row, master.headerMap, MASTER_COLUMNS.PUBLIC_JSON_CACHE)),
   };
 }
 

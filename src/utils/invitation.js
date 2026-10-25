@@ -76,12 +76,13 @@ function attendance(response, state) {
   };
 }
 
-// Límite del código (RF-9): la genérica exige un entero mayor que cero y la pública, el
-// valor especial `n` (sin tope); cualquier otra cosa es un fallo visible (RF-13, D21).
+// Límite del código (RF-9, RF-17): la genérica y la pública admiten el valor especial `n`
+// (sin tope) y cualquier otro límite tiene que ser un entero mayor que cero; un `n` en una
+// boda genérica (el código reservado `PUBLIC`, RF-17) vale igual que en la pública, sin
+// cambiar el tipo. Cualquier otra cosa es un fallo visible (RF-13, D21/D22).
 function codeLimit(type, value) {
-  if (type === GUEST_TYPES.PUBLIC) {
-    return text(value) === NO_LIMIT ? NO_LIMIT : null;
-  }
+  const admitsLimit = type === GUEST_TYPES.PUBLIC || type === GUEST_TYPES.GENERIC;
+  if (admitsLimit && text(value) === NO_LIMIT) return NO_LIMIT;
   const limit = count(value);
   return limit !== null && limit > 0 ? limit : null;
 }

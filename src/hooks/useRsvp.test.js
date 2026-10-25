@@ -52,7 +52,7 @@ function mount(props) {
 
 const VALID_FORM = {
   code: "gen-0007",
-  response: "confirmed",
+  response: "accepted",
   name: "Titular Ejemplo",
   phone: "5512345678",
   adults: 1,
@@ -93,7 +93,7 @@ test("el envío va al servicio con el cuerpo del contrato (RF-14)", async () => 
   assert.equal(body[REQUEST_FIELDS.PHONE], "5512345678", "el teléfono viaja normalizado a dígitos");
   assert.equal(body[REQUEST_FIELDS.NAME], "Titular Ejemplo");
   assert.equal(body[REQUEST_FIELDS.ADULTS], 2);
-  assert.equal(body[REQUEST_FIELDS.RESPONSE], "confirmed");
+  assert.equal(body[REQUEST_FIELDS.RESPONSE], "accepted");
 });
 
 test("mientras un envío está en curso no cuela otro (RF-14)", () => {

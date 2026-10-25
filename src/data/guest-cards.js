@@ -4,8 +4,7 @@
 // registro (RF-1), y el modo demo tampoco los usa (RF-15). Se conservan como **fixtures** de
 // `guest-cards.test.js` para ejercer la **forma nueva** del contrato: los tres tipos
 // (`personal`, `generic`, `public`), el teléfono, los límites (incluido `"n"` del código
-// reservado `PUBLIC`) y los cuatro estados reversibles (`viewed`, `confirmed`, `updated`,
-// `rejected`).
+// reservado `PUBLIC`) y los tres estados (`viewed`, `accepted`, `declined`).
 //
 // Solo lleva **datos ficticios** (nunca reales): el repositorio no versiona datos personales
 // de invitados (RNF-2). Los identificadores del modelo —nombres de columna, tipos y
@@ -26,7 +25,7 @@ export const guestCards = [
     status: "viewed",
   },
 
-  // Invitación personalizada ya confirmada: conserva su cupo y su respuesta.
+  // Invitación personalizada ya aceptada: conserva su cupo y su respuesta.
   {
     guest_type: "personal",
     guest_id: "titular-002",
@@ -37,7 +36,7 @@ export const guestCards = [
     child_guests: 0,
     adults_attendees: 3,
     child_attendees: 0,
-    status: "confirmed",
+    status: "accepted",
   },
 
   // Invitación genérica: el servicio asignó el `guest_id` y el cupo es el `limit` del código.
@@ -50,7 +49,7 @@ export const guestCards = [
     limit: 4,
     adults_attendees: 2,
     child_attendees: null,
-    status: "updated",
+    status: "accepted",
   },
 
   // Invitación pública: el código reservado `PUBLIC` no tiene tope (`limit: "n"`).
@@ -63,6 +62,6 @@ export const guestCards = [
     limit: "n",
     adults_attendees: 0,
     child_attendees: null,
-    status: "rejected",
+    status: "declined",
   },
 ];

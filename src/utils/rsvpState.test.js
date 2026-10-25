@@ -14,7 +14,7 @@ import { BLOCK_EVENTS, BLOCK_STATES, initialBlockState, nextBlockState } from ".
 const PERSONALIZED = { type: "personal", previousResponse: null };
 const PERSONALIZED_ANSWERED = {
   type: "personal",
-  previousResponse: { state: "confirmed", adultsAttendees: 2, childAttendees: 0 },
+  previousResponse: { state: "accepted", adultsAttendees: 2, childAttendees: 0 },
 };
 const GENERIC = { type: "generic", limit: 2, previousResponse: null };
 const PUBLIC = { type: "public", limit: "n", previousResponse: null };
@@ -89,7 +89,7 @@ test("arranque sin-respondido: personalizada sin respuesta y genérica/pública 
   assert.equal(
     initialBlockState({
       status: "ready",
-      invitation: { type: "generic", limit: 2, previousResponse: { state: "confirmed" } },
+      invitation: { type: "generic", limit: 2, previousResponse: { state: "accepted" } },
       open: true,
     }),
     BLOCK_STATES.NOT_ANSWERED,

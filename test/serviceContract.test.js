@@ -1,16 +1,18 @@
 // Prueba de sincronía del contrato del servicio (T3; RF-17; RNF-10; D18, D25, D27; spec
-// 005: RF-8, RNF-5, M6, I2, DT-11).
+// 005: RF-8, RNF-5, M6, I2, DT-11; spec 004 §10: T14, RF-19, D31, D32, D34).
 //
 // `src/constants/contract.js` es la **fuente única** y `docs/servicio-invitados.md` su
 // documento humano **derivado**. Esta prueba lee los archivos como texto y falla de
-// verdad cuando el documento pierde un literal del módulo (hojas y columnas del modelo,
-// tipos, estados, valores especiales, acciones —`lookup` incluida—, los campos del
+// verdad cuando el documento pierde un literal del módulo (hojas y columnas del modelo —
+// incluida la hoja `public` y su segunda caché—, tipos, estados, valores especiales,
+// acciones —`lookup` incluida—, los campos del
 // intercambio —los del envío, los de `resolve` y los del intercambio de `lookup`—, el
 // parámetro `guest`, los 10 dígitos del teléfono y el tiempo de espera) o cuando su tabla
 // de códigos de error deja de coincidir con `SERVICE_ERRORS` (mismo conjunto de códigos
 // y, para cada uno, su mensaje exacto). Comprueba además que **la versión del contrato no
 // pueda divergir**: `gas/Code.gs` la declara igual que el módulo (se lee el script como
-// **texto**, sin ejecutarlo ni importar nada de él, DT-11). **No** comprueba `retryable`:
+// **texto**, sin ejecutarlo ni importar nada de él, DT-11) y que declara la hoja `public`
+// con sus dos cabeceras y su columna de caché. **No** comprueba `retryable`:
 // es un booleano que el documento explica en prosa (spec 004 §8 y §12 del plan).
 //
 // Frontera de lo que esta prueba cubre (M6): vigila **literales** y la **versión**, no la
@@ -32,6 +34,7 @@ import {
   MASTER_SHEET,
   GUEST_SHEET,
   GENERIC_SHEET,
+  PUBLIC_SHEET,
   RESPONSE_STATES,
   NO_RESPONSE_STATES,
   NO_LIMIT,
@@ -74,9 +77,14 @@ const textLiterals = [
     ...Object.values(MASTER_SHEET.columns),
     ...Object.values(GUEST_SHEET.columns),
     ...Object.values(GENERIC_SHEET.columns),
+    // La hoja `public` (spec 004 §10, RF-19, D31): sus cabeceras (`public_id` y `limit`) y
+    // su nombre. La **segunda caché** del maestro (`public_json_cache`) ya entra con
+    // `MASTER_SHEET.columns`: no se repite el literal a mano.
+    ...Object.values(PUBLIC_SHEET.columns),
     MASTER_SHEET.name,
     GUEST_SHEET.name,
     GENERIC_SHEET.name,
+    PUBLIC_SHEET.name,
     GUEST_PARAM,
     PUBLIC_CODE,
     NO_LIMIT,
@@ -98,6 +106,16 @@ function scriptContractVersion() {
     declaration,
     "gas/Code.gs no declara la versión del contrato (`const CONTRACT_VERSION = '…';`)",
   );
+  return declaration[1];
+}
+
+// Cuerpo de un **objeto literal** declarado en `gas/Code.gs` (`const NOMBRE = { … };`).
+// Sirve para vigilar la **declaración** de una hoja o de una columna y no una mención
+// suelta de la palabra: un `includes` genérico daría un falso positivo con cualquier
+// otra aparición (`public` aparece además en los tipos de invitación y en la caché).
+function scriptObjectBody(name) {
+  const declaration = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\};`).exec(scriptText);
+  assert.ok(declaration, `gas/Code.gs no declara el objeto «${name}»`);
   return declaration[1];
 }
 
@@ -237,4 +255,37 @@ test("el servicio lee el id del maestro por el nombre de la propiedad, nunca por
       `«${name}» guarda un valor; no puede usarse como nombre de propiedad`,
     );
   }
+});
+
+// Vigilancia **estática** del **modelo de los libros** de la versión `1.3.0` (spec 004 §10,
+// RF-19, D31, D32, D34). `npm test` no ejecuta Apps Script: `gas/Code.gs` se lee como
+// **texto**. Un despliegue **viejo** (sin redeployar) serviría el modelo anterior —sin la
+// hoja `public` ni su caché—, y la boda pública quedaría sin poder servirse sin que nada
+// lo delate: por eso se vigila la **declaración** de la hoja y de sus cabeceras.
+test("el servicio declara la hoja `public` y su columna de caché", () => {
+  assert.match(
+    scriptObjectBody("SHEET_NAMES"),
+    /PUBLIC:\s*['"]public['"]/,
+    "gas/Code.gs no declara la hoja `public` en `SHEET_NAMES` (`PUBLIC: 'public'`): un despliegue viejo serviría el modelo anterior, sin la hoja de códigos públicos (RF-19, D31)",
+  );
+
+  assert.match(
+    scriptObjectBody("MASTER_COLUMNS"),
+    /PUBLIC_JSON_CACHE:\s*['"]public_json_cache['"]/,
+    "gas/Code.gs no declara la columna de caché `public_json_cache` del maestro (`PUBLIC_JSON_CACHE: 'public_json_cache'`): un despliegue viejo serviría el modelo anterior, sin la caché de la hoja `public` (D32)",
+  );
+
+  // Las dos cabeceras de la hoja `public`, **declaradas** (no basta con que la palabra
+  // `public_id` aparezca por ahí): el servicio las lee por su nombre de cabecera.
+  const publicColumns = scriptObjectBody("PUBLIC_COLUMNS");
+  assert.match(
+    publicColumns,
+    /PUBLIC_ID:\s*['"]public_id['"]/,
+    "gas/Code.gs no declara la cabecera `public_id` de la hoja `public` (`PUBLIC_ID: 'public_id'`): un despliegue viejo serviría el modelo anterior (RF-19)",
+  );
+  assert.match(
+    publicColumns,
+    /LIMIT:\s*['"]limit['"]/,
+    "gas/Code.gs no declara la cabecera `limit` de la hoja `public` (`LIMIT: 'limit'`): un despliegue viejo serviría el modelo anterior y el código público no tendría cupo (RF-19, D30)",
+  );
 });

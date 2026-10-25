@@ -38,7 +38,7 @@ function count(value) {
 
 // El invitado solo puede enviar una **confirmación** o un **rechazo** (RF-10, D26).
 function isRejection(response) {
-  return text(response) === RESPONSE_STATES.REJECTED;
+  return text(response) === RESPONSE_STATES.DECLINED;
 }
 
 // Teléfono (RF-8, D6, D23): se trata como texto y se normaliza a solo dígitos. El teléfono
@@ -64,7 +64,7 @@ export function isPhoneComplete(value) {
 // - La **genérica** y la **pública** exigen nombre y teléfono **también al rechazar** (D26)
 //   y acotan los adultos al límite del código, que en la pública no tiene tope (D12).
 // - La **asistencia elegida** es obligatoria (RF-11, R11): el formulario no se puede enviar
-//   sin una de las dos opciones del contrato (`confirmed`/`rejected`). El `required` de los
+//   sin una de las dos opciones del contrato (`accepted`/`declined`). El `required` de los
 //   radios del componente es solo una **ayuda de navegador**; la garantía es esta función.
 //   El código es el **existente** `INVALID_RESPONSE` (no se añade ninguno al contrato, R11)
 //   y va **después** del nombre y el teléfono —cuyas faltas mandan, D26— y **antes** del
@@ -86,13 +86,13 @@ export function validateRsvp(form, invitation) {
     if (!isPhoneComplete(digits)) return { ok: false, errorCode: CODES.INVALID_PHONE };
   }
 
-  // Sin asistencia elegida —ni `confirmed` ni `rejected`— no se compone ningún envío: el
+  // Sin asistencia elegida —ni `accepted` ni `declined`— no se compone ningún envío: el
   // servicio trataría cualquier otra cosa como un **rechazo silencioso** (RF-11, R11).
-  if (response !== RESPONSE_STATES.CONFIRMED && response !== RESPONSE_STATES.REJECTED) {
+  if (response !== RESPONSE_STATES.ACCEPTED && response !== RESPONSE_STATES.DECLINED) {
     return { ok: false, errorCode: CODES.INVALID_RESPONSE };
   }
 
-  const rejecting = response === RESPONSE_STATES.REJECTED;
+  const rejecting = response === RESPONSE_STATES.DECLINED;
   if (rejecting) return { ok: true, errorCode: null };
 
   const adults = count(form?.adults);
@@ -118,10 +118,11 @@ export function validateRsvp(form, invitation) {
 // teléfono de la genérica y la pública viaja **normalizado a dígitos** porque es la llave
 // del libro (D6).
 //
-// Un **rechazo** omite además los campos de la asistencia (RF-11, D18): los asistentes, las
-// alergias y el mensaje están **ocultos** cuando se rechaza —lo que el invitado no ve no
-// viaja— y el servicio (sin cambios) los escribe en 0 y vacío al no recibirlos, así que el
-// contrato no cambia (RF-8 intacto).
+// Un **rechazo** omite los campos de la asistencia **salvo el mensaje** (RF-11, RF-13; D18
+// matizada solo en el mensaje): los asistentes y las alergias están **ocultos** cuando se
+// rechaza —lo que el invitado no ve no viaja—, pero el **mensaje sí** (el invitado puede
+// dejar una palabra aunque no asista). El servicio (sin cambios) escribe los asistentes en 0
+// y las restricciones vacías al no recibirlos, así que el contrato no cambia (RF-8 intacto).
 export function rsvpPayload({
   action,
   slug,
@@ -146,16 +147,53 @@ export function rsvpPayload({
   const guestName = text(name);
   if (guestName !== null) payload[REQUEST_FIELDS.NAME] = guestName;
 
-  if (isRejection(response)) return payload;
+  const note = text(message);
+  if (isRejection(response)) {
+    // En un rechazo solo se añade el mensaje; los demás campos de la asistencia quedan fuera.
+    if (note !== null) payload[REQUEST_FIELDS.MESSAGE] = note;
+    return payload;
+  }
 
   payload[REQUEST_FIELDS.ADULTS] = count(adults);
   payload[REQUEST_FIELDS.CHILDREN] = count(children);
-  const note = text(message);
   if (note !== null) payload[REQUEST_FIELDS.MESSAGE] = note;
   const diet = text(restrictions);
   if (diet !== null) payload[REQUEST_FIELDS.RESTRICTIONS] = diet;
 
   return payload;
+}
+
+// Composición del **panel de solo lectura** (`ResponseSummary`, RF-13, RF-10; DT-14): desde
+// la respuesta interpretada (`answer`) y el tipo de invitación (`personalized`) devuelve el
+// objeto que consume la pieza, con los mismos campos que hoy (`name`, `adultsAttendees`,
+// `childAttendees`, `message`, `restrictions`, `datetime`, `phone`) y **además** el `state`.
+//
+// La decisión de **qué se muestra en un rechazo** es de negocio, no de presentación, y por
+// eso vive aquí y no en el componente: en un **rechazo** se conserva el `message` (RF-13; el
+// invitado puede dejar una palabra aunque no asista) y se pasan **ausentes** —`undefined`,
+// no `0` ni `""`, que sí se pintarían— los adultos, los niños y las restricciones (D18
+// vigente para ellos). En una **confirmación** se devuelven como hoy. Los **niños** solo
+// existen en la personalizada (004 D12): fuera de ella se omiten. Sin respuesta → `null`.
+// Sin React, sin DOM y sin reloj (RNF-4/RNF-9).
+//
+// El `state` se conserva porque el «Editar» alimenta `attendanceForm` con **esta misma**
+// composición (`answeredData`, DT-17): sin él, la precarga no encontraba el estado y caía a
+// `accepted`, así que «Editar» sobre un rechazo precargaba una aceptación. `ResponseSummary`
+// **no** lo pinta (su API es una **lista cerrada** de props y `state` no está entre ellas):
+// el estado no es un campo visible, solo el dato que necesita la precarga.
+export function responseSummaryData(answer, personalized) {
+  if (!answer) return null;
+  const rejected = isRejection(answer.state);
+  return {
+    name: answer.name,
+    state: answer.state,
+    adultsAttendees: rejected ? undefined : answer.adultsAttendees,
+    childAttendees: rejected || !personalized ? undefined : answer.childAttendees,
+    message: text(answer.message) ?? undefined,
+    restrictions: rejected ? undefined : answer.restrictions,
+    datetime: answer.datetime,
+    phone: answer.phone,
+  };
 }
 
 // Cuerpo JSON de la **consulta por teléfono** (`lookup`, spec 005: RF-5, RF-8; D5, I8): los
@@ -206,7 +244,7 @@ export function attendeeValue(value, options) {
 // Precarga del formulario de respuesta (RF-2, RF-5, RF-10): de la respuesta previa —la que
 // trae la personalizada o la que devolvió la consulta por teléfono— o de los valores por
 // defecto de hoy cuando todavía no hay ninguna. La asistencia se conserva: «rechazar» para
-// `rejected` y «confirmar» para cualquier otra respuesta registrada (`confirmed`/`updated`),
+// `declined` y «aceptar» para cualquier otra respuesta registrada (`accepted`),
 // y sin respuesta no se elige nada. El **nombre** es el registrado de la fila y, en la
 // personalizada, el titular de la invitación; la **condición de editable** la decide el
 // componente (el titular lleva `readOnly`, RF-2; el registrado se edita, RF-10). Los
@@ -240,9 +278,9 @@ export function attendanceForm(invitation, previousResponse) {
   return {
     ...form,
     response:
-      text(previousResponse.state) === RESPONSE_STATES.REJECTED
-        ? RESPONSE_STATES.REJECTED
-        : RESPONSE_STATES.CONFIRMED,
+      text(previousResponse.state) === RESPONSE_STATES.DECLINED
+        ? RESPONSE_STATES.DECLINED
+        : RESPONSE_STATES.ACCEPTED,
     // La identidad manda por tipo: el titular de la personalizada (que no se edita, RF-2) o
     // el nombre registrado de la fila en la genérica y la pública (editable, RF-10).
     name: personalized ? form.name : (text(previousResponse.name) ?? form.name),
