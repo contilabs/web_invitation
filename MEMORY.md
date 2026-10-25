@@ -23,6 +23,9 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   (no marca `viewed`) y **no devuelve** el teléfono ni datos ajenos. Cupo del combo y validación:
   `attendeeLimits`; precarga: `attendanceForm`/`interpretLookup`. Riesgo aceptado del teléfono en la
   consulta, documentado (constitución 5, `AGENTS.md`).
+- **Spec 005 · teléfono tras el primer envío:** cuando un RSVP genérico o público termina bien,
+  `Rsvp` copia el teléfono capturado en `submitted.current` a `lookupPhone`; así «Editar» conserva
+  la llave de la fila aunque no haya habido una consulta previa.
 - **Spec 005 · formulario y Fase 6 (RF-4/RF-11/RF-12–RF-15):** rango del combo **por campo** (adultos
   `1..cupo` —el 0 fuera—, niños `0..cupo`); `attendeeValue` **normaliza** el 0 heredado (se ve y se
   envía como 1); `validateRsvp` **exige elegir asistencia**. Con «Sí» existen los cuatro campos; con
@@ -35,6 +38,16 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
 - **Spec 004/005 · contrato módulo + documento:** `src/constants/contract.js` es la fuente única,
   `docs/servicio-invitados.md` el derivado y `test/serviceContract.test.js` la sincronía exigida; los
   literales del modelo van en inglés por excepción documentada.
+- **Servicio · protección de escritura:** `writeResponse_` marca como texto las cadenas antes de
+  escribirlas y antepone el apóstrofo de escape de Sheets; así nombre, mensaje y restricciones no
+  pueden evaluarse como fórmulas si empiezan por `=`. Los números se siguen escribiendo como
+  números y los vacíos como vacíos.
+- **Servicio · estado `viewed`:** `resolvePersonal_` lee la fila y decide si marca `viewed` bajo
+  el mismo `ScriptLock` que `registerResponse_`; así una respuesta concurrente no puede ser
+  sobrescrita por el resolver.
+- **Servicio · escrituras bajo bloqueo:** los bloques protegidos hacen `SpreadsheetApp.flush()`
+  antes de liberar el lock; el `releaseLock()` queda en un `finally` interno para no retenerlo si
+  el flush falla.
 - **Spec 004 · el invitado sale del servicio:** parámetro `guest` (`codigo`/`code`/`inv` jubilados,
   sin alias); la app **no** deduce tipo ni cupo, los recibe resueltos (`interpretInvitation`, D20).
   Tipos: `personal`, `generic`, `public` (código reservado `PUBLIC`, sin tope); `none` = sin

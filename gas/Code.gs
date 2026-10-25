@@ -305,6 +305,17 @@ function resolvePersonal_(wedding, code) {
     return { ok: false, code: ERROR_CODES.INVALID_DATA };
   }
 
+  // La lectura del estado y la posible escritura de `viewed` tienen que compartir el mismo
+  // bloqueo que la escritura de una respuesta: de lo contrario, un envío concurrente puede
+  // quedar pisado por este resolver (RF-6, RF-10, D8).
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(LOCK_WAIT_MS);
+  } catch (error) {
+    return { ok: false, code: ERROR_CODES.SERVICE_UNAVAILABLE };
+  }
+
+  try {
   // El código se compara **normalizado** (RF-2, D24) y las filas sin `guest_id` no son filas
   // de invitado: se ignoran (RF-4).
   const rows = sheet.getDataRange().getValues();
@@ -379,6 +390,13 @@ function resolvePersonal_(wedding, code) {
     response: response,
     deadline: wedding.deadline,
   };
+  } finally {
+    try {
+      SpreadsheetApp.flush();
+    } finally {
+      lock.releaseLock();
+    }
+  }
 }
 
 // Invitación **genérica** o **pública** (RF-5, RF-6, RF-9, RF-18, RF-19): el código se
@@ -796,7 +814,11 @@ function registerResponse_(payload) {
     }
     return registerCodeResponse_(wedding, book, code, payload, response, now);
   } finally {
-    lock.releaseLock();
+    try {
+      SpreadsheetApp.flush();
+    } finally {
+      lock.releaseLock();
+    }
   }
 }
 
@@ -1038,8 +1060,16 @@ function writeResponse_(sheet, rowNumber, headerMap, values) {
     const column = columns[i];
     if (!hasKey_(headerMap, column)) continue;
     const cell = sheet.getRange(rowNumber, headerMap[column] + 1);
-    if (column === GUEST_COLUMNS.PHONE) cell.setNumberFormat('@');
-    cell.setValue(values[column]);
+    const value = values[column];
+    if (typeof value === 'string') {
+      // Las cadenas que vienen del invitado deben ser texto literal: sin el apóstrofo,
+      // Sheets puede interpretar un valor que empieza por `=` como fórmula y exponer
+      // datos de otras filas cuando después se consulta la respuesta.
+      cell.setNumberFormat('@');
+      cell.setValue(value === '' ? '' : "'" + value);
+    } else {
+      cell.setValue(value);
+    }
   }
 }
 
