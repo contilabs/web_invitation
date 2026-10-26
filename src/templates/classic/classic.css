@@ -1,0 +1,1882 @@
+/* ============================================================
+   Invitación de Karina & Gerardo
+   Concepto: «el fuego», el elemento que ellos mismos nombran en
+   su texto. Rediseño «Ascua» (T24): evolución editorial del fuego
+   cálido. El tema claro es el día (papel lino, tinta expreso,
+   brasa roja y vino); el tema oscuro es la noche (luz de vela).
+   Todo el color vive en las variables de :root, y darkMode.css
+   solo las reescribe: un cambio aquí se ve en ambos temas.
+   ============================================================ */
+
+/* ============================================================
+   Fuentes personalizadas
+   ============================================================ */
+@font-face {
+  font-family: "Erstoria";
+  src: url("../../../fonts/Erstoria.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kalista";
+  src: url("../../../fonts/Kalista Script Regular.woff2") format("woff2"),
+    url("../../../fonts/Kalista Script Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   1. Tokens de diseño
+   ============================================================ */
+:root {
+  /* Superficies: lino, un papel más frío que el marfil de antes */
+  --paper: #f0ebe0;
+  --paper-2: #e7e0d3;
+  --superficie: #f7f3ea;
+  --papel-velo: rgba(240, 235, 224, 0.82);
+
+  /* Tinta */
+  --ink: #1f1713;
+  --ink-2: #5a4a40;
+  --smoke: #6f5f54;
+
+  /* Brasa: acento principal. El valor está elegido para superar AA sobre el
+     lino (4.58:1); si se cambia, hay que revisar el contraste. */
+  --ember: #b8431d;
+  --ember-2: #97340f;
+  --glow: #e79457;
+  --ember-suave: rgba(184, 67, 29, 0.08);
+  /* Texto que va encima de --ember (de noche la brasa es más clara) */
+  --sobre-ember: #fffaf4;
+
+  /* Vino: segundo color, solo para filetes y estructura; no compite con la
+     brasa ni se usa como texto pequeño. */
+  --vino: #5e2a28;
+  --vino-suave: rgba(94, 42, 40, 0.08);
+
+  /* Tinte de los iconos.
+     Los PNG de assets/icons son línea oscura sobre transparente. En vez de
+     usarlos como máscara, se normalizan a negro con brightness(0) y se colorean
+     con esta cadena, medida sobre el propio PNG para dar la brasa exacta
+     (#b8431d; queda en #b44b1f, a menos de 10 de distancia). Solo cambia el
+     token al pasar a modo noche. */
+  --filtro-ico: brightness(0) invert(46%) sepia(50%) saturate(950%)
+    hue-rotate(335deg) brightness(72%) contrast(98%);
+
+  /* Líneas y sombras: casi planas, solo para lo que flota */
+  --linea: rgba(31, 23, 19, 0.14);
+  --linea-fuerte: rgba(31, 23, 19, 0.26);
+  --sombra-suave: 0 1px 2px rgba(31, 23, 19, 0.05);
+  --sombra: 0 20px 44px -26px rgba(31, 23, 19, 0.5);
+
+  /* Banda de brasa (cuenta regresiva): el único bloque oscuro, sin degradado */
+  --banda-1: #17100b;
+  --banda-texto: #fbf2e6;
+
+  /* Tipografías: la Erstoria (display) se conserva; el texto pasa a una serif
+     editorial y la sans se reserva para etiquetas, botones y números. La
+     caligrafía sigue cargada y disponible: para volver a ella basta
+     --fuente-nombres: var(--fuente-script). */
+  --fuente-titulo: "Erstoria", "Iowan Old Style", Georgia, serif;
+  --fuente-script: "Kalista", "Segoe Script", cursive;
+  --fuente-texto: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --fuente-etiqueta: "Montserrat", system-ui, sans-serif;
+  --fuente-nombres: var(--fuente-titulo);
+
+  /* Escala tipográfica */
+  --fs-xs: 0.72rem;
+  --fs-sm: 0.85rem;
+  --fs-base: clamp(1.02rem, 0.98rem + 0.2vw, 1.08rem);
+  --fs-lead: clamp(1.3rem, 1.1rem + 0.9vw, 1.7rem);
+  --fs-h3: clamp(1.35rem, 1.15rem + 0.8vw, 1.6rem);
+  --fs-h2: clamp(2rem, 1.2rem + 2.8vw, 3.1rem);
+  --fs-display: clamp(2.7rem, 8vw, 5.6rem);
+
+  /* Medidas */
+  --ancho: 1180px;
+  --ancho-estrecho: 680px;
+  --radio: 0px;
+  --radio-grande: 0px;
+  --espacio-seccion: clamp(5.5rem, 11vw, 9rem);
+  --tracking-dato: 0.2em;
+  --panel-alto: 5rem;
+
+  color-scheme: light;
+}
+
+/* ============================================================
+   2. Base
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--panel-alto);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fuente-texto);
+  font-size: var(--fs-base);
+  line-height: 1.72;
+  background-color: var(--paper);
+  color: var(--ink-2);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.site-content {
+  width: 100%;
+}
+
+/* Enlace «saltar al contenido» (RNF-1): invisible hasta que recibe foco. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 3000;
+  padding: 0.7rem 1.15rem;
+  background-color: var(--ink);
+  color: var(--paper);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Anchos de lectura */
+.wrap {
+  width: min(100% - 3rem, var(--ancho));
+  margin-inline: auto;
+}
+
+.wrap-narrow {
+  width: min(100% - 3rem, var(--ancho-estrecho));
+  margin-inline: auto;
+}
+
+section {
+  width: 100%;
+  margin-block: var(--espacio-seccion);
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: 0.15rem;
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--sobre-ember);
+}
+
+/* Texto solo para lectores de pantalla (RNF-1). Propio desde la migración: la utilidad
+   venía de la hoja externa retirada. No se usa `display:none` ni `visibility:hidden`
+   porque eso lo oculta también a la tecnología de asistencia. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   3. Tipografía
+   ============================================================ */
+h1,
+h2,
+h3 {
+  font-family: var(--fuente-titulo);
+  font-weight: 400;
+  color: var(--ink);
+  text-align: left;
+  text-wrap: balance;
+  line-height: 1.1;
+  margin: 0 0 1.25rem;
+  letter-spacing: 0;
+}
+
+h2 {
+  font-size: var(--fs-h2);
+}
+
+/* Cabecera de sección editorial (T24): un filete corto en vino abre cada
+   título, alineado a la izquierda. Se retiran el rombo y el filete centrados
+   del diseño anterior. */
+h2::before {
+  content: "";
+  display: block;
+  width: 2.5rem;
+  height: 2px;
+  margin: 0 0 1.15rem;
+  background-color: var(--vino);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+}
+
+p {
+  margin: 0 0 1rem;
+  text-wrap: pretty;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+.amp {
+  font-size: 0.78em;
+  vertical-align: 0.02em;
+}
+
+/* ============================================================
+   4. Botones
+   ============================================================ */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.95rem 1.9rem;
+  border: 1px solid transparent;
+  border-radius: var(--radio);
+  font-family: var(--fuente-etiqueta);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.button-solid {
+  background-color: var(--ember);
+  color: var(--sobre-ember);
+}
+
+.button-solid:hover {
+  background-color: var(--ember-2);
+}
+
+.button-outline {
+  background-color: transparent;
+  border-color: var(--linea-fuerte);
+  color: var(--ink);
+}
+
+.button-outline:hover {
+  border-color: var(--ember);
+  color: var(--ember);
+}
+
+/* ============================================================
+   5. Iconos (PNG de assets/icons teñidos con --filtro-ico)
+   ------------------------------------------------------------
+   Se usan como <img> en lugar de máscaras CSS: las máscaras se
+   bloquean al abrir el archivo con file:// (Chrome las trata
+   como peticiones de otro origen). El filtro del token los
+   pinta con la brasa del tema, así que un mismo PNG sirve para
+   día y noche.
+   ============================================================ */
+.icon {
+  display: block;
+  width: var(--ico-tam, 3.25rem);
+  height: var(--ico-tam, 3.25rem);
+  object-fit: contain;
+  filter: var(--filtro-ico);
+}
+
+/* ============================================================
+   6. Portada (modal de bienvenida)
+   ============================================================ */
+.welcome-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  overflow-y: auto;
+  background-color: var(--banda-1);
+}
+
+.cover-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: portadaAcerca 3.2s ease-out forwards;
+}
+
+.cover-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(24, 14, 9, 0.62) 0%,
+    rgba(24, 14, 9, 0.44) 45%,
+    rgba(24, 14, 9, 0.72) 100%
+  );
+}
+
+@keyframes portadaAcerca {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.welcome-modal-body {
+  position: relative;
+  width: min(100%, 26rem);
+  margin: auto;
+  padding: 2.5rem 2rem 2.25rem;
+  text-align: center;
+  background-color: var(--paper);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio-grande);
+  box-shadow: var(--sombra);
+  animation: portadaEntra 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes portadaEntra {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.welcome-card img {
+  width: 11.5rem;
+  height: 14.5rem;
+  object-fit: cover;
+  object-position: 50% 22%;
+  border-radius: var(--radio);
+  margin: 0 auto 1.5rem;
+  display: block;
+}
+
+.welcome-modal h1 {
+  font-family: var(--fuente-nombres);
+  font-size: clamp(2.2rem, 8vw, 3rem);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--ink);
+  text-align: center;
+  margin: 0 0 0.6rem;
+}
+
+.welcome-date {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ember);
+  margin: 0;
+}
+
+.rule {
+  display: block;
+  width: 5rem;
+  height: 1px;
+  margin: 1.5rem auto;
+  background-color: var(--linea-fuerte);
+}
+
+.welcome-text {
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--ink-2);
+  margin: 0 0 1.75rem;
+}
+
+#btn-ingresar {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: var(--radio);
+  background-color: var(--ember);
+  color: var(--sobre-ember);
+  font-family: var(--fuente-etiqueta);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+#btn-ingresar:hover {
+  background-color: var(--ember-2);
+}
+
+/* ============================================================
+   7. Panel fijo (tema + música)
+   ============================================================ */
+.floating-panel {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Botón flotante de música: superficie de papel con el glifo en brasa,
+   igual que los iconos del itinerario. */
+.music-toggle {
+  width: 3.5rem;
+  height: 3.5rem;
+  padding: 0;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: 50%;
+  background-color: var(--superficie);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: var(--sombra-suave);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.music-toggle:hover {
+  border-color: var(--ember);
+  background-color: var(--ember-suave);
+}
+
+.icon-muted,
+.icon-playing {
+  width: 1.35rem;
+  height: 1.35rem;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: var(--filtro-ico);
+}
+
+.icon-muted {
+  background-image: url("../../../assets/icons/silencio.png");
+}
+
+.icon-playing {
+  background-image: url("../../../assets/icons/sonido.png");
+}
+
+/* ============================================================
+   8. Encabezado: aparece solo al pasar la portada principal
+   (una sola clase que añade `useHeader` con IntersectionObserver;
+   sin JS simplemente nunca se muestra, nunca queda ilegible)
+   ============================================================ */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--panel-alto);
+  padding: 0.6rem 1.25rem;
+  background-color: var(--papel-velo);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border-bottom: 1px solid var(--linea);
+  transform: translateY(-105%);
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.site-header--fixed {
+  transform: translateY(0);
+}
+
+.site-header-title {
+  margin: 0;
+  font-family: var(--fuente-nombres);
+  font-size: clamp(1.4rem, 3.4vw, 1.75rem);
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* ============================================================
+   9. Portada principal
+   ============================================================ */
+.hero {
+  position: relative;
+  display: grid;
+  align-content: end;
+  min-height: min(100svh, 54rem);
+  margin-top: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: var(--banda-1);
+}
+
+.hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* foto1 es vertical (2048x3072) y en PC el hero es un recorte apaisado: con
+     cover solo se ve una franja de su alto (el resto se recorta). Los novios
+     estan hacia el 49-72 % de alto, con las caras al 51-58 %, asi que la
+     franja visible se baja hasta ahi para que salgan enteros.
+     62 % los encuadra en cualquier ancho de PC; en movil no hay recorte
+     vertical (sobra a los lados), por eso ahi este valor no influye. */
+  object-position: 50% 62%;
+}
+
+.hero-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(24, 14, 9, 0.5) 0%,
+    rgba(24, 14, 9, 0) 24%,
+    rgba(24, 14, 9, 0.12) 44%,
+    rgba(24, 14, 9, 0.72) 82%,
+    rgba(24, 14, 9, 0.9) 100%
+  );
+}
+
+.hero-text {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 3rem, var(--ancho));
+  margin-inline: auto;
+  padding: 0 0 clamp(4.5rem, 11vw, 7rem);
+  text-align: left;
+  color: var(--banda-texto);
+}
+
+.hero-names {
+  margin: 0;
+  max-width: 12ch;
+  font-family: var(--fuente-nombres);
+  font-size: var(--fs-display);
+  font-weight: 400;
+  line-height: 0.98;
+  color: #fff;
+  text-shadow: 0 1px 30px rgba(23, 16, 11, 0.4);
+}
+
+.hero-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.6rem 0 0;
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: rgba(253, 243, 232, 0.9);
+}
+
+.hero-date::before {
+  content: "";
+  width: 2.5rem;
+  height: 1px;
+  background-color: rgba(253, 243, 232, 0.6);
+}
+
+.hero-arrow {
+  position: absolute;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid rgba(253, 243, 232, 0.35);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.hero-arrow span {
+  display: block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-right: 1.5px solid var(--banda-texto);
+  border-bottom: 1.5px solid var(--banda-texto);
+  transform: rotate(45deg) translate(-1px, -1px);
+  animation: flechaBaja 2.4s ease-in-out infinite;
+}
+
+.hero-arrow:hover {
+  border-color: var(--banda-texto);
+  background-color: rgba(253, 243, 232, 0.12);
+}
+
+@keyframes flechaBaja {
+  0%,
+  100% {
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  50% {
+    transform: rotate(45deg) translate(3px, 3px);
+  }
+}
+
+/* ============================================================
+   10. Frase de la pareja
+   ============================================================ */
+.quote blockquote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Comilla de apertura en brasa: convierte la frase en un pull-quote. */
+.quote blockquote::before {
+  content: "“";
+  display: block;
+  font-family: var(--fuente-titulo);
+  font-size: 4.5rem;
+  line-height: 0.45;
+  color: var(--ember);
+  margin-bottom: 0.9rem;
+}
+
+.quote blockquote p {
+  font-size: var(--fs-lead);
+  line-height: 1.7;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ============================================================
+   11. Cuenta regresiva: el único bloque oscuro de la invitación
+   ============================================================ */
+.countdown-date {
+  padding: clamp(5rem, 12vw, 8.5rem) 1.5rem;
+  text-align: left;
+  color: var(--banda-texto);
+  background-color: var(--banda-1);
+}
+
+.band-content {
+  width: min(100% - 3rem, var(--ancho));
+  margin-inline: auto;
+}
+
+.date-day {
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2rem, 5.4vw, 3.4rem);
+  line-height: 1.1;
+  color: var(--banda-texto);
+  margin: 0 0 0.75rem;
+}
+
+.remaining {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: rgba(251, 242, 230, 0.75);
+  margin: 0;
+}
+
+.countdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 2rem 3.5rem;
+  margin-top: 3rem;
+}
+
+/* Sin cajas ni cristal: los números se separan con aire. */
+.box {
+  min-width: 4rem;
+}
+
+.box-number {
+  display: block;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2.8rem, 7vw, 4.4rem);
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--banda-texto);
+}
+
+.box-label {
+  display: block;
+  margin-top: 0.7rem;
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: rgba(251, 242, 230, 0.8);
+}
+
+.post-message {
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.7rem, 4.6vw, 2.5rem);
+  line-height: 1.3;
+  color: var(--banda-texto);
+  margin: 0;
+}
+
+/* ============================================================
+   12. Retrato intermedio
+   ============================================================ */
+.portrait img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+}
+
+/* ============================================================
+   13. Ceremonia y recepción
+   ============================================================ */
+.place-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
+  text-align: left;
+  border: 0;
+  border-top: 1px solid var(--linea-fuerte);
+  border-radius: 0;
+}
+
+.place-card h3 {
+  margin: 1.1rem 0 0.35rem;
+}
+
+.place-card .button {
+  margin-top: 1.6rem;
+}
+
+.place-detail {
+  font-size: 1.0625rem;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+/* La hora del lugar: sin píldora, un punto que separa y la brasa justa. */
+.chip {
+  font-family: var(--fuente-etiqueta);
+  color: var(--ember);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chip::before {
+  content: "·";
+  margin: 0 0.5rem 0 0.2rem;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   14. Itinerario
+   ============================================================ */
+.timeline-section {
+  --riel-y: 2.375rem;
+  --ico-circulo: 4.75rem;
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Riel: la línea se dibuja cuando la sección entra en pantalla */
+.timeline::before,
+.timeline::after {
+  content: "";
+  position: absolute;
+  top: var(--riel-y);
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  transform-origin: left center;
+}
+
+.timeline::before {
+  background-color: var(--linea);
+}
+
+.timeline::after {
+  background: linear-gradient(90deg, var(--vino), var(--ember) 55%, var(--glow));
+  transform: scaleX(0);
+  transition: transform 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s;
+}
+
+.timeline-section.visible .timeline::after {
+  transform: scaleX(1);
+}
+
+.event {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.timeline-section.visible .event {
+  opacity: 1;
+  transform: none;
+}
+
+.timeline-section.visible .event:nth-child(1) {
+  transition-delay: 0.5s;
+}
+.timeline-section.visible .event:nth-child(2) {
+  transition-delay: 0.68s;
+}
+.timeline-section.visible .event:nth-child(3) {
+  transition-delay: 0.86s;
+}
+.timeline-section.visible .event:nth-child(4) {
+  transition-delay: 1.04s;
+}
+.timeline-section.visible .event:nth-child(5) {
+  transition-delay: 1.22s;
+}
+
+.event-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--ico-circulo);
+  height: var(--ico-circulo);
+  border-radius: 50%;
+  background-color: var(--superficie);
+  border: 1px solid var(--linea);
+  /* El anillo de papel hace que el riel pase por detrás del icono */
+  box-shadow: 0 0 0 0.5rem var(--paper);
+}
+
+.event-icon .icon {
+  --ico-tam: 2.25rem;
+}
+
+.time {
+  margin: 1.15rem 0 0.2rem;
+  font-family: var(--fuente-etiqueta);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.label {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   15. Confirmación
+   ============================================================ */
+.rsvp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  margin-top: 2.5rem;
+}
+
+.rsvp-photo {
+  margin: 0;
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.rsvp-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+.rsvp-panel {
+  text-align: left;
+}
+
+.rsvp-lead {
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.3rem, 3vw, 1.7rem);
+  line-height: 1.35;
+  color: var(--ink);
+  margin: 0 0 1.75rem;
+  text-align: left;
+}
+
+#numero {
+  color: var(--ember);
+}
+
+.rsvp-panel form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+/* Los cuatro campos de la asistencia van envueltos en un contenedor que **no pinta nada**
+   (`display: contents`, RF-11): el bloque desaparece entero —con sus etiquetas y ayudas— sin
+   salirse de la rejilla del formulario. */
+.attendance-fields.contents {
+  display: contents;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field label {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  color: var(--ink);
+  background-color: transparent;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  transition: border-color 0.2s ease;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--smoke);
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--ember);
+}
+
+.field textarea {
+  min-height: 6.5rem;
+  resize: vertical;
+}
+
+/* Combo de asistentes y panel de lectura de la respuesta (spec 005: RF-4, RF-10; RNF-1).
+   El combo es un <select> nativo con la misma piel que los campos; el panel es solo texto,
+   sin controles de formulario. */
+.form-group {
+  display: grid;
+  gap: 0.45rem;
+  text-align: left;
+}
+
+.form-label {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  color: var(--ink);
+  background-color: transparent;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--ember);
+}
+
+.form-help {
+  font-family: var(--fuente-texto);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.response-summary {
+  margin: 0 0 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  text-align: left;
+}
+
+.summary-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.85rem;
+  align-items: baseline;
+}
+
+.summary-label {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.summary-value {
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* Elección clara de asistencia: dos opciones dentro de un filete, como en
+   las invitaciones de referencia. */
+.attendance-title {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.attendance-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.6rem;
+}
+
+.attendance-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 0.9rem;
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.attendance-option input {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--ember);
+}
+
+.attendance-option:has(input:checked) {
+  border-color: var(--ember);
+  background-color: var(--ember-suave);
+  color: var(--ember);
+}
+
+.rsvp-panel .button {
+  justify-self: start;
+}
+
+/* ============================================================
+   16. Mesa de regalos
+   ============================================================ */
+.section-note {
+  max-width: 52ch;
+  margin: 0 0 2.75rem;
+  text-align: left;
+}
+
+.gift-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
+  text-align: left;
+  border: 0;
+  border-top: 1px solid var(--linea-fuerte);
+  border-radius: 0;
+}
+
+.gift-logo {
+  width: auto;
+  height: 2.4rem;
+  margin-bottom: 1rem;
+}
+
+.gift-card h3 {
+  margin: 0 0 0.5rem;
+}
+
+.gift-holder {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--ink-2);
+}
+
+.gift-account {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--ember);
+}
+
+.gift-card .button {
+  margin-top: auto;
+}
+
+/* ============================================================
+   17. Hospedaje
+   ============================================================ */
+.hotel-card {
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
+  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid var(--linea-fuerte);
+  border-radius: 0;
+  transition: border-color 0.25s ease;
+}
+
+.hotel-card:hover {
+  border-color: var(--ember);
+}
+
+.hotel-card .icon {
+  --ico-tam: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.hotel-name {
+  font-family: var(--fuente-titulo);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.hotel-link {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ember);
+  text-decoration: underline;
+  text-decoration-color: var(--linea-fuerte);
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.25s ease;
+}
+
+.hotel-card:hover .hotel-link {
+  text-decoration-color: var(--ember);
+}
+
+/* ============================================================
+   18. Galería
+   ============================================================ */
+.gallery {
+  background-color: var(--paper-2);
+  padding-block: var(--espacio-seccion);
+}
+
+.gallery-strip {
+  position: relative; /* lo aportaba la hoja externa retirada; el contador se ancla aquí */
+  display: grid;
+  width: min(100% - 3rem, var(--ancho));
+  margin: 2.5rem auto 0.85rem;
+  border-radius: var(--radio);
+  overflow: hidden;
+  background-color: var(--superficie);
+}
+
+.gallery-strip .slide img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+/* Fundido cruzado (T24): todas las diapositivas comparten celda y solo la activa
+   es opaca y recibe el puntero. La mecánica (cuál se ve y cómo avanza) es de T21. */
+.gallery-strip .slide {
+  grid-area: 1 / 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease;
+}
+
+.gallery-strip .slide.slide-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* La foto es un botón (RNF-1): así se puede abrir el visor con el teclado. */
+.gallery-strip .slide-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.gallery-strip .gallery-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.gallery-strip .gallery-arrow:not(.gallery-arrow-next) {
+  left: 0.75rem;
+}
+
+.gallery-strip .gallery-arrow-next {
+  right: 0.75rem;
+}
+
+/* La flecha la dibujaba la hoja externa retirada; ahora es un SVG propio.
+   La mecánica del carrusel (qué diapositiva se ve y cómo cambia) la define T21. */
+.gallery-strip .gallery-arrow-icon {
+  display: block;
+  width: 2.75rem;
+  height: 2.75rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fdf3e8'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: 1rem 1rem;
+  background-position: 50%;
+  border: 1px solid rgba(253, 243, 232, 0.4);
+  border-radius: 50%;
+  background-color: rgba(24, 14, 9, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.gallery-strip .gallery-arrow-next .gallery-arrow-icon {
+  transform: rotate(180deg);
+}
+
+.gallery-strip .gallery-arrow:hover .gallery-arrow-icon {
+  background-color: var(--ember);
+  border-color: var(--ember);
+}
+
+.gallery-counter {
+  position: absolute;
+  left: 50%;
+  bottom: 0.9rem;
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  padding: 0.3rem 0.85rem;
+  border-radius: 0;
+  background-color: rgba(23, 16, 11, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: rgba(253, 243, 232, 0.92);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.gallery-thumb {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio);
+  overflow: hidden;
+  background: none;
+  cursor: zoom-in;
+  transition: box-shadow 0.35s ease;
+}
+
+.gallery-thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.gallery-thumb:hover img,
+.gallery-thumb:focus-visible img {
+  transform: scale(1.03);
+}
+
+.gallery-thumb:hover,
+.gallery-thumb:focus-visible {
+  box-shadow: 0 0 0 1px var(--ember);
+}
+
+/* Visor a pantalla completa */
+.lightbox {
+  width: min(100% - 2rem, 1000px);
+  max-width: none;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: visible;
+}
+
+.lightbox::backdrop {
+  background-color: rgba(18, 10, 6, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.lightbox img {
+  display: block;
+  width: 100%;
+  max-height: min(78dvh, 52rem);
+  object-fit: contain;
+  border-radius: var(--radio);
+  animation: visorEntra 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes visorEntra {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lightbox-counter {
+  margin: 0.9rem 0 0;
+  text-align: center;
+  color: rgba(253, 243, 232, 0.75);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.lightbox-close,
+.lightbox-nav {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 1px solid rgba(253, 243, 232, 0.3);
+  border-radius: 50%;
+  background-color: rgba(24, 14, 9, 0.55);
+  color: var(--banda-texto);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.lightbox-close:hover,
+.lightbox-nav:hover {
+  background-color: var(--ember);
+  border-color: var(--ember);
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+}
+
+.lightbox-prev,
+.lightbox-next {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox-prev {
+  left: 1rem;
+}
+
+.lightbox-next {
+  right: 1rem;
+}
+
+/* ============================================================
+   19. Pie
+   ============================================================ */
+footer {
+  width: 100%;
+  padding: clamp(3.5rem, 8vw, 5.5rem) 1.25rem clamp(2.5rem, 5vw, 3.5rem);
+  margin-top: var(--espacio-seccion);
+  text-align: center;
+  border-top: 1px solid var(--linea);
+  background-color: var(--paper-2);
+}
+
+.footer-names {
+  margin: 0;
+  font-family: var(--fuente-nombres);
+  font-size: clamp(1.75rem, 5vw, 2.4rem);
+  line-height: 1;
+  color: var(--ink);
+}
+
+.footer-date {
+  margin: 1rem 0 0;
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.footer-credit {
+  margin: 2.5rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--smoke);
+}
+
+footer a {
+  color: var(--ember);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.25s ease;
+}
+
+footer a:hover {
+  border-color: currentColor;
+}
+
+/* ============================================================
+   20. Rejillas reutilizables
+   ============================================================ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* ============================================================
+   21. Aparición al hacer scroll
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   22. Aviso (copiar cuenta)
+   ============================================================ */
+.copy-notice {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 10000;
+  max-width: min(100% - 2rem, 26rem);
+  padding: 0.85rem 1.35rem;
+  border-radius: var(--radio);
+  background-color: var(--ink);
+  color: var(--paper);
+  font-size: var(--fs-sm);
+  text-align: center;
+  box-shadow: var(--sombra);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ============================================================
+   Bloques añadidos en la fase 5 (spec 002): cita con autor, historia,
+   restricciones, mesa de regalos con varios datos copiables y aviso del
+   registro. Todo con los tokens del tema (nunca colores literales).
+   ============================================================ */
+.quote-author {
+  margin-top: 1rem;
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.story p {
+  max-width: 62ch;
+}
+
+.restrictions-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.restrictions-list li {
+  text-wrap: pretty;
+}
+
+/* Mesa de regalos: los datos van como texto y un único botón copia la cuenta. */
+.gift-details {
+  list-style: none;
+  width: 100%;
+  margin: 0.25rem 0 1.25rem;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.gift-detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.gift-detail-text {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.gift-detail .gift-account {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.copy-button {
+  flex: none;
+}
+
+.hotel-price {
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+  color: var(--ember);
+}
+
+.help-text {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.service-wait {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.service-wait-spinner {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  border: 2px solid var(--ember-suave);
+  border-top-color: var(--ember);
+  border-radius: 50%;
+  animation: serviceWaitSpin 0.85s linear infinite;
+}
+
+@keyframes serviceWaitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rsvp-closed {
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+}
+
+/* Aviso del registro: se fija arriba y por encima de todo (RF-20). */
+.registry-notice {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10001;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 0.9rem clamp(1rem, 4vw, 2rem);
+  background-color: var(--vino);
+  color: var(--paper);
+  box-shadow: var(--sombra);
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-sm);
+}
+
+.notice-block + .notice-block {
+  margin-top: 0.6rem;
+}
+
+.notice-title {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-dato);
+  text-transform: uppercase;
+}
+
+.registry-notice ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.registry-notice strong {
+  color: var(--glow);
+}
+
+/* ============================================================
+   23. Responsive
+   ============================================================ */
+@media (max-width: 900px) {
+  .timeline {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* El riel se vuelve vertical y baja por el centro de la sección, así que
+     cada parada se apila igual que en escritorio (icono arriba, hora y
+     nombre debajo), todo centrado. */
+  .timeline::before,
+  .timeline::after {
+    top: 0;
+    bottom: 0;
+    left: calc(50% - 0.5px);
+    right: auto;
+    width: 1px;
+    height: auto;
+    transform-origin: top center;
+  }
+
+  .timeline::after {
+    /* El degradado gira con el riel: el vino se abre a la brasa. */
+    background: linear-gradient(180deg, var(--vino), var(--ember) 55%, var(--glow));
+    transform: scaleY(0);
+  }
+
+  .timeline-section.visible .timeline::after {
+    transform: scaleY(1);
+  }
+
+  .event {
+    padding: 0.9rem 0;
+  }
+
+  /* El riel pasa por detrás del icono (lo tapa su anillo de papel), pero la
+     hora y el nombre se pintan sobre papel para que la línea no los cruce. */
+  .time,
+  .label {
+    position: relative;
+    z-index: 1;
+    padding-inline: 0.6rem;
+    background-color: var(--paper);
+  }
+}
+
+@media (max-width: 860px) {
+  .rsvp-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .rsvp-photo img {
+    aspect-ratio: 16 / 10;
+    object-position: 50% 32%;
+  }
+
+  .rsvp-panel {
+    text-align: center;
+  }
+
+  .rsvp-lead {
+    text-align: center;
+  }
+
+  .rsvp-panel .button {
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 780px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-grid {
+    gap: 0.6rem;
+  }
+
+  .floating-panel {
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portrait img {
+    aspect-ratio: 3 / 2;
+  }
+
+  .hero {
+    min-height: min(100svh, 44rem);
+  }
+
+  .lightbox {
+    width: 100%;
+    padding: 0 0.75rem;
+  }
+
+  .lightbox-prev,
+  .lightbox-next {
+    top: auto;
+    bottom: 1rem;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   24. Movimiento reducido
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .reveal,
+  .event {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero-img,
+  .cover-backdrop {
+    animation: none !important;
+    transform: none !important;
+  }
+}

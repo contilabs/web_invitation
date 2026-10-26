@@ -7,19 +7,19 @@ export function useReveal() {
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
 
-    const observador = new IntersectionObserver(
-      (entradas) => {
-        entradas.forEach((entrada) => {
-          if (!entrada.isIntersecting) return;
-          entrada.target.classList.add("visible");
-          observador.unobserve(entrada.target);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
         });
       },
       { threshold: 0.1 },
     );
 
-    document.querySelectorAll(".reveal").forEach((el) => observador.observe(el));
+    document.querySelectorAll(".reveal").forEach((node) => observer.observe(node));
 
-    return () => observador.disconnect();
+    return () => observer.disconnect();
   }, []);
 }

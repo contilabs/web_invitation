@@ -1,0 +1,132 @@
+/* ============================================================
+   Modo «noche».
+   Aquí no se reescribe ningún componente: solo se reemplazan
+   los tokens de :root (styles.css), así que TODO el sitio cambia
+   de tema de forma coherente y sin filtros sobre las imágenes.
+   La clase vive en <html> para que el tema se aplique antes de
+   pintar y no haya parpadeo (ver el script en el <head>).
+   ============================================================ */
+html.dark-mode {
+  /* Superficies: negro cálido, no gris neutro */
+  --paper: #14100d;
+  --paper-2: #1a1512;
+  --superficie: #1f1915;
+  --papel-velo: rgba(20, 16, 13, 0.78);
+
+  /* Tinta */
+  --ink: #f5ece2;
+  --ink-2: #cbb9a9;
+  --smoke: #9a887a;
+
+  /* Brasa: más clara para brillar sobre el fondo oscuro */
+  --ember: #e5763a;
+  --ember-2: #f0a061;
+  --glow: #f5bd85;
+  --ember-suave: rgba(229, 118, 58, 0.14);
+  --sobre-ember: #1a110b;
+
+  /* Vino: versión clara del segundo color, para los filetes de sección */
+  --vino: #a86b62;
+  --vino-suave: rgba(168, 107, 98, 0.16);
+
+  /* Misma cadena de tintado, medida para la brasa clara del modo noche
+     (#e5763a; queda en #e37d3d). */
+  --filtro-ico: brightness(0) invert(63%) sepia(40%) saturate(1450%)
+    hue-rotate(332deg) brightness(93%) contrast(91%);
+
+  /* Líneas y sombras */
+  --linea: rgba(245, 236, 226, 0.14);
+  --linea-fuerte: rgba(245, 236, 226, 0.28);
+  --sombra-suave: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --sombra: 0 20px 46px -26px rgba(0, 0, 0, 0.9);
+
+  /* Banda de brasa: un poco más profunda de noche */
+  --banda-1: #0f0a07;
+
+  color-scheme: dark;
+}
+
+/* Transición suave al cambiar de tema (solo en superficies planas,
+   para no pisar las transiciones de hover de las tarjetas) */
+body,
+footer {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* Los logotipos de la mesa de regalos son monocromos: se aclaran
+   en lugar de invertirse con la cadena de filtros anterior. */
+html.dark-mode .gift-logo {
+  filter: brightness(0) invert(1) sepia(0.3) saturate(1.5) brightness(0.98);
+}
+
+/* ============================================================
+   Interruptor de tema
+   ============================================================ */
+.theme-toggle {
+  position: relative;
+  width: 3.9rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: 999px;
+  background-color: var(--superficie);
+  box-shadow: var(--sombra-suave);
+  cursor: pointer;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 0.19rem;
+  left: 0.19rem;
+  z-index: 2;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background-color: var(--ember);
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+html.dark-mode .theme-toggle-thumb {
+  transform: translateX(1.78rem);
+}
+
+.theme-toggle-icons {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.34rem;
+}
+
+/* El icono visible es siempre el del tema al que puedes cambiar,
+   y queda en el lado opuesto al del interruptor. */
+.theme-toggle-icons svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--ink-2);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.theme-toggle-icons .icon-sun circle,
+.theme-toggle-icons .icon-moon path {
+  fill: currentColor;
+}
+
+html:not(.dark-mode) .icon-moon,
+html.dark-mode .icon-sun {
+  opacity: 0.9;
+}
+
+@media (hover: hover) {
+  .theme-toggle:hover .theme-toggle-icons svg {
+    opacity: 1;
+  }
+}
