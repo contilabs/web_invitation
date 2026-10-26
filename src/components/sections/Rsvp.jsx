@@ -413,10 +413,13 @@ export function Rsvp({ wedding }) {
   useEffect(() => {
     if (sendStatus === "ok") {
       setSendNotice(null);
-      // Una primera respuesta todavía no pasó por `lookup`, pero su teléfono ya identifica
-      // la fila creada. Se conserva como llave al editar para no convertir la edición en otra
-      // alta (RF-8, D11).
-      if (!personalized) lookupPhone.current = submitted.current?.phone ?? null;
+      const submittedPhone = submitted.current?.phone ?? "";
+      if (!personalized) {
+        // El valor visible debe ser la misma llave que aceptó el servicio antes de bloquear
+        // el campo; así una edición nunca puede enviarse con otro teléfono (RF-8, D11).
+        setPhone(submittedPhone);
+        lookupPhone.current = submittedPhone || null;
+      }
       setAnswered(submitted.current ?? null);
       setBlock(
         (current) => nextBlockState(current, BLOCK_EVENTS.SUBMIT_OK, { personalized }) ?? current,
@@ -692,8 +695,8 @@ export function Rsvp({ wedding }) {
                             inputMode="numeric"
                             value={phone}
                             onChange={(event) => setPhone(event.target.value)}
-                            readOnly={phoneLocked}
-                            aria-readonly={phoneLocked}
+                            readOnly={phoneLocked || sendStatus === "sending"}
+                            aria-readonly={phoneLocked || sendStatus === "sending"}
                             required
                           />
                           <p className="help-text">

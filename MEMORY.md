@@ -25,7 +25,8 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   consulta, documentado (constitución 5, `AGENTS.md`).
 - **Spec 005 · teléfono tras el primer envío:** cuando un RSVP genérico o público termina bien,
   `Rsvp` copia el teléfono capturado en `submitted.current` a `lookupPhone`; así «Editar» conserva
-  la llave de la fila aunque no haya habido una consulta previa.
+  la llave de la fila aunque no haya habido una consulta previa. Durante el envío el campo es de
+  solo lectura y al terminar se restaura el teléfono capturado antes de bloquearlo.
 - **Spec 005 · formulario y Fase 6 (RF-4/RF-11/RF-12–RF-15):** rango del combo **por campo** (adultos
   `1..cupo` —el 0 fuera—, niños `0..cupo`); `attendeeValue` **normaliza** el 0 heredado (se ve y se
   envía como 1); `validateRsvp` **exige elegir asistencia**. Con «Sí» existen los cuatro campos; con
