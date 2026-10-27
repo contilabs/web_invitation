@@ -175,18 +175,21 @@ recoge `src/services/config.js`:
 | `VITE_SERVICE_URL` | La URL `…/exec` del paso 5. **Sin ella** la app entra en **modo demo**: no llama a nadie y la confirmación queda deshabilitada. |
 | `VITE_WEDDING_SLUG` | El `slug` de esta boda (paso 3). **Con URL y sin `slug`**, la app muestra «esta invitación no está configurada» y no reintenta. |
 
-Cómo fijarlas (en el equipo de quien publica, nunca versionadas — `.env.local` está en
-`.gitignore`):
+Para los lanzadores Docker locales, exportarlas en el entorno del proceso (ejemplo bash/zsh):
 
 ```bash
-# en la raíz del proyecto, en un archivo .env.local
-VITE_SERVICE_URL=https://script.google.com/macros/s/<id de la implementación>/exec
-VITE_WEDDING_SLUG=<slug de la boda>
+export VITE_SERVICE_URL="https://script.google.com/macros/s/<id de la implementación>/exec"
+export VITE_WEDDING_SLUG="<slug de la boda>"
+npm run dev
 ```
 
-Y reconstruir el sitio (`npm run build`) para que el build las incorpore. Cada boda se publica
-con **su** `slug`: cambiar de boda es cambiar esta variable (y el contenido del registro), tocar
-los libros o el script.
+Los lanzadores solo transmiten esas dos variables públicas: no leen ni copian `.env.local`
+ni otros archivos `.env`. Reiniciar para aplicar cambios. `npm run preview` compila y sirve
+con ellas; `npm run build` solo valida y descarta el build dentro del contenedor.
+Para publicar y conservar `dist/`, configurar esos valores en el entorno aislado de CI/hosting
+antes del build (ver [seguridad local](../docs/local-security.md)). Nunca versionarlos.
+Cada boda se publica con **su** `slug`: cambiar de boda es cambiar esta variable (y el contenido
+del registro), tocar los libros o el script.
 
 ## Paso 7 — Comprobaciones de la puesta en marcha
 

@@ -449,3 +449,6 @@ variables de entorno que se leen en el build:
 | `VITE_WEDDING_SLUG` | El `slug` de la boda. Con URL y sin `slug`, el sistema muestra `MISSING_SLUG` y **no** reintenta. |
 
 La configuración **no** incluye datos de invitados ni se versiona con ellos.
+Los lanzadores Docker locales solo transmiten estas dos variables públicas del entorno del
+proceso; no leen ni copian archivos `.env`. Reiniciar tras cambiarlas. Ver
+[seguridad local](local-security.md) para desarrollo, preview y publicación.

@@ -34,7 +34,8 @@ test("eventInstant sin fecha devuelve NaN", () => {
 });
 
 test("formatDate y formatTime en español", () => {
-  const ms = eventInstant({ fechaInicio: "2027-11-01T16:30:00", zonaHoraria: "America/Mexico_City" });
+  // El offset evita depender de la zona local del runner (UTC en Docker).
+  const ms = eventInstant({ fechaInicio: "2027-11-01T16:30:00-06:00", zonaHoraria: "America/Mexico_City" });
   const dateText = formatDate(ms, "America/Mexico_City", "es-MX");
   const timeText = formatTime(ms, "America/Mexico_City", "es-MX");
   assert.ok(dateText.includes("2027"));

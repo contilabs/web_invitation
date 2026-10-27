@@ -5,10 +5,11 @@
   "type": "module",
   "description": "Invitación digital de boda de Karina & Gerardo (React + Vite).",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "node --test"
+    "dev": "node scripts/safe-dev.mjs dev",
+    "build": "node scripts/safe-check.mjs build",
+    "preview": "node scripts/safe-dev.mjs preview",
+    "test": "node scripts/safe-check.mjs test",
+    "check": "node scripts/safe-check.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",
