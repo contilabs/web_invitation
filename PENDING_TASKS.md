@@ -15,6 +15,12 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 - **Spec 003 · T27.** Reutilizar la app con otro registro, copiar datos por portapapeles, audio tras
   «Ingresar» y una vuelta en un **móvil físico**. Se puede cubrir en la misma pasada.
 
+## Spec 006 · panel privado de respuestas
+
+- Propuesta creada en `specs/006-panel-respuestas/` en la branch `spec-006-panel-respuestas`.
+  Antes de implementar hay que cerrar D1–D4: autenticación del endpoint sin secreto en el bundle,
+  alcance de la sesión, teléfono enmascarado y paginación.
+
 ## Casos límite por cubrir
 
 1. Audio: si `play()` falla (o falta `assets/audio.mp3`, que rompe el **build**), `useMusic`

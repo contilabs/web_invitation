@@ -16,6 +16,10 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   revisión del formulario (RF-4/RF-11) y la **Fase 6 (T16–T20, T23)** el cambio RF-12…RF-15 (copy del
   rechazo, mensaje al rechazar, saludo de la personalizada, consulta tolerante). RF-17/D22 de la
   spec 005 quedan **derogados** por el cambio de la 004.
+- **Spec 006 (`specs/006-panel-respuestas`):** propuesta inicial en la branch
+  `spec-006-panel-respuestas`. Define un panel privado y de solo lectura para consultar respuestas
+  RSVP; todavía no hay código ni endpoint administrativo. Quedan por decidir autenticación sin
+  secretos en el bundle, alcance de sesión, teléfono enmascarado y paginación (D1–D4).
 
 ## Decisiones (y por qué)
 - **Spec 005 · máquina de estados y lookup:** el componente solo despacha eventos; `lookup` (por
