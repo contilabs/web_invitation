@@ -1,13 +1,15 @@
 # Especificación — Flujo del RSVP: respuesta previa, estados del bloque y selección de asistentes
 
-**Estado:** borrador corregido tras QA **y ampliado por el cambio de requisitos de §13** (mensaje al
+**Estado:** aprobada por quien la pide e **implementada** (Fases 1–6 y el cambio de §14), con la
+**verificación automática en verde** y la **verificación manual pendiente** (T10, T21 y T28). Nació
+corregida tras QA y **ampliada por el cambio de requisitos de §13** (mensaje al
 rechazar —se escribe, se envía y **se lee**—, agradecimiento del rechazo, saludo con el nombre en la
-personalizada y tolerancia de la consulta a cabeceras ausentes), **y corregido tras el QA de
+personalizada y tolerancia de la consulta a cabeceras ausentes), **corregida tras el QA de
 clarificación de ese cambio** (copy en el componente, D17 matizada, alcance real del saludo y del
-combo, touchpoints de la región viva), **y ampliado por el cambio de requisitos de §14** (código de
+combo, touchpoints de la región viva) y **ampliada por el cambio de requisitos de §14** (código de
 error propio para una fila de código mal formada —`MALFORMED_GUEST`— y `PUBLIC` aceptado como «sin
-tope» en una boda genérica, con subida de contrato a `1.2.0`), pendiente de aprobación de quien la
-pide.
+tope» en una boda genérica). Queda **enmendada por el §15** (sincronización: contrato `1.4.0`,
+estados vigentes y derogaciones).
 
 > **Cómo leer esta spec.** El cuerpo (§1–§12) es la versión ya implementada y verificada de la spec
 > 005. El **§13** recogió el **primer cambio de requisitos posterior** pedido por quien la usa —los
@@ -16,6 +18,13 @@ pide.
 > también **dónde toca** el cuerpo. Cuando un punto del §13 o del §14 contradice el cuerpo, **manda
 > la sección del cambio más reciente** (§14 sobre §13, y §13 sobre el cuerpo); el §13 **modifica**
 > además un punto del §13.4 (la versión del contrato), que el §14 deja sustituido.
+>
+> **Corrección documental (enmienda de sincronización).** El **§15** se añadió **después**, al revisar
+> el estado real del proyecto, para **declarar lo vigente** y **derogar lo superado** sin reescribir la
+> historia: la **versión del contrato** (hoy `1.4.0`), la **traducción de los estados**, la
+> **derogación del RF-17/D22** de esta spec, el **criterio corregido** de la verificación manual y una
+> **nota de implementación**. En materia de **versiones, estados y derogaciones**, **manda el §15 sobre
+> el cuerpo, el §13 y el §14**.
 
 ## 1. Contexto y objetivo
 
@@ -1729,3 +1738,162 @@ Por tanto, **sí** obliga a tocar la app, y el plan debe cubrirlo:
 - **Que la app asuma `"n"` ⇔ `public` en algún punto no inventariado.** Mitigación: §14.7 inventaría lo
   comprobado en el código; el plan debe probar los módulos puros afectados (`invitation.test.js`,
   `rsvp.test.js`) y añadir los casos que falten antes de tocar la interfaz.
+
+---
+
+## 15. Enmienda de sincronización: contrato `1.4.0`, estados y derogaciones
+
+> Esta sección **no reescribe la historia**: el cuerpo (§1–§12) y los §13 y §14 se conservan **tal como
+> se redactaron**, con sus números, sus menciones y sus ejemplos. Lo que hace el §15 es **declarar lo
+> vigente** y **derogar explícitamente lo superado**, siguiendo la convención del proyecto («manda la
+> sección más reciente»). No añade **ningún** RF, RNF, D ni R: lo que no es requisito se marca como
+> **nota de implementación** y lo que se retira, como **derogación**.
+>
+> **Por qué existe.** El código, `gas/Code.gs` y la documentación quedaron **por delante** de lo que
+> decían esta spec y la 004 en tres puntos: la **versión del contrato**, los **nombres de los estados**
+> y la **regla de `PUBLIC` en una boda genérica** (que la 004 §10.4 derogó después). Revisado el estado
+> real (contrato, servicio, pruebas y commits), se sincroniza aquí.
+
+### 15.1 La versión vigente del contrato es `1.4.0`
+
+- La versión **real y vigente** es **`1.4.0`**, declarada a la vez en el **módulo**
+  (`src/constants/contract.js`) y en el **script** (`gas/Code.gs`); la **salud** del servicio devuelve
+  `contract: "1.4.0"` y delata cualquier despliegue viejo (RF-8; 004 RF-17/D18).
+- **`1.2.0` nunca se declaró.** Fue el **número planificado** por el §14 (D21, RF-16, §14.5, §14.6,
+  §14.8, §14.9, R14 y la tabla de §12.2) y por la tarea **T24**; la constante real fue de `1.1.0` a
+  **`1.4.0`** en la misma entrega. **`1.3.0` tampoco existió** (fue el número planificado por el §10 de
+  la 004).
+- **Lo que queda superado** (sin reescribirlo): **toda** mención a `1.2.0` o `1.3.0` en esta spec,
+  incluidas el **§13.4** («sigue `1.1.0`»), el **§14** completo y la **T24**, y los criterios de tarea
+  que pedían comprobar la salud contra `1.2.0` o `1.3.0`. Donde se lea cualquiera de esas versiones,
+  **léase `1.4.0`**: la comprobación de salud (y la igualdad módulo ↔ script) se hace contra
+  **`1.4.0`**.
+- Lo que **sí** sigue vigente de aquel cambio: el código **`MALFORMED_GUEST`** para el código que existe
+  pero no cumple la regla de su hoja (RF-16, D21) y la regla de que **`INVALID_DATA`** queda reservado a
+  lo que impide leer o escribir de verdad.
+
+### 15.2 Los estados: `confirmed` → `accepted`, `rejected` → `declined`, `updated` no existe
+
+- **Traducción de lectura.** Donde el cuerpo o el §13 digan **`confirmed`**, léase **`accepted`**; donde
+  digan **`rejected`**, léase **`declined`**. **`updated` no existe**: editar una respuesta **conserva**
+  uno de los dos estados de respuesta (**`accepted`** si asiste, **`declined`** si no), y el servicio ya
+  no distingue «primera respuesta» de «edición» en el `status`. **`viewed`** sigue existiendo y sigue
+  significando **«sin respuesta»** (solo en la personalizada; lo escribe el servicio al abrir si la fila
+  no tenía respuesta); un `status` **vacío** se lee igual (004 §11.2).
+- **La copy del rechazo (RF-12) sigue vigente con `declined`:** «Lamentamos que no puedas acompañarnos.
+  Gracias por tu respuesta.» se muestra en `respondido` y en el envío aceptado de un rechazo, y sigue
+  siendo un **rótulo de interfaz** que vive con su componente (no sube ni toca el contrato).
+- **El mensaje del rechazo (RF-13) sigue vigente con `declined`:** con «No podré asistir» el campo del
+  mensaje existe y es opcional, viaja en el envío, se ve en el panel de solo lectura y se precarga al
+  editar; adultos, niños y restricciones siguen sin mostrarse ni enviarse. La única diferencia es el
+  **nombre** del estado en el libro.
+- **Dónde se lee con la traducción** (menciones que se conservan y que **no** deben leerse como
+  vigentes): **§1.2** (vocabulario: «`viewed`, `confirmed`, `updated`, `rejected`»), **D10**, **RF-1**
+  (su nota «`confirmed`/`updated`»), **RF-2** (la precarga de la asistencia por
+  `confirmed`/`updated`/`rejected`), **RF-5** (el estado que determina la asistencia preseleccionada),
+  **RF-9**, **RF-10**, **RF-12** («una respuesta `confirmed`/`updated` sigue mostrando la de `OK`»),
+  **§7** (los casos límite con respuesta previa por estado), **§8** («los cuatro estados»), **§10**
+  (el punto manual 2, que habla de `confirmed` y `rejected`), **§11 (R1 y R15)** y **§14** donde
+  enumere estados. El **plan** y las **tareas** que los citen se leen igual.
+- **No se deroga** nada del comportamiento: la **reversibilidad** mientras el plazo esté abierto, el
+  arranque en `respondido` cuando hay respuesta previa, la no sobrescritura del `viewed` (004 RF-6/RF-10)
+  y el panel de solo lectura de un rechazo (sin asistentes, sin restricciones, con el mensaje) siguen
+  siendo válidos: solo cambian los **nombres** de los estados con los que se escribe y se lee el libro.
+
+### 15.3 Queda derogado el RF-17/D22 de esta spec: `PUBLIC` en `generic` no vale por sin tope
+
+- **Derogación expresa, conforme a la 004 §10.4 y a su D31.** El **RF-17** y su **D22** de esta spec
+  (pedido 11: «un código `PUBLIC` en una boda genérica se acepta como "sin tope"») quedan **derogados**.
+  El modelo vigente es el de la **hoja `public`**: el código público vive en **su** hoja y **solo** esa
+  hoja da «sin tope». Una fila `PUBLIC` con `limit = "n"` **en la hoja `generic`** es un **código mal
+  formado** y responde **`MALFORMED_GUEST`** (no `INVALID_DATA`, no «sin tope»); su arreglo es **de
+  datos**: borrar esa fila y llevar el código a `public` (004 RF-19, D29, D31).
+- **Lo que sí sigue resolviendo sin tope:** una fila de la **hoja `public`** —el reservado `PUBLIC` o
+  **cualquier** `public_id`— **con `limit = "n"`**, también en una boda `generic`, porque la resolución
+  del tipo `generic` **cae** a la hoja `public` cuando el código no está en `generic` (004 D29). En ese
+  caso el servicio devuelve el `type` de la **boda** (`generic`) con `limit: "n"`.
+- **Un `public_id` con `limit` entero también resuelve** en una boda `public`, con su cupo (004 D29,
+  D30); la hoja `public` no es solo para «sin tope».
+- **La app sí sigue aceptando `{ type: "generic", limit: "n" }`** y eso **no** es una vuelta al RF-17:
+  es lo que devuelve la **caída a `public`** descrita arriba, y descartarlo sería rechazar una
+  invitación válida (004 §11.3; T25 vigente). Lo que la app **no** hace es inventar un máximo ni
+  ofrecer niños en la genérica (D12 intacta).
+- **Matización de §14.8 (verificación manual, punto 13) y del punto 13 de §10.** El caso «`PUBLIC` en la
+  hoja `generic` de una boda genérica → sin tope» **deja de ser válido**: ese mismo caso, con la fila en
+  `generic`, es **`MALFORMED_GUEST`**. El caso que sí vale es «`PUBLIC` (o un `public_id` con `"n"`) en
+  la **hoja `public`** de una boda genérica → sin tope, con `type: "generic"` y `limit: "n"`».
+- **Matización de §14.9 (riesgos).**
+  - «Que `PUBLIC` sin tope sirva de puerta para un cupo mal escrito»: la mitigación ya **no** es «la
+    excepción es solo para `PUBLIC` con `"n"`», sino «**solo la hoja `public`** da sin tope»; en
+    `generic`, `"n"` es `MALFORMED_GUEST` (004 D31).
+  - «Que la fila `PUBLIC` siga estorbando en el libro real»: la frase «con RF-17 ese código resuelve»
+    **ya no es cierta**. Mientras esa fila esté en `generic`, el enlace `PUBLIC` responde
+    **`MALFORMED_GUEST`**; el arreglo de datos vuelve a ser **necesario** para servirlo (004 D31).
+  - «Que la app descarte una invitación genérica sin tope (§14.7)»: **sigue vigente**, pero por la
+    **caída a `public`**, no por el RF-17.
+- **También queda matizado §14.0 (contexto)**: allí el diagnóstico del código `PUBLIC` en `generic` era
+  **`INVALID_DATA`**; hoy es **`MALFORMED_GUEST`** (005 RF-16, 004 §10.4).
+- **Lo que no cambia de §14:** el **RF-16/D21** (código mal formado con error propio) y su reparto —
+  «no existe» → `UNKNOWN_GUEST`; «existe y no cumple la regla de su hoja» → `MALFORMED_GUEST`;
+  «impide leer o escribir» → `INVALID_DATA`—.
+
+### 15.4 Criterio corregido de la verificación manual (T28)
+
+La comprobación de §14.8 (y del punto 13 de §10) se hace **así**, con el script **redesplegado** y un
+**libro de prueba** (nunca el libro real):
+
+1. **Salud del despliegue:** la salud devuelve **`contract: "1.4.0"`**; otra versión es un despliegue
+   viejo y la pasada no vale.
+2. **Reparto de los tres fallos del código**, con el mismo enlace y sin tocar la app:
+   - código **inexistente** en su hoja → **`UNKNOWN_GUEST`**;
+   - código que **existe** y cuyo `limit` **no cumple la regla de su hoja** (un `…_GEN` con `"x"`, `0` o
+     vacío; un `PUBLIC` que no sea `"n"`) → **`MALFORMED_GUEST`**, con su **aviso propio** en la app (no
+     el de «datos incompletos») y su reintento;
+   - dato que **impide leer** de verdad (p. ej. libro sin la columna `phone`) → **`INVALID_DATA`**.
+3. **Fila `PUBLIC` en la hoja `generic`** → **`MALFORMED_GUEST`**. Borrada la fila (o con un `limit`
+   entero), el mismo enlace deja de dar ese error.
+4. **Fila en la hoja `public` con `"n"`** → resuelve **sin tope** (`ok: true`, `limit: "n"`, la app
+   anuncia sin tope y ofrece el campo numérico libre sin máximo); con `limit` entero, resuelve con su
+   cupo. Se prueba **también** en una boda `generic` (caída a `public`), donde `type` sigue siendo
+   `"generic"`.
+5. **Código de enlace:** se usa un **código genérico real** (p. ej. un `…_GEN` del libro de prueba), **no**
+   `PUBLIC`, para comprobar el camino normal; `PUBLIC` se usa **solo** para los puntos 3 y 4.
+6. **Regresión:** los tres tipos, el `viewed` sin sobrescribir, el plazo, el rechazo con su copy y su
+   mensaje y la actualización por el mismo teléfono siguen bien.
+
+> **Por qué el criterio cambia.** El de §14.8 daba por bueno «`PUBLIC` en `generic` = sin tope» y no
+> distinguía el reparto actual de errores; con la hoja `public` y con `MALFORMED_GUEST` ese criterio
+> dejaba pasar como válido justo lo que hoy debe fallar.
+
+### 15.5 Nota de implementación: el teléfono se bloquea y se conserva tras el envío
+
+- **Qué se hizo.** En la genérica y la pública, el campo del **teléfono** queda **bloqueado** mientras un
+  envío está en curso y, cuando el envío **termina bien**, el teléfono capturado se **conserva** en el
+  estado de la consulta (`lookupPhone`) para que «Editar» use **la misma llave** de la fila, aunque en
+  esa sesión no haya habido una consulta previa.
+- **Por qué.** Sin eso, «Editar» podía perder el teléfono con el que se acababa de escribir la fila y el
+  invitado tendría que volver a teclearlo; bloquearlo durante el envío evita que la llave cambie a mitad
+  de la escritura.
+- **Alcance.** Es **detalle de implementación** de **RF-5** (el paso del teléfono) y de **RF-1** (los
+  estados del bloque), **no** un requisito nuevo: no cambia el contrato, ni la obligatoriedad de nombre y
+  teléfono (también al rechazar, 004 RF-8/D26), ni la normalización a diez dígitos, ni la privacidad
+  (el teléfono **no** se persiste en el navegador: 004 RNF-2 intacta). Al recargar, la genérica y la
+  pública siguen pidiendo el teléfono otra vez (RF-6, §1.4).
+
+### 15.6 Estado de la verificación y de la gobernanza
+
+- **Automática: en verde.** `node --test` (**231/231**) y `npm run build` sin errores; el contrato se
+  comprueba contra el **módulo** y la sincronía documento ↔ módulo sigue vigilada (RNF-5).
+- **Manual: pendiente y sin marcar como hecha** (la anota el coordinador en «Verificación» de
+  `AGENTS.md`):
+  - **T10** — la verificación contra el despliegue vivo de las fases 1–5 (estados del bloque, `lookup`
+    con y sin fila, copy y mensaje del rechazo, saludo y consulta tolerante);
+  - **T21** — la re-verificación del cambio de §13 sobre el despliegue vivo;
+  - **T28** — la verificación del cambio de §14, **con el criterio corregido de §15.4**.
+- **Gobernanza de §14 (T29): se cierra con esta corrección documental.** Lo que aquella tarea reclamaba
+  —declarar el código nuevo, dejar de decir que `PUBLIC` en `generic` resuelve, fijar la versión vigente
+  y corregir la nota de diagnóstico— queda escrito aquí (§15.1, §15.3, §15.4) y en la **004 §11**; el
+  cierre de la casilla en `tasks.md` y las notas de `MEMORY.md`/`PENDING_TASKS.md` son el trámite de
+  gobernanza, no un requisito pendiente. La **deuda técnica del candado del servicio** (004 T18) sigue
+  **abierta** y se documenta en la 004 §11.5.
+

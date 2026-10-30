@@ -17,9 +17,9 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Spec 006 · panel privado de respuestas
 
-- Propuesta creada en `specs/006-panel-respuestas/` en la branch `spec-006-panel-respuestas`.
-  Antes de implementar hay que cerrar D1–D4: autenticación del endpoint sin secreto en el bundle,
-  alcance de la sesión, teléfono enmascarado y paginación.
+- Verificación manual pendiente: con el Apps Script redesplegado y el libro sintético, comprobar
+  autorización válida/no autorizada/sesión expirada, privacidad y revelación temporal del teléfono,
+  filtros, orden, totales, actualización sin doble solicitud, datos vacíos, servicio caído y móvil.
 
 ## Casos límite por cubrir
 

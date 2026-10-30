@@ -448,4 +448,89 @@ variables de entorno que se leen en el build:
 | `VITE_SERVICE_URL` | Ubicación del servicio desplegado. Sin ella, el sistema **no** llama a nadie y entra en **modo demo** (`NOT_CONFIGURED`). |
 | `VITE_WEDDING_SLUG` | El `slug` de la boda. Con URL y sin `slug`, el sistema muestra `MISSING_SLUG` y **no** reintenta. |
 
-La configuración **no** incluye datos de invitados ni se versiona con ellos.
+La configuración **no** incluye datos de invitados ni se versiona con ellos. El panel y la
+invitación usan `VITE_SERVICE_URL`.
+
+---
+
+## 13. Panel privado de respuestas (spec 006)
+
+El panel privado es **independiente** del contrato público 1.4.0. Usa un sobre y una acción
+distintos, con su propia versión de contrato.
+
+- **Versión del contrato administrativo:** `1.1.0` (`ADMIN_CONTRACT_VERSION`).
+- **Despliegues:** el RSVP público y el panel React usan `VITE_SERVICE_URL`; el panel protege
+  los datos con token server-side.
+- **Acciones:** `requestToken` (`ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN`), `verifyToken`
+  (`ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN`), `listResponses` (`ADMIN_SERVICE_ACTIONS.LIST_RESPONSES`)
+  y `revealPhone` (`ADMIN_SERVICE_ACTIONS.REVEAL_PHONE`).
+- **Autorización:** Apps Script genera y envía un token nuevo de 5 dígitos al `admin_email` de la
+  fila de la boda en `files` cada vez que se solicita un correo; la validación usa `token` y
+  `counter`. El frontend no lleva secretos.
+- **Alcance:** **una boda** resuelta por el correo introducido y autorizado en `admin_email`.
+  El token solo vive en memoria mientras la página está abierta.
+- **Teléfono:** enmascarado siempre por defecto, con revelación temporal tras acción
+  adicional, sin persistirlo (D3).
+- **Volumen:** consulta única sin paginación en la primera entrega (D4).
+- **Idioma:** `files.language` puede ser `spanish` o `english`; el servicio lo devuelve en
+  `wedding.language` y el panel traduce sus etiquetas, estados y mensajes sin cambiar los datos
+  guardados.
+
+### Petición (`action: "listResponses"`)
+
+| Campo | Contenido |
+| --- | --- |
+| `action` | `listResponses` |
+| *(ninguno)* | La boda se resuelve en el servidor con la cuenta Google autenticada. |
+
+La autorización se resuelve en el servidor (`admin_email` + `token`). No se envía un slug ni
+se usa una sesión de Google.
+
+La acción `revealPhone` recibe `guestId`, vuelve a comprobar la autorización y
+devuelve el teléfono de esa fila durante la sesión de la página. La interfaz lo oculta al
+cerrar el detalle o al pulsar «Ocultar»; nunca se persiste en el navegador, la URL ni los
+logs.
+
+### Respuesta correcta
+
+```text
+{
+  ok: true,
+  contract: "1.0.0",
+  wedding: { slug, name, isActive, deadline, updatedAt, guestType, language },
+  summary: { total, viewed, accepted, declined, pending, adults, children,
+    seatsIssued, seatsOccupied, seatsUnoccupied },
+  responses: [{ guestId, guestType, guestName, phoneMasked, adultsAttendees,
+    childAttendees, assignedAdults, assignedChildren, assignedSeats, occupiedSeats,
+    allergies, message, status, datetime }]
+}
+```
+
+Los totales de adultos y niños excluyen las respuestas `declined`; los campos vacíos de
+asistentes se cuentan como cero. En invitaciones genéricas y públicas no se muestran datos de
+niños. `dietary_restrictions` se presenta como **alergias** y `message` se consulta en una pestaña
+independiente. `seatsIssued` se calcula exclusivamente sumando `guests.adults_guests`; por eso
+las invitaciones genéricas y públicas solo aportan boletos conforme aparecen sus filas contestadas.
+
+### Errores del panel administrativo
+
+| Código | Causa | Mensaje de interfaz |
+| --- | --- | --- |
+| `OK` | Listado cargado correctamente. | «Listado de respuestas cargado.» |
+| `NOT_CONFIGURED` | Panel no configurado. | «El panel no está configurado.» |
+| `UNKNOWN_WEDDING` | No se encuentra la boda autorizada. | «No encontramos la boda autorizada.» |
+| `INACTIVE_WEDDING` | La boda ya no está activa. | «Esta boda ya no está disponible.» |
+| `GUEST_SHEET_UNAVAILABLE` | No se puede abrir la lista de invitados. | «No pudimos abrir la lista de invitados.» |
+| `INVALID_DATA` | Datos incompletos o inválidos. | «Los datos del panel están incompletos o son inválidos.» |
+| `SERVICE_UNAVAILABLE` | Red o fallo del servidor. | «No pudimos conectar. Inténtalo de nuevo.» |
+| `INVALID_RESPONSE` | Respuesta que no respeta el contrato. | «La respuesta del servidor no es válida.» |
+| `INVALID_ADMIN_EMAIL` | El correo no está configurado en `admin_email`. | «No encontramos un panel para ese correo.» |
+| `INVALID_TOKEN` | El token no coincide. | «El código no es válido.» |
+| `TOKEN_SENT` | El token fue enviado por correo. | «Código enviado.» |
+| `TOKEN_RESET` | Se alcanzaron cuatro intentos fallidos. | «Enviamos un código nuevo.» |
+| `EMAIL_UNAVAILABLE` | Apps Script no puede enviar correo. | «No pudimos enviar el código por correo.» |
+| `EMAIL_QUOTA_EXHAUSTED` | Se agotó la cuota diaria de correo. | «Se agotó la cuota diaria de correo del servicio.» |
+
+Los códigos `retryable` se definen en el módulo `src/constants/contract.js` (ADMIN_SERVICE_ERRORS).
+El panel nunca envía `localStorage`, cookies propias, ni datos sensibles en la URL. No se
+versionan libros, tokens o cuentas en el repositorio.

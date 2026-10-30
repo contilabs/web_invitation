@@ -1,6 +1,7 @@
 # Especificación — Panel privado de respuestas RSVP
 
-**Estado:** propuesta inicial, pendiente de aprobación e implementación.
+**Estado:** implementada en la rama de trabajo; queda pendiente la verificación manual contra
+un Apps Script desplegado y un libro sintético.
 
 ## 1. Contexto y objetivo
 
@@ -50,9 +51,8 @@ caso de uso y un control de permisos explícitos.
 2. El panel no puede depender de un secreto embebido en JavaScript: cualquier variable
    `VITE_*` llega al navegador y no es una credencial.
 3. El endpoint administrativo será distinto del endpoint público de RSVP y exigirá una
-   sesión/autorización verificable en el servidor. La implementación debe fijar antes de
-   escribir código si se usará una allowlist de cuentas de Google en Apps Script o un
-   proxy del mismo origen con autenticación del hosting.
+   sesión/autorización verificable en el servidor. La autorización usa un token enviado a
+   `admin_email`; el panel no recibe un slug en la URL.
 4. El servicio devolverá únicamente la boda autorizada y las columnas necesarias para el
    panel. Nunca aceptará un `slug` arbitrario como única autorización.
 5. El teléfono se mostrará enmascarado por defecto. El panel no necesita mostrarlo
@@ -151,14 +151,20 @@ quedar en `src/constants/contract.js` y en `docs/servicio-invitados.md` antes de
 el endpoint. `responses` puede paginarse si el volumen real lo exige; no se debe introducir
 una paginación ficticia en la primera versión.
 
-## 7. Decisiones pendientes que bloquean implementación
+## 7. Decisiones cerradas
 
-- **D1 — Autenticación:** allowlist de cuentas de Google en Apps Script o proxy del mismo
-  origen con sesión del hosting. No se acepta token estático en el frontend.
-- **D2 — Alcance de una sesión:** una boda fija o selector de varias bodas autorizadas.
-- **D3 — Teléfono:** enmascarado siempre o revelación temporal tras una acción adicional;
-  el valor por defecto es enmascarado siempre.
-- **D4 — Volumen:** respuesta completa en una sola consulta o paginación del servidor.
+- **D1 — Autenticación:** Se usará **token de 5 dígitos enviado a `admin_email`**, con `counter` persistido en el maestro.
+  - **Alternativas descartadas:** token estático en el frontend (rechazado, llegaría al navegador y no es credencial); proxy del mismo origen con sesión del hosting (descartado por complejidad para esta entrega, se revisará solo si la allowlist resulta insuficiente).
+  - **Justificación:** evita depender de sesiones Google o cookies cross-origin; el token se valida en servidor y solo vive en memoria de la página.
+- **D2 — Alcance de una sesión:** **Una boda resuelta por `admin_email`** para la sesión/autorización.
+  - **Alternativas descartadas:** selector de varias bodas autorizadas (añade complejidad de UI/permiso sin caso de uso confirmado).
+  - **Justificación:** reduce superficie de ataque (el servicio nunca aceptará un `slug` arbitrario como única autorización) y simplifica la primera entrega.
+- **D3 — Teléfono:** **Enmascarado siempre por defecto**, con **revelación temporal** tras una acción adicional, **sin persistir** el valor revelado.
+  - **Alternativas descartadas:** mostrarlo completo por defecto (contrario al objetivo de minimizar exposición).
+  - **Justificación:** cumple RF-6/RNF-3 y el principio de menor exposición; la revelación es efímera y no se guarda en `localStorage`, cookies, URL ni se envía a terceros.
+- **D4 — Volumen:** **Consulta única sin paginación** en la primera entrega.
+  - **Alternativas descartadas:** paginación del servidor desde el inicio (sin volumen real confirmado).
+  - **Justificación:** `responses` puede paginarse si el volumen real lo exige, pero no se introduce paginación ficticia; se prioriza simplicidad y fiabilidad con el libro de prueba.
 
 ## 8. Criterio de aceptación
 
@@ -167,6 +173,13 @@ ver un resumen que cuadre con el libro de prueba, filtrar y abrir el detalle de 
 actualizar manualmente sin duplicar solicitudes, y recibir un bloqueo claro sin filtración
 de datos cuando no tenga autorización o el servicio falle. `npm test` y `npm run build`
 deben estar en verde y la verificación manual debe quedar anotada en esta sección.
+
+**Verificación automática:** `npm test` (234/234) y `npm run build` pasan; el build emite
+`admin.html` como entrada independiente y el bundle administrativo no importa fotos ni audio.
+
+**Verificación manual:** pendiente de ejecutar con el Apps Script redesplegado, allowlist y
+libro sintético de `docs/panel-respuestas-pruebas.md`: autorización, privacidad, filtros,
+actualización, datos vacíos y servicio caído.
 
 ## 9. Riesgos
 

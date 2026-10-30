@@ -16,10 +16,25 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   revisión del formulario (RF-4/RF-11) y la **Fase 6 (T16–T20, T23)** el cambio RF-12…RF-15 (copy del
   rechazo, mensaje al rechazar, saludo de la personalizada, consulta tolerante). RF-17/D22 de la
   spec 005 quedan **derogados** por el cambio de la 004.
-- **Spec 006 (`specs/006-panel-respuestas`):** propuesta inicial en la branch
-  `spec-006-panel-respuestas`. Define un panel privado y de solo lectura para consultar respuestas
-  RSVP; todavía no hay código ni endpoint administrativo. Quedan por decidir autenticación sin
-  secretos en el bundle, alcance de sesión, teléfono enmascarado y paginación (D1–D4).
+- **Spec 006 (`specs/006-panel-respuestas`):** T1–T12 y T16 implementadas. `admin.html` es una
+  entrada Vite independiente; el panel usa `listResponses`, valida filas antes de pintarlas,
+  deriva el resumen, filtra/ordena y abre detalle accesible. `revealPhone` exige la misma allowlist,
+  devuelve una sola fila y el teléfono se mantiene solo en estado React. El slug sale de
+  `VITE_WEDDING_SLUG` para la invitación y token de 5 dígitos enviado a `admin_email` para el
+  panel. Cada solicitud de correo genera un token nuevo; `counter` cuenta fallos del token vigente
+  y el token solo vive en memoria del panel. El filtro por tipo se retiró porque una boda solo
+  tiene un tipo de invitación. El panel usa `files.language` para su vista, mantiene los estados
+  del libro en inglés, muestra `dietary_restrictions` como alergias y separa los mensajes. Los
+  boletos emitidos del panel salen solo de la suma de `guests.adults_guests`, no de las hojas de
+  códigos. La pestaña de mensajes no muestra la fecha de actualización.
+- **Separación de servicios del panel:** la invitación usa `VITE_SERVICE_URL`; `admin.html` usa
+  `VITE_SERVICE_URL` para el endpoint tokenizado. `admin.html` es React estático, usa `fetch`
+  sin credenciales y comparte deployment con el RSVP; no hay sesión Google.
+- **Diagnóstico panel 2026-10-29:** una respuesta `INVALID_RESPONSE` al pedir el token indica que
+  el deployment activo no reconoce `action: "requestToken"` o no recibe JSON válido; el código
+  actual sí declara y enruta esa acción. La primera sospecha es una versión vieja o una URL de
+  deployment distinta en `VITE_SERVICE_URL`; `MailApp` solo se alcanza después y devolvería
+  `EMAIL_UNAVAILABLE` si fallara el permiso o la cuota.
 
 ## Decisiones (y por qué)
 - **Spec 005 · máquina de estados y lookup:** el componente solo despacha eventos; `lookup` (por
@@ -58,6 +73,10 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   Tipos: `personal`, `generic`, `public` (código reservado `PUBLIC`, sin tope); `none` = sin
   invitación. **El teléfono es la llave** de genérica/pública (10 dígitos, también al rechazar): una
   fila con ese teléfono se **actualiza**, no se duplica.
+- **Spec 006 · panel administrativo:** la autenticación vive en Apps Script con token de
+  `admin_email` por boda, sin sesión Google ni slug en el enlace; los totales se
+  derivan de las filas validadas. `updatedAt` representa la última respuesta del libro; si no hay
+  ninguna, usa la hora de lectura.
 - **Spec 004 · plazo y configuración:** el registro ya **no** tiene `confirmacion.fechaLimite` ni
   `marca.enlaces.rsvp`; plazo y cupo viven en el maestro. Config por entorno (`VITE_SERVICE_URL`,
   `VITE_WEDDING_SLUG`; `.env.local` gitignorado): sin URL → demo sin llamar; URL sin `slug` →
