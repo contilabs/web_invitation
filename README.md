@@ -24,13 +24,28 @@ Ambos temas se controlan **solo con variables CSS** (`:root` en `classic.css` pa
 
 ## ▶️ Cómo verla
 
+Requisitos: **Node.js 22.12+ y npm** para los lanzadores, y **Docker Desktop con
+contenedores Linux** (macOS/Windows) o Docker Engine (Linux), instalado y en marcha.
+No hace falta instalar dependencias en el host. Revisa `package.json`, `scripts/`, `.npmrc`
+y el lockfile antes de ejecutar un checkout nuevo.
+
 ```bash
-npm install       # instala React + Vite (no hay más dependencias)
-npm run dev       # servidor de desarrollo
-npm run build     # genera el sitio estático en dist/
-npm run preview   # sirve el build de dist/
-npm test          # pruebas de la lógica pura (node --test, sin instalar nada)
+npm run dev       # Vite en Docker, con recarga al editar
+npm run preview   # compila y sirve en Docker; reiniciar tras editar
+npm run build     # valida el build en un contenedor desechable
+npm test          # pruebas de aplicación y seguridad con node --test dentro de Docker
+npm run check     # pruebas y build en una sola sesión aislada
 ```
+
+Abre [http://127.0.0.1:5173](http://127.0.0.1:5173); desarrollo y preview comparten el puerto,
+así que se ejecutan de uno en uno. Ctrl+C elimina los recursos temporales. No se admiten
+argumentos extra. Si Docker falla, el comando se detiene sin ejecutar herramientas en el host.
+
+Los contenedores de ejecución no tienen red ni montajes del host. Las dependencias se instalan
+antes, con red, solo desde los manifiestos y sin scripts de instalación. El build y su `dist/`
+quedan **dentro del contenedor y se descartan**; `preview` genera su propio build.
+Consulta [Seguridad local](docs/local-security.md) para configuración del RSVP, límites,
+limpieza y publicación.
 
 ## 🧱 Stack
 
@@ -70,6 +85,7 @@ docs/               # Constitución y contrato del servicio (servicio-invitados.
 assets/             # Fotos originales, iconos y audio
 assets/photos/opt/  # Derivados JPEG optimizados: lo que la página carga de verdad
 fonts/              # Erstoria + Kalista (locales)
+scripts/            # Lanzadores Docker, transporte local y pruebas de seguridad
 ```
 
 ## 🎨 Personalización (datos de la pareja y del evento)
@@ -150,11 +166,13 @@ vigila que no se desincronicen). La puesta en marcha del servicio (maestro, libr
 publicación) está explicada en `gas/README.md`.
 
 La configuración del despliegue **no** está en el repo: son valores por publicación, que se
-fijan con variables de entorno de Vite (p. ej. en un `.env.local`, que está en `.gitignore`):
+fijan con variables públicas de Vite. Los lanzadores Docker solo transmiten estas dos
+variables del entorno del proceso; no leen ni copian `.env.local` ni otros archivos `.env`:
 
 ```bash
-VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"  # ubicación del servicio
-VITE_WEDDING_SLUG="mi-boda"                                         # slug de la boda en el maestro
+export VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"
+export VITE_WEDDING_SLUG="mi-boda"
+npm run dev  # también se aplican a preview, build y check
 ```
 
 - **Sin URL** → **modo demo**: la invitación se ve completa y sin personalizar, y la
@@ -188,7 +206,12 @@ de la **clave** (la base del nombre, p. ej. `foto5`).
 
 ## 🚀 Despliegue
 
-`npm run build` deja el sitio en `dist/`. `vite.config.js` fija **`base: "./"`**, así que el
+`npm run build` comprueba el sitio en un contenedor desechable; no exporta `dist/` al host.
+Para publicar, el entorno de CI o de hosting debe instalar con `npm ci --ignore-scripts` y
+ejecutar Vite (`./node_modules/.bin/vite build`) **dentro de su propio entorno aislado**,
+conservar `dist/` y publicarlo como sitio estático. No ejecutes Vite directamente en el host.
+
+`vite.config.js` fija **`base: "./"`**, así que el
 build usa rutas relativas y funciona en cualquier subruta o dominio (incluidos los enlaces ya
 repartidos del tipo `…/index.html?guest=…`). Para que la confirmación hable con el servicio,
 publica con las variables de entorno descritas arriba (`VITE_SERVICE_URL` y

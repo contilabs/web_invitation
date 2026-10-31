@@ -9,9 +9,29 @@ por el registro) y `specs/001-migracion-y-rediseno` (de la página estática a R
 
 ## Quick start
 
-- `npm install` — instala React + Vite (no hay más dependencias).
-- `npm run dev` — servidor de desarrollo de Vite.
-- `npm run build` — genera el sitio estático en `dist/`; `npm run preview` lo sirve.
+- Requisitos: Node.js 22.12+ y npm para los lanzadores; Docker Desktop (contenedores Linux) o Docker Engine en marcha. No se instalan dependencias en el host.
+- `npm run dev` — Vite en Docker sin red, accesible en `http://127.0.0.1:5173`.
+- `npm run build` — valida el build desechable dentro de Docker; no exporta `dist/`.
+- `npm run preview` — compila y sirve dentro de Docker; `npm run check` ejecuta pruebas y build.
+- `npm test` — runner integrado de Node dentro de Docker (aplicación y seguridad).
+
+## Ejecución segura
+
+- No ejecutar configuración, dependencias ni pruebas del proyecto en el host. Usar solo los
+  lanzadores revisados de `npm run dev`, `npm run preview`, `npm run build`, `npm test` y
+  `npm run check`. No saltárselos con `npx`, `npm exec`, Vite directo, `node_modules/.bin`,
+  importaciones/evaluación de archivos del proyecto ni instalaciones en el host.
+- Si Docker falla, detener la ejecución dependiente y comunicar el bloqueo; no debilitar
+  aislamiento ni políticas para obtener un resultado verde. Una excepción en el host exige
+  petición humana explícita y acotada tras explicar qué código se ejecutaría.
+- Inspección estática, Git y edición de texto están permitidos. Mantener apagadas las
+  herramientas automáticas del editor que ejecuten código no revisado.
+- Revisar cambios de `package.json`, lockfile, `.npmrc`, `scripts/` y configuración antes de
+  ejecutarlos. Las instrucciones del repo no sustituyen una barrera externa de permisos.
+- Solo se transmiten `VITE_SERVICE_URL` y `VITE_WEDDING_SLUG` del entorno del proceso, valores
+  públicos del cliente. No se copian archivos `.env`, credenciales, originales ni libros reales.
+- Desarrollo y preview comparten el puerto 5173; Ctrl+C limpia la sesión. Los builds se
+  descartan. Detalles y publicación: `docs/local-security.md`.
 
 Estado: la app React compone **toda** la invitación y la interfaz va **dirigida por el registro
 único**. `index.html` es el shell de Vite (`<div id="root">`), la app monta desde `src/app/main.jsx`
@@ -27,7 +47,7 @@ curso (la verificación contra el servicio vivo la anota el coordinador en «Ver
 > El **único origen** del **contenido** de la boda es **`src/data/wedding.js`** (pareja, evento, secciones, etc.). El **invitado y su respuesta** salen del **servicio de registro** (resolución por el parámetro `guest`); `src/data/guest-cards.js` son solo **ejemplos ficticios** (fixtures de su prueba, la app no los importa en ejecución). Los componentes no tienen datos ni textos de contenido incrustados.
 
 - **Registro de la boda.** El **único origen** del contenido es `src/data/wedding.js` (export `wedding`); cambiar un dato se hace ahí y se publica reconstruyendo. El registro **no** lleva ni el plazo de confirmación (`confirmacion.fechaLimite` se retiró: el plazo lo da el maestro del servicio) ni el destino del envío (`marca.enlaces.rsvp` se retiró), y `confirmacion.maximoBoda` **no** lo lee ningún cálculo de cupos.
-- **Servicio de invitados (RSVP).** La resolución de la invitación y el registro de la respuesta van al servicio de registro (Apps Script, `gas/Code.gs`) por `src/services/registration.js` (POST con `text/plain` + JSON, 10 s con `AbortController`). Además, para precargar la respuesta previa en la invitación **genérica** y **pública**, la app usa la acción `lookup` (misma vía POST) para **leer** una fila por teléfono; esa consulta **no escribe** en `guests` (no marca `viewed`) y **no devuelve** el teléfono ni datos de otras filas. El contrato es **módulo + documento**: `src/constants/contract.js` es la fuente única que consume la app y `docs/servicio-invitados.md` el derivado (`test/serviceContract.test.js` exige la sincronía). La configuración (`VITE_SERVICE_URL`, `VITE_WEDDING_SLUG`, p. ej. en `.env.local`, gitignorado) es **por publicación**, nunca del repo. Los libros reales (datos personales) se excluyen por `.gitignore` (`gas/*.xlsx`). 
+- **Servicio de invitados (RSVP).** La resolución de la invitación y el registro de la respuesta van al servicio de registro (Apps Script, `gas/Code.gs`) por `src/services/registration.js` (POST con `text/plain` + JSON, 10 s con `AbortController`). Además, para precargar la respuesta previa en la invitación **genérica** y **pública**, la app usa la acción `lookup` (misma vía POST) para **leer** una fila por teléfono; esa consulta **no escribe** en `guests` (no marca `viewed`) y **no devuelve** el teléfono ni datos de otras filas. El contrato es **módulo + documento**: `src/constants/contract.js` es la fuente única que consume la app y `docs/servicio-invitados.md` el derivado (`test/serviceContract.test.js` exige la sincronía). La configuración (`VITE_SERVICE_URL`, `VITE_WEDDING_SLUG`, exportadas en el entorno para los lanzadores Docker; `.env.local` no se copia) es **por publicación**, nunca del repo. Los libros reales (datos personales) se excluyen por `.gitignore` (`gas/*.xlsx`).
 
   **Modelo del servicio (spec 004 Fase 4, contrato `1.4.0`):** hasta **tres hojas** por boda (`master`, `guests` y `public`). La resolución es **por tipo** con caída **`generic` → `public`**. `PUBLIC` en la hoja `public` → sin tope; un código mal formado en su hoja responde **`MALFORMED_GUEST`** (el arreglo es **borrar la fila** y llevarla a la hoja correcta, no rellenar el libro). Las celdas vacías de asistentes (`adults_attendees`, `child_attendees`) se leen como **cero** en `resolvePersonal_`, `lookupResponse_` y en la escritura; una celda **presente** incoherente sigue dando `INVALID_DATA`. Los estados de respuesta son **`viewed`**, **`accepted`** y **`declined`**; editar una respuesta conserva uno de los dos últimos. La versión del contrato es **`1.4.0`** (módulo y `gas/Code.gs`). El diagnóstico del reparto y del redespliegue está en **`gas/README.md`**.
 
@@ -43,7 +63,7 @@ curso (la verificación contra el servicio vivo la anota el coordinador en «Ver
 - **Personalización por enlace.** La invitación se resuelve contra el **servicio** por el parámetro **`guest`** (`readGuestCode` lo recorta; los parámetros `codigo`/`code`/`inv` están **jubilados**, sin alias). Tipos (`INVITATION_TYPES`, valores del contrato): `personal` (personalizada, con lugares reservados), `generic` (genérica, cupo del código), `public` (pública, código reservado `PUBLIC`, sin tope) y `none` (ausencia de invitación: confirmación deshabilitada, sin personalizar). La comparación normalizada del código (sin distinguir mayúsculas) es del **servicio**, no de la app.
 - **Inventario de lógica (`src/utils/`).** Funciones puras para nombres (`couple.js`: `composePersonName`, `coupleNames`), fecha/zona (`event.js`: `eventTimeZone`, `eventInstant`, `formatDate`, `formatTime`), secciones visibles (`sections.js`: `hasContent`, `visibleSections`), restricciones (`restrictions.js`: `allowsChildren`, `restrictionMessages`), la invitación resuelta por el servicio (`invitation.js`: `readGuestCode`, `interpretInvitation`, `interpretLookup`, `reservedSeats`, `guestLimit`, `attendeeLimits`, `isWithinGuestLimit`, `formatSeats`, `seatsText`, `INVITATION_TYPES`), plazo (`confirmation.js`: `deadlineMs`, `isConfirmationOpen`, `confirmationFields`; el «ahora» y el plazo entran por parámetro), configuración del servicio (`service.js`: `resolveServiceConfig` con tres estados), el envío y consulta (`rsvp.js`: `phoneDigits`, `isPhoneComplete`, `rsvpPayload`, `lookupPayload`, `attendeeOptions` —rango **por campo**: adultos `1..cupo`, niños `0..cupo`—, `attendeeValue` —normaliza un valor guardado a una opción válida del combo—, `attendanceForm`, `validateRsvp` —exige además que la asistencia esté elegida (`INVALID_RESPONSE`) y un rechazo omite asistentes y restricciones del envío, pero **conserva el mensaje** (RF-13)—, `responseSummaryData` —compone el panel de solo lectura: en un rechazo conserva el mensaje y omite asistentes y restricciones—, `interpretRsvpResult`), regalos (`gifts.js`: `giftOptions`, `copyableFields`, `copyableField`, `GIFT_TYPES`), validación/avisos (`validation.js`: `templateStatus`, `registryErrors`, `registryWarnings`), cuenta regresiva (`countdown.js`: `remainingParts`), galería (`gallery.js`: `nextIndex`, `pickVariant`), tema (`theme.js`: `resolveTheme`), música (`music.js`: `nextMusicState`), etiquetas (`labels.js`) y máquina de estados del bloque de confirmación (`rsvpState.js`: `BLOCK_STATES`, `BLOCK_EVENTS`, `initialBlockState`, `nextBlockState`). Los literales del contrato del servicio (parámetro, tipos, hojas, columnas, estados, códigos de error) viven en `src/constants/contract.js` y los nombres de las variables de entorno en `src/constants/service.js`; las claves/valores del tema, en `src/constants/theme.js`.
 - **Mesa de regalos (RF-10).** Los datos de cada opción salen del registro; **como máximo uno** va marcado con `copiar: true` y es el que copia el **único** botón de la opción (el resto se muestra como texto). Si una opción trae varios datos sin marca, no se pone botón: no se adivina cuál es la cuenta. `CopyButton` usa `buttonText` para el rótulo visible y el aviso nombra el dato copiado.
-- **Pruebas co-locadas** (`src/utils/*.test.js`, `src/data/*.test.js`) con el runner `node --test`; se
+- **Pruebas co-locadas** (`src/utils/*.test.js`, `src/data/*.test.js`) con el runner `node --test` dentro de Docker mediante `npm test`; se
   descubren solas. No hay tests de UI (van a mano).
 - **Interfaz (`src/hooks/`, `src/components/`).** La lógica con estado (el «ahora», `localStorage`,
   `<audio>`, `IntersectionObserver`) vive en `src/hooks/` (un hook por comportamiento: `useTheme`,
@@ -140,7 +160,7 @@ curso (la verificación contra el servicio vivo la anota el coordinador en «Ver
 ## Verificación
 
 - `npm run dev` y `npm run build` deben terminar sin errores.
-- `npm test` (`node --test`, el runner integrado de Node): sin instalar nada. Cubre la lógica
+- `npm test` (`node --test`, el runner integrado de Node dentro de Docker): sin instalar en el host. Cubre la lógica
   pura de `src/utils/*.test.js`, la no regresión del registro (`src/data/*.test.js`) y los
   guardarraíles `test/andamiaje.test.js`, `test/contracts.test.js` y
   `test/serviceContract.test.js`.

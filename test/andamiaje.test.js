@@ -23,7 +23,7 @@ test("existen los scripts base", () => {
 });
 
 test("las pruebas usan el runner integrado de Node", () => {
-  assert.equal(pkg.scripts.test, "node --test");
+  assert.equal(pkg.scripts.test, "node scripts/safe-check.mjs test");
 });
 
 test("index.html monta la app de React y carga los CSS de la plantilla", () => {

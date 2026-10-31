@@ -2,7 +2,7 @@
 Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
-- **Rama viva: `react-migration`** (specs en `specs/`, publicada en `origin`).
+- **Rama viva: `codex/panel-respuestas`** (specs en `specs/`, publicada en `origin`).
 - **Specs 001–003 cerradas** salvo la pasada manual (T27) y el despliegue: app React completa,
   rediseño «Ascua», capas, nomenclatura en inglés, registro único (`src/data/wedding.js`); paridad
   T26 **30/30**.
@@ -30,6 +30,9 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
 - **Separación de servicios del panel:** la invitación usa `VITE_SERVICE_URL`; `admin.html` usa
   `VITE_SERVICE_URL` para el endpoint tokenizado. `admin.html` es React estático, usa `fetch`
   sin credenciales y comparte deployment con el RSVP; no hay sesión Google.
+- **Seguridad local:** `dev`, `preview`, `test`, `build` y `check` usan lanzadores Docker
+  (`scripts/safe-dev.mjs` y `scripts/safe-check.mjs`) sin red ni montajes del host durante
+  la ejecución; la configuración está documentada en `docs/local-security.md`.
 - **Diagnóstico panel 2026-10-29:** una respuesta `INVALID_RESPONSE` al pedir el token indica que
   el deployment activo no reconoce `action: "requestToken"` o no recibe JSON válido; el código
   actual sí declara y enruta esa acción. La primera sospecha es una versión vieja o una URL de
