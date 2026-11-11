@@ -6,6 +6,7 @@ import { visibleSections, hasContent } from "./sections.js";
 const base = () => ({
   cita: { texto: "Hola", autor: null },
   historia: { titulo: "H", parrafos: ["a", "b"] },
+  familia: { titulo: "F", grupos: [{ titulo: "P", nombres: ["N"] }] },
   galeria: { imagenes: [{ clave: "foto1" }] },
   regalos: { opciones: [{ tipo: "tienda" }] },
   hoteles: [{ nombre: "Hotel" }],
@@ -32,6 +33,7 @@ test("incluye secciones con contenido", () => {
   assert.ok(visible.includes("cita"));
   assert.ok(visible.includes("hoteles"));
   assert.ok(visible.includes("itinerario"));
+  assert.ok(visible.includes("familia"));
 });
 
 test("respeta el apagado por ajuste", () => {
@@ -53,4 +55,6 @@ test("hasContent detecta listas y párrafos vacíos", () => {
   assert.equal(hasContent("hoteles", [{ nombre: "x" }]), true);
   assert.equal(hasContent("historia", { parrafos: [] }), false);
   assert.equal(hasContent("historia", { parrafos: ["a"] }), true);
+  assert.equal(hasContent("familia", { grupos: [{ titulo: "P", nombres: [] }] }), false);
+  assert.equal(hasContent("familia", { grupos: [{ titulo: "P", nombres: ["N"] }] }), true);
 });

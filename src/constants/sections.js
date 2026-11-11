@@ -9,6 +9,7 @@ export const SECTION_ORDER = [
   "pareja",
   "cita",
   "historia",
+  "familia",
   "ubicaciones",
   "itinerario",
   "regalos",
