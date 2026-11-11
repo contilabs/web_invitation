@@ -2,7 +2,11 @@
 Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
-- **Rama viva: `codex/panel-respuestas`** (specs en `specs/`, publicada en `origin`).
+- **Rama viva: `codex/seccion-padres-padrinos`** (cambio aislado sobre el estado actual; pendiente de integrar).
+- **Coordinación 2026-11-10:** `main` quedó integrado en `dfdae26`; la rama está limpia y sin conflictos,
+  pero sigue 2 commits por delante de `origin` y la validación dinámica está bloqueada porque no hay Docker.
+- **Sección familia:** se añadió el catálogo/renderizador y el modelo `familia.grupos`; los nombres reales
+  siguen pendientes porque no estaban en el repositorio y no se inventaron datos personales.
 - **Specs 001–003 cerradas** salvo la pasada manual (T27) y el despliegue: app React completa,
   rediseño «Ascua», capas, nomenclatura en inglés, registro único (`src/data/wedding.js`); paridad
   T26 **30/30**.
