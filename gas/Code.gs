@@ -54,11 +54,15 @@ const SHEET_NAMES = {
 const MASTER_COLUMNS = {
   SLUG: 'slug',
   IS_ACTIVE: 'is_active',
+  ADMIN_EMAIL: 'admin_email',
+  ADMIN_TOKEN: 'token',
+  ADMIN_COUNTER: 'counter',
   GUESTS_SHEET_ID: 'guests_sheet_id',
   DEADLINE: 'deadline',
   GUEST_TYPE: 'guest_type',
   GENERIC_JSON_CACHE: 'generic_json_cache',
   PUBLIC_JSON_CACHE: 'public_json_cache',
+  LANGUAGE: 'language',
 };
 
 // Columnas **obligatorias** del maestro: sin cualquiera de estas cuatro no se puede
@@ -169,6 +173,35 @@ const SERVICE_ACTIONS = {
   LOOKUP: 'lookup',
 };
 
+// Acciones administrativas (spec 006: panel privado de respuestas). Independientes del contrato público.
+const ADMIN_SERVICE_ACTIONS = {
+  LIST_RESPONSES: 'listResponses',
+  REVEAL_PHONE: 'revealPhone',
+  REQUEST_TOKEN: 'requestToken',
+  VERIFY_TOKEN: 'verifyToken',
+};
+
+// Contrato administrativo.
+const ADMIN_CONTRACT_VERSION = '1.1.0';
+
+// Errores administrativos (no reemplazan los del contrato público).
+const ADMIN_ERROR_CODES = {
+  OK: 'OK',
+  NOT_CONFIGURED: 'NOT_CONFIGURED',
+  UNKNOWN_WEDDING: 'UNKNOWN_WEDDING',
+  INACTIVE_WEDDING: 'INACTIVE_WEDDING',
+  GUEST_SHEET_UNAVAILABLE: 'GUEST_SHEET_UNAVAILABLE',
+  INVALID_DATA: 'INVALID_DATA',
+  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
+  INVALID_RESPONSE: 'INVALID_RESPONSE',
+  INVALID_ADMIN_EMAIL: 'INVALID_ADMIN_EMAIL',
+  INVALID_TOKEN: 'INVALID_TOKEN',
+  TOKEN_SENT: 'TOKEN_SENT',
+  TOKEN_RESET: 'TOKEN_RESET',
+  EMAIL_UNAVAILABLE: 'EMAIL_UNAVAILABLE',
+  EMAIL_QUOTA_EXHAUSTED: 'EMAIL_QUOTA_EXHAUSTED',
+};
+
 // Códigos de error del contrato (§4.1). La app elige el aviso por `code`; el servicio solo
 // devuelve el literal, nunca un mensaje traducido.
 const ERROR_CODES = {
@@ -211,6 +244,12 @@ function doGet(e) {
   return response_({ ok: true, code: ERROR_CODES.OK, contract: CONTRACT_VERSION });
 }
 
+// Ejecutar una vez manualmente desde el editor para conceder el permiso de MailApp al
+// propietario del deployment. No envía ningún correo.
+function authorizeAdminMail() {
+  return MailApp.getRemainingDailyQuota();
+}
+
 // Red de seguridad: el contrato evita el preflight (D27), pero si llega un `OPTIONS` se
 // contesta vacío en vez de devolver la página de error de Apps Script.
 function doOptions(e) {
@@ -233,16 +272,35 @@ function doPost(e) {
   }
 
   try {
+    // Compatibilidad con una copia antigua del panel que enviaba solo `{ email }`.
+    // No se aplica a ninguna acción pública: esas peticiones siempre llevan `action`.
+    if (!payload.action && hasKey_(payload, 'email') && Object.keys(payload).length === 1) {
+      return response_(requestAdminToken_(payload.email));
+    }
     if (payload.action === SERVICE_ACTIONS.RESOLVE) return response_(resolveInvitation_(payload));
     if (payload.action === SERVICE_ACTIONS.RESPOND) return response_(registerResponse_(payload));
     if (payload.action === SERVICE_ACTIONS.LOOKUP) return response_(lookupResponse_(payload));
+    if (payload.action === ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN) {
+      return response_(requestAdminToken_(payload.email));
+    }
+    if (payload.action === ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN) {
+      return response_(verifyAdminToken_(payload.email, payload.token));
+    }
+    if (payload.action === ADMIN_SERVICE_ACTIONS.LIST_RESPONSES) {
+      return response_(listResponsesAdmin_(payload));
+    }
+    if (payload.action === ADMIN_SERVICE_ACTIONS.REVEAL_PHONE) {
+      return response_(revealPhoneAdmin_(payload));
+    }
     // Acción desconocida o ausente: el cuerpo no declara ninguna operación del contrato.
     return response_({ ok: false, code: ERROR_CODES.INVALID_RESPONSE });
   } catch (error) {
     // Última red: pase lo que pase, la app recibe JSON del contrato y no una página de
     // error de Apps Script (RF-14).
     console.error('doPost error: ' + (error && error.stack ? error.stack : error));
-    return response_({ ok: false, code: ERROR_CODES.SERVICE_UNAVAILABLE });
+    const isAdminAction = [ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN, ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN,
+      ADMIN_SERVICE_ACTIONS.LIST_RESPONSES, ADMIN_SERVICE_ACTIONS.REVEAL_PHONE].indexOf(payload.action) !== -1;
+    return response_({ ok: false, code: isAdminAction ? ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE : ERROR_CODES.SERVICE_UNAVAILABLE });
   }
 }
 
@@ -1362,7 +1420,12 @@ function findWedding_(slug) {
     deadline: deadline.value,
     cache: text_(cellOf_(row, master.headerMap, MASTER_COLUMNS.GENERIC_JSON_CACHE)),
     publicCache: text_(cellOf_(row, master.headerMap, MASTER_COLUMNS.PUBLIC_JSON_CACHE)),
+    language: normalizeLanguage_(cellOf_(row, master.headerMap, MASTER_COLUMNS.LANGUAGE)),
   };
+}
+
+function normalizeLanguage_(value) {
+  return text_(value)?.toLowerCase() === 'english' ? 'english' : 'spanish';
 }
 
 // `deadline` de la fila: `{ ok: true, value }` con `null` si la columna falta o la celda
@@ -1382,4 +1445,361 @@ function readDeadline_(master, rowNumber) {
   if (!(value instanceof Date) && typeof value !== 'string') return { ok: true, value: null };
 
   return { ok: true, value: instantText_(value, master.timeZone) };
+}
+
+// ============================================================================
+// Panel administrativo (spec 006) — lectura de respuestas
+// ============================================================================
+
+// Enmascara un teléfono a 10 dígitos mostrando solo los últimos 4. No persiste ni revela
+// completo por defecto (D3). Si no hay suficientes dígitos, devuelve solo asteriscos.
+function maskPhone_(value) {
+  const digits = phoneDigits_(value);
+  if (digits.length < 4) {
+    return '****';
+  }
+  const lastFour = digits.slice(-4);
+  return '****' + lastFour;
+}
+
+// Busca la única boda asignada al correo. El correo se recibe solo para localizar la fila;
+// el token se comprueba después y nunca se devuelve.
+function findAdminRecord_(email) {
+  const master = readMaster_();
+  if (!master.ok) return master;
+  const required = [MASTER_COLUMNS.ADMIN_EMAIL, MASTER_COLUMNS.ADMIN_TOKEN,
+    MASTER_COLUMNS.ADMIN_COUNTER, MASTER_COLUMNS.SLUG];
+  for (let i = 0; i < required.length; i += 1) {
+    if (!hasKey_(master.headerMap, required[i])) return { ok: false, code: ADMIN_ERROR_CODES.NOT_CONFIGURED };
+  }
+  const normalizedEmail = text_(email);
+  if (normalizedEmail === null) {
+    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_ADMIN_EMAIL };
+  }
+  const matches = [];
+  for (let r = 0; r < master.rows.length; r += 1) {
+    const adminEmail = text_(cellOf_(master.rows[r], master.headerMap, MASTER_COLUMNS.ADMIN_EMAIL));
+    if (adminEmail !== null && adminEmail.toLowerCase() === normalizedEmail.toLowerCase()) {
+      matches.push({ row: master.rows[r], rowNumber: r + 2, email: adminEmail });
+    }
+  }
+  if (matches.length === 0) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_ADMIN_EMAIL };
+  if (matches.length > 1) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA };
+  const match = matches[0];
+  const slug = text_(cellOf_(match.row, master.headerMap, MASTER_COLUMNS.SLUG));
+  const wedding = findWedding_(slug);
+  if (!wedding.ok) return wedding;
+  return {
+    ok: true,
+    master: master,
+    rowNumber: match.rowNumber,
+    email: match.email,
+    token: text_(cellOf_(match.row, master.headerMap, MASTER_COLUMNS.ADMIN_TOKEN)),
+    counter: parseCount_(cellOf_(match.row, master.headerMap, MASTER_COLUMNS.ADMIN_COUNTER)) ?? 0,
+    wedding: wedding,
+  };
+}
+
+function newAdminToken_() {
+  return String(Math.floor(10000 + Math.random() * 90000));
+}
+
+function saveAdminCredentials_(record, token, counter) {
+  const tokenColumn = record.master.headerMap[MASTER_COLUMNS.ADMIN_TOKEN] + 1;
+  const counterColumn = record.master.headerMap[MASTER_COLUMNS.ADMIN_COUNTER] + 1;
+  record.master.sheet.getRange(record.rowNumber, tokenColumn).setNumberFormat('@').setValue(token);
+  record.master.sheet.getRange(record.rowNumber, counterColumn).setValue(counter);
+  SpreadsheetApp.flush();
+}
+
+function sendAdminToken_(email, token) {
+  if (MailApp.getRemainingDailyQuota() < 1) {
+    const error = new Error('EMAIL_QUOTA_EXHAUSTED');
+    error.code = ADMIN_ERROR_CODES.EMAIL_QUOTA_EXHAUSTED;
+    throw error;
+  }
+  MailApp.sendEmail(
+    email,
+    'Código de acceso al panel RSVP',
+    'Tu código de acceso al panel RSVP es: ' + token + '\n\nEste código no se guarda en el navegador y cambia cada vez que solicitas un correo nuevo.',
+  );
+}
+
+function requestAdminToken_(email) {
+  const record = findAdminRecord_(email);
+  if (!record.ok) return { ok: false, code: record.code, contract: ADMIN_CONTRACT_VERSION };
+  let token = null;
+  let counter = 0;
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(LOCK_WAIT_MS);
+    token = newAdminToken_();
+    saveAdminCredentials_(record, token, counter);
+  } catch (error) {
+    return { ok: false, code: ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
+  } finally {
+    if (lock.hasLock()) lock.releaseLock();
+  }
+  try {
+    sendAdminToken_(record.email, token);
+  } catch (error) {
+    console.error('admin: mail_send_failed ' + (error && error.message ? error.message : error));
+    return { ok: false, code: error && error.code === ADMIN_ERROR_CODES.EMAIL_QUOTA_EXHAUSTED ? error.code : ADMIN_ERROR_CODES.EMAIL_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
+  }
+  return { ok: true, code: ADMIN_ERROR_CODES.TOKEN_SENT, contract: ADMIN_CONTRACT_VERSION };
+}
+
+function verifyAdminToken_(email, token) {
+  const record = findAdminRecord_(email);
+  if (!record.ok) return { ok: false, code: record.code, contract: ADMIN_CONTRACT_VERSION };
+  const candidate = text_(token);
+  if (candidate !== null && candidate === record.token) {
+    const lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(LOCK_WAIT_MS);
+      saveAdminCredentials_(record, record.token, 0);
+    } catch (error) {
+      return { ok: false, code: ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
+    } finally {
+      if (lock.hasLock()) lock.releaseLock();
+    }
+    return { ok: true, code: ERROR_CODES.OK, contract: ADMIN_CONTRACT_VERSION };
+  }
+
+  let nextToken = null;
+  const nextCounter = record.counter + 1;
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(LOCK_WAIT_MS);
+    if (nextCounter >= 4) {
+      nextToken = newAdminToken_();
+      saveAdminCredentials_(record, nextToken, 0);
+    } else {
+      saveAdminCredentials_(record, record.token ?? '', nextCounter);
+    }
+  } catch (error) {
+    return { ok: false, code: ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
+  } finally {
+    if (lock.hasLock()) lock.releaseLock();
+  }
+  if (nextToken !== null) {
+    try {
+      sendAdminToken_(record.email, nextToken);
+    } catch (error) {
+      console.error('admin: mail_send_failed ' + (error && error.message ? error.message : error));
+      return { ok: false, code: error && error.code === ADMIN_ERROR_CODES.EMAIL_QUOTA_EXHAUSTED ? error.code : ADMIN_ERROR_CODES.EMAIL_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
+    }
+    return { ok: false, code: ADMIN_ERROR_CODES.TOKEN_RESET, contract: ADMIN_CONTRACT_VERSION };
+  }
+  return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN, contract: ADMIN_CONTRACT_VERSION };
+}
+
+// Autoriza con correo + token. El estado de sesión vive solo en la página; cada lectura
+// vuelve a comprobar ambos valores.
+function authorizeAdmin_(email, token) {
+  const record = findAdminRecord_(email);
+  if (!record.ok) return { ok: false, code: record.code };
+  if (text_(token) === null || text_(token) !== record.token) {
+    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
+  }
+  return { ok: true, email: record.email, wedding: record.wedding };
+}
+
+// Lista respuestas para el panel administrativo. Solo lee, no escribe. Resuelve la boda
+// por la cuenta autorizada (D2). Devuelve solo columnas mínimas,
+// teléfonos enmascarados (D3), totales excluyendo declined para adultos/niños, asistentes
+// vacíos como 0. Sin paginación (D4). Sin PII en logs.
+function listResponsesAdmin_(payload) {
+  // Acción conocida; sin campos extra obligatorios (autorización resuelve en servidor).
+  const auth = authorizeAdmin_(payload && payload.email, payload && payload.token);
+  if (!auth.ok) {
+    // Log seguro: sin email completo en detalle sensible, sin nombres/teléfonos.
+    console.info('admin: auth_failed code=' + auth.code);
+    return { ok: false, code: auth.code, contract: ADMIN_CONTRACT_VERSION };
+  }
+
+  const wedding = auth.wedding;
+  if (!wedding.ok) {
+    console.info('admin: wedding_resolve_failed code=' + wedding.code);
+    return { ok: false, code: wedding.code, contract: ADMIN_CONTRACT_VERSION };
+  }
+
+  const book = openGuestBook_(wedding);
+  if (!book.ok) {
+    console.info('admin: guest_sheet_unavailable');
+    return { ok: false, code: ADMIN_ERROR_CODES.GUEST_SHEET_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
+  }
+
+  const sheet = book.book.getSheetByName(SHEET_NAMES.GUESTS);
+  if (!sheet) {
+    console.info('admin: guest_sheet_missing');
+    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+  }
+
+  const headerMap = readHeaderMap_(sheet);
+  const isPersonal = wedding.guestType === GUEST_TYPES.PERSONAL;
+  // Columnas necesarias para construir el listado administrativo.
+  const required = [
+    GUEST_COLUMNS.GUEST_ID,
+    GUEST_COLUMNS.GUEST_NAME,
+    GUEST_COLUMNS.PHONE,
+    GUEST_COLUMNS.ADULTS_GUESTS,
+    GUEST_COLUMNS.ADULTS_ATTENDEES,
+    GUEST_COLUMNS.CHILD_ATTENDEES,
+    GUEST_COLUMNS.MESSAGE,
+    GUEST_COLUMNS.DIETARY_RESTRICTIONS,
+    GUEST_COLUMNS.STATUS,
+    GUEST_COLUMNS.DATETIME,
+  ];
+  for (let i = 0; i < required.length; i += 1) {
+    if (!hasKey_(headerMap, required[i])) {
+      console.info('admin: invalid_data missing_column');
+      return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+    }
+  }
+
+  const rows = sheet.getDataRange().getValues();
+  let total = 0;
+  let viewed = 0;
+  let accepted = 0;
+  let declined = 0;
+  let pending = 0;
+  let adultsSum = 0;
+  let childrenSum = 0;
+  let seatsOccupied = 0;
+  let seatsIssued = 0;
+  let latestDatetime = null;
+  const responses = [];
+
+  for (let r = 1; r < rows.length; r += 1) {
+    const row = rows[r];
+    const guestIdValue = cellOf_(row, headerMap, GUEST_COLUMNS.GUEST_ID);
+    // Omitir filas completamente vacías sin colapsar con error de autorización.
+    const guestNameVal = text_(cellOf_(row, headerMap, GUEST_COLUMNS.GUEST_NAME));
+    const phoneVal = cellOf_(row, headerMap, GUEST_COLUMNS.PHONE);
+    const statusVal = text_(cellOf_(row, headerMap, GUEST_COLUMNS.STATUS));
+    const hasAny = guestIdValue !== null && guestIdValue !== '' || guestNameVal !== null || phoneVal !== null && phoneVal !== '' || statusVal !== null;
+    if (!hasAny) {
+      continue;
+    }
+
+    total += 1;
+    // Solo las invitaciones personalizadas tienen el estado `viewed`; genéricas y públicas
+    // aparecen en el panel únicamente cuando ya hay una respuesta.
+    const state = isPersonal ? (statusVal === null ? RESPONSE_STATES.VIEWED : statusVal) : statusVal;
+    if (!isPersonal && state === null) continue;
+    if (RESPONSE_STATE_VALUES.indexOf(state) === -1) {
+      // Datos incoherentes pero no errores de autorización/configuración.
+      console.info('admin: row_invalid_state skipped_context');
+      continue;
+    }
+    if (state === RESPONSE_STATES.VIEWED) {
+      viewed += 1;
+      pending += 1;
+    } else if (state === RESPONSE_STATES.ACCEPTED) {
+      accepted += 1;
+    } else if (state === RESPONSE_STATES.DECLINED) {
+      declined += 1;
+    }
+
+    // Asistentes vacíos como 0; valores incoherentes se omiten en conteo seguro (no romper listado).
+    const adultsAtt = parseAttendees_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_ATTENDEES));
+    const childAtt = parseAttendees_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_ATTENDEES));
+    const adultsAttCount = adultsAtt === null ? 0 : adultsAtt;
+    const childAttCount = childAtt === null ? 0 : childAtt;
+    const adultsGuest = parseGuestCount_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_GUESTS), false);
+    const childGuest = isPersonal
+      ? parseGuestCount_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_GUESTS), true)
+      : 0;
+    const assignedAdults = adultsGuest === null ? 0 : adultsGuest;
+    const assignedChildren = childGuest === null ? 0 : childGuest;
+    const assignedSeats = adultsGuest;
+    const occupiedSeats = state === RESPONSE_STATES.ACCEPTED ? adultsAttCount + childAttCount : 0;
+    if (assignedSeats !== null) seatsIssued += assignedSeats;
+    seatsOccupied += occupiedSeats;
+    if (state === RESPONSE_STATES.ACCEPTED) {
+      adultsSum += adultsAttCount;
+      childrenSum += childAttCount;
+    }
+    // declined: excluidos de totales de adultos/niños (según contrato)
+
+    const guestIdStr = typeof guestIdValue === 'number' ? String(guestIdValue) : text_(guestIdValue);
+    const datetime = responseInstant_(cellOf_(row, headerMap, GUEST_COLUMNS.DATETIME), book.timeZone);
+    if (datetime !== null && (latestDatetime === null || Date.parse(datetime) > Date.parse(latestDatetime))) {
+      latestDatetime = datetime;
+    }
+    responses.push({
+      guestId: guestIdStr,
+      guestType: wedding.guestType,
+      guestName: guestNameVal,
+      phoneMasked: maskPhone_(phoneVal),
+      adultsAttendees: adultsAttCount,
+      childAttendees: childAttCount,
+      assignedAdults: assignedAdults,
+      assignedChildren: assignedChildren,
+      assignedSeats: assignedSeats,
+      occupiedSeats: occupiedSeats,
+      message: text_(cellOf_(row, headerMap, GUEST_COLUMNS.MESSAGE)),
+      allergies: text_(cellOf_(row, headerMap, GUEST_COLUMNS.DIETARY_RESTRICTIONS)),
+      status: state,
+      datetime: datetime,
+    });
+  }
+
+  // Logs seguros: sin nombres, teléfonos, mensajes, restricciones.
+  console.info('admin: list_ok count=' + responses.length);
+
+  return {
+    ok: true,
+    contract: ADMIN_CONTRACT_VERSION,
+    wedding: {
+      slug: wedding.slug,
+      name: null,
+      isActive: wedding.isActive,
+      deadline: wedding.deadline,
+      updatedAt: latestDatetime ?? nowText_(new Date(), book.timeZone),
+      guestType: wedding.guestType,
+      language: wedding.language,
+    },
+    summary: {
+      total: total,
+      viewed: viewed,
+      accepted: accepted,
+      declined: declined,
+      pending: pending,
+      adults: adultsSum,
+      children: childrenSum,
+      seatsIssued: seatsIssued,
+      seatsOccupied: seatsOccupied,
+      seatsUnoccupied: Math.max(seatsIssued - seatsOccupied, 0),
+    },
+    responses: responses,
+  };
+}
+
+// Revelación puntual y efímera del teléfono. Requiere la misma autorización server-side y
+// el guest_id de una fila ya recibida; nunca acepta una posición ni devuelve otra fila.
+function revealPhoneAdmin_(payload) {
+  const auth = authorizeAdmin_(payload && payload.email, payload && payload.token);
+  if (!auth.ok) return { ok: false, code: auth.code, contract: ADMIN_CONTRACT_VERSION };
+  const wedding = auth.wedding;
+  if (!wedding.ok) return { ok: false, code: wedding.code, contract: ADMIN_CONTRACT_VERSION };
+  const guestId = normalizeCode_(payload && payload.guestId);
+  if (guestId === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_RESPONSE, contract: ADMIN_CONTRACT_VERSION };
+  const book = openGuestBook_(wedding);
+  if (!book.ok) return { ok: false, code: ADMIN_ERROR_CODES.GUEST_SHEET_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
+  const sheet = book.book.getSheetByName(SHEET_NAMES.GUESTS);
+  if (!sheet) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+  const headerMap = readHeaderMap_(sheet);
+  if (!hasKey_(headerMap, GUEST_COLUMNS.GUEST_ID) || !hasKey_(headerMap, GUEST_COLUMNS.PHONE)) {
+    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+  }
+  const rows = sheet.getDataRange().getValues();
+  for (let r = 1; r < rows.length; r += 1) {
+    if (normalizeCode_(cellOf_(rows[r], headerMap, GUEST_COLUMNS.GUEST_ID)) !== guestId) continue;
+    const phone = phoneDigits_(cellOf_(rows[r], headerMap, GUEST_COLUMNS.PHONE));
+    if (phone.length !== PHONE_DIGITS) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+    return { ok: true, contract: ADMIN_CONTRACT_VERSION, phone: phone };
+  }
+  return { ok: false, code: ADMIN_ERROR_CODES.INVALID_RESPONSE, contract: ADMIN_CONTRACT_VERSION };
 }

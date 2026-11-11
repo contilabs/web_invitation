@@ -286,3 +286,148 @@ export const SERVICE_ERRORS = [
     retryable: true,
   },
 ];
+
+// Contrato administrativo independiente (spec 006: panel privado de respuestas RSVP).
+// Versión separada del contrato público 1.4.0; no cambia el comportamiento del RSVP público.
+export const ADMIN_CONTRACT_VERSION = "1.1.0";
+
+// Acción administrativa para obtener el listado de respuestas.
+export const ADMIN_SERVICE_ACTIONS = {
+  LIST_RESPONSES: "listResponses",
+  REVEAL_PHONE: "revealPhone",
+  REQUEST_TOKEN: "requestToken",
+  VERIFY_TOKEN: "verifyToken",
+};
+
+// Campos de la petición administrativa.
+export const ADMIN_REQUEST_FIELDS = {
+  ACTION: "action",
+  GUEST_ID: "guestId",
+};
+
+// Campos del sobre administrativo (respuesta).
+export const ADMIN_RESPONSE_FIELDS = {
+  OK: "ok",
+  CONTRACT: "contract",
+  WEDDING: "wedding",
+  SUMMARY: "summary",
+  RESPONSES: "responses",
+  PHONE: "phone",
+};
+
+// Campos de la boda en el sobre administrativo.
+export const ADMIN_WEDDING_FIELDS = {
+  SLUG: "slug",
+  NAME: "name",
+  IS_ACTIVE: "is_active",
+  DEADLINE: "deadline",
+  UPDATED_AT: "updatedAt",
+  GUEST_TYPE: "guestType",
+  LANGUAGE: "language",
+};
+
+// Campos del resumen administrativo.
+export const ADMIN_SUMMARY_FIELDS = {
+  TOTAL: "total",
+  VIEWED: "viewed",
+  ACCEPTED: "accepted",
+  DECLINED: "declined",
+  PENDING: "pending",
+  ADULTS: "adults",
+  CHILDREN: "children",
+  SEATS_ISSUED: "seatsIssued",
+  SEATS_OCCUPIED: "seatsOccupied",
+  SEATS_UNOCCUPIED: "seatsUnoccupied",
+};
+
+// Campos de cada respuesta en el listado administrativo.
+export const ADMIN_RESPONSE_ITEM_FIELDS = {
+  GUEST_ID: "guestId",
+  GUEST_TYPE: "guestType",
+  GUEST_NAME: "guestName",
+  PHONE_MASKED: "phoneMasked",
+  ADULTS_ATTENDEES: "adultsAttendees",
+  CHILD_ATTENDEES: "childAttendees",
+  ASSIGNED_ADULTS: "assignedAdults",
+  ASSIGNED_CHILDREN: "assignedChildren",
+  ASSIGNED_SEATS: "assignedSeats",
+  OCCUPIED_SEATS: "occupiedSeats",
+  MESSAGE: "message",
+  ALLERGIES: "allergies",
+  STATUS: "status",
+  DATETIME: "datetime",
+};
+
+// Códigos de error del panel administrativo (independientes de SERVICE_ERRORS).
+export const ADMIN_SERVICE_ERRORS = [
+  {
+    code: "OK",
+    message: "Listado de respuestas cargado.",
+    retryable: false,
+  },
+  {
+    code: "NOT_CONFIGURED",
+    message: "El panel no está configurado.",
+    retryable: false,
+  },
+  {
+    code: "UNKNOWN_WEDDING",
+    message: "No encontramos la boda autorizada.",
+    retryable: false,
+  },
+  {
+    code: "INACTIVE_WEDDING",
+    message: "Esta boda ya no está disponible.",
+    retryable: false,
+  },
+  {
+    code: "GUEST_SHEET_UNAVAILABLE",
+    message: "No pudimos abrir la lista de invitados.",
+    retryable: true,
+  },
+  {
+    code: "INVALID_DATA",
+    message: "Los datos del panel están incompletos o son inválidos.",
+    retryable: true,
+  },
+  {
+    code: "SERVICE_UNAVAILABLE",
+    message: "No pudimos conectar. Inténtalo de nuevo.",
+    retryable: true,
+  },
+  {
+    code: "INVALID_RESPONSE",
+    message: "La respuesta del servidor no es válida.",
+    retryable: true,
+  },
+  {
+    code: "INVALID_ADMIN_EMAIL",
+    message: "No encontramos un panel para ese correo.",
+    retryable: false,
+  },
+  {
+    code: "INVALID_TOKEN",
+    message: "El código no es válido.",
+    retryable: true,
+  },
+  {
+    code: "TOKEN_SENT",
+    message: "El código fue enviado por correo.",
+    retryable: false,
+  },
+  {
+    code: "TOKEN_RESET",
+    message: "Se alcanzó el límite de intentos; enviamos un código nuevo.",
+    retryable: false,
+  },
+  {
+    code: "EMAIL_UNAVAILABLE",
+    message: "No pudimos enviar el código por correo.",
+    retryable: true,
+  },
+  {
+    code: "EMAIL_QUOTA_EXHAUSTED",
+    message: "Se agotó la cuota diaria de correo del servicio.",
+    retryable: false,
+  },
+];

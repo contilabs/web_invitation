@@ -10,9 +10,21 @@ datos y la documentación, en español (RNF-6, RNF-7).
 > **D29–D34**). Cuando el §10 contradiga el cuerpo (§1–§9), **manda el §10**; los puntos afectados
 > van marcados con *«§10 manda sobre este punto»*. El cambio trae **hoja `public` propia**,
 > **resolución por tipo**, **`limit` con el mismo idioma en las dos hojas**, **segunda caché**
-> (`public_json_cache`), **celda vacía = cero** en el servicio y `CONTRACT_VERSION` → **`1.3.0`**.
-> Vive en la **Fase 4** de §11 (tareas **T11–T17**). Las fases 1–3 (**T1–T10**) **no se rehacen**:
+> (`public_json_cache`), **celda vacía = cero** en el servicio y `CONTRACT_VERSION` → **`1.4.0`**
+> (aquí se planificó como `1.3.0`: **planificado, nunca declarado**; spec §11.1).
+> Vive en la **Fase 4** de §11 (tareas **T11–T18**). Las fases 1–3 (**T1–T10**) **no se rehacen**:
 > la spec 004 ya está implementada y verificada; lo que queda de T10 es su parte documental.
+>
+> **Enmienda de sincronización (manda la spec §11).** Este plan **no se reescribe**: se lee con la
+> **§11 de la spec**, que declara lo vigente. En concreto: la **versión entregada** del contrato es
+> **`1.4.0`**, **no** `1.3.0` ni `1.2.0` (las dos fueron números **planificados** y **nunca
+> existieron como constante**; la entrega real subió de `1.1.0` a `1.4.0` de una vez —§11.1—); los
+> **estados vigentes son tres** (`viewed`, `accepted`, `declined`) y `confirmed`/`updated`/`rejected`
+> están **retirados** (§11.2); y **T18** (resolver el código fuera del candado) es **deuda técnica
+> pendiente**, no trabajo hecho (§11.5). Donde este plan diga `1.3.0`/`1.2.0`, una salud contra esas
+> versiones o una enumeración de cuatro estados, **léase la §11**. Nada de este plan se da por
+> **verificado manualmente**: T10 (parte manual) y T17 siguen **pendientes** y el veredicto lo anota
+> el coordinador (§11.6).
 
 ## 1. Punto de partida y referencia
 
@@ -100,7 +112,8 @@ test/
 
 > **El árbol no crece en la Fase 4 (§10).** El cambio de la hoja `public` y de la lectura tolerante
 > **no crea** ningún archivo: lo que cambia es el **contenido** de cuatro de los que ya existen —
-> `src/constants/contract.js` (hoja `public` + `public_json_cache` + versión `1.3.0`),
+> `src/constants/contract.js` (hoja `public` + `public_json_cache` + versión **`1.4.0`**, entregada;
+> `1.3.0` fue el número planificado y nunca se declaró —spec §11.1—),
 > `docs/servicio-invitados.md` (las tres cosas derivadas), `gas/Code.gs` (resolución por tipo y
 > celda vacía = cero) y `test/serviceContract.test.js` (que vigila los literales nuevos, ya
 > recogidos del módulo: no hay que escribir el listado a mano). La **app**
@@ -117,7 +130,8 @@ test/
   **`public_json_cache`**, `guest_id`, `phone`, `guest_name`, `partner_name`, `adults_guests`,
   `adults_attendees`, `child_guests`, `child_attendees`, `message`, `dietary_restrictions`, `status`,
   `datetime`, **`public_id`**),
-  estados (`viewed`, `confirmed`, `updated`, `rejected`), el parámetro `guest` y los **códigos de
+  estados (`viewed`, `confirmed`, `updated`, `rejected` — **lectura histórica**: los vigentes son
+  `viewed`, `accepted` y `declined`, spec §11.2), el parámetro `guest` y los **códigos de
   error** (`OK`, `MISSING_GUEST`, …) conservan su forma literal (excepción documentada).
   Los literales de la hoja `public` son **nuevos** en la Fase 4 y entran por el módulo, no a mano
   (§10 manda sobre este punto).
@@ -129,7 +143,8 @@ test/
 ### 5.1 Contrato y configuración (RF-17, RF-15, D18, D19)
 
 - **`src/constants/contract.js` (nuevo).** Fuente única que **consume la app**:
-  - `CONTRACT_VERSION`; en la Fase 4 pasa de `1.2.0` a **`1.3.0`** (D34);
+  - `CONTRACT_VERSION`; la Fase 4 lo deja en **`1.4.0`** (D34; el plan decía «de `1.2.0` a `1.3.0`»,
+    **ambos planificados y nunca declarados**: la entrega real fue `1.1.0` → `1.4.0`, spec §11.1);
   - `GUEST_PARAM = "guest"` (y la nota de que `codigo`/`code`/`inv` quedan jubilados sin alias);
   - `GUEST_TYPES = { PERSONAL: "personal", GENERIC: "generic", PUBLIC: "public" }`;
   - `MASTER_SHEET` / `GUEST_SHEET` / `GENERIC_SHEET` / **`PUBLIC_SHEET`**: nombre de hoja + nombre de
@@ -137,7 +152,9 @@ test/
     `public` con las columnas exactas `public_id` y `limit` (RF-19);
   - `MASTER_SHEET.columns` gana **`PUBLIC_JSON_CACHE`** (`public_json_cache`), la **segunda caché**
     del maestro, con la misma forma y la misma regla de refresco que `generic_json_cache` (D32);
-  - `RESPONSE_STATES` (`viewed`, `confirmed`, `updated`, `rejected`) y `NO_RESPONSE_STATES`;
+  - `RESPONSE_STATES` (`viewed`, `confirmed`, `updated`, `rejected` — **lectura histórica**: el
+    modelo vigente es de **tres** estados, `viewed`, `accepted` y `declined`, spec §11.2) y
+    `NO_RESPONSE_STATES`;
   - `NO_LIMIT = "n"`, `PUBLIC_CODE = "PUBLIC"` (el código **reservado** de la invitación pública: en
     la Fase 4 vive en la hoja **`public`**, no en `generic` —D31—, y sigue siendo el que usan todos
     los invitados de una boda pública), `PHONE_DIGITS = 10`, `REQUEST_TIMEOUT_MS = 10000`;
@@ -261,8 +278,9 @@ test/
     teléfono a 10 dígitos (rechazo visible si no llega), busca por teléfono, crea la fila con
     `guest_id` entero autoincremental o actualiza la existente, escribe el **cupo** del código en
     `adults_guests` y deja los niños vacíos (RF-8, D5, D6, D7, D21, D23, D26);
-  - hace valer el **plazo** y el **cupo** (RF-9, RF-11), usa los cuatro estados reversibles (RF-10)
-    y devuelve los **códigos de error** del contrato (§4.1), incluida la respuesta **rechazada**
+  - hace valer el **plazo** y el **cupo** (RF-9, RF-11), usa los estados reversibles de la respuesta
+    (RF-10; **tres** hoy: `viewed`/`accepted`/`declined`, spec §11.2) y devuelve los **códigos de
+    error** del contrato (§4.1), incluida la respuesta **rechazada**
     (`INVALID_RESPONSE`) y los datos **de lectura** incoherentes (`INVALID_DATA`) (RF-13, RF-14);
   - mantiene `generic_json_cache` como mapa `código → límite`, reescribiéndola **solo** cuando está
     vacía, ilegible o no trae el código (RF-18, D23).
@@ -296,7 +314,8 @@ test/
     fila inválida. Solo una celda **presente** con un valor que **no** sea un entero ≥ 0 (`"x"`,
     `-1`, `1,5`) sigue siendo `INVALID_DATA`. El arreglo es **de lectura**, **no** de datos: no se
     rellena ninguna fila del libro ni se inventa ningún valor (RF-20).
-  - **Versión (D34).** `CONTRACT_VERSION` pasa a **`1.3.0`**, **a la vez** que el módulo.
+  - **Versión (D34).** `CONTRACT_VERSION` queda en **`1.4.0`**, **a la vez** que el módulo (el plan
+    decía `1.3.0`: **planificado, nunca declarado**; spec §11.1).
 - **`gas/README.md` (nuevo).** Puesta en marcha paso a paso: crear el maestro con su hoja `files` y
   sus columnas; dar de alta cada boda con el id de su libro, su `guest_type`, su `deadline` como
   **valor fijo** y su `is_active`; preparar el libro de cada boda con `guests` y `generic` y sus
@@ -314,8 +333,9 @@ test/
     `public`**. La nota explica además **qué hoja se mira según el tipo** (D29) y **por qué** un
     código de `public` en una boda `generic` **sí** resuelve (la caída de D29).
   - **Aviso de redespliegue**: todo cambio en `Code.gs` exige **publicar una versión nueva** de la
-    implementación; como la versión del contrato **sube** a `1.3.0`, un despliegue viejo **se
-    delata** en la salud (`GET` a la URL → `contract: "1.2.0"`).
+    implementación; la versión vigente es **`1.4.0`** (el plan decía «sube a `1.3.0`» y «`contract:
+    "1.2.0"`»: **ninguna de las dos se declaró nunca** —spec §11.1—), así que un despliegue viejo **se
+    delata** en la salud (`GET` a la URL → `contract` distinto de `"1.4.0"`).
 
 ## 6. Archivos nuevos y su responsabilidad
 
@@ -351,6 +371,8 @@ contrato; el `slug` y la URL son configuración, no viajan de vuelta):
 
 En el envío (`action: "respond"`) la app manda `{ slug, code, name, phone, adults, children,
 message, restrictions, response:"confirmed"|"rejected" }` y el servicio responde `{ ok, code }`.
+**Lectura vigente (spec §11.2):** los valores del libro son `accepted` y `declined` —donde aquí
+se lea `confirmed`, léase `accepted`; donde `rejected`, `declined`—; `updated` no existe.
 En la **personalizada** el teléfono no se manda; en la genérica y la pública es obligatorio (D26).
 
 ## 8. Funciones puras
@@ -423,7 +445,8 @@ Nada de esto se renombra en esta spec; `test/contracts.test.js` (reescrito) lo v
   jubilados), el destino del envío (el servicio, no FormSubmit) y el plazo (el maestro, no el
   registro).
 - **Y en la Fase 4 (§10 manda sobre este punto):** los **literales nuevos** del modelo de los
-  libros (`public`, `public_id`, `public_json_cache`) y la **versión** del contrato (`1.3.0`), que
+  libros (`public`, `public_id`, `public_json_cache`) y la **versión** del contrato (**`1.4.0`**;
+  el plan decía `1.3.0`, **planificado y nunca declarado** —spec §11.1—), que
   son **adiciones** del modelo, **no** renombrados: ni una hoja, ni una columna, ni un estado, ni un
   código de error, ni un mensaje, ni una acción, ni un campo, ni el parámetro `guest`, ni el
   teléfono, ni el tiempo de espera cambian de forma (§10.5).
@@ -493,7 +516,8 @@ Nada de esto se renombra en esta spec; `test/contracts.test.js` (reescrito) lo v
   formato de la caché existente y obliga a **migrar** a mano—; meter los dos mapas en una celda con
   una estructura nueva (lo mismo, y se pierde la caché si alguien edita la celda); no cachear
   `public` (la hoja es pequeña, pero `public` abriría el libro en cada resolución).
-- **DT-16 · La versión sube a `1.3.0` y no a `2.0.0` (D34).** El cambio es del **modelo de los
+- **DT-16 · La versión sube a `1.4.0` y no a `2.0.0` (D34).** (El plan decía `1.3.0`: **planificado,
+  nunca declarado**; la entrega real fue `1.1.0` → `1.4.0`, spec §11.1.) El cambio es del **modelo de los
   libros**, no de la forma de las llamadas: la tabla de códigos, los tipos, los estados, las acciones,
   los campos, el parámetro `guest`, el teléfono y el tiempo de espera **no** cambian (§10.5).
   *Descartado:* no subirla (el módulo cambiaría sin que nada lo delate y un despliegue viejo
@@ -527,16 +551,19 @@ vigila un nombre que cambia, se actualiza **comprobando lo mismo**.
 No se publica nada a medias: entre T4 y T8 la app queda coherente en cada paso porque la lógica
 pura y sus pruebas van antes que sus consumidores.
 
-### Fase 4 — Hoja `public` y lectura tolerante (T11–T17, el cambio de §10)
+### Fase 4 — Hoja `public` y lectura tolerante (T11–T18, el cambio de §10)
 
-> **§10 manda sobre este punto.** Los pasos 11–17 son el **cambio de requisitos posterior**; no
+> **§10 manda sobre este punto.** Los pasos 11–18 son el **cambio de requisitos posterior**; no
 > rehacen las tareas 1–10. El orden es el de las dependencias: **primero el contrato** (el módulo
 > es la fuente única y el documento se deriva de él), **después el servicio** (que consume el
 > modelo), **después la vigilancia** (que comprueba que los dos lados no divergen), **después la
-> app** (que se revisa) y **por último** la nota en la spec 005 y la gobernanza.
+> app** (que se revisa) y **por último** la nota en la spec 005, la gobernanza y la **deuda técnica
+> del candado** (T18). La **versión entregada** es **`1.4.0`** (spec §11.1): donde un paso diga
+> `1.3.0`/`1.2.0`, **léase `1.4.0`**.
 
 11. **Contrato (T11):** `constants/contract.js` gana `PUBLIC_SHEET` (`public`, `public_id`,
-    `limit`) y `MASTER_SHEET.columns.PUBLIC_JSON_CACHE`, y `CONTRACT_VERSION` pasa a **`1.3.0`**;
+    `limit`) y `MASTER_SHEET.columns.PUBLIC_JSON_CACHE`, y `CONTRACT_VERSION` queda en **`1.4.0`**
+    (este plan decía `1.3.0`: **planificado, nunca declarado** —spec §11.1—);
     `docs/servicio-invitados.md` deriva las tres cosas (hoja `public` **columna a columna**, regla de
     **qué hoja se mira según el tipo**, **segunda caché**, **regla de la celda vacía** y versión).
     La **tabla de códigos no se toca**. La **declaración** de `CONTRACT_VERSION` en `gas/Code.gs` se
@@ -545,13 +572,14 @@ pura y sus pruebas van antes que sus consumidores.
     sincronía **falla** mientras el documento no reproduzca los literales nuevos.
 12. **Servicio (T12):** `gas/Code.gs` — hoja `public` (`SHEET_NAMES.PUBLIC` + `PUBLIC_COLUMNS`),
     resolución **por tipo** (D29), idioma del `limit` (D30) con `MALFORMED_GUEST`, segunda caché
-    `public_json_cache` (D32), **celda vacía = cero** en las tres lecturas (D33) y versión `1.3.0`
-    (D34). Cierra con `npm test` en verde (la prueba de sincronía compara la **versión** del script
-    con la del módulo, leída **como texto**).
+    `public_json_cache` (D32), **celda vacía = cero** en las tres lecturas (D33) y versión **`1.4.0`**
+    (D34; aquí se dijo `1.3.0`, planificado y nunca declarado —spec §11.1—). Cierra con `npm test`
+    en verde (la prueba de sincronía compara la **versión** del script con la del módulo, leída
+    **como texto**).
 13. **Puesta en marcha (T13):** `gas/README.md` — paso 2 (hoja `public` y `public_json_cache`),
     punto 8 (diagnóstico del `PUBLIC` remanente en `generic` → `MALFORMED_GUEST`, arreglo **de
-    datos**) y aviso de **redespliegue** (la salud delata el despliegue viejo con
-    `contract: "1.2.0"`).
+    datos**) y aviso de **redespliegue** (la salud delata el despliegue viejo porque no devuelve
+    `contract: "1.4.0"`; el plan decía aquí `1.3.0`/`1.2.0`: **ninguna existió** —spec §11.1—).
 14. **Vigilancia (T14):** `test/serviceContract.test.js` — **no cambia de regla**: su listado de
     literales se recoge **del módulo**, así que la hoja `public` entra **sola**; se le añade la
     vigilancia **estática** del script (que la hoja `public` y su columna estén declaradas, y que la
@@ -562,12 +590,26 @@ pura y sus pruebas van antes que sus consumidores.
     la revisión encuentra algo que no lo tolera**. La **interfaz no se toca**.
 16. **Nota y gobernanza (T16):** la spec 005 recoge la **derogación** de 005 RF-17/D22 y el
     **matiz** de su §14.8 (punto 13); `AGENTS.md`, `MEMORY.md` y `PENDING_TASKS.md` recogen la hoja
-    `public`, la resolución por tipo, la celda vacía como cero, la versión `1.3.0` y el diagnóstico
+    `public`, la resolución por tipo, la celda vacía como cero, la versión **`1.4.0`** (aquí decía
+    `1.3.0`, nunca declarado —spec §11.1—) y el diagnóstico
     de `gas/README.md`; en `PENDING_TASKS.md` **desaparece** la entrada del «`PUBLIC` en la hoja
     `generic`» (ya no aplica: el arreglo ya está hecho y la nota vive en `gas/README.md`).
-17. **Verificación manual (T17):** con el script **redesplegado** (salud `contract: "1.3.0"`) y un
-    **libro de prueba**, los puntos **14–18** de §13 y la **regresión** de lo que ya funcionaba. El
-    **veredicto lo anota el coordinador** en «Verificación» de `AGENTS.md`, **no** el implementador.
+17. **Verificación manual (T17) — pendiente:** con el script **redesplegado** (salud
+    `contract: "1.4.0"`; el plan decía `1.3.0`, nunca declarado) y un **libro de prueba**, los puntos
+    **14–18** de §13 y la **regresión** de lo que ya funcionaba. El **veredicto lo anota el
+    coordinador** en «Verificación» de `AGENTS.md`, **no** el implementador. **No se da por hecha**:
+    la spec §11.6 la deja pendiente.
+18. **Deuda técnica (T18) — pendiente, sin RF nuevo.** En `gas/Code.gs`, `registerResponse_` toma el
+    candado (`ScriptLock`) y **ya dentro** vuelve a resolver el código con `resolveCode_` (lecturas
+    del maestro, la caché y la hoja que toque). Lo que queda es **resolver fuera del candado** y
+    pasar el resultado ya resuelto, dejando **bajo el candado solo** la lectura y la escritura de la
+    hoja `guests`: hoy el candado se retiene durante toda la resolución y, con respuestas
+    concurrentes, **alarga los bloqueos** y agranda la ventana en la que dos envíos podrían pisarse
+    o pedir el mismo `guest_id`. Es **corrección de implementación del servicio** (se apoya en
+    RF-8/RF-14 y en D11, la autoridad del servicio sobre los duplicados): **no** añade RF, **no**
+    cambia el contrato ni la versión y **no** la cubre ningún paso automático. Justificación y
+    estado, en la **spec §11.5**; su seguimiento, en `PENDING_TASKS.md` (entrada de gobernanza).
+    **Sin implementar** a fecha de esta corrección documental.
 
 **Lo que esta fase NO hace:** rellenar ni corregir filas del libro (el arreglo del `INVALID_DATA` es
 **de lectura**, RF-20/D33); tocar la **forma** del intercambio (ni códigos, ni mensajes, ni
@@ -614,7 +656,8 @@ dependencias; ni cambiar la interfaz.
 > **lógica pura**.
 
 - **Automático — el contrato (T11, T14).** El módulo declara la hoja `public` con sus dos columnas y
-  la columna `public_json_cache`; su `CONTRACT_VERSION` es `1.3.0`; el documento reproduce cada
+  la columna `public_json_cache`; su `CONTRACT_VERSION` es **`1.4.0`** (el plan decía `1.3.0`:
+  **planificado, nunca declarado** —spec §11.1—); el documento reproduce cada
   literal **al menos una vez** y su **tabla de códigos** coincide con la del módulo **en conjunto y
   en el mensaje de cada código** (la tabla **no** ha cambiado: ni un código ni un mensaje más); el
   **script** declara la **misma** versión.
@@ -630,13 +673,15 @@ dependencias; ni cambiar la interfaz.
 - **Manual — lo que solo se puede ver con el script en marcha (T17).** La resolución **por tipo**
   contra un libro real (los puntos 14–16), la **consulta por teléfono** con una fila ya registrada
   y su celda vacía (punto 17), la celda **presente** incoherente (punto 18) y la **regresión** de
-  los tres tipos. Con el **script redesplegado**: la salud debe devolver `contract: "1.3.0"`.
+  los tres tipos. Con el **script redesplegado**: la salud debe devolver `contract: "1.4.0"`.
+  **Pendiente**: no está hecha (spec §11.6).
 
 ## 13. Verificación
 
 - **Automática:** `npm test` completo y `npm run build` en verde. La forma del envío y de la lectura
   se verifica contra el **módulo** del contrato, no contra el servicio en vivo (RNF-10).
-- **Manual (en navegador, escritorio y móvil), con un despliegue real del Apps Script:**
+- **Manual (en navegador, escritorio y móvil), con un despliegue real del Apps Script:** **pendiente**
+  (T10, parte manual; la anota el coordinador —spec §11.6—):
   - un envío real de **cada tipo** y su fila en `guests` (nombre y teléfono en la genérica y la
     pública; sin tocar la identidad ni el cupo en la personalizada);
   - una segunda respuesta con el **mismo teléfono** que **actualiza** la fila y no la duplica;
@@ -651,8 +696,13 @@ dependencias; ni cambiar la interfaz.
 ### 13.1 Verificación manual del cambio de §10 (Fase 4, T17)
 
 > **§10 manda sobre este punto.** Con el script **redesplegado** (salud: `GET` a la URL →
-> `contract: "1.3.0"`; un despliegue viejo delata `"1.2.0"`) y un **libro de prueba**. Los puntos
-> son los de §10.7 de la spec.
+> `contract: "1.4.0"`; el plan decía `1.3.0` y un despliegue viejo `"1.2.0"`, **ninguna de las dos
+> existió** —spec §11.1—) y un **libro de prueba**. Los puntos son los de §10.7 de la spec.
+>
+> **Estado: T17 pendiente.** Nada de este apartado se da por verificado: lo recorre y lo anota el
+> **coordinador** en «Verificación» de `AGENTS.md` (spec §11.6). Los **estados** que se ven en el
+> libro son los **vigentes**: `viewed`, `accepted` y `declined` (spec §11.2); donde este plan o la
+> spec digan `confirmed`/`rejected`/`updated`, esa es la lectura corregida.
 
 14. **La hoja `public`.** En una boda `public` con la hoja `public` (`public_id`, `limit`) y la
     fila `PUBLIC` con `limit = "n"`: `resolve` y `lookup` de `PUBLIC` responden `ok: true` con

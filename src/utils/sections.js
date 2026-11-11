@@ -37,6 +37,10 @@ export function hasContent(key, data) {
   if (key === "historia") {
     return Array.isArray(data?.parrafos) && data.parrafos.length > 0;
   }
+  if (key === "familia") {
+    return Array.isArray(data?.grupos)
+      && data.grupos.some((group) => Array.isArray(group?.nombres) && group.nombres.some(isNonEmptyText));
+  }
   if (key === "cita") {
     return isNonEmptyText(data?.texto);
   }

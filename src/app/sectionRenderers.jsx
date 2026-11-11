@@ -6,6 +6,7 @@
 import { Fragment } from "react";
 
 import { Countdown } from "../components/sections/Countdown.jsx";
+import { Family } from "../components/sections/Family.jsx";
 import { Gallery } from "../components/sections/Gallery.jsx";
 import { Gifts } from "../components/sections/Gifts.jsx";
 import { Hero } from "../components/sections/Hero.jsx";
@@ -28,6 +29,7 @@ const RENDERERS = {
   ),
   cita: ({ data }) => <Quote key="cita" quote={data} />,
   historia: ({ data }) => <Story key="historia" story={data} />,
+  familia: ({ data }) => <Family key="familia" family={data} />,
   ubicaciones: ({ data }) => <Locations key="ubicaciones" locations={data} />,
   itinerario: ({ data }) => <Timeline key="itinerario" timeline={data} />,
   galeria: ({ data }) => <Gallery key="galeria" gallery={data} />,

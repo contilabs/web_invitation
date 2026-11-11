@@ -1,8 +1,9 @@
 # Especificación — Servicio de invitados y confirmación (libro maestro y libro de invitados)
 
-**Estado:** aprobada por quien la pide; en revisión de cierre tras el QA; **ampliada por el cambio de
-requisitos de §10** (hoja `public` independiente y lectura tolerante de las celdas vacías), pendiente
-de aprobación de quien la pide.
+**Estado:** aprobada por quien la pide e **implementada**; la **verificación automática** está en verde
+y la **verificación manual** sigue pendiente (T10, en su parte manual, y T17, contra un despliegue
+real). Queda **ampliada por el §10** (hoja `public` independiente y lectura tolerante de las celdas
+vacías) y **enmendada por el §11** (enmienda de sincronización: contrato `1.4.0` y estados vigentes).
 
 > **Cómo leer esta spec.** El cuerpo (§1–§9) es la versión ya implementada y verificada de esta spec.
 > El **§10** recoge el **cambio de requisitos posterior** pedido por quien la usa —la hoja `public`
@@ -12,6 +13,13 @@ de aprobación de quien la pide.
 > colisionan con los del cuerpo (`RF-1`…`RF-18`, `D1`…`D28`); los de la spec 005 se citan **con el
 > prefijo «005»** (`005 RF-16`, `005 RF-17`, `005 D21`…), porque allí `RF-16`/`RF-17` y `D21`/`D22`
 > significan otra cosa.
+>
+> **Corrección documental (enmienda de sincronización).** El **§11** se añadió **después**, al revisar el
+> estado real del proyecto, para **declarar lo vigente** y **derogar lo superado** sin reescribir la
+> historia: la **versión del contrato** (hoy `1.4.0`), los **tres estados** de la respuesta, las dos
+> **notas de implementación** y la **deuda técnica** del candado del servicio. En materia de
+> **versión del contrato** y de **estados de la respuesta**, **manda el §11 sobre el cuerpo y sobre el
+> §10**; todo lo demás del §10 sigue vigente tal como se redactó.
 
 ## 1. Contexto y objetivo
 
@@ -1576,3 +1584,177 @@ lee**: una celda vacía vale por cero.
 **Decidido y sin duda (para que no se reabra):** **D33** (la celda vacía vale por cero: es lo que
 **arregla** el caso B y lo que la app **ya** hace) y **D34** (la versión sube a `1.3.0`: el modelo de
 los libros cambia y el módulo es su fuente única).
+
+---
+
+## 11. Enmienda de sincronización: contrato `1.4.0` y estados vigentes
+
+> Esta sección **no reescribe la historia**: el cuerpo (§1–§9) y el §10 se conservan **tal como se
+> redactaron**, con sus números, sus menciones y sus ejemplos. Lo que hace el §11 es **declarar lo
+> vigente** y **derogar explícitamente lo superado**, siguiendo la convención del proyecto («manda la
+> sección más reciente»). No añade **ningún** RF, RNF, D ni R: lo que no es requisito se marca como
+> **nota de implementación** o como **deuda técnica**.
+>
+> **Por qué existe.** El código, `gas/Code.gs` y la documentación quedaron **por delante** de lo que
+> decía esta spec en dos puntos concretos: la **versión del contrato** y el **número de estados de la
+> respuesta**. Revisado el estado real (contrato, servicio, pruebas y commits), se sincroniza aquí para
+> que quien lea la spec no tome por vigente lo que ya no lo es.
+
+### 11.1 La versión vigente del contrato es `1.4.0`
+
+- La versión vigente del contrato es **`1.4.0`**, declarada **a la vez** en el **módulo**
+  (`src/constants/contract.js`, `CONTRACT_VERSION`) y en el **script del servicio** (`gas/Code.gs`, con
+  la misma constante). La **salud** del servicio (`doGet`) devuelve `contract: "1.4.0"`: un despliegue
+  viejo **se delata** por ese valor (RF-17, D18, D34).
+- **`1.2.0` y `1.3.0` nunca existieron como constante.** Fueron **números planificados** en las specs
+  (el §14 de la 005 preveía `1.2.0`; el §10.2 D34 y el §10.5 de esta spec preveían `1.3.0`) y **así se
+  quedaron**: la entrega real subió la constante **de `1.1.0` a `1.4.0` de una vez**.
+- **Qué agrupa la entrega real** (todo vive ya en el árbol y en las pruebas):
+  - la **hoja `public`** con sus columnas, la **segunda caché** del maestro (`public_json_cache`) y la
+    regla de que una **celda de asistentes vacía vale por cero** —esto es, el **§10** de esta spec
+    (RF-19, RF-20, D29–D34)—;
+  - el código de error **`MALFORMED_GUEST`** para el código que existe pero no cumple la regla de su
+    hoja (005 §14, 005 RF-16);
+  - el **modelo de tres estados** de la respuesta (§11.2);
+  - la **tolerancia de cabeceras** de la consulta por teléfono (`lookup` exige solo `phone`; 005
+    RF-15).
+- **Lo que queda superado por `1.4.0`** (sin reescribirlo): toda mención a **`1.2.0`** o **`1.3.0`** en
+  el cuerpo, en el **§10** (§10.2 D34, §10.5, §10.6, §10.7, §10.8 y el cierre del §10.9), en el
+  **plan** y en las **tareas** —incluidos los criterios que pedían comprobar la salud contra `1.3.0`—.
+  Donde se lea «la versión sube a `1.3.0`» o «la salud devuelve `1.2.0`», **léase `1.4.0`**: la
+  comprobación de salud se hace contra **`1.4.0`** y **no existió** una entrega intermedia.
+
+### 11.2 Los estados vigentes son tres: `viewed`, `accepted` y `declined`
+
+- El **modelo vigente** de la respuesta tiene **tres** estados, declarados en `RESPONSE_STATES` del
+  módulo y aplicados por el servicio:
+  - **`viewed`** — la invitación **personalizada** se abrió y **todavía no hay respuesta** (lo escribe
+    el servicio al abrir, y solo si la fila no tenía respuesta);
+  - **`accepted`** — hay una **respuesta de asistencia registrada** (el invitado asistirá);
+  - **`declined`** — el invitado **no podrá asistir**.
+- **`confirmed`, `updated` y `rejected` están retirados** y **ya no son estados del libro**. Lectura
+  corregida de lo que dice el cuerpo: donde diga **`confirmed`**, léase **`accepted`**; donde diga
+  **`rejected`**, léase **`declined`**; donde diga **`updated`**, léase el estado que corresponda
+  (**`accepted`** al confirmar y **`declined`** al rechazar), porque **no existe un estado «editado»**.
+- **Editar una respuesta conserva uno de esos dos estados:** una segunda respuesta deja la fila en
+  **`accepted`** o **`declined`** según lo que el invitado haya contestado, y **nunca** en un estado
+  distinto. Editar sigue siendo posible mientras el plazo esté abierto (RF-7, RF-8, RF-10, D8): lo que
+  desaparece es la **distinción de estado** entre la primera respuesta y la edición.
+- **`viewed` y un `status` vacío valen por «sin respuesta»** (`NO_RESPONSE_STATES`): una fila así no se
+  da por contestada y queda exenta del cuadre de RF-13 (D21). La app usa exactamente esa lectura.
+- **Un `status` no vacío distinto de los tres** (incluidos `confirmed`, `updated` y `rejected`) es un
+  dato **incoherente** y produce **`INVALID_DATA`** (RF-13): el servicio no traduce ni adivina.
+- **Lo que queda derogado** (menciones que se conservan en su sitio y que **no** deben leerse como
+  vigentes):
+  - **§1 (contexto):** «los estados se llaman `viewed`, `confirmed`, `updated` y `rejected`».
+  - **§1.1:** la fila `status` de la tabla de `guests` y el punto que enumera «exactamente» esos cuatro
+    estados (incluida la referencia a D21 de esa enumeración).
+  - **D8:** «Cuatro estados, todos reversibles» y su lista de cuatro. **Sigue vigente** el fondo: no hay
+    estado terminal y se puede volver a contestar mientras el plazo esté abierto.
+  - **D26:** el rechazo «(`rejected`)» — es **`declined`**; el fondo (nombre y teléfono también al
+    rechazar) no cambia.
+  - **RF-6:** «devuelve el estado tal cual lo trae el libro (`viewed`, `confirmed`, `updated` o
+    `rejected`)» y la no sobrescritura «(`confirmed`, `updated` o `rejected`)».
+  - **RF-7:** «escribe `confirmed` en la primera respuesta, `updated` cuando se cambie una respuesta
+    anterior y `rejected` cuando el invitado diga que no».
+  - **RF-8:** el rechazo «(`rejected`)» y la actualización «con `updated` cuando cambie una respuesta
+    anterior».
+  - **RF-10:** el título «los cuatro del libro» y su lista de cuatro.
+  - **RF-13:** «un `status` no vacío que no sea uno de los cuatro estados de RF-10» (son **tres**) y la
+    misma frase en el §10.3 (RF-20).
+  - **§6 (casos límite):** «cualquiera de los cuatro estados», el cambio de opinión «también
+    `rejected`» y «una segunda respuesta deja `updated`».
+  - **§8 (criterios de finalización):** «se respetan los cuatro estados»; y la **gobernanza** del §8,
+    donde se habla de «los cuatro estados» al describir el contrato, `gas/Code.gs` y `AGENTS.md`.
+  - **§9.1.5:** «los cuatro del libro… (p. ej. con `rejected`)».
+  - **§10.4 y §10.5:** su referencia a que «los estados» no cambian; el §10 no los cambió, pero el
+    **modelo vigente** es el de este §11.2.
+  - **Plan y tareas:** cualquier enumeración de cuatro estados y cualquier criterio que espere
+    `confirmed`, `updated` o `rejected` en el libro.
+  - *(La petición de esta corrección citaba un «§4.6»: el cuerpo no tiene ese apartado; se entiende por
+    tal lo que dicen **RF-6, RF-7, RF-8 y RF-10** dentro del §4, ya derogado arriba.)*
+  - **No se deroga:** el significado de «sin respuesta» (`viewed` o vacío), la reversibilidad, el
+    `viewed` escrito solo al abrir una personalizada sin respuesta (RF-6, RF-10) ni la
+    correspondencia `viewed` → bloque sin contestar de la 005 (RF-2).
+
+### 11.3 El modelo del §10 sigue vigente (con `PUBLIC` solo en su hoja)
+
+- El **modelo del §10** se mantiene **íntegro** en lo que no sea la versión ni los estados: **hasta tres
+  hojas** por boda (`master`/`files`, `guests`, `generic` y `public`), **resolución por tipo** con
+  **caída `generic` → `public`** (D29), **`public_json_cache`** con la misma regla de refresco que la
+  caché de `generic` (D32), `limit` entero o `"n"` con el **mismo idioma** en las dos hojas (D30) y
+  **celda de asistentes vacía = cero** en la resolución, en la consulta por teléfono y en la escritura,
+  mientras que una celda **presente** incoherente sigue siendo `INVALID_DATA` (RF-19, RF-20, D33).
+- **Solo la hoja `public` da «sin tope»:** una fila del código reservado **`PUBLIC`** —o **cualquier**
+  `public_id`— **en la hoja `public`** de una boda `generic` resuelve con `type` de la boda (`generic`)
+  y `limit: "n"`, es decir, sin tope (D29, D30).
+- **`PUBLIC` en la hoja `generic` ya no vale por sin tope:** con `limit = "n"` no cumple la regla de esa
+  hoja y responde **`MALFORMED_GUEST`** (005 RF-16, D31); su arreglo es **de datos** (borrar la fila y
+  llevar el código a `public`), no de código. Esto **no** reabre el 005 RF-17, que quedó derogado por el
+  §10.4 de esta spec.
+- **La app sigue teniendo que aceptar `{ type: "generic", limit: "n" }`** (T25): no es la excepción
+  derogada, es lo que **devuelve la caída a `public`** de una boda `generic`. Sin esa lectura, la app
+  descartaría una invitación que el servicio considera válida.
+- **Un `public_id` distinto del reservado con `limit` entero** también resuelve en una boda `public`,
+  con su cupo (D29, D30).
+
+### 11.4 Notas de implementación (sin RF nuevo)
+
+> Cambios hechos **durante la verificación manual** del flujo. **No** cambian el contrato, **no** añaden
+> requisito y **no** mueven la versión: son detalle de **cómo** se cumple lo ya pedido.
+
+- **El teléfono se bloquea durante el envío y se conserva para «Editar».** Mientras un envío está en
+  curso, el campo del teléfono de la genérica y la pública queda **bloqueado** (no editable), de modo
+  que no pueda cambiar a mitad de la escritura; cuando el envío **termina bien**, el teléfono capturado
+  se conserva en el estado de la consulta (`lookupPhone`), para que «Editar» use **la misma llave** de
+  la fila aunque no haya habido una consulta previa en esa sesión. **Por qué:** sin eso, «Editar» podía
+  perder el teléfono con el que se acababa de escribir la fila y el invitado tendría que volver a
+  teclearlo. Alcance: es implementación de **RF-8** (y del paso del teléfono de la 005 RF-5); no cambia
+  la obligatoriedad, la normalización a diez dígitos, ni que el teléfono **no** se persista en el
+  navegador (RNF-2).
+- **La escritura de cadenas es a prueba de fórmulas.** El camino de escritura del servicio
+  (`writeResponse_`) escribe las **cadenas** (nombre, mensaje y restricciones) como **texto**, con el
+  apóstrofo inicial que evita que una hoja de cálculo las evalúe como **fórmula** si empiezan por `=`;
+  los **números** se siguen escribiendo como números y las celdas vacías como vacías. **Por qué:** el
+  invitado escribe texto libre y una respuesta no debe poder convertirse en una fórmula del libro.
+  Alcance: es implementación de la **escritura de RF-14** (y de RF-7/RF-8); no cambia ninguna columna,
+  ningún valor visible ni el contrato.
+
+### 11.5 Deuda técnica pendiente: T18 (resolver el código fuera del candado)
+
+- **Qué es.** `registerResponse_` toma el candado del servicio (`ScriptLock`) y, ya dentro, llama a
+  `registerCodeResponse_`, que **vuelve a resolver el código** con `resolveCode_` (resolución que lee el
+  maestro, la caché y la hoja que toque) **dentro** del candado. Lo que falta es resolver **fuera** del
+  candado y pasar el resultado ya resuelto, dejando bajo el candado **solo** la lectura y la escritura
+  de la hoja `guests`.
+- **Por qué importa.** El candado se retiene durante toda la resolución (lecturas externas incluidas),
+  no solo durante la escritura: eso **alarga los bloqueos** y, con respuestas concurrentes, agranda la
+  ventana en la que dos envíos podrían **pisarse** o intentar asignar el **mismo `guest_id`**. El
+  candado existe justamente para que eso no ocurra; hoy protege de más y en el momento equivocado.
+- **Estado: no implementada.** La tarea **T18** de la 004 (en `tasks.md`) sigue abierta y **no** se toca
+  el código por esta corrección documental.
+- **Sin RF nuevo.** Es una **corrección de implementación del servicio**, no un requisito: no cambia lo
+  que la invitación hace ni lo que el invitado ve, no altera el contrato y no mueve la versión. Se
+  apoya en lo ya dicho en **RF-8** y **RF-14** (escritura y resultado del envío) y en **D11** (el
+  servicio es la autoridad sobre los duplicados), que son los RF/D que la tarea cita.
+- **Dónde se sigue:** `tasks.md` (T18, con su criterio «Hecho cuando») y el **trabajo diferido** de
+  `PENDING_TASKS.md` (su entrada se añade en la corrección de gobernanza, fuera de esta spec). La
+  verificación manual (T10/T17) **no** depende de esta deuda: mientras siga abierta, el servicio
+  funciona; lo que hay es un riesgo de contención y de concurrencia que se documenta, no un fallo
+  observado.
+
+### 11.6 Estado de la verificación
+
+- **Automática: en verde.** `node --test` (**231/231**) y `npm run build` sin errores; la forma del
+  intercambio se comprueba contra el **módulo** del contrato y la sincronía documento ↔ módulo sigue
+  vigilada (RNF-10).
+- **Manual: pendiente y sin marcar como hecha** (la anota el coordinador en «Verificación» de
+  `AGENTS.md`):
+  - **T10 — parte documental hecha; la manual pendiente:** los puntos 1–5 de «Verificación» (envío real
+    de cada tipo, actualización por el mismo teléfono, boda inactiva / código desconocido / sin `slug` /
+    modo demo, teléfono corto / cupo 0 / plazo vencido / servicio caído y el `viewed` sin sobrescribir).
+  - **T17 — pendiente:** los puntos **14–18** del §10.7 y la regresión de los tres tipos, del `viewed`,
+    del plazo, del rechazo y de la actualización por teléfono.
+  - **Criterio de despliegue:** la salud debe devolver `contract: "1.4.0"`; un despliegue con otra
+    versión está **viejo** y la comprobación manual no vale.
+

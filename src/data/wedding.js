@@ -46,6 +46,16 @@ export const wedding = {
     ],
   },
 
+  familia: {
+    titulo: "Padres y padrinos",
+    // Añadir los nombres en cada grupo para mostrar esta sección.
+    grupos: [
+      { titulo: "Padres de Karina", nombres: ["Saúl Delgado Romero", "Irma Benítez Reynoso"] },
+      { titulo: "Padres de Gerardo", nombres: ["Papá de Vaco", "Mamá de Vaco"] },
+      { titulo: "Padrinos de boda", nombres: ["Fernando Aguiñaga", "Berenice Delgado Benítez"] },
+    ],
+  },
+
   ubicaciones: {
     titulo: "Dónde será",
     ceremonia: {
@@ -189,6 +199,7 @@ export const wedding = {
       parejaVisible: true,
       citaVisible: true,
       historiaVisible: true,
+      familiaVisible: true,
       ubicacionesVisible: true,
       itinerarioVisible: true,
       galeriaVisible: true,

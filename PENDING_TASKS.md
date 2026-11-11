@@ -15,6 +15,12 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 - **Spec 003 · T27.** Reutilizar la app con otro registro, copiar datos por portapapeles, audio tras
   «Ingresar» y una vuelta en un **móvil físico**. Se puede cubrir en la misma pasada.
 
+## Spec 006 · panel privado de respuestas
+
+- Verificación manual pendiente: con el Apps Script redesplegado y el libro sintético, comprobar
+  autorización válida/no autorizada/sesión expirada, privacidad y revelación temporal del teléfono,
+  filtros, orden, totales, actualización sin doble solicitud, datos vacíos, servicio caído y móvil.
+
 ## Casos límite por cubrir
 
 1. Audio: si `play()` falla (o falta `assets/audio.mp3`, que rompe el **build**), `useMusic`
