@@ -138,10 +138,8 @@ export function App() {
 
         {FOOTER_VISIBLE && (
           <Footer
-            couple={wedding.pareja}
-            dateText={DATE_TEXT}
-            place={wedding.evento?.lugar}
-            credit={wedding.marca?.enlaces?.credito}
+            couple={wedding.portada?.pareja ?? wedding.pareja}
+            dateText={wedding.portada?.fecha ?? DATE_TEXT}
           />
         )}
       </main>

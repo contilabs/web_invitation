@@ -1,28 +1,33 @@
 # MEMORY.md — Invitación digital
 Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y pendientes en `PENDING_TASKS.md`.
-
 ## Estado actual
-- Contador: título único Faltan, cuatro valores permanentes que se detienen en cero. Fecha propia
-  en cuentaRegresiva: 2027-03-13T00:00:00-06:00 / America/Mexico_City; resto de fechas intactas.
-  Móvil 320 px y escritorio revisados; 262 pruebas/build. Resuelto el pendiente de viajeros del contador.
-- Identidad web: título HTML/React/og:title Naomi & Andrés; marca.nombre actualizado. Favicon
-  wax-seal.ico original (256 px), ruta nueva con huella Vite, sin sello.png en HTML. 261 pruebas/build.
-- Navbar: originales Simbolo_olivo.png (día) y Simbolo_beige.png (noche), autorizados, sin filtros.
-  Vía plantilla/useTemplate; solo un logo visible por CSS. Altura 56 px móvil / 64 px escritorio,
-  scroll-padding sincronizado; comportamiento de scroll intacto. Ambos temas verificados; 259 pruebas/build.
-- Familia: Family autorizado, nombres exactos en wedding.familia; beige/oliva, Kalista y reveal.
-  Orden Hero → familia → cuenta regresiva; una columna móvil sin partir nombres, dos escritorio.
-- Música: music.mp3 sustituye assets/audio.mp3 sin edición; inicio y ended desde 6 s, sin loop.
-  Preload metadata y #t=6 autorizados; play en gesto, pausa conserva posición. 255 pruebas/build;
-  inicio, pausa, reanudación y recarga verificados en navegador, repetición cubierta en pruebas.
-- Hero: DSC00604 optimizada a 900/1800/2600 px (hero-naomi-andres). 100dvh, texto superior
-  serif/oliva y velo beige; pareja/fecha/subtítulo de portada, frase Kalista. Cover al 65 %
-  (horizontal 55 %). Revisados 320×400, 390×844, 1440×900. Original fuera del repo.
-- Bienvenida: beige/oliva sin ilustraciones; papel rectangular y doble marco SVG con curvas
-  cóncavas superior derecha e inferior izquierda. Datos Naomi/Andrés/13-mar-2027 en portada.
-  Cierre, música y animación conservados; móvil/escritorio revisados y 249 pruebas/build.
-- Rama de trabajo: `main`. Specs 001–003 terminadas salvo T27 manual y publicación;
-  React completo, rediseño «Ascua», registro único y paridad T26 **30/30**.
+- Footer: Naomi & Andrés/13-mar-2027 desde portada; N & A accesible, Kalista, sin créditos/borde, compacto.
+- Confirmación: DSC01036.jpg intacta de fondo cover, mensaje del registro y enlace Kalista 20px arriba.
+  Confirma aquí abre dialog nativo con rsvp.png original autorizado sobre oliva #6A6A53; campos 14px,
+  botones 50px, scroll interior, foco circular, fondo bloqueado y restauración exacta de scroll/foco.
+  Escape/X/exterior cierran; conserva datos al reabrir. Máquina, consultas y envío sin cambios.
+  Móvil 320/375, tablet 768, escritorio 1440 y ambos temas revisados con datos ficticios retirados.
+  Validación, rechazo y teléfono comprobados sin enviar; demo muestra su aviso dentro del modal.
+- Galería: 19 DSC de opt/future intactas, sin duplicados ni DSC00743 - Copy; sin título ni contadores
+  (tampoco en visor). Fondo claro --superficie, noche --paper; altura estable, flechas/swipe intactos.
+- Hoteles: Hotel El Refugio, hotel.png reducido otro 30% a 45.5%/14rem; Reservar igual que Ubicación.
+  Sugerencia exacta en notas con prefijo en negrita; Reservar abre Reservatio con NAOMIYANDRES.
+- Regalos: Liverpool con originales verde/blanco vía plantilla según tema, enlace original en
+  imagen accesible, grande y sin copy/botón; BBVA sin contenedor. Efectivo retirado del registro.
+- Solo adultos: postal independiente tras Itinerario, contenido en wedding.soloAdultos y componente
+  AdultsOnly autorizados. Marco doble cóncavo y flores SVG; Kalista y NO NIÑOS destacados.
+  Mensaje abreviado en dos párrafos; postal compactada en ancho, rellenos, tipos y flores.
+  Exterior con papel general; interior oliva #6A6A53/blanco, noche beige/oliva. RSVP intacto.
+  Fondos claros en #EDE7DB; cuenta regresiva recupera banda verde y texto claro en ambos temas.
+- Itinerario: composición vertical de referencia, fondo uniforme como Ubicaciones, sin tarjetas.
+  Ceremonia religiosa 16:00 hrs; Recepción 19:30 hrs; Cóctel 19:30 h; Boda civil sin hora
+  (confirmado); Cena 20:00 h. Anillos originales autorizados vía plantilla, tamaños coherentes.
+  Bloque centrado. Hover oscuro #FAF7EF con texto oscuro; normales, radios 50px y transiciones intactos.
+- Ubicaciones: acuarelas originales sin filtro ni tarjetas; Santísima Trinidad y Monte Piedra.
+  Recepción 19:30 hrs; ceremonia 16:30 h intacta (16:00 solo Itinerario por alcance). Botones con pin.
+- Contador: Faltan, cuatro valores hasta cero; fecha propia 2027-03-13T00:00:00-06:00/Mexico_City.
+- Familia: nombres del registro, Kalista/reveal; tras Hero, una columna móvil/dos escritorio.
+- Historia: pintura completa 1113/960 tras Ubicaciones, sin textos ni velo; reveal conservado.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Apps Script (`gas/Code.gs`), contrato **1.4.0**,
   hoja `public`, caída `generic`→`public`, `MALFORMED_GUEST` y celdas vacías como cero.
 - Spec 005: T1–T20, T22 y T23 hechas; T21 manual pendiente. RSVP con siete estados, consulta por
@@ -31,7 +36,6 @@ Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y
   `Jose-QB/wedding_invitation`, incluidos sus lanzadores previos. Archivos nuevos autorizados.
   `dev`/`preview` usan `scripts/safe-dev.mjs`; `test`/`build`/`check`, `scripts/safe-check.mjs`.
   No se añadieron dependencias. Uso y límites en `docs/local-security.md`; reglas en `AGENTS.md`.
-
 ## Decisiones y motivos
 - Docker instala desde los dos manifiestos en una fase con red, sin fuentes ni scripts npm;
   ejecuta el proyecto en otra fase sin red, privilegios ni montajes del host. Relay únicamente
@@ -62,18 +66,14 @@ Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y
   Mantener `base: "./"`, tema anti-parpadeo, `audio.play()` en gesto y tokens «Ascua».
 - `visibleSections` omite opcionales vacíos y fuerza confirmación; `allowsChildren` por defecto true;
   `isConfirmationOpen` distingue plazo ausente/ilegible y compara con «ahora» recibido.
-
 ## Errores a evitar
 - No ejecutar herramientas ni importar archivos del proyecto en el host: usar lanzadores Docker.
   `services/config.js` usa `import.meta.env` y `photos.js`, `import.meta.glob`: no importarlos en tests Node.
-- Confirmar archivos y `git diff`; no usar sustituciones masivas que alteren comentarios/textos.
 - Maestro por nombre: `getProperty('MASTER_SHEET_ID')`, no por valor. Los tests no ejecutan Apps Script.
 - Código `PUBLIC` con `limit = "n"` en `generic` es `MALFORMED_GUEST`: borrar fila y pasarla a `public`;
   no corregir la app. `INVALID_DATA` al resolver indica otros datos inválidos; ver `gas/README.md`.
 - Chrome: servir el build y medir por DevTools, no `--dump-dom`. Parches de verificación temporales
-  deben restaurarse. Fotos estructurales y claves del registro requieren variantes optimizadas.
-- Mesa de regalos: solo copia el dato marcado `copiar: true`; no adivinar entre varios datos.
-
+  deben restaurarse. Fotos por clave: variantes optimizadas o DSC existentes registradas en opt/future.
 ## Próximos pasos
 - Completar T10 de 004, T21 de 005 y T27 de 003 contra servicio vivo y móvil físico; anotar veredictos
   en `AGENTS.md`. Usar código genérico real, no PUBLIC en generic, y redesplegar el script.

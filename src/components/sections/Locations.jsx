@@ -1,5 +1,5 @@
 // Ubicaciones (ceremonia y recepción) con su enlace de mapa (T15, RF-5, RF-6). Los datos y
-// el título salen del registro; aquí solo vive el rótulo «Cómo llegar».
+// el título salen del registro; aquí viven los rótulos de los enlaces.
 import { useTemplate } from "../../hooks/useTemplate.js";
 
 function mapLink(location) {
@@ -9,14 +9,13 @@ function mapLink(location) {
 }
 
 function LocationCard({ icon, location }) {
-  const details = [location?.lugar, location?.direccion].filter(Boolean).join(" · ");
-
   return (
-    <article className="place-card">
-      {icon && <img className="icon" src={icon} alt="" loading="lazy" decoding="async" />}
+    <article className="ceremony-place">
+      {icon && <img className="ceremony-image" src={icon} alt="" loading="lazy" decoding="async" />}
       <h3>{location?.nombre}</h3>
+      {location?.lugar && <p className="ceremony-name">{location.lugar}</p>}
       <p className="place-detail">
-        {details}
+        {location?.direccion}
         {location?.hora && <span className="chip">{location.hora}</span>}
       </p>
       <a
@@ -25,7 +24,11 @@ function LocationCard({ icon, location }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        Cómo llegar
+          <svg className="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+            <circle cx="12" cy="10" r="2.5" />
+          </svg>
+        Ubicación
       </a>
     </article>
   );

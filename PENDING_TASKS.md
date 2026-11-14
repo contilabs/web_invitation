@@ -13,7 +13,8 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
   genérico real** (`4236_GEN`), **no** `PUBLIC` (ver «Casos límite» y `gas/README.md`). **Único
   control de que el redespliegue se hizo.** Anotar veredicto en «Verificación» de `AGENTS.md`.
 - **Spec 003 · T27.** Reutilizar la app con otro registro, copiar datos por portapapeles, audio tras
-  «Ingresar» y una vuelta en un **móvil físico**, incluido el gesto horizontal de la galería y el desplazamiento vertical. Se puede cubrir en la misma pasada.
+  «Ingresar» y una vuelta en un **móvil físico**, incluido el swipe de la galería y el teclado,
+  desplazamiento y recuperación de posición del modal RSVP. Se puede cubrir en la misma pasada.
 
 ## Casos límite por cubrir
 

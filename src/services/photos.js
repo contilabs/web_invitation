@@ -14,6 +14,15 @@ const modules = import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", {
   import: "default",
 });
 
+// Fotos DSC ya disponibles: se usan intactas y se excluyen las copias del inventario.
+const dscModules = import.meta.glob([
+  "../../assets/photos/opt/future/DSC*.{jpg,jpeg,png}",
+  "!../../assets/photos/opt/future/DSC00743*[Cc]opy*.{jpg,jpeg,png}",
+], { eager: true, query: "?url", import: "default" });
+const dscPhotosByKey = new Map(Object.entries(dscModules).map(([path, url]) => [
+  path.split("/").pop().replace(/\.[^.]+$/, ""), url,
+]));
+
 // clave de la foto ("foto5") -> (ancho -> URL)
 const variantsByKey = new Map();
 for (const [modulePath, url] of Object.entries(modules)) {
@@ -29,6 +38,7 @@ for (const [modulePath, url] of Object.entries(modules)) {
 // Elige la variante mayor como `src` y todas en `srcSet`; sin variantes, falla de forma
 // visible para que un nombre mal escrito se vea al instante (RF-20).
 export function photoFor(key, alt = "", sizes) {
+  if (dscPhotosByKey.has(key)) return { src: dscPhotosByKey.get(key), sizes, alt };
   const variants = variantsByKey.get(key);
   if (!variants || variants.size === 0) {
     throw new Error(`No hay variantes optimizadas para «${key}» en assets/photos/opt/`);

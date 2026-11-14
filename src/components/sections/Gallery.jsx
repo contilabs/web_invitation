@@ -88,7 +88,6 @@ export function Gallery({ gallery }) {
 
   return (
     <section className="gallery reveal" id="galeria-seccion">
-      <div className="wrap">{gallery?.titulo && <h2 id="gallery-title">{gallery.titulo}</h2>}</div>
 
       {total > 0 && (
         <div
@@ -96,8 +95,7 @@ export function Gallery({ gallery }) {
           id="galeria"
           ref={containerRef}
           role="group"
-          aria-labelledby={gallery?.titulo ? "gallery-title" : undefined}
-          aria-label={gallery?.titulo ? undefined : "Galería de fotos"}
+          aria-label="Galería de fotos"
           onFocus={() => setFocused(true)}
           onBlur={(event) => {
             if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
@@ -149,21 +147,12 @@ export function Gallery({ gallery }) {
             </>
           )}
 
-          <p className="gallery-counter" aria-live={focused ? "polite" : "off"}>
-            <span className="visually-hidden">Foto </span>
-            <span id="galeria-actual">{index + 1}</span>
-            <span aria-hidden="true"> / </span>
-            <span className="visually-hidden"> de </span>
-            <span id="galeria-total">{total}</span>
-          </p>
         </div>
       )}
 
       {viewerIndex !== null && (
         <GalleryViewer
           photo={photos[viewerIndex]}
-          current={viewerIndex + 1}
-          total={total}
           onClose={() => setViewerIndex(null)}
           onPrevious={() => moveViewer(-1)}
           onNext={() => moveViewer(1)}

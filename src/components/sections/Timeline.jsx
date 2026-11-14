@@ -14,19 +14,19 @@ export function Timeline({ timeline }) {
         <ul className="timeline">
           {moments.map((moment, i) => (
             <li className="event" key={`${moment?.titulo ?? "moment"}-${i}`}>
-              <span className="event-icon">
-                {icons.timeline[moment?.icono] && (
-                  <img
-                    className="icon"
-                    src={icons.timeline[moment.icono]}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                )}
-              </span>
-              <p className="time">{moment?.hora}</p>
-              <p className="label">{moment?.titulo}</p>
+              {icons.timeline[moment?.icono] && (
+                <img
+                  className="icon event-icon"
+                  src={icons.timeline[moment.icono]}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              <div className="event-detail">
+                {moment?.hora && <p className="time">{moment.hora}</p>}
+                <p className="label">{moment?.titulo}</p>
+              </div>
             </li>
           ))}
         </ul>

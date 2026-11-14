@@ -8,6 +8,7 @@
 // bajo Vite; la resolución de las claves se comprueba con `registryErrors` (RF-20).
 import { strict as assert } from "node:assert";
 import test from "node:test";
+import { readdirSync } from "node:fs";
 
 import { wedding } from "./wedding.js";
 import { confirmationFields } from "../utils/confirmation.js";
@@ -59,11 +60,12 @@ test("conserva la fecha, la hora y la zona del evento (RF-3, RF-22)", () => {
 test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
   const { ceremonia, recepcion } = wedding.ubicaciones;
   assert.equal(ceremonia.nombre, "Ceremonia religiosa");
-  assert.equal(ceremonia.lugar, "Parroquia Santa María de Guadalupe");
+  assert.equal(ceremonia.lugar, "La Santísima Trinidad");
   assert.equal(ceremonia.hora, "16:30 h");
   assert.match(ceremonia.mapaUrl, /^https:\/\//);
   assert.equal(recepcion.nombre, "Recepción");
-  assert.equal(recepcion.lugar, "Los Agaves Eventos");
+  assert.equal(recepcion.lugar, "Monte Piedra");
+  assert.equal(recepcion.hora, "19:30 hrs");
   assert.match(recepcion.mapaUrl, /^https:\/\//);
 });
 
@@ -121,21 +123,28 @@ test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () =>
       "pareja",
       "familia",
       "cuentaRegresiva",
-      "cita",
-      "historia",
       "ubicaciones",
+      "historia",
       "itinerario",
+      "soloAdultos",
       "regalos",
       "hoteles",
       "confirmacion",
+      "restricciones",
       "galeria",
     ],
   );
 });
 
 test("conserva la galería y la portada del registro (RF-9, RF-22)", () => {
-  assert.equal(wedding.galeria.destacadas, 7);
-  assert.equal(wedding.galeria.imagenes.length, 13);
+  const dscKeys = readdirSync(new URL("../../assets/photos/opt/", import.meta.url), { recursive: true })
+    .map((path) => path.split(/[\\/]/).pop())
+    .filter((name) => /^DSC.*\.(jpg|jpeg|png)$/i.test(name) && !/copy/i.test(name))
+    .map((name) => name.replace(/\.[^.]+$/, ""))
+    .sort();
+  assert.equal(wedding.galeria.destacadas, dscKeys.length);
+  assert.deepEqual(wedding.galeria.imagenes.map(({ clave }) => clave).sort(), dscKeys);
+  assert.equal(new Set(wedding.galeria.imagenes.map(({ clave }) => clave)).size, dscKeys.length);
   for (const [i, image] of wedding.galeria.imagenes.entries()) {
     assert.ok(String(image.clave ?? "").trim(), `la imagen ${i + 1} de la galería no tiene clave`);
     assert.ok(String(image.alt ?? "").trim(), `la imagen ${i + 1} de la galería no tiene alt`);

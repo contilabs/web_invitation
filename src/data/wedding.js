@@ -68,26 +68,26 @@ export const wedding = {
   historia: {
     titulo: "Nuestra historia",
     parrafos: [
-      "Nos conocimos una tarde cualquiera y, sin darnos cuenta, empezamos a escribir una historia que hoy celebramos juntos.",
-      "Después de tantos momentos compartidos, decidimos dar el paso más importante: caminar juntos el resto de la vida.",
+      "Ella había empezado a entrar en mí, a convertirse en mí, como un río que se mezcla demasiado con el mar y al fin se vuelve salado como el mar.",
     ],
+    autor: "Mario Benedetti",
   },
 
   ubicaciones: {
     titulo: "Dónde será",
     ceremonia: {
       nombre: "Ceremonia religiosa",
-      lugar: "Parroquia Santa María de Guadalupe",
-      direccion: "Guadalajara, Jalisco",
+      lugar: "La Santísima Trinidad",
+      direccion: "Av. Lago Ginebra y Lago Tanna S/N (esquina con Lago Ontario), Col. Los Lagos, C.P. 47030, San Juan de los Lagos, Jal.",
       hora: "16:30 h",
-      mapaUrl: "https://maps.app.goo.gl/yaqaGNKWtBXKPh6aA",
+      mapaUrl: "https://www.google.com/maps/search/?api=1&query=21.2709868%2C-102.3163084",
     },
     recepcion: {
       nombre: "Recepción",
-      lugar: "Los Agaves Eventos",
-      direccion: "Guadalajara, Jalisco",
-      hora: "19:00 h",
-      mapaUrl: "https://maps.app.goo.gl/ugybqq1hNqykeFQJ8",
+      lugar: "Monte Piedra",
+      direccion: "Lázaro Cárdenas 425, C.P. 47095, San Juan de los Lagos, Jal.",
+      hora: "19:30 hrs",
+      mapaUrl: "https://www.google.com/maps/search/?api=1&query=Monte+Piedra+Eventos%2C+L%C3%A1zaro+C%C3%A1rdenas+425%2C+San+Juan+de+los+Lagos%2C+Jalisco",
     },
   },
 
@@ -95,34 +95,47 @@ export const wedding = {
     titulo: "Itinerario de la boda",
     // `icono` es una clave de presentación: la interfaz elige el archivo del build.
     momentos: [
-      { hora: "16:30 h", titulo: "Ceremonia", descripcion: "Inicio de la ceremonia", icono: "iglesia" },
-      { hora: "19:00 h", titulo: "Recepción", descripcion: "Cena y celebración", icono: "mansion" },
+      { hora: "16:00 hrs", titulo: "Ceremonia religiosa", descripcion: "Inicio de la ceremonia", icono: "iglesia" },
+      { hora: "19:30 hrs", titulo: "Recepción", descripcion: "Cena y celebración", icono: "mansion" },
       { hora: "19:30 h", titulo: "Cóctel", descripcion: "Copas y brindis", icono: "copas" },
+      { hora: "", titulo: "Boda civil", descripcion: "", icono: "anillos" },
       { hora: "20:00 h", titulo: "Cena", descripcion: "Banquete", icono: "comida" },
-      { hora: "21:30 h", titulo: "Baile", descripcion: "Pista de baile abierta", icono: "disco" },
+    ],
+  },
+
+  soloAdultos: {
+    saludo: "Con mucho cariño...",
+    titulo: "NO NIÑOS",
+    parrafos: [
+      "Queremos que disfruten al máximo esta noche tan especial. Por ello, nuestra celebración será solo para adultos.",
+      "¡Gracias por su cariño y comprensión!",
     ],
   },
 
   galeria: {
     titulo: "Nuestros momentos",
-    // Cuántas imágenes van al carrusel; el resto forma la rejilla (T26).
-    destacadas: 7,
-    // Cada imagen guarda una clave (base de assets/photos/opt/) y su texto alternativo.
-    // `services/photos.js` resuelve la clave a { src, srcSet, sizes } (T16).
+    destacadas: 19,
+    // Fotografías existentes sin modificar; la copia de DSC00743 queda fuera.
     imagenes: [
-      { clave: "foto2", alt: "Karina y Gerardo, foto 2" },
-      { clave: "foto4", alt: "Karina y Gerardo, foto 4" },
-      { clave: "foto6", alt: "Karina y Gerardo, foto 6" },
-      { clave: "foto10", alt: "Karina y Gerardo, foto 10" },
-      { clave: "foto13", alt: "Karina y Gerardo, foto 13" },
-      { clave: "foto16", alt: "Karina y Gerardo, foto 16" },
-      { clave: "foto19", alt: "Karina y Gerardo, foto 19" },
-      { clave: "foto3", alt: "Karina y Gerardo, foto 3" },
-      { clave: "foto5", alt: "Karina y Gerardo, foto 5" },
-      { clave: "foto8", alt: "Karina y Gerardo, foto 8" },
-      { clave: "foto11", alt: "Karina y Gerardo, foto 11" },
-      { clave: "foto12", alt: "Karina y Gerardo, foto 12" },
-      { clave: "foto14", alt: "Karina y Gerardo, foto 14" },
+      { clave: "DSC00459", alt: "Naomi y Andrés" },
+      { clave: "DSC00519", alt: "Naomi y Andrés" },
+      { clave: "DSC00628", alt: "Naomi y Andrés" },
+      { clave: "DSC00712", alt: "Naomi y Andrés" },
+      { clave: "DSC00743", alt: "Naomi y Andrés" },
+      { clave: "DSC00801", alt: "Naomi y Andrés" },
+      { clave: "DSC00929", alt: "Naomi y Andrés" },
+      { clave: "DSC00981", alt: "Naomi y Andrés" },
+      { clave: "DSC01002", alt: "Naomi y Andrés" },
+      { clave: "DSC01036", alt: "Naomi y Andrés" },
+      { clave: "DSC01073", alt: "Naomi y Andrés" },
+      { clave: "DSC01108", alt: "Naomi y Andrés" },
+      { clave: "DSC01297", alt: "Naomi y Andrés" },
+      { clave: "DSC01304", alt: "Naomi y Andrés" },
+      { clave: "DSC01377", alt: "Naomi y Andrés" },
+      { clave: "DSC01448", alt: "Naomi y Andrés" },
+      { clave: "DSC01565", alt: "Naomi y Andrés" },
+      { clave: "DSC01625", alt: "Naomi y Andrés" },
+      { clave: "DSC01701", alt: "Naomi y Andrés" },
     ],
   },
 
@@ -147,13 +160,6 @@ export const wedding = {
           { etiqueta: "Cuenta", valor: "012320015636927951", copiar: true },
         ],
       },
-      {
-        tipo: "efectivo",
-        etiqueta: "Efectivo",
-        descripcion: "Lluvia de sobres en la recepción",
-        url: null,
-        datosCopiables: [],
-      },
     ],
   },
 
@@ -161,43 +167,31 @@ export const wedding = {
     titulo: "Sugerencias de hospedaje",
     lista: [
       {
-        nombre: "Hotel Encore",
-        direccion: "Guadalajara, Jalisco",
+        nombre: "Hotel El Refugio",
+        direccion: null,
         precio: null,
         mapaUrl: null,
-        bookingUrl: "https://encoreguadalajara.com/",
-        notas: null,
-      },
-      {
-        nombre: "Micro Hotel",
-        direccion: "Guadalajara, Jalisco",
-        precio: null,
-        mapaUrl: null,
-        bookingUrl: "https://microtelgdlsur.com/",
-        notas: null,
-      },
-      {
-        nombre: "City Express",
-        direccion: "Guadalajara, Jalisco",
-        precio: null,
-        mapaUrl: null,
-        bookingUrl:
-          "https://www.marriott.com/es/hotels/gdljp-city-express-junior-guadalajara-periferico-sur/overview/",
-        notas: null,
+        bookingUrl: "https://app.reservatio.com.mx/hotel-refugio/book?promocode=NAOMIYANDRES",
+        notas: "Sugerencia: No reservar a través de plataformas (Booking, Expedia, etc.), usar link anterior o directamente con el hotel para obtener el descuento proporcionado.",
       },
     ],
   },
 
   restricciones: {
     titulo: "Para tomar en cuenta",
-    codigoVestimenta: null,
+    codigoVestimenta: "Formal.",
     // El permiso de niños no se indica: por defecto son permitidos (RF-12).
-    otrasIndicaciones: null,
+    otrasIndicaciones: [
+      "Mujer: Vestido largo.",
+      "Agradecemos evitar colores blanco, beige, marfil, Champagne.",
+      "Así mismo, el color verde olivo está reservado para las damas.",
+      "Hombre: Traje.",
+    ],
   },
 
   confirmacion: {
     titulo: "Confirmar asistencia",
-    descripcion: "Confirma cuántas personas asistirán a nuestra boda",
+    descripcion: "Cada uno de ustedes ha sido parte de nuestra historia. Nos hace mucha ilusión celebrar nuestra boda con ustedes. Ya queremos verlos, abrazarlos y brindar juntos por todo lo que viene.",
     camposHabilitados: ["nombre", "asistentes", "alergias", "mensaje"],
   },
 
@@ -214,7 +208,7 @@ export const wedding = {
     secciones: {
       portadaVisible: true,
       parejaVisible: true,
-      citaVisible: true,
+      citaVisible: false,
       historiaVisible: true,
       ubicacionesVisible: true,
       itinerarioVisible: true,
