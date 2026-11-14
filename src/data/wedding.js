@@ -142,6 +142,8 @@ export const wedding = {
 
   hoteles: {
     titulo: "Sugerencias de hospedaje",
+    // Nota general para las sugerencias de hospedaje.
+    nota: "Te recomendamos reservar tu hospedaje con anticipación.",
     lista: [
       {
         nombre: "Hotel Encore",
@@ -174,7 +176,7 @@ export const wedding = {
   restricciones: {
     titulo: "Para tomar en cuenta",
     codigoVestimenta: null,
-    // El permiso de niños no se indica: por defecto son permitidos (RF-12).
+    permiteNinos: false,
     otrasIndicaciones: null,
   },
 

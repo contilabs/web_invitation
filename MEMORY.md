@@ -2,6 +2,8 @@
 Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
+- **Registro actualizado:** `restricciones.permiteNinos` declara explícitamente `false` para esta boda;
+  `hoteles.nota` contiene una nota de ejemplo y `Hotels` la muestra cuando tiene texto.
 - **Rama viva: `codex/seccion-padres-padrinos`** (cambio aislado sobre el estado actual; pendiente de integrar).
 - **Coordinación 2026-11-10:** `main` quedó integrado en `dfdae26`; la rama está limpia y sin conflictos,
   pero sigue 2 commits por delante de `origin` y la validación dinámica está bloqueada porque no hay Docker.
