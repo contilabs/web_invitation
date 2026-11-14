@@ -330,7 +330,7 @@ despliegue nuevo:
 
 ## Paso 8 — Panel privado de respuestas (spec 006)
 
-Este panel es **independiente** del contrato público 1.4.0. Usa el contrato administrativo `1.1.0` (`src/constants/contract.js`).
+Este panel es **independiente** del contrato público 1.4.0. Usa el contrato administrativo `1.2.0` (`src/constants/contract.js`).
 
 ### Permisos y autorización (server-side)
 - **Autenticación:** token de 5 dígitos enviado por `MailApp` a `admin_email`.
@@ -367,7 +367,7 @@ depende de sesión Google ni de cookies CORS.
 
 ### Redespliegue
 - Cualquier cambio en la lógica del panel exige **nueva versión** de la implementación web. La misma URL sirve la nueva versión.
-- Mantener sincronía con `src/constants/contract.js` (contrato administrativo `1.1.0`).
+- Mantener sincronía con `src/constants/contract.js` (contrato administrativo `1.2.0`).
 
 ### Libro de prueba sintético (sin datos personales)
 Ver `docs/panel-respuestas-pruebas.md`. Usar ese libro sintético para verificar:

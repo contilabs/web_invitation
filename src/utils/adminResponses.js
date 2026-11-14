@@ -90,6 +90,22 @@ export function normalizeAdminResponse(data) {
   return { ok: true, wedding: { ...wedding, language: wedding.language === "english" ? "english" : "spanish" }, responses, summary: deriveSummary(responses, data.summary) };
 }
 
+export function normalizeAdminCodes(data) {
+  if (!data || data.ok !== true || data.contract !== ADMIN_CONTRACT_VERSION || !Array.isArray(data.codes)) {
+    return { ok: false, errorCode: data?.code ?? "INVALID_RESPONSE" };
+  }
+  const codes = [];
+  for (const item of data.codes) {
+    if (!item || typeof item !== "object" || text(item.code) === null ||
+        !(item.limit === "n" || (Number.isInteger(item.limit) && item.limit > 0))) {
+      return { ok: false, errorCode: "INVALID_RESPONSE" };
+    }
+    codes.push({ code: text(item.code), limit: item.limit });
+  }
+  codes.sort((left, right) => (left.limit === "n" ? Number.POSITIVE_INFINITY : left.limit) - (right.limit === "n" ? Number.POSITIVE_INFINITY : right.limit));
+  return { ok: true, codes };
+}
+
 export function filterAdminResponses(responses, filters = {}) {
   const query = text(filters.query)?.toLocaleLowerCase() ?? "";
   return responses.filter((item) => {

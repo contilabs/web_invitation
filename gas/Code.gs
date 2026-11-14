@@ -176,13 +176,14 @@ const SERVICE_ACTIONS = {
 // Acciones administrativas (spec 006: panel privado de respuestas). Independientes del contrato público.
 const ADMIN_SERVICE_ACTIONS = {
   LIST_RESPONSES: 'listResponses',
+  LIST_CODES: 'listCodes',
   REVEAL_PHONE: 'revealPhone',
   REQUEST_TOKEN: 'requestToken',
   VERIFY_TOKEN: 'verifyToken',
 };
 
 // Contrato administrativo.
-const ADMIN_CONTRACT_VERSION = '1.1.0';
+const ADMIN_CONTRACT_VERSION = '1.2.0';
 
 // Errores administrativos (no reemplazan los del contrato público).
 const ADMIN_ERROR_CODES = {
@@ -289,6 +290,9 @@ function doPost(e) {
     if (payload.action === ADMIN_SERVICE_ACTIONS.LIST_RESPONSES) {
       return response_(listResponsesAdmin_(payload));
     }
+    if (payload.action === ADMIN_SERVICE_ACTIONS.LIST_CODES) {
+      return response_(listCodesAdmin_(payload));
+    }
     if (payload.action === ADMIN_SERVICE_ACTIONS.REVEAL_PHONE) {
       return response_(revealPhoneAdmin_(payload));
     }
@@ -299,7 +303,8 @@ function doPost(e) {
     // error de Apps Script (RF-14).
     console.error('doPost error: ' + (error && error.stack ? error.stack : error));
     const isAdminAction = [ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN, ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN,
-      ADMIN_SERVICE_ACTIONS.LIST_RESPONSES, ADMIN_SERVICE_ACTIONS.REVEAL_PHONE].indexOf(payload.action) !== -1;
+      ADMIN_SERVICE_ACTIONS.LIST_RESPONSES, ADMIN_SERVICE_ACTIONS.LIST_CODES,
+      ADMIN_SERVICE_ACTIONS.REVEAL_PHONE].indexOf(payload.action) !== -1;
     return response_({ ok: false, code: isAdminAction ? ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE : ERROR_CODES.SERVICE_UNAVAILABLE });
   }
 }
@@ -1774,6 +1779,37 @@ function listResponsesAdmin_(payload) {
       seatsUnoccupied: Math.max(seatsIssued - seatsOccupied, 0),
     },
     responses: responses,
+  };
+}
+
+// Lista los códigos de enlace de la hoja que corresponde al tipo de boda. Solo devuelve
+// identificadores y cupos; la autorización y la boda se resuelven server-side.
+function listCodesAdmin_(payload) {
+  const auth = authorizeAdmin_(payload && payload.email, payload && payload.token);
+  if (!auth.ok) return { ok: false, code: auth.code, contract: ADMIN_CONTRACT_VERSION };
+  const wedding = auth.wedding;
+  if (!wedding.ok) return { ok: false, code: wedding.code, contract: ADMIN_CONTRACT_VERSION };
+  if (wedding.guestType === GUEST_TYPES.PERSONAL) {
+    return { ok: true, contract: ADMIN_CONTRACT_VERSION, wedding: { guestType: wedding.guestType }, codes: [] };
+  }
+
+  const sheetDef = wedding.guestType === GUEST_TYPES.PUBLIC ? CODE_SHEETS.PUBLIC : CODE_SHEETS.GENERIC;
+  const cached = readCodeCache_(wedding.guestType === GUEST_TYPES.PUBLIC ? wedding.publicCache : wedding.cache);
+  if (cached === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+
+  const codes = [];
+  const keys = Object.keys(cached).sort();
+  for (let i = 0; i < keys.length; i += 1) {
+    const code = keys[i];
+    const limit = validateCodeLimit_(cached[code], sheetDef);
+    if (!limit.ok) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+    codes.push({ code: code, limit: limit.limit });
+  }
+  return {
+    ok: true,
+    contract: ADMIN_CONTRACT_VERSION,
+    wedding: { guestType: wedding.guestType },
+    codes: codes,
   };
 }
 

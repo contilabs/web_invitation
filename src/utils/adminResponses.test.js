@@ -9,7 +9,7 @@ const response = (overrides = {}) => ({
 });
 
 function envelope(responses) {
-  return { ok: true, contract: "1.1.0", wedding: { slug: "boda", isActive: true, updatedAt: "2027-01-01T10:00:00.000Z" }, responses };
+  return { ok: true, contract: "1.2.0", wedding: { slug: "boda", isActive: true, updatedAt: "2027-01-01T10:00:00.000Z" }, responses };
 }
 
 test("normaliza filas y deriva el resumen excluyendo declined", () => {

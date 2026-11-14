@@ -7,6 +7,10 @@ export function listAdminResponses(url, options = {}) {
   return callService(url, { action: ADMIN_SERVICE_ACTIONS.LIST_RESPONSES, email: options.email, token: options.token }, options);
 }
 
+export function listAdminCodes(url, options = {}) {
+  return callService(url, { action: ADMIN_SERVICE_ACTIONS.LIST_CODES, email: options.email, token: options.token }, options);
+}
+
 export function revealAdminPhone(url, guestId, options = {}) {
   return callService(
     url,

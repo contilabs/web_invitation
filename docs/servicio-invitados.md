@@ -460,12 +460,14 @@ cambiarlas. Ver [seguridad local](local-security.md) para desarrollo, preview y 
 El panel privado es **independiente** del contrato público 1.4.0. Usa un sobre y una acción
 distintos, con su propia versión de contrato.
 
-- **Versión del contrato administrativo:** `1.1.0` (`ADMIN_CONTRACT_VERSION`).
+- **Versión del contrato administrativo:** `1.2.0` (`ADMIN_CONTRACT_VERSION`).
 - **Despliegues:** el RSVP público y el panel React usan `VITE_SERVICE_URL`; el panel protege
   los datos con token server-side.
 - **Acciones:** `requestToken` (`ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN`), `verifyToken`
-  (`ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN`), `listResponses` (`ADMIN_SERVICE_ACTIONS.LIST_RESPONSES`)
-  y `revealPhone` (`ADMIN_SERVICE_ACTIONS.REVEAL_PHONE`).
+  (`ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN`), `listResponses` (`ADMIN_SERVICE_ACTIONS.LIST_RESPONSES`),
+  `listCodes` (`ADMIN_SERVICE_ACTIONS.LIST_CODES`) y `revealPhone`
+  (`ADMIN_SERVICE_ACTIONS.REVEAL_PHONE`). `listCodes` devuelve los códigos y límites de la
+  caché `generic_json_cache` o `public_json_cache`, según el tipo de boda.
 - **Autorización:** Apps Script genera y envía un token nuevo de 5 dígitos al `admin_email` de la
   fila de la boda en `files` cada vez que se solicita un correo; la validación usa `token` y
   `counter`. El frontend no lleva secretos.

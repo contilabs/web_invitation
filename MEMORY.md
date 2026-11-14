@@ -38,6 +38,10 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   actual sí declara y enruta esa acción. La primera sospecha es una versión vieja o una URL de
   deployment distinta en `VITE_SERVICE_URL`; `MailApp` solo se alcanza después y devolvería
   `EMAIL_UNAVAILABLE` si fallara el permiso o la cuota.
+- **Docker y panel 2026-11-11:** `admin.html` faltaba en `applicationPaths` de
+  `scripts/safe-check.mjs`; el lanzador Docker sincronizaba solo `index.html` y Vite devolvía la
+  invitación como fallback en `/admin.html`. Se añadió la entrada administrativa; hay que
+  reiniciar el lanzador para resincronizar.
 
 ## Decisiones (y por qué)
 - **Spec 005 · máquina de estados y lookup:** el componente solo despacha eventos; `lookup` (por
@@ -80,6 +84,11 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   `admin_email` por boda, sin sesión Google ni slug en el enlace; los totales se
   derivan de las filas validadas. `updatedAt` representa la última respuesta del libro; si no hay
   ninguna, usa la hora de lectura.
+- **Panel · pestaña de códigos:** el contrato administrativo `1.2.0` añade `listCodes`; para bodas
+  `generic` y `public` devuelve solo los códigos y cupos de `generic_json_cache` o
+  `public_json_cache`, respectivamente. La interfaz no muestra los códigos: ordena los lugares de
+  forma ascendente y ofrece un botón por enlace, generado con `guest`; las bodas personalizadas no
+  muestran la pestaña.
 - **Spec 004 · plazo y configuración:** el registro ya **no** tiene `confirmacion.fechaLimite` ni
   `marca.enlaces.rsvp`; plazo y cupo viven en el maestro. Config por entorno (`VITE_SERVICE_URL`,
   `VITE_WEDDING_SLUG`; `.env.local` gitignorado): sin URL → demo sin llamar; URL sin `slug` →
