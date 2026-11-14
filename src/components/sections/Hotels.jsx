@@ -19,7 +19,7 @@ export function Hotels({ hotels }) {
                 <img className="icon" src={icons.hotel} alt="" loading="lazy" decoding="async" />
                 <span className="hotel-name">{hotel?.nombre}</span>
                 {hotel?.precio && <span className="hotel-price">{hotel.precio}</span>}
-                {link && <span className="hotel-link">Ver hotel</span>}
+                {link && <span className="button button-outline hotel-link">Ver hotel</span>}
               </>
             );
             const key = `${hotel?.nombre ?? "hotel"}-${i}`;

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { THEME_DAY, THEME_NIGHT, THEME_STORAGE_KEY } from "../constants/theme.js";
 
-const BAR_COLOR = { [THEME_DAY]: "#f0ebe0", [THEME_NIGHT]: "#14100d" };
+const BAR_COLOR = { [THEME_DAY]: "#f3efe4", [THEME_NIGHT]: "#20261d" };
 
 // El tema ya resuelto por el script del <head>: no se recalcula.
 function initialTheme() {

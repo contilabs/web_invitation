@@ -54,3 +54,31 @@ test("hasContent detecta listas y párrafos vacíos", () => {
   assert.equal(hasContent("historia", { parrafos: [] }), false);
   assert.equal(hasContent("historia", { parrafos: ["a"] }), true);
 });
+
+test("la familia va entre Hero y cuenta regresiva y omitirla conserva el orden anterior", () => {
+  const wedding = {
+    pareja: { nombre1: "A", nombre2: "B" },
+    familia: { texto: "Gracias por acompañarnos" },
+    cita: { texto: "Una cita" },
+  };
+  assert.deepEqual(visibleSections(wedding).map(({ key }) => key), [
+    "pareja", "familia", "cuentaRegresiva", "cita", "confirmacion",
+  ]);
+  delete wedding.familia;
+  assert.deepEqual(visibleSections(wedding).map(({ key }) => key), [
+    "pareja", "cuentaRegresiva", "cita", "confirmacion",
+  ]);
+});
+
+test("familia no aparece con títulos solos o listas vacías y se puede ocultar", () => {
+  assert.equal(hasContent("familia", { titulo: "Familia", grupos: [] }), false);
+  assert.equal(hasContent("familia", { grupos: [{ titulo: "Padres", categorias: [{ titulo: "Novia", nombres: [] }] }] }), false);
+  assert.equal(hasContent("familia", { grupos: [{ categorias: [{ nombres: ["Ana"] }] }] }), true);
+  const wedding = { familia: { texto: "Gracias" }, ajustes: { secciones: { familiaVisible: false } } };
+  assert.deepEqual(visibleSections(wedding).map(({ key }) => key), ["confirmacion"]);
+});
+
+test("ocultar pareja sigue ocultando tanto el Hero como la cuenta regresiva", () => {
+  const wedding = { pareja: { nombre1: "A" }, ajustes: { secciones: { parejaVisible: false } } };
+  assert.deepEqual(visibleSections(wedding).map(({ key }) => key), ["confirmacion"]);
+});

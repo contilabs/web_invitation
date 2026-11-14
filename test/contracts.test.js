@@ -109,7 +109,8 @@ test("el registro conserva sus claves y su plantilla, sin el plazo ni el envío"
 test("los recursos publicados siguen en su ruta", () => {
   const html = read("../index.html");
   assert.match(html, /assets\/photos\/opt\/[\w.-]+\.jpg/, "cambió el og:image");
-  assert.match(html, /assets\/icons\/sello\.png/, "cambió el favicon");
+  assert.match(html, /assets\/icons\/wax-seal\.ico/, "falta el favicon actualizado");
+  assert.doesNotMatch(html, /assets\/icons\/sello\.png/, "volvió la referencia al favicon anterior");
   assert.match(html, /\/src\/app\/main\.jsx/, "cambió el entry del shell");
   assert.match(html, /\/src\/templates\/classic\/classic\.css/, "cambió el CSS de la plantilla");
   assert.match(html, /\/src\/templates\/classic\/classic-dark\.css/, "cambió el CSS de noche");
@@ -121,4 +122,17 @@ test("los recursos publicados siguen en su ruta", () => {
     "la resolución de fotos ya no lee de opt/",
   );
   assert.match(code, /assets\/icons\//, "los iconos de la plantilla cambiaron de ruta");
+});
+
+test("el título del documento y el de compartir muestran Naomi y Andrés", () => {
+  const html = read("../index.html");
+  assert.match(html, /<title>Naomi &amp; Andrés<\/title>/);
+  assert.match(html, /property="og:title" content="Naomi &amp; Andrés"/);
+  assert.equal((html.match(/rel="icon"/g) ?? []).length, 1);
+  const icon = readFileSync(new URL("../assets/icons/wax-seal.ico", import.meta.url));
+  assert.equal(icon.readUInt16LE(0), 0);
+  assert.equal(icon.readUInt16LE(2), 1);
+  assert.equal(icon.readUInt16LE(4), 1);
+  assert.equal(icon[6], 0, "el icono conserva su ancho de 256 píxeles");
+  assert.equal(icon[7], 0, "el icono conserva su alto de 256 píxeles");
 });

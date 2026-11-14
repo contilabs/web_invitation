@@ -1,6 +1,5 @@
-// Cuenta regresiva (T13/T28, RF-3). Muestra días, horas, minutos y segundos, y el mensaje
-// posterior al evento cuando ya pasó (lo decide el módulo puro). El instante y el texto de
-// la fecha llegan desde el registro (App los resuelve con `utils/event.js`).
+// Cuenta regresiva: recibe el instante objetivo del registro y conserva los cuatro valores
+// en cero al llegar a la fecha, sin cambiar la distribución visual.
 import { useCountdown } from "../../hooks/useCountdown.js";
 
 const twoDigits = (number) => String(number).padStart(2, "0");
@@ -14,26 +13,19 @@ function Box({ number, label }) {
   );
 }
 
-export function Countdown({ instantMs, dateText }) {
-  const { days, hours, minutes, seconds, done } = useCountdown(instantMs);
+export function Countdown({ instantMs }) {
+  const { days, hours, minutes, seconds } = useCountdown(instantMs);
 
   return (
     <section className="countdown-date reveal" id="fecha">
       <div className="band-content">
-        <p className="date-day">{dateText}</p>
-        <p className="remaining">Faltan</p>
+        <p className="date-day">Faltan</p>
 
         <div id="cuenta-regresiva" className="countdown">
-          {done ? (
-            <p className="post-message">¡Gracias por celebrar con nosotros!</p>
-          ) : (
-            <>
-              <Box number={days} label="Días" />
-              <Box number={twoDigits(hours)} label="Horas" />
-              <Box number={twoDigits(minutes)} label="Min" />
-              <Box number={twoDigits(seconds)} label="Seg" />
-            </>
-          )}
+          <Box number={days} label="Días" />
+          <Box number={twoDigits(hours)} label="Horas" />
+          <Box number={twoDigits(minutes)} label="Min" />
+          <Box number={twoDigits(seconds)} label="Seg" />
         </div>
       </div>
     </section>

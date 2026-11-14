@@ -20,6 +20,7 @@ import {
 import { coupleNames } from "../utils/couple.js";
 import { copyableField } from "../utils/gifts.js";
 import { allowsChildren } from "../utils/restrictions.js";
+import { remainingParts } from "../utils/countdown.js";
 import { visibleSections } from "../utils/sections.js";
 import { registryWarnings, registryErrors } from "../utils/validation.js";
 
@@ -118,6 +119,8 @@ test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () =>
     [
       "portada",
       "pareja",
+      "familia",
+      "cuentaRegresiva",
       "cita",
       "historia",
       "ubicaciones",
@@ -160,4 +163,38 @@ test("la confirmación conserva título, descripción y campos, sin plazo ni env
 
 test("los niños están permitidos cuando la boda no lo indica (RF-12)", () => {
   assert.equal(allowsChildren(wedding), true);
+});
+
+test("conserva todos los nombres de padres y padrinos, en el orden proporcionado", () => {
+  assert.deepEqual(wedding.familia.grupos.map((group) => group.categorias.map((category) => category.nombres)), [
+    [
+      ["Blanca Delia Macías Rocha", "Raúl Muñoz Márquez"],
+      ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"],
+    ],
+    [
+      ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"],
+      ["Maria de Lourdes Gomez Rocha", "Mauricio Gomez Rocha"],
+    ],
+  ]);
+});
+
+test("el título que React toma del registro es Naomi y Andrés", () => {
+  assert.equal(wedding.marca.nombre, "Naomi & Andrés");
+});
+
+test("el contador apunta a medianoche del 13 de marzo de 2027 en México, independiente del dispositivo", () => {
+  const target = eventInstant(wedding.cuentaRegresiva);
+  assert.equal(eventTimeZone(wedding.cuentaRegresiva), "America/Mexico_City");
+  assert.equal(target, Date.parse("2027-03-13T06:00:00Z"));
+  assert.equal(formatDate(target, "America/Mexico_City"), "13 de marzo de 2027");
+  for (const now of ["2027-03-12T23:59:59-06:00", "2027-03-13T14:59:59+09:00", "2027-03-13T05:59:59Z"]) {
+    assert.deepEqual(remainingParts(target, Date.parse(now)), {
+      days: 0, hours: 0, minutes: 0, seconds: 1, done: false,
+    });
+  }
+  for (const now of [target, target + 1000, target + 86400000]) {
+    assert.deepEqual(remainingParts(target, now), {
+      days: 0, hours: 0, minutes: 0, seconds: 0, done: true,
+    });
+  }
 });

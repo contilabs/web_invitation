@@ -7,42 +7,27 @@
    pintar y no haya parpadeo (ver el script en el <head>).
    ============================================================ */
 html.dark-mode {
-  /* Superficies: negro cálido, no gris neutro */
-  --paper: #14100d;
-  --paper-2: #1a1512;
-  --superficie: #1f1915;
-  --papel-velo: rgba(20, 16, 13, 0.78);
-
-  /* Tinta */
-  --ink: #f5ece2;
-  --ink-2: #cbb9a9;
-  --smoke: #9a887a;
-
-  /* Brasa: más clara para brillar sobre el fondo oscuro */
-  --ember: #e5763a;
-  --ember-2: #f0a061;
-  --glow: #f5bd85;
-  --ember-suave: rgba(229, 118, 58, 0.14);
-  --sobre-ember: #1a110b;
-
-  /* Vino: versión clara del segundo color, para los filetes de sección */
-  --vino: #a86b62;
-  --vino-suave: rgba(168, 107, 98, 0.16);
-
-  /* Misma cadena de tintado, medida para la brasa clara del modo noche
-     (#e5763a; queda en #e37d3d). */
-  --filtro-ico: brightness(0) invert(63%) sepia(40%) saturate(1450%)
-    hue-rotate(332deg) brightness(93%) contrast(91%);
-
-  /* Líneas y sombras */
-  --linea: rgba(245, 236, 226, 0.14);
-  --linea-fuerte: rgba(245, 236, 226, 0.28);
+  --paper: #20261d;
+  --paper-2: #2a3225;
+  --superficie: #30392a;
+  --papel-velo: rgba(32, 38, 29, 0.94);
+  --ink: #f3efe4;
+  --ink-2: #d9dccb;
+  --smoke: #b8bfa8;
+  --ember: #c5cfac;
+  --ember-2: #dce3c7;
+  --glow: #a6ad91;
+  --ember-suave: rgba(197, 207, 172, 0.12);
+  --sobre-ember: #20261d;
+  --vino: #c4ad7c;
+  --vino-suave: rgba(196, 173, 124, 0.1);
+  --filtro-ico: brightness(0) invert(83%) sepia(15%) saturate(442%) hue-rotate(35deg);
+  --linea: rgba(197, 207, 172, 0.22);
+  --linea-fuerte: rgba(197, 207, 172, 0.5);
   --sombra-suave: 0 1px 2px rgba(0, 0, 0, 0.45);
   --sombra: 0 20px 46px -26px rgba(0, 0, 0, 0.9);
-
-  /* Banda de brasa: un poco más profunda de noche */
-  --banda-1: #0f0a07;
-
+  --banda-1: #343e2c;
+  --banda-texto: #faf7ef;
   color-scheme: dark;
 }
 
@@ -56,7 +41,7 @@ footer {
 /* Los logotipos de la mesa de regalos son monocromos: se aclaran
    en lugar de invertirse con la cadena de filtros anterior. */
 html.dark-mode .gift-logo {
-  filter: brightness(0) invert(1) sepia(0.3) saturate(1.5) brightness(0.98);
+  filter: brightness(0) invert(90%);
 }
 
 /* ============================================================
@@ -65,10 +50,10 @@ html.dark-mode .gift-logo {
 .theme-toggle {
   position: relative;
   width: 3.9rem;
-  height: 2.1rem;
+  height: 2.75rem;
   padding: 0;
   border: 1px solid var(--linea-fuerte);
-  border-radius: 999px;
+  border-radius: var(--radio-boton);
   background-color: var(--superficie);
   box-shadow: var(--sombra-suave);
   cursor: pointer;
@@ -76,18 +61,19 @@ html.dark-mode .gift-logo {
 
 .theme-toggle-thumb {
   position: absolute;
-  top: 0.19rem;
+  top: 50%;
   left: 0.19rem;
   z-index: 2;
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 50%;
   background-color: var(--ember);
+  transform: translateY(-50%);
   transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 html.dark-mode .theme-toggle-thumb {
-  transform: translateX(1.78rem);
+  transform: translate(1.78rem, -50%);
 }
 
 .theme-toggle-icons {
@@ -130,3 +116,7 @@ html.dark-mode .icon-sun {
     opacity: 1;
   }
 }
+
+/* Monogramas originales según el tema, sin recolorear las imágenes. */
+html.dark-mode .site-header .site-header-logo--day { display: none; }
+html.dark-mode .site-header .site-header-logo--night { display: block; }

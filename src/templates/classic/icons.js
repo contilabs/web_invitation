@@ -21,3 +21,7 @@ export const LOCATION_ICONS = { ceremonia: iconChurch, recepcion: iconMansion };
 
 // Icono de cada hotel (la plantilla clásica usa el mismo para todos).
 export const HOTEL_ICON = iconHotel;
+
+// Monograma original de la barra de navegación, sin filtros ni modificaciones.
+export { default as HEADER_LOGO } from "../../../assets/icons/Simbolo_beige.png";
+export { default as HEADER_LOGO_LIGHT } from "../../../assets/icons/Simbolo_olivo.png";

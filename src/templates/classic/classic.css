@@ -32,50 +32,32 @@
    1. Tokens de diseño
    ============================================================ */
 :root {
-  /* Superficies: lino, un papel más frío que el marfil de antes */
-  --paper: #f0ebe0;
-  --paper-2: #e7e0d3;
-  --superficie: #f7f3ea;
-  --papel-velo: rgba(240, 235, 224, 0.82);
-
-  /* Tinta */
-  --ink: #1f1713;
-  --ink-2: #5a4a40;
-  --smoke: #6f5f54;
-
-  /* Brasa: acento principal. El valor está elegido para superar AA sobre el
-     lino (4.58:1); si se cambia, hay que revisar el contraste. */
-  --ember: #b8431d;
-  --ember-2: #97340f;
-  --glow: #e79457;
-  --ember-suave: rgba(184, 67, 29, 0.08);
-  /* Texto que va encima de --ember (de noche la brasa es más clara) */
-  --sobre-ember: #fffaf4;
-
-  /* Vino: segundo color, solo para filetes y estructura; no compite con la
-     brasa ni se usa como texto pequeño. */
-  --vino: #5e2a28;
-  --vino-suave: rgba(94, 42, 40, 0.08);
-
-  /* Tinte de los iconos.
-     Los PNG de assets/icons son línea oscura sobre transparente. En vez de
-     usarlos como máscara, se normalizan a negro con brightness(0) y se colorean
-     con esta cadena, medida sobre el propio PNG para dar la brasa exacta
-     (#b8431d; queda en #b44b1f, a menos de 10 de distancia). Solo cambia el
-     token al pasar a modo noche. */
-  --filtro-ico: brightness(0) invert(46%) sepia(50%) saturate(950%)
-    hue-rotate(335deg) brightness(72%) contrast(98%);
-
-  /* Líneas y sombras: casi planas, solo para lo que flota */
-  --linea: rgba(31, 23, 19, 0.14);
-  --linea-fuerte: rgba(31, 23, 19, 0.26);
-  --sombra-suave: 0 1px 2px rgba(31, 23, 19, 0.05);
-  --sombra: 0 20px 44px -26px rgba(31, 23, 19, 0.5);
-
-  /* Banda de brasa (cuenta regresiva): el único bloque oscuro, sin degradado */
-  --banda-1: #17100b;
-  --banda-texto: #fbf2e6;
-
+  /* Referencia de papelería: marfil, oliva musgo, salvia y oro envejecido.
+     El oliva profundo se reserva para texto y controles con contraste. */
+  --paper: #f3efe4;
+  --paper-2: #e5e3d5;
+  --superficie: #faf7ef;
+  --papel-velo: rgba(243, 239, 228, 0.94);
+  --ink: #30362a;
+  --ink-2: #4c5242;
+  --smoke: #646958;
+  --ember: #555f3e;
+  --ember-2: #414b30;
+  --glow: #a6ad91;
+  --ember-suave: rgba(85, 95, 62, 0.09);
+  --sobre-ember: #faf7ef;
+  --vino: #9b8555;
+  --vino-suave: rgba(155, 133, 85, 0.12);
+  --filtro-ico: brightness(0) invert(35%) sepia(17%) saturate(775%) hue-rotate(36deg);
+  --linea: rgba(85, 95, 62, 0.22);
+  --linea-fuerte: rgba(85, 95, 62, 0.5);
+  --sombra-suave: 0 2px 8px rgba(48, 54, 42, 0.06);
+  --sombra: 0 20px 44px -26px rgba(48, 54, 42, 0.35);
+  --banda-1: #626b49;
+  --banda-texto: #faf7ef;
+  --sombra-foto: 20 25 17;
+  --radio-boton: 50px;
+  --radio-foto: 0.75rem;
   /* Tipografías: la Erstoria (display) se conserva; el texto pasa a una serif
      editorial y la sans se reserva para etiquetas, botones y números. La
      caligrafía sigue cargada y disponible: para volver a ella basta
@@ -84,7 +66,7 @@
   --fuente-script: "Kalista", "Segoe Script", cursive;
   --fuente-texto: "Source Serif 4", Georgia, "Times New Roman", serif;
   --fuente-etiqueta: "Montserrat", system-ui, sans-serif;
-  --fuente-nombres: var(--fuente-titulo);
+  --fuente-nombres: var(--fuente-script);
 
   /* Escala tipográfica */
   --fs-xs: 0.72rem;
@@ -100,9 +82,9 @@
   --ancho-estrecho: 680px;
   --radio: 0px;
   --radio-grande: 0px;
-  --espacio-seccion: clamp(5.5rem, 11vw, 9rem);
+  --espacio-seccion: clamp(3.5rem, 8vw, 7rem);
   --tracking-dato: 0.2em;
-  --panel-alto: 5rem;
+  --panel-alto: clamp(3.5rem, 8vw, 4rem);
 
   color-scheme: light;
 }
@@ -132,6 +114,10 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+img:not(.hero-img) {
+  border-radius: var(--radio-foto);
 }
 
 img {
@@ -183,7 +169,6 @@ section {
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--ember);
   outline-offset: 3px;
-  border-radius: 0.15rem;
 }
 
 ::selection {
@@ -232,8 +217,8 @@ h2 {
 h2::before {
   content: "";
   display: block;
-  width: 2.5rem;
-  height: 2px;
+  width: 4rem;
+  height: 1px;
   margin: 0 0 1.15rem;
   background-color: var(--vino);
 }
@@ -260,13 +245,15 @@ p:last-child {
    4. Botones
    ============================================================ */
 .button {
+  min-height: 44px;
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.95rem 1.9rem;
   border: 1px solid transparent;
-  border-radius: var(--radio);
+  border-radius: var(--radio-boton);
   font-family: var(--fuente-etiqueta);
   font-size: 0.7rem;
   font-weight: 600;
@@ -320,6 +307,14 @@ p:last-child {
 /* ============================================================
    6. Portada (modal de bienvenida)
    ============================================================ */
+/* Paleta de papelería exclusiva de la bienvenida; no altera las demás secciones. */
+#portada.welcome-modal {
+  --welcome-backdrop: #ddccb7;
+  --welcome-paper: #ede7db;
+  --welcome-ink: #6a6a53;
+  --welcome-line: #9b9879;
+  --welcome-active: #50503d;
+}
 .welcome-modal {
   position: fixed;
   inset: 0;
@@ -346,9 +341,9 @@ p:last-child {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(24, 14, 9, 0.62) 0%,
-    rgba(24, 14, 9, 0.44) 45%,
-    rgba(24, 14, 9, 0.72) 100%
+    rgb(var(--sombra-foto) / 0.62) 0%,
+    rgb(var(--sombra-foto) / 0.44) 45%,
+    rgb(var(--sombra-foto) / 0.72) 100%
   );
 }
 
@@ -371,6 +366,8 @@ p:last-child {
   border: 1px solid var(--linea-fuerte);
   border-radius: var(--radio-grande);
   box-shadow: var(--sombra);
+  outline: 1px solid var(--vino);
+  outline-offset: -0.6rem;
   animation: portadaEntra 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
@@ -434,7 +431,7 @@ p:last-child {
   width: 100%;
   padding: 1rem 1.5rem;
   border: none;
-  border-radius: var(--radio);
+  border-radius: var(--radio-boton);
   background-color: var(--ember);
   color: var(--sobre-ember);
   font-family: var(--fuente-etiqueta);
@@ -471,7 +468,7 @@ p:last-child {
   height: 3.5rem;
   padding: 0;
   border: 1px solid var(--linea-fuerte);
-  border-radius: 50%;
+  border-radius: var(--radio-boton);
   background-color: var(--superficie);
   display: grid;
   place-items: center;
@@ -517,8 +514,9 @@ p:last-child {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: var(--panel-alto);
   min-height: var(--panel-alto);
-  padding: 0.6rem 1.25rem;
+  padding: .2rem 1rem;
   background-color: var(--papel-velo);
   backdrop-filter: blur(14px) saturate(1.3);
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
@@ -531,22 +529,95 @@ p:last-child {
   transform: translateY(0);
 }
 
-.site-header-title {
-  margin: 0;
-  font-family: var(--fuente-nombres);
-  font-size: clamp(1.4rem, 3.4vw, 1.75rem);
-  line-height: 1;
-  color: var(--ink);
-}
+.site-header-title { margin: 0; line-height: 1; }
 
+
+
+.site-header .site-header-logo {
+  display: block;
+  width: calc(var(--panel-alto) - .5rem);
+  height: calc(var(--panel-alto) - .5rem);
+  object-fit: contain;
+  border-radius: 0;
+}
 /* ============================================================
    9. Portada principal
    ============================================================ */
+.site-header .site-header-logo--night { display: none; }
+
+/* Reconocimiento familiar: papelería beige y oliva, independiente del tema de las otras secciones. */
+.hero:has(+ .family) { margin-bottom: 0; }
+.family {
+  margin-block: 0;
+  --family-paper: #ede7db;
+  --family-ink: #6a6a53;
+  --family-line: #9b9879;
+  background: var(--family-paper);
+  color: var(--family-ink);
+  padding: clamp(2.5rem, 6vw, 4rem) max(1rem, env(safe-area-inset-right))
+    clamp(2.5rem, 6vw, 4rem) max(1rem, env(safe-area-inset-left));
+  text-align: center;
+}
+
+.family-content { max-width: 48rem; margin-inline: auto; }
+.family-intro {
+  max-width: 36rem;
+  margin: 0 auto 2rem;
+  font-family: var(--fuente-script);
+  font-size: clamp(1.65rem, 6vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+.family-group h3 {
+  text-align: center;
+  margin: 0 0 1.25rem;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.7rem, 6.5vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.25;
+  color: inherit;
+}
+.family-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.3rem; }
+.family-category h4 {
+  margin: 0 0 .6rem;
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: inherit;
+}
+.family-category ul { list-style: none; padding: 0; margin: 0; }
+.family-category li {
+  font-family: var(--fuente-texto);
+  font-size: clamp(1rem, 3.9vw, 1.1rem);
+  line-height: 1.8;
+}
+.family-category + .family-category::before,
+.family-group + .family-group::before {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 1px;
+  margin: 0 auto 1.3rem;
+  background: var(--family-line);
+}
+.family-group + .family-group { margin-top: 1.65rem; }
+.family-group + .family-group::before { width: 5rem; margin-bottom: 1.65rem; }
+@media (min-width: 700px) {
+  .family-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
+  .family-category + .family-category::before { display: none; }
+}
 .hero {
+  --hero-paper: #ede7db;
+  --hero-ink: #50503d;
   position: relative;
   display: grid;
-  align-content: end;
-  min-height: min(100svh, 54rem);
+  align-content: start;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
   margin-top: 0;
   overflow: hidden;
   isolation: isolate;
@@ -559,109 +630,82 @@ p:last-child {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* foto1 es vertical (2048x3072) y en PC el hero es un recorte apaisado: con
-     cover solo se ve una franja de su alto (el resto se recorta). Los novios
-     estan hacia el 49-72 % de alto, con las caras al 51-58 %, asi que la
-     franja visible se baja hasta ahi para que salgan enteros.
-     62 % los encuadra en cualquier ancho de PC; en movil no hay recorte
-     vertical (sobra a los lados), por eso ahi este valor no influye. */
-  object-position: 50% 62%;
+  /* En móvil se conserva el retrato; el recorte de escritorio baja hacia la pareja. */
+  object-position: 50% 65%;
 }
 
 .hero-veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(24, 14, 9, 0.5) 0%,
-    rgba(24, 14, 9, 0) 24%,
-    rgba(24, 14, 9, 0.12) 44%,
-    rgba(24, 14, 9, 0.72) 82%,
-    rgba(24, 14, 9, 0.9) 100%
-  );
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--hero-paper) 78%, transparent) 0%,
+    color-mix(in srgb, var(--hero-paper) 38%, transparent) 24%,
+    transparent 46%);
 }
 
 .hero-text {
   position: relative;
   z-index: 1;
-  width: min(100% - 3rem, var(--ancho));
+  box-sizing: border-box;
+  width: 100%;
   margin-inline: auto;
-  padding: 0 0 clamp(4.5rem, 11vw, 7rem);
-  text-align: left;
-  color: var(--banda-texto);
+  padding: max(clamp(2.5rem, 7dvh, 5rem), env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left));
+  text-align: center;
+  color: var(--hero-ink);
 }
 
 .hero-names {
-  margin: 0;
-  max-width: 12ch;
-  font-family: var(--fuente-nombres);
-  font-size: var(--fs-display);
+  margin: 0 auto;
+  max-width: 22ch;
+  text-align: center;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.95rem, 8vw, 4.8rem);
   font-weight: 400;
-  line-height: 0.98;
-  color: #fff;
-  text-shadow: 0 1px 30px rgba(23, 16, 11, 0.4);
+  line-height: 1.15;
+  color: var(--hero-ink);
+  text-shadow: none;
+}
+
+.hero-names .amp {
+  font-family: var(--fuente-script);
+  font-size: .85em;
+  font-weight: 400;
 }
 
 .hero-date {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1.6rem 0 0;
-  font-family: var(--fuente-etiqueta);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: var(--tracking-dato);
+  margin: 1rem 0 0;
+  font-family: var(--fuente-texto);
+  font-size: clamp(.65rem, 2.4vw, .85rem);
+  font-weight: 500;
+  letter-spacing: .15em;
+  line-height: 1.6;
   text-transform: uppercase;
-  color: rgba(253, 243, 232, 0.9);
+  color: var(--hero-ink);
 }
 
-.hero-date::before {
-  content: "";
-  width: 2.5rem;
-  height: 1px;
-  background-color: rgba(253, 243, 232, 0.6);
+.hero-phrase {
+  width: min(100%, 38rem);
+  margin: 1.5rem auto 0;
+  font-family: var(--fuente-script);
+  font-size: clamp(1.45rem, 5.8vw, 1.8rem);
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--hero-ink);
+  text-shadow: 0 1px 3px var(--hero-paper);
 }
 
-.hero-arrow {
-  position: absolute;
-  left: 50%;
-  bottom: 1.5rem;
-  transform: translateX(-50%);
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  border: 1px solid rgba(253, 243, 232, 0.35);
-  transition: border-color 0.25s ease, background-color 0.25s ease;
+@media (max-height: 500px) {
+  .hero-phrase { margin-top: .75rem; font-size: 1.2rem; line-height: 1.35; }
 }
-
-.hero-arrow span {
-  display: block;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-right: 1.5px solid var(--banda-texto);
-  border-bottom: 1.5px solid var(--banda-texto);
-  transform: rotate(45deg) translate(-1px, -1px);
-  animation: flechaBaja 2.4s ease-in-out infinite;
+@media (max-height: 500px) and (min-aspect-ratio: 1/1) {
+  .hero-img { object-position: 50% 55%; }
+  .hero-text { padding-top: max(1.5rem, env(safe-area-inset-top)); }
+  .hero-names { font-size: clamp(2rem, 9dvh, 2.8rem); }
+  .hero-date { margin-top: .5rem; }
 }
-
-.hero-arrow:hover {
-  border-color: var(--banda-texto);
-  background-color: rgba(253, 243, 232, 0.12);
-}
-
-@keyframes flechaBaja {
-  0%,
-  100% {
-    transform: rotate(45deg) translate(-1px, -1px);
-  }
-  50% {
-    transform: rotate(45deg) translate(3px, 3px);
-  }
-}
-
 /* ============================================================
    10. Frase de la pareja
    ============================================================ */
@@ -693,14 +737,16 @@ p:last-child {
    11. Cuenta regresiva: el único bloque oscuro de la invitación
    ============================================================ */
 .countdown-date {
-  padding: clamp(5rem, 12vw, 8.5rem) 1.5rem;
-  text-align: left;
+  padding: clamp(2.75rem, 7vw, 5rem) 1rem;
+  margin-top: 0;
+  text-align: center;
   color: var(--banda-texto);
   background-color: var(--banda-1);
+  border-block: 4px double var(--glow);
 }
 
 .band-content {
-  width: min(100% - 3rem, var(--ancho));
+  width: min(100%, 35rem);
   margin-inline: auto;
 }
 
@@ -718,27 +764,25 @@ p:last-child {
   font-weight: 600;
   letter-spacing: var(--tracking-dato);
   text-transform: uppercase;
-  color: rgba(251, 242, 230, 0.75);
+  color: color-mix(in srgb, var(--banda-texto) 75%, transparent);
   margin: 0;
 }
 
 .countdown {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 2rem 3.5rem;
-  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.35rem, 2vw, 1.25rem);
+  margin-top: clamp(1.25rem, 4vw, 2.25rem);
 }
 
-/* Sin cajas ni cristal: los números se separan con aire. */
 .box {
-  min-width: 4rem;
+  min-width: 0;
 }
 
 .box-number {
   display: block;
   font-family: var(--fuente-titulo);
-  font-size: clamp(2.8rem, 7vw, 4.4rem);
+  font-size: clamp(1.65rem, 6.5vw, 4.4rem);
   font-weight: 400;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -751,12 +795,13 @@ p:last-child {
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
   font-weight: 600;
-  letter-spacing: var(--tracking-dato);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(251, 242, 230, 0.8);
+  color: color-mix(in srgb, var(--banda-texto) 80%, transparent);
 }
 
 .post-message {
+  grid-column: 1 / -1;
   font-family: var(--fuente-titulo);
   font-size: clamp(1.7rem, 4.6vw, 2.5rem);
   line-height: 1.3;
@@ -777,16 +822,18 @@ p:last-child {
 /* ============================================================
    13. Ceremonia y recepción
    ============================================================ */
-.place-card {
+.place-card,
+.hotel-card {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
-  text-align: left;
-  border: 0;
-  border-top: 1px solid var(--linea-fuerte);
-  border-radius: 0;
+  align-items: center;
+  gap: 0.65rem;
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  text-align: center;
+  background-color: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-foto);
 }
 
 .place-card h3 {
@@ -1160,21 +1207,25 @@ p:last-child {
 }
 
 .gift-card {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.4rem;
-  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
-  text-align: left;
-  border: 0;
-  border-top: 1px solid var(--linea-fuerte);
-  border-radius: 0;
+  align-items: center;
+  gap: 0.65rem;
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  text-align: center;
+  background-color: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-foto);
+  box-shadow: var(--sombra-suave);
 }
 
 .gift-logo {
-  width: auto;
-  height: 2.4rem;
-  margin-bottom: 1rem;
+  display: block;
+  width: min(100%, 12rem);
+  height: clamp(3.5rem, 10vw, 5rem);
+  object-fit: contain;
+  margin-bottom: 0.25rem;
 }
 
 .gift-card h3 {
@@ -1204,28 +1255,14 @@ p:last-child {
    17. Hospedaje
    ============================================================ */
 .hotel-card {
-  display: grid;
-  justify-items: start;
-  gap: 0.4rem;
-  padding: clamp(1.5rem, 3vw, 2rem) 0 0;
-  text-align: left;
   text-decoration: none;
   color: inherit;
-  border: 0;
-  border-top: 1px solid var(--linea-fuerte);
-  border-radius: 0;
   transition: border-color 0.25s ease;
 }
 
-.hotel-card:hover {
+a.hotel-card:hover {
   border-color: var(--ember);
 }
-
-.hotel-card .icon {
-  --ico-tam: 2.25rem;
-  margin-bottom: 0.75rem;
-}
-
 .hotel-name {
   font-family: var(--fuente-titulo);
   font-size: 1.5rem;
@@ -1234,20 +1271,13 @@ p:last-child {
 }
 
 .hotel-link {
-  font-family: var(--fuente-etiqueta);
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  margin-top: auto;
+}
+
+.hotel-card:is(:hover, :focus-visible) .hotel-link {
+  border-color: var(--ember);
   color: var(--ember);
-  text-decoration: underline;
-  text-decoration-color: var(--linea-fuerte);
-  text-underline-offset: 4px;
-  transition: text-decoration-color 0.25s ease;
 }
-
-.hotel-card:hover .hotel-link {
-  text-decoration-color: var(--ember);
-}
-
 /* ============================================================
    18. Galería
    ============================================================ */
@@ -1257,29 +1287,29 @@ p:last-child {
 }
 
 .gallery-strip {
-  position: relative; /* lo aportaba la hoja externa retirada; el contador se ancla aquí */
+  position: relative;
   display: grid;
-  width: min(100% - 3rem, var(--ancho));
-  margin: 2.5rem auto 0.85rem;
-  border-radius: var(--radio);
-  overflow: hidden;
+  width: min(100% - 2rem, 58rem);
+  margin: 1.5rem auto 0;
+  border-radius: var(--radio-foto);
   background-color: var(--superficie);
+  isolation: isolate;
 }
 
 .gallery-strip .slide img {
   display: block;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
-
-/* Fundido cruzado (T24): todas las diapositivas comparten celda y solo la activa
-   es opaca y recibe el puntero. La mecánica (cuál se ve y cómo avanza) es de T21. */
 .gallery-strip .slide {
   grid-area: 1 / 1;
   opacity: 0;
+  min-width: 0;
   pointer-events: none;
-  transition: opacity 0.7s ease;
+  transition: opacity 0.45s ease;
 }
 
 .gallery-strip .slide.slide-active {
@@ -1290,12 +1320,17 @@ p:last-child {
 
 /* La foto es un botón (RNF-1): así se puede abrir el visor con el teclado. */
 .gallery-strip .slide-button {
-  display: block;
+  display: grid;
+  place-items: center;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   width: 100%;
+  height: clamp(16rem, 108vw, 40rem);
   padding: 0;
   border: 0;
+  border-radius: var(--radio-boton);
   background: none;
   cursor: zoom-in;
+  touch-action: pan-y pinch-zoom;
 }
 
 .gallery-strip .gallery-arrow {
@@ -1306,6 +1341,7 @@ p:last-child {
   place-items: center;
   padding: 0;
   border: 0;
+  border-radius: var(--radio-boton);
   background: none;
   cursor: pointer;
   transform: translateY(-50%);
@@ -1322,30 +1358,34 @@ p:last-child {
 /* La flecha la dibujaba la hoja externa retirada; ahora es un SVG propio.
    La mecánica del carrusel (qué diapositiva se ve y cómo cambia) la define T21. */
 .gallery-strip .gallery-arrow-icon {
-  display: block;
+  display: grid;
+  place-items: center;
   width: 2.75rem;
   height: 2.75rem;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fdf3e8'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-size: 1rem 1rem;
-  background-position: 50%;
-  border: 1px solid rgba(253, 243, 232, 0.4);
-  border-radius: 50%;
-  background-color: rgba(24, 14, 9, 0.35);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  border: 1px solid color-mix(in srgb, var(--banda-texto) 40%, transparent);
+  border-radius: var(--radio-boton);
+  background-color: rgb(var(--sombra-foto) / 0.7);
+  color: var(--banda-texto);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-.gallery-strip .gallery-arrow-next .gallery-arrow-icon {
+.gallery-arrow-icon::before {
+  content: "";
+  width: 0.48rem;
+  height: 0.48rem;
+  border: solid currentColor;
+  border-width: 0 0 2px 2px;
+  transform: translateX(0.1rem) rotate(45deg);
+}
+
+.gallery-arrow-next .gallery-arrow-icon {
   transform: rotate(180deg);
 }
 
-.gallery-strip .gallery-arrow:hover .gallery-arrow-icon {
+.gallery-arrow:hover .gallery-arrow-icon {
   background-color: var(--ember);
-  border-color: var(--ember);
+  color: var(--sobre-ember);
 }
-
 .gallery-counter {
   position: absolute;
   left: 50%;
@@ -1354,11 +1394,11 @@ p:last-child {
   z-index: 2;
   margin: 0;
   padding: 0.3rem 0.85rem;
-  border-radius: 0;
-  background-color: rgba(23, 16, 11, 0.55);
+  border-radius: var(--radio-boton);
+  background-color: rgb(var(--sombra-foto) / 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  color: rgba(253, 243, 232, 0.92);
+  color: color-mix(in srgb, var(--banda-texto) 92%, transparent);
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -1366,42 +1406,6 @@ p:last-child {
   letter-spacing: 0.08em;
 }
 
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
-}
-
-.gallery-thumb {
-  display: block;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radio);
-  overflow: hidden;
-  background: none;
-  cursor: zoom-in;
-  transition: box-shadow 0.35s ease;
-}
-
-.gallery-thumb img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.gallery-thumb:hover img,
-.gallery-thumb:focus-visible img {
-  transform: scale(1.03);
-}
-
-.gallery-thumb:hover,
-.gallery-thumb:focus-visible {
-  box-shadow: 0 0 0 1px var(--ember);
-}
-
-/* Visor a pantalla completa */
 .lightbox {
   width: min(100% - 2rem, 1000px);
   max-width: none;
@@ -1413,7 +1417,7 @@ p:last-child {
 }
 
 .lightbox::backdrop {
-  background-color: rgba(18, 10, 6, 0.92);
+  background-color: rgb(var(--sombra-foto) / 0.92);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -1441,7 +1445,7 @@ p:last-child {
 .lightbox-counter {
   margin: 0.9rem 0 0;
   text-align: center;
-  color: rgba(253, 243, 232, 0.75);
+  color: color-mix(in srgb, var(--banda-texto) 75%, transparent);
   font-size: var(--fs-sm);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
@@ -1454,9 +1458,9 @@ p:last-child {
   width: 3rem;
   height: 3rem;
   padding: 0;
-  border: 1px solid rgba(253, 243, 232, 0.3);
-  border-radius: 50%;
-  background-color: rgba(24, 14, 9, 0.55);
+  border: 1px solid color-mix(in srgb, var(--banda-texto) 30%, transparent);
+  border-radius: var(--radio-boton);
+  background-color: rgb(var(--sombra-foto) / 0.55);
   color: var(--banda-texto);
   font-size: 1.5rem;
   line-height: 1;
@@ -1468,6 +1472,7 @@ p:last-child {
 .lightbox-nav:hover {
   background-color: var(--ember);
   border-color: var(--ember);
+  color: var(--sobre-ember);
 }
 
 .lightbox-close {
@@ -1499,7 +1504,7 @@ footer {
   padding: clamp(3.5rem, 8vw, 5.5rem) 1.25rem clamp(2.5rem, 5vw, 3.5rem);
   margin-top: var(--espacio-seccion);
   text-align: center;
-  border-top: 1px solid var(--linea);
+  border-top: 4px double var(--vino);
   background-color: var(--paper-2);
 }
 
@@ -1549,8 +1554,8 @@ footer a:hover {
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.5rem);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
 }
 
 /* ============================================================
@@ -1603,8 +1608,73 @@ footer a:hover {
   color: var(--ink-2);
 }
 
+.story {
+  margin-block: clamp(2.25rem, 6vw, 4rem);
+  text-align: center;
+}
+
+.story h2 {
+  font-family: var(--fuente-script);
+  font-size: clamp(2.25rem, 7vw, 4rem);
+  line-height: 1.15;
+  margin-bottom: 0.85rem;
+}
+
 .story p {
-  max-width: 62ch;
+  max-width: 60ch;
+  margin-inline: auto;
+  line-height: 1.8;
+}
+
+.story p:not(:last-child) {
+  margin-bottom: 0.75rem;
+}
+
+.story h2,
+.locations h2,
+.gifts h2,
+.gallery h2,
+.hotels h2,
+.place-card h3,
+.gift-card h3 {
+  text-align: center;
+}
+
+.story h2::before,
+.locations h2::before,
+.gifts h2::before,
+.hotels h2::before,
+.gallery h2::before {
+  margin: 0 auto 0.85rem;
+}
+
+.place-card .icon,
+.hotel-card .icon {
+  --ico-tam: clamp(4.25rem, 12vw, 6rem);
+}
+
+.gifts .section-note {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.locations .grid-2,
+.gifts .grid-2 {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 48rem) {
+  .grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+
+  .locations .grid-2,
+  .gifts .grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+  }
 }
 
 .restrictions-list {
@@ -1632,7 +1702,7 @@ footer a:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.75rem;
   width: 100%;
 }
@@ -1805,19 +1875,9 @@ footer a:hover {
   }
 }
 
-@media (max-width: 780px) {
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 720px) {
   .grid-2 {
     grid-template-columns: 1fr;
-  }
-
-  .gallery-grid {
-    gap: 0.6rem;
   }
 
   .floating-panel {
@@ -1827,16 +1887,8 @@ footer a:hover {
 }
 
 @media (max-width: 620px) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .portrait img {
     aspect-ratio: 3 / 2;
-  }
-
-  .hero {
-    min-height: min(100svh, 44rem);
   }
 
   .lightbox {

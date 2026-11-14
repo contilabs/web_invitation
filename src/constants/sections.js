@@ -7,6 +7,8 @@
 export const SECTION_ORDER = [
   "portada",
   "pareja",
+  "familia",
+  "cuentaRegresiva",
   "cita",
   "historia",
   "ubicaciones",

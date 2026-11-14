@@ -2,7 +2,26 @@
 Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y pendientes en `PENDING_TASKS.md`.
 
 ## Estado actual
-- Rama de trabajo: `react-migration`. Specs 001–003 terminadas salvo T27 manual y publicación;
+- Contador: título único Faltan, cuatro valores permanentes que se detienen en cero. Fecha propia
+  en cuentaRegresiva: 2027-03-13T00:00:00-06:00 / America/Mexico_City; resto de fechas intactas.
+  Móvil 320 px y escritorio revisados; 262 pruebas/build. Resuelto el pendiente de viajeros del contador.
+- Identidad web: título HTML/React/og:title Naomi & Andrés; marca.nombre actualizado. Favicon
+  wax-seal.ico original (256 px), ruta nueva con huella Vite, sin sello.png en HTML. 261 pruebas/build.
+- Navbar: originales Simbolo_olivo.png (día) y Simbolo_beige.png (noche), autorizados, sin filtros.
+  Vía plantilla/useTemplate; solo un logo visible por CSS. Altura 56 px móvil / 64 px escritorio,
+  scroll-padding sincronizado; comportamiento de scroll intacto. Ambos temas verificados; 259 pruebas/build.
+- Familia: Family autorizado, nombres exactos en wedding.familia; beige/oliva, Kalista y reveal.
+  Orden Hero → familia → cuenta regresiva; una columna móvil sin partir nombres, dos escritorio.
+- Música: music.mp3 sustituye assets/audio.mp3 sin edición; inicio y ended desde 6 s, sin loop.
+  Preload metadata y #t=6 autorizados; play en gesto, pausa conserva posición. 255 pruebas/build;
+  inicio, pausa, reanudación y recarga verificados en navegador, repetición cubierta en pruebas.
+- Hero: DSC00604 optimizada a 900/1800/2600 px (hero-naomi-andres). 100dvh, texto superior
+  serif/oliva y velo beige; pareja/fecha/subtítulo de portada, frase Kalista. Cover al 65 %
+  (horizontal 55 %). Revisados 320×400, 390×844, 1440×900. Original fuera del repo.
+- Bienvenida: beige/oliva sin ilustraciones; papel rectangular y doble marco SVG con curvas
+  cóncavas superior derecha e inferior izquierda. Datos Naomi/Andrés/13-mar-2027 en portada.
+  Cierre, música y animación conservados; móvil/escritorio revisados y 249 pruebas/build.
+- Rama de trabajo: `main`. Specs 001–003 terminadas salvo T27 manual y publicación;
   React completo, rediseño «Ascua», registro único y paridad T26 **30/30**.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Apps Script (`gas/Code.gs`), contrato **1.4.0**,
   hoja `public`, caída `generic`→`public`, `MALFORMED_GUEST` y celdas vacías como cero.
@@ -12,12 +31,6 @@ Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y
   `Jose-QB/wedding_invitation`, incluidos sus lanzadores previos. Archivos nuevos autorizados.
   `dev`/`preview` usan `scripts/safe-dev.mjs`; `test`/`build`/`check`, `scripts/safe-check.mjs`.
   No se añadieron dependencias. Uso y límites en `docs/local-security.md`; reglas en `AGENTS.md`.
-- Verificación local macOS con Docker Desktop: `npm run check` **249/249** y build correcto;
-  desarrollo y preview cargan en navegador. HMR comprobado con un token CSS temporal, restaurado.
-  Inspección: red `none`, usuario `1000:1000`, raíz de solo lectura, sin montajes ni puertos
-  publicados. Pruebas reales de salida por IP bloqueada, fallos y limpieza incluidas en el runner.
-  Las sesiones terminaron con SIGINT sin dejar contenedores, etiquetas ni listener en 5173.
-  No se verificaron Windows/Linux nativos ni el RSVP vivo en esta tarea.
 
 ## Decisiones y motivos
 - Docker instala desde los dos manifiestos en una fase con red, sin fuentes ni scripts npm;
@@ -28,8 +41,6 @@ Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y
 - Solo se transmiten `VITE_SERVICE_URL` y `VITE_WEDDING_SLUG` del entorno del proceso; son públicas.
   No se leen ni copian `.env*`. Los builds locales son desechables, sin `dist/` exportado;
   publicar requiere conservarlo desde un entorno aislado de CI/hosting (README).
-- El test de formato de fecha usa offset explícito para no depender de la zona del runner UTC;
-  no se modificó la lógica de fechas ni se resolvió el pendiente de viajeros.
 - Spec 005: `lookup` exige diez dígitos, solo genérica/pública, no escribe `guests`, no devuelve
   teléfono ni datos ajenos y no persiste teléfono en navegador/URL. Riesgo aceptado documentado.
 - Después de enviar genérica/pública, `Rsvp` copia el teléfono de `submitted.current` a
@@ -62,7 +73,6 @@ Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y
 - Chrome: servir el build y medir por DevTools, no `--dump-dom`. Parches de verificación temporales
   deben restaurarse. Fotos estructurales y claves del registro requieren variantes optimizadas.
 - Mesa de regalos: solo copia el dato marcado `copiar: true`; no adivinar entre varios datos.
-- Agentes OpenCode: frontmatter YAML válido o se omiten en silencio.
 
 ## Próximos pasos
 - Completar T10 de 004, T21 de 005 y T27 de 003 contra servicio vivo y móvil físico; anotar veredictos

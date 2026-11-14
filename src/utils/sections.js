@@ -37,6 +37,11 @@ export function hasContent(key, data) {
   if (key === "historia") {
     return Array.isArray(data?.parrafos) && data.parrafos.length > 0;
   }
+  if (key === "familia") {
+    return isNonEmptyText(data.texto) || (Array.isArray(data.grupos) && data.grupos.some((group) =>
+      Array.isArray(group.categorias) && group.categorias.some((category) =>
+        Array.isArray(category.nombres) && category.nombres.some(isNonEmptyText))));
+  }
   if (key === "cita") {
     return isNonEmptyText(data?.texto);
   }
@@ -55,7 +60,9 @@ export function visibleSections(wedding) {
       continue;
     }
     if (visibility[`${key}Visible`] === false) continue;
-    const data = wedding[key] ?? null;
+    // La cuenta tiene fecha propia; sin ella conserva el registro y el ajuste originales de pareja.
+    if (key === "cuentaRegresiva" && visibility.parejaVisible === false) continue;
+    const data = (key === "cuentaRegresiva" ? wedding.cuentaRegresiva ?? wedding.pareja : wedding[key]) ?? null;
     if (!data) continue;
     if (!hasContent(key, data)) continue;
     result.push({ key, data });

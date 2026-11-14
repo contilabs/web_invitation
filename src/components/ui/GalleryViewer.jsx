@@ -42,16 +42,15 @@ export function GalleryViewer({ photo, current, total, onClose, onPrevious, onNe
       className="lightbox"
       aria-label="Galería de fotos"
       onClose={onClose}
-      onCancel={onClose}
       onClick={(event) => {
-        if (event.target === dialogRef.current) onClose();
+        if (event.target === dialogRef.current) dialogRef.current.close();
       }}
     >
       <img src={source} alt={photo.alt} />
       <p className="lightbox-counter" aria-live="polite">
         Foto {current} de {total}
       </p>
-      <button type="button" className="lightbox-close" aria-label="Cerrar" onClick={onClose}>
+      <button type="button" className="lightbox-close" aria-label="Cerrar" onClick={() => dialogRef.current?.close()}>
         ×
       </button>
       <button

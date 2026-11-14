@@ -23,8 +23,10 @@ export const wedding = {
   },
 
   portada: {
-    titulo: "Karina & Gerardo",
-    subtitulo: "Nos casamos",
+    pareja: { nombre1: "Naomi", nombre2: "Andrés" },
+    fecha: "13 de marzo de 2027",
+    titulo: "Naomi & Andrés",
+    subtitulo: "Qué alegría compartir con ustedes el día en que diremos sí",
     texto: "Tenemos el placer de invitarlos\na nuestra boda",
     imagenes: [
       { clave: "backgrond3", alt: "" },
@@ -32,6 +34,31 @@ export const wedding = {
     ],
   },
 
+  cuentaRegresiva: {
+    fechaInicio: "2027-03-13T00:00:00-06:00",
+    zonaHoraria: "America/Mexico_City",
+  },
+
+  familia: {
+    titulo: "Nuestros padres y padrinos",
+    texto: "El amor que hoy celebramos también es fruto de quienes nos han acompañado, guiado y enseñado a amar.",
+    grupos: [
+      {
+        titulo: "Nuestros Padres",
+        categorias: [
+          { titulo: "Padres de la novia", nombres: ["Blanca Delia Macías Rocha", "Raúl Muñoz Márquez"] },
+          { titulo: "Padres del novio", nombres: ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"] },
+        ],
+      },
+      {
+        titulo: "Nuestros Padrinos",
+        categorias: [
+          { titulo: "Padrinos de Velación", nombres: ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"] },
+          { titulo: "Padrinos de Anillos", nombres: ["Maria de Lourdes Gomez Rocha", "Mauricio Gomez Rocha"] },
+        ],
+      },
+    ],
+  },
   cita: {
     texto:
       "Hoy por fin uniremos nuestras vidas en matrimonio, sellamos nuestras promesas con el elemento que distingue nuestro amor, el fuego, ese que ha mantenido viva la intensidad y la luz que nos dirige al futuro compartido en el que queremos vivir. Por eso nos encantaría que nos acompañaran en este día tan especial.",
@@ -200,7 +227,7 @@ export const wedding = {
   },
 
   marca: {
-    nombre: "Karina & Gerardo",
+    nombre: "Naomi & Andrés",
     dominio: null,
     // El destino de la confirmación ya no vive aquí: el envío va al servicio de registro
     // (RF-14). Solo queda el enlace de crédito.

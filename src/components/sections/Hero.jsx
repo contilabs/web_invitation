@@ -5,7 +5,7 @@ import { useTemplate } from "../../hooks/useTemplate.js";
 import { photoFor } from "../../services/photos.js";
 import { coupleNames } from "../../utils/couple.js";
 
-export function Hero({ couple, dateText }) {
+export function Hero({ couple, dateText, phrase }) {
   const { structuralPhotos, photoSizes } = useTemplate();
   const names = coupleNames(couple);
 
@@ -25,11 +25,8 @@ export function Hero({ couple, dateText }) {
           {names.first} <span className="amp">&amp;</span> {names.second}
         </h1>
         <p className="hero-date">{dateText}</p>
+        {phrase && <p className="hero-phrase">{phrase}</p>}
       </div>
-
-      <a className="hero-arrow" href="#fecha" aria-label="Continuar con la invitación">
-        <span aria-hidden="true"></span>
-      </a>
     </section>
   );
 }

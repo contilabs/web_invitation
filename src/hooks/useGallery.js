@@ -25,9 +25,8 @@ function useReducedMotion() {
   return reduced;
 }
 
-export function useGallery(total, { intervalMs = DEFAULT_INTERVAL_MS } = {}) {
+export function useGallery(total, { intervalMs = DEFAULT_INTERVAL_MS, suspended = false } = {}) {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
   const reducedMotion = useReducedMotion();
 
   const next = useCallback(
@@ -40,18 +39,15 @@ export function useGallery(total, { intervalMs = DEFAULT_INTERVAL_MS } = {}) {
     [total],
   );
 
-  const pause = useCallback(() => setPaused(true), []);
-  const resume = useCallback(() => setPaused(false), []);
-
   useEffect(() => {
-    if (reducedMotion || paused || total <= 1) return;
+    if (reducedMotion || suspended || total <= 1) return;
 
     const interval = setInterval(
       () => setIndex((current) => nextIndex(current, total, 1)),
       intervalMs,
     );
     return () => clearInterval(interval);
-  }, [reducedMotion, paused, total, intervalMs]);
+  }, [reducedMotion, suspended, total, intervalMs]);
 
-  return { index, next, previous, pause, resume, reducedMotion };
+  return { index, next, previous };
 }

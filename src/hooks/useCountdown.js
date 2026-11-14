@@ -10,7 +10,9 @@ export function useCountdown(targetMs) {
   );
 
   useEffect(() => {
-    setRemaining(remainingParts(targetMs, Date.now()));
+    const initial = remainingParts(targetMs, Date.now());
+    setRemaining(initial);
+    if (initial.done) return;
 
     const interval = setInterval(() => {
       const next = remainingParts(targetMs, Date.now());

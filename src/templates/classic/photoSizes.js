@@ -4,7 +4,7 @@
 // Ancho completo (hero, retrato y el fondo de la portada).
 export const SIZES_FULL_WIDTH = "100vw";
 // Foto destacada de la galería (carrusel).
-export const SIZES_FEATURED = "(max-width: 1180px) 100vw, 1180px";
+export const SIZES_FEATURED = "(max-width: 60rem) calc(100vw - 2rem), 58rem";
 // Rejilla de la galería.
 export const SIZES_GRID = "(max-width: 620px) 48vw, (max-width: 900px) 31vw, 23vw";
 // Tarjeta de la portada.

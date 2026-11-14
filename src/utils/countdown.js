@@ -2,7 +2,7 @@
 // milisegundos, así que no depende del reloj ni de la zona horaria. Devuelve los
 // días completos y el resto en horas, minutos y segundos. Cuando el objetivo ya
 // pasó (diferencia <= 0) marca `done` y pone todo a cero, para que la interfaz
-// muestre el mensaje en lugar de la cuenta.
+// conserve los cuatro valores en cero.
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;

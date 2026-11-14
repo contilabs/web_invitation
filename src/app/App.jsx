@@ -3,7 +3,7 @@
 // con sus datos (el mapa clave → componente vive en `app/sectionRenderers.jsx`). No contiene
 // datos ni textos de contenido incrustados. Mientras la portada está abierta, el contenido
 // (dentro de <main>) y el panel quedan inertes (RF-1); al cerrarla, el foco pasa al inicio y
-// arranca la música (RF-5). El audio no se descarga hasta el primer gesto (T26).
+// arranca la música (RF-5). Solo se precargan metadatos para preparar el inicio en 00:06.
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import audioUrl from "../../assets/audio.mp3";
@@ -36,6 +36,7 @@ const ERRORS = registryErrors(wedding);
 const WARNINGS = registryWarnings(wedding);
 
 const EVENT_INSTANT = eventInstant(wedding.evento);
+const COUNTDOWN_INSTANT = eventInstant(wedding.cuentaRegresiva ?? wedding.evento);
 const DATE_TEXT = formatDate(EVENT_INSTANT, eventTimeZone(wedding.evento));
 
 const NAVIGATION = wedding.ajustes?.navegacion ?? {};
@@ -57,11 +58,11 @@ assertPhotoKeys(Object.values(TEMPLATE.structuralPhotos));
 const KEYS_WITH_COVER = (section) => section.key !== "portada";
 
 // La portada no se pinta dentro de <main>: el resto de secciones recibe aquí sus datos.
-const SECTION_CONTEXT = { wedding, dateText: DATE_TEXT, eventInstant: EVENT_INSTANT };
+const SECTION_CONTEXT = { wedding, dateText: DATE_TEXT, eventInstant: EVENT_INSTANT, countdownInstant: COUNTDOWN_INSTANT };
 
 export function App() {
   const { dark, toggle: toggleTheme } = useTheme();
-  const { audioRef, playing, toggle: toggleMusic, play } = useMusic({
+  const { audioRef, playing, toggle: toggleMusic, play, initialize, restart } = useMusic({
     enabled: MUSIC_ENABLED,
   });
   const [coverOpen, setCoverOpen] = useState(COVER_VISIBLE);
@@ -123,15 +124,15 @@ export function App() {
       )}
 
       {MUSIC_ENABLED && (
-        <audio ref={audioRef} loop preload="none">
-          <source src={audioUrl} type="audio/mpeg" />
+        <audio ref={audioRef} preload="metadata" onLoadedMetadata={initialize} onEnded={restart}>
+          <source src={`${audioUrl}#t=6`} type="audio/mpeg" />
         </audio>
       )}
 
       <main className="site-content" ref={contentRef} tabIndex={-1} inert={coverOpen}>
         <SkipLink />
 
-        {HEADER_VISIBLE && <Header couple={wedding.pareja} />}
+        {HEADER_VISIBLE && <Header couple={wedding.portada?.pareja ?? wedding.pareja} />}
 
         {SECTIONS.filter(KEYS_WITH_COVER).map((section) => renderSection(section, SECTION_CONTEXT))}
 

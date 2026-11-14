@@ -1,9 +1,6 @@
-// Galería (T24/T26, RF-7): carrusel de las fotos destacadas con contador, más la rejilla
-// con el resto; cualquier foto se abre en el visor a pantalla completa. Las fotos y su
-// corte salen del registro (`galeria.imagenes` y `galeria.destacadas`); la mecánica (qué
-// foto se ve, el avance) la lleva `useGallery`; el fundido cruzado y el botón de cada
-// diapositiva (para el teclado) son del rediseño.
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+// Todas las fotos comparten un carrusel. El visor conserva el mismo orden y
+// el gesto horizontal deja libre el desplazamiento vertical de la página.
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useGallery } from "../../hooks/useGallery.js";
 import { useTemplate } from "../../hooks/useTemplate.js";
@@ -13,138 +10,161 @@ import { GalleryViewer } from "../ui/GalleryViewer.jsx";
 
 export function Gallery({ gallery }) {
   const { photoSizes } = useTemplate();
-  const { featured, grid } = useMemo(
-    () => galleryPhotos(gallery, photoSizes),
-    [gallery, photoSizes],
-  );
-  const featuredCount = featured.length;
-  const { index, next, previous, pause, resume } = useGallery(featuredCount);
+  const photos = useMemo(() => {
+    const { featured, grid } = galleryPhotos(gallery, { ...photoSizes, grid: photoSizes.featured });
+    return [...featured, ...grid];
+  }, [gallery, photoSizes]);
+  const total = photos.length;
+  const [focused, setFocused] = useState(false);
+  const [touching, setTouching] = useState(false);
   const [preload, setPreload] = useState(false);
-  const [viewerIndex, setViewerIndex] = useState(null); // posición en TODAS, o null si está cerrado
+  const [viewerIndex, setViewerIndex] = useState(null);
+  const { index, next, previous } = useGallery(total, {
+    suspended: focused || touching || viewerIndex !== null,
+  });
   const containerRef = useRef(null);
-
-  // El visor recorre todas las fotos: primero las destacadas y luego la rejilla.
-  const all = useMemo(() => [...featured, ...grid], [featured, grid]);
-
-  const openViewer = useCallback(
-    (position) => {
-      setViewerIndex(position);
-      pause();
-    },
-    [pause],
-  );
-
-  const closeViewer = useCallback(() => {
-    setViewerIndex(null);
-    resume();
-  }, [resume]);
+  const activeButton = useRef(null);
+  const restoreSlideFocus = useRef(false);
+  const gesture = useRef(null);
+  const ignoreClick = useRef(false);
 
   const moveViewer = useCallback(
-    (step) => setViewerIndex((current) => nextIndex(current, all.length, step)),
-    [all.length],
+    (step) => setViewerIndex((current) => nextIndex(current, total, step)),
+    [total],
   );
 
-  // Las diapositivas ocultas no se cargan con `loading="lazy"`: al acercarse la galería
-  // se piden todas (con `eager`) para que al avanzar no aparezcan en blanco.
+  useLayoutEffect(() => {
+    if (!restoreSlideFocus.current) return;
+    restoreSlideFocus.current = false;
+    activeButton.current?.focus({ preventScroll: true });
+  }, [index]);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container || typeof IntersectionObserver === "undefined") return;
-
     const observer = new IntersectionObserver(
       ([entry], self) => {
         if (!entry.isIntersecting) return;
         self.disconnect();
         setPreload(true);
       },
-      { rootMargin: "1500px 0px" },
+      { rootMargin: "300px 0px" },
     );
     observer.observe(container);
-
     return () => observer.disconnect();
   }, []);
 
+  function navigate(step) {
+    restoreSlideFocus.current = document.activeElement === activeButton.current;
+    (step > 0 ? next : previous)();
+  }
+
+  function handleKeyDown(event) {
+    if (total < 2 || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
+    event.preventDefault();
+    navigate(event.key === "ArrowRight" ? 1 : -1);
+  }
+
+  function startGesture(event) {
+    if (!event.isPrimary) return;
+    ignoreClick.current = false;
+    if (event.pointerType !== "touch" || total < 2 || !event.target.closest(".slide-button")) return;
+    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    setTouching(true);
+  }
+
+  function endGesture(event) {
+    const start = gesture.current;
+    if (start?.id !== event.pointerId) return;
+    gesture.current = null;
+    setTouching(false);
+    if (event.type === "pointercancel") return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < 36 || Math.abs(dx) <= Math.abs(dy) * 1.25) return;
+    ignoreClick.current = true;
+    navigate(dx < 0 ? 1 : -1);
+  }
+
   return (
     <section className="gallery reveal" id="galeria-seccion">
-      <div className="wrap">{gallery?.titulo && <h2>{gallery.titulo}</h2>}</div>
+      <div className="wrap">{gallery?.titulo && <h2 id="gallery-title">{gallery.titulo}</h2>}</div>
 
-      {featuredCount > 0 && (
-        <div className="gallery-strip" id="galeria" ref={containerRef}>
-          {featured.map((photo, position) => {
+      {total > 0 && (
+        <div
+          className="gallery-strip"
+          id="galeria"
+          ref={containerRef}
+          role="group"
+          aria-labelledby={gallery?.titulo ? "gallery-title" : undefined}
+          aria-label={gallery?.titulo ? undefined : "Galería de fotos"}
+          onFocus={() => setFocused(true)}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+          }}
+          onKeyDown={handleKeyDown}
+          onPointerDown={startGesture}
+          onPointerUp={endGesture}
+          onPointerCancel={endGesture}
+          onClickCapture={(event) => {
+            if (!ignoreClick.current || event.detail === 0) return;
+            ignoreClick.current = false;
+            event.stopPropagation();
+          }}
+        >
+          {photos.map((photo, position) => {
             const active = position === index;
+            const nearby = active || position === nextIndex(index, total, -1)
+              || position === nextIndex(index, total, 1);
             return (
               <div
                 className={`slide${active ? " slide-active" : ""}`}
-                key={photo.src}
+                key={`${photo.src}-${position}`}
                 aria-hidden={!active}
               >
                 <button
                   type="button"
                   className="slide-button"
+                  ref={active ? activeButton : undefined}
                   tabIndex={active ? 0 : -1}
                   aria-label={`Ampliar: ${photo.alt}`}
-                  onClick={() => openViewer(position)}
+                  onClick={() => setViewerIndex(position)}
                 >
-                  <img
-                    src={photo.src}
-                    srcSet={photo.srcSet}
-                    sizes={photo.sizes}
-                    alt={photo.alt}
-                    loading={preload ? "eager" : "lazy"}
-                    decoding="async"
-                  />
+                  {nearby && <img {...photo} loading={preload ? "eager" : "lazy"} decoding="async" />}
                 </button>
               </div>
             );
           })}
 
-          <button type="button" className="gallery-arrow" onClick={previous}>
-            <span className="gallery-arrow-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Foto anterior</span>
-          </button>
-          <button
-            type="button"
-            className="gallery-arrow gallery-arrow-next"
-            onClick={next}
-          >
-            <span className="gallery-arrow-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Foto siguiente</span>
-          </button>
+          {total > 1 && (
+            <>
+              <button type="button" className="gallery-arrow" onClick={previous}>
+                <span className="gallery-arrow-icon" aria-hidden="true"></span>
+                <span className="visually-hidden">Foto anterior</span>
+              </button>
+              <button type="button" className="gallery-arrow gallery-arrow-next" onClick={next}>
+                <span className="gallery-arrow-icon" aria-hidden="true"></span>
+                <span className="visually-hidden">Foto siguiente</span>
+              </button>
+            </>
+          )}
 
-          <p className="gallery-counter" aria-live="off">
-            <span id="galeria-actual">{index + 1}</span> /{" "}
-            <span id="galeria-total">{featuredCount}</span>
+          <p className="gallery-counter" aria-live={focused ? "polite" : "off"}>
+            <span className="visually-hidden">Foto </span>
+            <span id="galeria-actual">{index + 1}</span>
+            <span aria-hidden="true"> / </span>
+            <span className="visually-hidden"> de </span>
+            <span id="galeria-total">{total}</span>
           </p>
         </div>
       )}
 
-      <div className="wrap">
-        <div className="gallery-grid">
-          {grid.map((photo, position) => (
-            <button
-              type="button"
-              className="gallery-thumb"
-              key={photo.src}
-              onClick={() => openViewer(featuredCount + position)}
-            >
-              <img
-                src={photo.src}
-                srcSet={photo.srcSet}
-                sizes={photo.sizes}
-                alt={photo.alt}
-                loading="lazy"
-                decoding="async"
-              />
-            </button>
-          ))}
-        </div>
-      </div>
-
       {viewerIndex !== null && (
         <GalleryViewer
-          photo={all[viewerIndex]}
+          photo={photos[viewerIndex]}
           current={viewerIndex + 1}
-          total={all.length}
-          onClose={closeViewer}
+          total={total}
+          onClose={() => setViewerIndex(null)}
           onPrevious={() => moveViewer(-1)}
           onNext={() => moveViewer(1)}
         />

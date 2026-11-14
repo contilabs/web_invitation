@@ -13,7 +13,7 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
   genérico real** (`4236_GEN`), **no** `PUBLIC` (ver «Casos límite» y `gas/README.md`). **Único
   control de que el redespliegue se hizo.** Anotar veredicto en «Verificación» de `AGENTS.md`.
 - **Spec 003 · T27.** Reutilizar la app con otro registro, copiar datos por portapapeles, audio tras
-  «Ingresar» y una vuelta en un **móvil físico**. Se puede cubrir en la misma pasada.
+  «Ingresar» y una vuelta en un **móvil físico**, incluido el gesto horizontal de la galería y el desplazamiento vertical. Se puede cubrir en la misma pasada.
 
 ## Casos límite por cubrir
 
@@ -22,23 +22,19 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
    el aviso visible.
 2. Estado de carga con conexión lenta: `#root` queda vacío hasta que React monta (el caso **sin
    JavaScript** está cubierto con un `<noscript>` en español).
-3. Zona horaria del invitado (viajeros): el registro ya declara `evento.zonaHoraria` y la fecha
-   **visible** se formatea en esa zona, pero `eventInstant` interpreta `evento.fechaInicio`
-   (sin offset) en la zona del navegador, así que la **cuenta regresiva** de un invitado fuera de
-   Guadalajara puede ir corrida. Decidir si se fija un offset explícito.
-4. Entrada por enlace con ancla/hash (`#seccion`): los anclajes internos sí funcionan, pero
+3. Entrada por enlace con ancla/hash (`#seccion`): los anclajes internos sí funcionan, pero
    `app/main.jsx` fija `scrollRestoration = "manual"`, así que recargar con hash no
    restaura la posición.
-5. Vista previa al compartir el enlace (WhatsApp/redes): el build emite `og:image` con **ruta
+4. Vista previa al compartir el enlace (WhatsApp/redes): el build emite `og:image` con **ruta
    relativa y con hash** (`./assets/foto2-1800-<hash>.jpg`), y los rastreadores necesitan una URL
    **absoluta**. Hace falta el host real (o un absoluto fijo) al confirmar la publicación.
-6. Publicación: no hay ninguna confirmada (sin CNAME, sin workflows, Pages devuelve 404). El build
+5. Publicación: no hay ninguna confirmada (sin CNAME, sin workflows, Pages devuelve 404). El build
    usa `base: "./"` para no adivinar; cuando exista host, revisar si sigue siendo lo adecuado y
    desplegar (el despliegue no está en `tasks.md`). El build de publicación además debe llevar
    las variables de entorno del servicio (`VITE_SERVICE_URL` y `VITE_WEDDING_SLUG`); sin ellas
    el sitio queda en modo demo (ver `README.md`).
-7. Imagen de la galería que no carga: ¿marcador o se omite?
-8. Semántica: con la portada abierta hay **dos `<h1>`** en el DOM (portada + hero). Hoy es
+6. Imagen de la galería que no carga: ¿marcador o se omite?
+7. Semántica: con la portada abierta hay **dos `<h1>`** en el DOM (portada + hero). Hoy es
    correcto por `aria-modal` + `inert` (el hero no se expone), pero valorar si conviene bajar el
    del hero a `<h2>`/`<p>` mientras la portada está abierta.
 
