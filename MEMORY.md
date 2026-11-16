@@ -1,33 +1,38 @@
 # MEMORY.md — Invitación digital
 Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y pendientes en `PENDING_TASKS.md`.
 ## Estado actual
+- Restricciones: tras Confirmación; Formal y texto exacto del registro dentro de silueta SVG 5:8,
+  curvas simétricas y borde de rombos, sin título exterior. Oliva/champagne invertidos en noche.
+  Reveal conservado; móvil 320, tablet y escritorio revisados, 262 pruebas/build correctos.
 - Footer: Naomi & Andrés/13-mar-2027 desde portada; N & A accesible, Kalista, sin créditos/borde, compacto.
 - Confirmación: DSC01036.jpg intacta de fondo cover, mensaje del registro y enlace Kalista 20px arriba.
   Confirma aquí abre dialog nativo con rsvp.png original autorizado sobre oliva #6A6A53; campos 14px,
   botones 50px, scroll interior, foco circular, fondo bloqueado y restauración exacta de scroll/foco.
-  Escape/X/exterior cierran; conserva datos al reabrir. Máquina, consultas y envío sin cambios.
-  Móvil 320/375, tablet 768, escritorio 1440 y ambos temas revisados con datos ficticios retirados.
-  Validación, rechazo y teléfono comprobados sin enviar; demo muestra su aviso dentro del modal.
-- Galería: 19 DSC de opt/future intactas, sin duplicados ni DSC00743 - Copy; sin título ni contadores
-  (tampoco en visor). Fondo claro --superficie, noche --paper; altura estable, flechas/swipe intactos.
+  Escape/X/exterior cierran; conserva datos al reabrir. Móvil/escritorio y ambos temas revisados.
+  Modal en carga/error: al resolver o reintentar ofrece «Continuar» en NOT_ANSWERED; handleReveal
+  exige ready y plazo abierto. Consultas/envíos intactos; npm run check correcto en Docker.
+- Galería: originales DSC intactos (SHA-256); 57 WebP en opt/gallery a 480/768/1200 px.
+  Pillow/Lanczos, EXIF orientado, calidad 80/método 6, sin recorte; photoFor/visor con srcSet/sizes.
+  Activa±1, carga diferida y pausa fuera de pantalla. Chrome 375 px 1x/2x: tres fotos 79/160 KB
+  vs 11,46 MB JPG; escritorio 364 KB. 19 decodificadas, marco estable, visor/flechas correctos.
+  262 pruebas/build Docker correctos; imágenes y diseño originales conservados.
 - Hoteles: Hotel El Refugio, hotel.png reducido otro 30% a 45.5%/14rem; Reservar igual que Ubicación.
   Sugerencia exacta en notas con prefijo en negrita; Reservar abre Reservatio con NAOMIYANDRES.
 - Regalos: Liverpool con originales verde/blanco vía plantilla según tema, enlace original en
-  imagen accesible, grande y sin copy/botón; BBVA sin contenedor. Efectivo retirado del registro.
-- Solo adultos: postal independiente tras Itinerario, contenido en wedding.soloAdultos y componente
-  AdultsOnly autorizados. Marco doble cóncavo y flores SVG; Kalista y NO NIÑOS destacados.
-  Mensaje abreviado en dos párrafos; postal compactada en ancho, rellenos, tipos y flores.
-  Exterior con papel general; interior oliva #6A6A53/blanco, noche beige/oliva. RSVP intacto.
-  Fondos claros en #EDE7DB; cuenta regresiva recupera banda verde y texto claro en ambos temas.
+  imagen accesible, grande y centrada. BBVA comentada en el registro (código/recursos intactos):
+  restaurar solo con datos correctos verificados. Liverpool 51688096 heredado de la boda anterior,
+  sin modificar; titular actual no verificable por web.
+- Solo adultos: postal compacta autorizada tras Itinerario; wedding.soloAdultos, Kalista, marco
+  cóncavo y flores SVG, mensaje abreviado. Oliva/blanco y noche beige/oliva; RSVP intacto.
 - Itinerario: composición vertical de referencia, fondo uniforme como Ubicaciones, sin tarjetas.
   Ceremonia religiosa 16:00 hrs; Recepción 19:30 hrs; Cóctel 19:30 h; Boda civil sin hora
   (confirmado); Cena 20:00 h. Anillos originales autorizados vía plantilla, tamaños coherentes.
   Bloque centrado. Hover oscuro #FAF7EF con texto oscuro; normales, radios 50px y transiciones intactos.
 - Ubicaciones: acuarelas originales sin filtro ni tarjetas; Santísima Trinidad y Monte Piedra.
-  Recepción 19:30 hrs; ceremonia 16:30 h intacta (16:00 solo Itinerario por alcance). Botones con pin.
+  Recepción 19:30 hrs; ceremonia 16:00 hrs igual en Ubicaciones e Itinerario. Botones con pin.
+  `ceremonyTime` en wedding.js centraliza hora de inicio y rótulo; demás horas/fecha intactas.
+  Búsqueda estática sin hora anterior en registro/componentes; pruebas/build correctos en Docker.
 - Contador: Faltan, cuatro valores hasta cero; fecha propia 2027-03-13T00:00:00-06:00/Mexico_City.
-- Familia: nombres del registro, Kalista/reveal; tras Hero, una columna móvil/dos escritorio.
-- Historia: pintura completa 1113/960 tras Ubicaciones, sin textos ni velo; reveal conservado.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Apps Script (`gas/Code.gs`), contrato **1.4.0**,
   hoja `public`, caída `generic`→`public`, `MALFORMED_GUEST` y celdas vacías como cero.
 - Spec 005: T1–T20, T22 y T23 hechas; T21 manual pendiente. RSVP con siete estados, consulta por
@@ -69,11 +74,9 @@ Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y
 ## Errores a evitar
 - No ejecutar herramientas ni importar archivos del proyecto en el host: usar lanzadores Docker.
   `services/config.js` usa `import.meta.env` y `photos.js`, `import.meta.glob`: no importarlos en tests Node.
-- Maestro por nombre: `getProperty('MASTER_SHEET_ID')`, no por valor. Los tests no ejecutan Apps Script.
 - Código `PUBLIC` con `limit = "n"` en `generic` es `MALFORMED_GUEST`: borrar fila y pasarla a `public`;
   no corregir la app. `INVALID_DATA` al resolver indica otros datos inválidos; ver `gas/README.md`.
-- Chrome: servir el build y medir por DevTools, no `--dump-dom`. Parches de verificación temporales
-  deben restaurarse. Fotos por clave: variantes optimizadas o DSC existentes registradas en opt/future.
+- Chrome: servir build y medir por DevTools, no `--dump-dom`; restaurar parches temporales.
 ## Próximos pasos
 - Completar T10 de 004, T21 de 005 y T27 de 003 contra servicio vivo y móvil físico; anotar veredictos
   en `AGENTS.md`. Usar código genérico real, no PUBLIC en generic, y redesplegar el script.

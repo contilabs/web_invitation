@@ -4,6 +4,10 @@
 // (src/data/guest-cards.js). Solo datos (sin React, sin DOM, sin lógica): también los
 // textos de cada sección, que la interfaz no incrusta (RNF-1).
 
+// Hora confirmada: una sola fuente para el inicio del evento, Ubicaciones e Itinerario.
+const ceremonyTime = "16:00";
+const ceremonyTimeLabel = `${ceremonyTime} hrs`;
+
 export const wedding = {
   plantilla: "clasica",
 
@@ -16,7 +20,7 @@ export const wedding = {
 
   evento: {
     titulo: "Boda de Karina y Gerardo",
-    fechaInicio: "2027-11-01T16:30:00",
+    fechaInicio: `2027-11-01T${ceremonyTime}:00`,
     zonaHoraria: "America/Mexico_City",
     lugar: "Guadalajara",
     descripcion: "Ceremonia religiosa y recepción",
@@ -79,7 +83,7 @@ export const wedding = {
       nombre: "Ceremonia religiosa",
       lugar: "La Santísima Trinidad",
       direccion: "Av. Lago Ginebra y Lago Tanna S/N (esquina con Lago Ontario), Col. Los Lagos, C.P. 47030, San Juan de los Lagos, Jal.",
-      hora: "16:30 h",
+      hora: ceremonyTimeLabel,
       mapaUrl: "https://www.google.com/maps/search/?api=1&query=21.2709868%2C-102.3163084",
     },
     recepcion: {
@@ -95,7 +99,7 @@ export const wedding = {
     titulo: "Itinerario de la boda",
     // `icono` es una clave de presentación: la interfaz elige el archivo del build.
     momentos: [
-      { hora: "16:00 hrs", titulo: "Ceremonia religiosa", descripcion: "Inicio de la ceremonia", icono: "iglesia" },
+      { hora: ceremonyTimeLabel, titulo: "Ceremonia religiosa", descripcion: "Inicio de la ceremonia", icono: "iglesia" },
       { hora: "19:30 hrs", titulo: "Recepción", descripcion: "Cena y celebración", icono: "mansion" },
       { hora: "19:30 h", titulo: "Cóctel", descripcion: "Copas y brindis", icono: "copas" },
       { hora: "", titulo: "Boda civil", descripcion: "", icono: "anillos" },
@@ -149,7 +153,9 @@ export const wedding = {
         descripcion: "Mesa de regalos en Liverpool",
         url: "https://mesaderegalos.liverpool.com.mx/milistaderegalos/51688096",
       },
-      {
+      // Deshabilitada hasta recibir y verificar los datos bancarios de Naomi y Andrés.
+      // Conservar esta opción y sus recursos para restaurarla solo después de la verificación.
+      /* {
         tipo: "transferencia",
         etiqueta: "Transferencia bancaria (BBVA)",
         descripcion: "Datos para transferencia bancaria",
@@ -159,7 +165,7 @@ export const wedding = {
           { etiqueta: "Titular", valor: "Karina Lizeth Delgado Benítez" },
           { etiqueta: "Cuenta", valor: "012320015636927951", copiar: true },
         ],
-      },
+      }, */
     ],
   },
 

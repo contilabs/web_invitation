@@ -501,6 +501,8 @@ export function Rsvp({ wedding }) {
   }
 
   function handleReveal() {
+    // Abrir durante la carga o un fallo no consume el paso: «Continuar» lo ofrece al resolver.
+    if (status !== "ready" || !open) return;
     const next = nextBlockState(block, BLOCK_EVENTS.REVEAL, { personalized });
     if (next === null) return;
     setLookupNotice(null);
@@ -654,6 +656,12 @@ export function Rsvp({ wedding }) {
 
                 {/* Contenido revelado: vive dentro del panel asociado al botón (RNF-1). */}
                 <div id={PANEL_ID}>
+                  {status === "ready" && open && block === BLOCK_STATES.NOT_ANSWERED && (
+                    <button type="button" className="button button-solid" onClick={handleReveal}>
+                      Continuar
+                    </button>
+                  )}
+
                   {/* telefono / consultando (solo genérica y pública, RF-5). */}
                   {(block === BLOCK_STATES.PHONE || looking) && (
                     <form onSubmit={handleContinue}>

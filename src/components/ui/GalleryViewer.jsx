@@ -1,6 +1,6 @@
 // Visor a pantalla completa (T22, RF-7). Es un <dialog> nativo: se abre con showModal()
 // (bloquea el fondo y atrapa el foco) y Escape lo cierra. Usa una variante intermedia cuando
-// existe, o la foto DSC existente e intacta que recibe del servicio de fotos.
+// existe; el navegador elige una resolución adecuada también en móviles.
 import { useEffect, useRef } from "react";
 
 import { pickVariant } from "../../utils/gallery.js";
@@ -46,7 +46,7 @@ export function GalleryViewer({ photo, onClose, onPrevious, onNext }) {
         if (event.target === dialogRef.current) dialogRef.current.close();
       }}
     >
-      <img src={source} alt={photo.alt} />
+      <img src={source} srcSet={photo.srcSet} sizes={photo.sizes} alt={photo.alt} decoding="async" />
       <button type="button" className="lightbox-close" aria-label="Cerrar" onClick={() => dialogRef.current?.close()}>
         ×
       </button>

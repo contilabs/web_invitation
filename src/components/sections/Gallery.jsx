@@ -18,9 +18,10 @@ export function Gallery({ gallery }) {
   const [focused, setFocused] = useState(false);
   const [touching, setTouching] = useState(false);
   const [preload, setPreload] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(null);
   const { index, next, previous } = useGallery(total, {
-    suspended: focused || touching || viewerIndex !== null,
+    suspended: !visible || focused || touching || viewerIndex !== null,
   });
   const containerRef = useRef(null);
   const activeButton = useRef(null);
@@ -41,7 +42,12 @@ export function Gallery({ gallery }) {
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || typeof IntersectionObserver === "undefined") return;
+    if (!container) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setPreload(true);
+      setVisible(true);
+      return;
+    }
     const observer = new IntersectionObserver(
       ([entry], self) => {
         if (!entry.isIntersecting) return;
@@ -51,7 +57,12 @@ export function Gallery({ gallery }) {
       { rootMargin: "300px 0px" },
     );
     observer.observe(container);
-    return () => observer.disconnect();
+    const visibilityObserver = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    visibilityObserver.observe(container);
+    return () => {
+      observer.disconnect();
+      visibilityObserver.disconnect();
+    };
   }, []);
 
   function navigate(step) {
@@ -128,7 +139,7 @@ export function Gallery({ gallery }) {
                   aria-label={`Ampliar: ${photo.alt}`}
                   onClick={() => setViewerIndex(position)}
                 >
-                  {nearby && <img {...photo} loading={preload ? "eager" : "lazy"} decoding="async" />}
+                  {nearby && <img {...photo} loading={preload ? "eager" : "lazy"} fetchPriority={active ? "auto" : "low"} decoding="async" />}
                 </button>
               </div>
             );

@@ -4,6 +4,11 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Verificación manual pendiente (specs 004 y 005)
 
+- **Modal RSVP tras carga/reintento.** Pruebas/build correctos con `npm run check`; falta
+  probar apertura durante carga, error→Reintentar→éxito→Continuar sin reabrir, apertura ya resuelta,
+  personalizada con respuesta previa y envío. El botón interior usa la transición existente;
+  la verificación de estos recorridos en navegador sigue pendiente.
+
 - **Spec 004 · T10 y spec 005 · T10/T21.** Con el Apps Script **redesplegado**, contra un despliegue
   real (escritorio y móvil): los puntos de la 004 (tres tipos con envío real y su fila; misma
   respuesta con el mismo teléfono que actualiza; boda inactiva/código desconocido/sin `slug`/modo
@@ -41,6 +46,10 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 
 ## Trabajo diferido
+
+- **Regalos Naomi y Andrés.** Validar Liverpool `51688096` (enlace heredado de la boda anterior)
+  antes de publicar. Mantener BBVA deshabilitada hasta recibir y verificar los datos correctos;
+  la opción está comentada en `src/data/wedding.js`, con código y recursos conservados.
 
 - **Tope global de asistentes.** Fuera de alcance en la spec 002 y también en la 004 (§16 del
   plan): definir si el máximo de una boda cuenta la suma de todas las respuestas y qué ocurre
