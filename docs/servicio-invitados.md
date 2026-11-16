@@ -460,7 +460,7 @@ cambiarlas. Ver [seguridad local](local-security.md) para desarrollo, preview y 
 El panel privado es **independiente** del contrato público 1.4.0. Usa un sobre y una acción
 distintos, con su propia versión de contrato.
 
-- **Versión del contrato administrativo:** `1.1.0` (`ADMIN_CONTRACT_VERSION`).
+- **Versión del contrato administrativo:** `1.3.0` (`ADMIN_CONTRACT_VERSION`).
 - **Despliegues:** el RSVP público y el panel React usan `VITE_SERVICE_URL`; el panel protege
   los datos con token server-side.
 - **Acciones:** `requestToken` (`ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN`), `verifyToken`
@@ -468,9 +468,10 @@ distintos, con su propia versión de contrato.
   y `revealPhone` (`ADMIN_SERVICE_ACTIONS.REVEAL_PHONE`).
 - **Autorización:** Apps Script genera y envía un token nuevo de 5 dígitos al `admin_email` de la
   fila de la boda en `files` cada vez que se solicita un correo; la validación usa `token` y
-  `counter`. El frontend no lleva secretos.
+  `counter`, y después emite una sesión efímera de 15 minutos. Las lecturas usan solo esa sesión;
+  el token de correo no se reutiliza como credencial.
 - **Alcance:** **una boda** resuelta por el correo introducido y autorizado en `admin_email`.
-  El token solo vive en memoria mientras la página está abierta.
+  La sesión solo vive en memoria mientras la página está abierta y caduca en 15 minutos.
 - **Teléfono:** enmascarado siempre por defecto, con revelación temporal tras acción
   adicional, sin persistirlo (D3).
 - **Volumen:** consulta única sin paginación en la primera entrega (D4).
@@ -483,12 +484,12 @@ distintos, con su propia versión de contrato.
 | Campo | Contenido |
 | --- | --- |
 | `action` | `listResponses` |
-| *(ninguno)* | La boda se resuelve en el servidor con la cuenta Google autenticada. |
+| `session` | Credencial efímera devuelta por `verifyToken`. |
 
-La autorización se resuelve en el servidor (`admin_email` + `token`). No se envía un slug ni
-se usa una sesión de Google.
+La autorización se resuelve en el servidor con la sesión emitida tras verificar el token. No se
+envía un slug ni se usa una sesión de Google.
 
-La acción `revealPhone` recibe `guestId`, vuelve a comprobar la autorización y
+La acción `revealPhone` recibe `guestId`, vuelve a comprobar la sesión y
 devuelve el teléfono de esa fila durante la sesión de la página. La interfaz lo oculta al
 cerrar el detalle o al pulsar «Ocultar»; nunca se persiste en el navegador, la URL ni los
 logs.

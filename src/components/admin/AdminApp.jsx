@@ -19,7 +19,7 @@ function errorLabel(code, language) { return ERROR_COPY[language]?.[code] ?? err
 
 export function AdminApp() {
   const [state, setState] = useState({ status: config.state === "ready" ? "login" : "error", data: null, code: config.state === "ready" ? null : "NOT_CONFIGURED" });
-  const [credentials, setCredentials] = useState({ email: "", token: "" });
+  const [credentials, setCredentials] = useState({ email: "", token: "", session: "" });
   const [loginStep, setLoginStep] = useState("email");
   const [loginMessage, setLoginMessage] = useState("");
   const [filters, setFilters] = useState({ status: "", restrictions: "", query: "" });
@@ -34,7 +34,7 @@ export function AdminApp() {
   const isPersonal = state.data?.wedding?.guestType === "personal";
 
   const load = useCallback(async () => {
-    if (config.state !== "ready" || loadingRef.current || !credentials.email || !credentials.token) return;
+    if (config.state !== "ready" || loadingRef.current || !credentials.session) return;
     loadingRef.current = true;
     setState((current) => ({ ...current, status: "loading", code: null }));
     const result = await listAdminResponses(config.url, credentials);
@@ -44,15 +44,23 @@ export function AdminApp() {
     setState(normalized.ok ? { status: "ready", data: normalized, code: null } : { status: "error", data: null, code: normalized.errorCode });
   }, [credentials]);
   const sendToken = async (event) => { event.preventDefault(); const email = String(new FormData(event.currentTarget).get("email") ?? "").trim(); setLoginMessage(COPY.spanish.sending); const result = await requestAdminToken(config.url, email); if (result.ok) { setCredentials({ email, token: "" }); setLoginStep("token"); setLoginMessage(COPY.spanish.reviewEmail); } else setLoginMessage(errorLabel(result.errorCode, "spanish")); };
-  const enterToken = async (event) => { event.preventDefault(); const token = String(new FormData(event.currentTarget).get("token") ?? "").trim(); setLoginMessage(COPY.spanish.validating); const result = await verifyAdminToken(config.url, credentials.email, token); if (result.ok) { setCredentials((current) => ({ ...current, token })); setState({ status: "loading", data: null, code: null }); } else setLoginMessage(errorLabel(result.errorCode, "spanish")); };
-  useEffect(() => { if (state.status === "loading" && credentials.token) load(); }, [state.status, credentials.token, load]);
+  const enterToken = async (event) => { event.preventDefault(); const token = String(new FormData(event.currentTarget).get("token") ?? "").trim(); setLoginMessage(COPY.spanish.validating); const result = await verifyAdminToken(config.url, credentials.email, token); if (result.ok && typeof result.data?.session === "string") { setCredentials((current) => ({ email: current.email, token: "", session: result.data.session })); setState({ status: "loading", data: null, code: null }); } else setLoginMessage(errorLabel(result.errorCode, "spanish")); };
+  useEffect(() => { if (state.status === "loading" && credentials.session) load(); }, [state.status, credentials.session, load]);
   useEffect(() => { if (!selected) return undefined; const onKeyDown = (event) => { if (event.key === "Escape") closeDetail(); }; document.addEventListener("keydown", onKeyDown); return () => document.removeEventListener("keydown", onKeyDown); }, [selected]);
 
   const rows = useMemo(() => state.data ? sortAdminResponses(filterAdminResponses(state.data.responses, filters), sort) : [], [state.data, filters, sort]);
   const messages = useMemo(() => rows.filter((row) => row.message), [rows]);
-  const openDetail = (row) => { setSelected(row); setRevealedPhone(null); lastTrigger.current = document.activeElement; };
-  const closeDetail = () => { setSelected(null); setRevealedPhone(null); lastTrigger.current?.focus?.(); };
-  const revealPhone = async () => { const result = await revealAdminPhone(config.url, selected.guestId, credentials); if (result.ok && typeof result.data?.phone === "string") setRevealedPhone(result.data.phone); };
+  const openDetail = (row) => { revealRequestRef.current += 1; setSelected(row); setRevealedPhone(null); lastTrigger.current = document.activeElement; };
+  const closeDetail = () => { revealRequestRef.current += 1; setSelected(null); setRevealedPhone(null); lastTrigger.current?.focus?.(); };
+  const revealRequestRef = useRef(0);
+  const revealPhone = async () => {
+    const guestId = selected?.guestId;
+    if (!guestId) return;
+    const requestId = revealRequestRef.current + 1;
+    revealRequestRef.current = requestId;
+    const result = await revealAdminPhone(config.url, guestId, credentials);
+    if (revealRequestRef.current === requestId && selected?.guestId === guestId && result.ok && typeof result.data?.phone === "string") setRevealedPhone(result.data.phone);
+  };
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }));
   const resetFilters = () => setFilters({ status: "", restrictions: "", query: "" });
   const seats = (value) => value === null || value === undefined ? copy.notAvailable : String(value);

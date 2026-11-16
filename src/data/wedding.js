@@ -50,9 +50,9 @@ export const wedding = {
     titulo: "Padres y padrinos",
     // Añadir los nombres en cada grupo para mostrar esta sección.
     grupos: [
-      { titulo: "Padres de Karina", nombres: ["Saúl Delgado Romero", "Irma Benítez Reynoso"] },
-      { titulo: "Padres de Gerardo", nombres: ["Papá de Vaco", "Mamá de Vaco"] },
-      { titulo: "Padrinos de boda", nombres: ["Fernando Aguiñaga", "Berenice Delgado Benítez"] },
+      { titulo: "Padres de Karina", nombres: [] },
+      { titulo: "Padres de Gerardo", nombres: [] },
+      { titulo: "Padrinos de boda", nombres: [] },
     ],
   },
 

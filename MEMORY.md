@@ -44,6 +44,16 @@ Memoria del proyecto entre sesiones. Máximo ~80 líneas: resume o elimina lo qu
   actual sí declara y enruta esa acción. La primera sospecha es una versión vieja o una URL de
   deployment distinta en `VITE_SERVICE_URL`; `MailApp` solo se alcanza después y devolvería
   `EMAIL_UNAVAILABLE` si fallara el permiso o la cuota.
+- **Docker y panel 2026-11-11:** `admin.html` faltaba en `applicationPaths` de
+  `scripts/safe-check.mjs`; el lanzador Docker sincronizaba solo `index.html` y Vite devolvía la
+  invitación como fallback en `/admin.html`. Se añadió la entrada administrativa; hay que
+  reiniciar el lanzador para resincronizar.
+- **Revisión PR #2:** se corrigió la autenticación administrativa para emitir una sesión efímera
+  de 15 minutos tras validar el token de correo; las lecturas ya no aceptan el token directamente.
+  También se asoció la revelación de teléfono a la fila abierta y se hizo fatal un conteo de
+  asistentes malformado (`INVALID_DATA`). `admin.html` ya estaba en el snapshot Docker. Los
+  grupos de familia conservan títulos y arreglos vacíos para facilitar su réplica y edición sin
+  publicar nombres provisionales.
 
 ## Decisiones (y por qué)
 - **Spec 005 · máquina de estados y lookup:** el componente solo despacha eventos; `lookup` (por

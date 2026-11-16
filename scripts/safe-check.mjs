@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const applicationPaths = [
   'src', 'public', 'assets/photos/opt', 'assets/icons', 'assets/audio.mp3',
-  'fonts', 'index.html', 'vite.config.js', 'package.json', 'package-lock.json',
+  'fonts', 'index.html', 'admin.html', 'vite.config.js', 'package.json', 'package-lock.json',
 ]
 const sourcePaths = [
   ...applicationPaths, 'test', 'scripts', 'docs', 'gas/Code.gs', 'README.md',
