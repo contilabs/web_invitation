@@ -498,8 +498,8 @@ p:last-child {
 /* Botón flotante de música: superficie de papel con el glifo en brasa,
    igual que los iconos del itinerario. */
 .music-toggle {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   border: 1px solid var(--linea-fuerte);
   border-radius: var(--radio-boton);

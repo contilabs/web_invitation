@@ -106,7 +106,7 @@ html.dark-mode .gift-store-image-night { display: block; }
    ============================================================ */
 .theme-toggle {
   position: relative;
-  width: 3.9rem;
+  width: 3.4rem;
   height: 2.75rem;
   padding: 0;
   border: 1px solid var(--linea-fuerte);
@@ -121,8 +121,8 @@ html.dark-mode .gift-store-image-night { display: block; }
   top: 50%;
   left: 0.19rem;
   z-index: 2;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.35rem;
+  height: 1.35rem;
   border-radius: 50%;
   background-color: var(--ember);
   transform: translateY(-50%);
@@ -130,7 +130,7 @@ html.dark-mode .gift-store-image-night { display: block; }
 }
 
 html.dark-mode .theme-toggle-thumb {
-  transform: translate(1.78rem, -50%);
+  transform: translate(1.67rem, -50%);
 }
 
 .theme-toggle-icons {
@@ -146,8 +146,8 @@ html.dark-mode .theme-toggle-thumb {
 /* El icono visible es siempre el del tema al que puedes cambiar,
    y queda en el lado opuesto al del interruptor. */
 .theme-toggle-icons svg {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 0.8rem;
+  height: 0.8rem;
   color: var(--ink-2);
   fill: none;
   stroke: currentColor;
