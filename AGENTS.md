@@ -11,7 +11,7 @@ por el registro) y `specs/001-migracion-y-rediseno` (de la página estática a R
 
 - Requisitos: Node.js 22.12+ y npm para los lanzadores; Docker Desktop (contenedores Linux) o Docker Engine en marcha. No se instalan dependencias en el host.
 - `npm run dev` — Vite en Docker sin red, accesible en `http://127.0.0.1:5173`.
-- `npm run build` — valida el build desechable dentro de Docker; no exporta `dist/`.
+- `npm run build` — ejecuta `vite build` directamente para CI/hosting (incluido Netlify) y genera `dist/`.
 - `npm run preview` — compila y sirve dentro de Docker; `npm run check` ejecuta pruebas y build.
 - `npm test` — runner integrado de Node dentro de Docker (aplicación y seguridad).
 
@@ -19,8 +19,9 @@ por el registro) y `specs/001-migracion-y-rediseno` (de la página estática a R
 
 - No ejecutar configuración, dependencias ni pruebas del proyecto en el host. Usar solo los
   lanzadores revisados de `npm run dev`, `npm run preview`, `npm run build`, `npm test` y
-  `npm run check`. No saltárselos con `npx`, `npm exec`, Vite directo, `node_modules/.bin`,
-  importaciones/evaluación de archivos del proyecto ni instalaciones en el host.
+  `npm run check`. `npm run build` es la excepción para el entorno de publicación y ejecuta
+  Vite directamente; no usar `npx`, `npm exec`, `node_modules/.bin` ni importaciones/evaluación
+  de archivos del proyecto fuera de ese lanzador.
 - Si Docker falla, detener la ejecución dependiente y comunicar el bloqueo; no debilitar
   aislamiento ni políticas para obtener un resultado verde. Una excepción en el host exige
   petición humana explícita y acotada tras explicar qué código se ejecutaría.

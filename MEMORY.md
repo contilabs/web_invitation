@@ -11,8 +11,21 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   rechazo con mensaje, saludo personalizado y consulta tolerante.
 - Spec 006: panel con respuestas, mensajes, enlaces por código, filtros, detalle accesible y
   revelación temporal del teléfono; la sesión efímera sustituye al token en lecturas.
-- Seguridad: `dev`, `preview`, `test`, `build` y `check` usan lanzadores Docker; no ejecutar
-  herramientas del proyecto directamente en el host.
+- Panel admin: `src/components/admin/admin.css` alineado visualmente con la invitación Ascua
+  (marfil, oliva, salvia, oro y tipografías de la plantilla); solo cambio visual, sin tocar lógica.
+- Panel admin móvil: las tablas de respuestas, mensajes y enlaces se convierten en tarjetas
+  apiladas con `data-label`, filtros a ancho completo y acciones cómodas para tocar.
+- Popup RSVP: se amplió el área útil del marco, se ajustaron márgenes/scroll interno y se añadió
+  un tratamiento móvil específico con viewport seguro, controles táctiles y botón de envío visible.
+- Integrados en el árbol de trabajo los cambios pendientes de `WI-1-Project-Setup`: contacto
+  original compacto en el footer y hojas decorativas originales para los títulos de familia.
+- Portada: en escritorio (`min-width: 601px`) la frase del hero se ancla al fondo de la foto;
+  el acomodo móvil conserva el flujo original. La frase usa una sombra clara en varias capas
+  y un tamaño progresivo mayor para conservar contraste y legibilidad sobre la imagen. La mejora
+  de contraste se resolvió con un contorno claro fino, sin añadir una banda visible; en escritorio
+  se quitó la sombra al finalizar la animación para evitar el brillo posterior.
+- Seguridad: `dev`, `preview`, `test` y `check` usan lanzadores Docker; `build` ejecuta Vite
+  directamente para que CI/Netlify pueda publicar sin Docker.
 - Configuración real: existe `.env.local` gitignorado con `VITE_SERVICE_URL` y
   `VITE_WEDDING_SLUG`; los lanzadores leen solo esas dos variables y no copian el archivo.
 
@@ -25,11 +38,24 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - La maquetación pública se mantiene alineada con `WI-1-Project-Setup`: familia clásica,
   orden único de secciones y estilos sin tarjetas añadidas posteriormente.
 - Tema inicial en el shell, `kg-tema`, colores por variables CSS y audio solo tras gesto.
+- Controles flotantes elevados a 4.5 rem (4.25 rem en móvil) para no quedar bajo el botón de
+  Netlify; la música hace un fundido de 0.05 a 0.65 durante 4 s al iniciar o reiniciar.
+- El tema inicial se decide siempre por la hora local: día de 07:00 a 18:59 y noche el resto;
+  el cambio manual solo dura la visita y no se persiste.
+- En el panel admin móvil, los botones de copiar enlaces no repiten la etiqueta «Link»; el botón
+  conserva el texto «Copiar link».
+- El combo de boletos del RSVP usa la apariencia y los colores de la invitación, incluida una
+  flecha propia en vez del indicador azul nativo.
+- El hover/foco del botón de música conserva la superficie nocturna; el valor seleccionado del
+  combo de boletos queda en oliva y su opción activa también.
+- El hover del combo usa un verde olivo más claro mediante `--ember-suave`.
 
 ## Errores a evitar
 - `PUBLIC` con `limit = "n"` en `generic` es `MALFORMED_GUEST`: corregir el libro, no la app.
 - No probar `services/config.js` ni `services/photos.js` con Node; usan APIs de Vite.
 - Paridad visual: servir el build y medir por DevTools Protocol, no con `--dump-dom`.
+- La validación aislada de `npm run check` requiere Docker; el build de publicación no.
+- `npm test` volvió a quedar bloqueado en esta sesión por Docker no instalado/activo.
 
 ## Pendiente
 - `npm run check` queda pendiente porque Docker no está instalado/activo en este entorno.

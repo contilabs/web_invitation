@@ -6,7 +6,7 @@
   "description": "Invitación digital de boda de Naomi y Andrés (React + Vite).",
   "scripts": {
     "dev": "node scripts/safe-dev.mjs dev",
-    "build": "node scripts/safe-check.mjs build",
+    "build": "vite build",
     "preview": "node scripts/safe-dev.mjs preview",
     "test": "node scripts/safe-check.mjs test",
     "check": "node scripts/safe-check.mjs"

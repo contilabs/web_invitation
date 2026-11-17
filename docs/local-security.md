@@ -86,12 +86,11 @@ El navegador sí puede consultar Apps Script y cargar Google Fonts; el aislamien
 las herramientas del proyecto, no el código ejecutado en el navegador. Los proxies Vite
 hacia APIs externas no pueden funcionar desde el contenedor sin red.
 
-`npm run build` valida un build desechable y **no genera `dist/` en el checkout**. Preview
-construye su propio build. Para publicar, usar un entorno aislado de CI/hosting que instale
-con `npm ci --ignore-scripts`, ejecute `./node_modules/.bin/vite build`, conserve `dist/`
-y lo publique como sitio estático con las dos variables públicas configuradas antes del
-build. Ese comando directo es para dicho entorno aislado, no para el host. No se añade
-un despliegue ni exportación local de artefactos como parte de este cambio.
+`npm run check` valida un build desechable y **no genera `dist/` en el checkout**. Preview
+construye su propio build. `npm run build` ejecuta Vite directamente y está destinado al
+entorno de CI/hosting: instala con `npm ci --ignore-scripts`, conserva `dist/` y lo publica
+como sitio estático con las dos variables públicas configuradas antes del build. Esto permite
+que Netlify construya sin Docker.
 
 ## Fallos y limpieza
 

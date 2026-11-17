@@ -44,7 +44,7 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 4. Vista previa al compartir el enlace (WhatsApp/redes): `og:image` apunta al JPEG existente
    `assets/photos/opt/hero-naomi-andres-1800.jpg` de Naomi y Andrés. Falta confirmar el dominio
    (el usuario aún no lo tiene), poner la URL **absoluta** de la imagen emitida y comprobar su
-   respuesta pública y la vista previa real. Build y pruebas de esta corrección bloqueados por Docker.
+  respuesta pública y la vista previa real. Las pruebas aisladas siguen dependiendo de Docker.
 5. Publicación: no hay ninguna confirmada (sin CNAME, sin workflows, Pages devuelve 404). El build
    usa `base: "./"` para no adivinar; cuando exista host, revisar si sigue siendo lo adecuado y
    desplegar (el despliegue no está en `tasks.md`). El build de publicación además debe llevar

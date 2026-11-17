@@ -32,14 +32,15 @@ y el lockfile antes de ejecutar un checkout nuevo.
 ```bash
 npm run dev       # Vite en Docker, con recarga al editar
 npm run preview   # compila y sirve en Docker; reiniciar tras editar
-npm run build     # valida el build en un contenedor desechable
+npm run build     # build de publicacion con Vite (tambien en Netlify)
 npm test          # pruebas de aplicación y seguridad con node --test dentro de Docker
 npm run check     # pruebas y build en una sola sesión aislada
 ```
 
 Abre [http://127.0.0.1:5173](http://127.0.0.1:5173); desarrollo y preview comparten el puerto,
 así que se ejecutan de uno en uno. Ctrl+C elimina los recursos temporales. No se admiten
-argumentos extra. Si Docker falla, el comando se detiene sin ejecutar herramientas en el host.
+argumentos extra en los lanzadores Docker. `npm run build` es el comando de publicacion y no
+requiere Docker.
 
 Los contenedores de ejecución no tienen red ni montajes del host. Las dependencias se instalan
 antes, con red, solo desde los manifiestos y sin scripts de instalación. El build y su `dist/`
@@ -206,10 +207,10 @@ de la **clave** (la base del nombre, p. ej. `foto5`).
 
 ## 🚀 Despliegue
 
-`npm run build` comprueba el sitio en un contenedor desechable; no exporta `dist/` al host.
+`npm run check` comprueba el sitio en un contenedor desechable y no exporta `dist/` al host.
 Para publicar, el entorno de CI o de hosting debe instalar con `npm ci --ignore-scripts` y
-ejecutar Vite (`./node_modules/.bin/vite build`) **dentro de su propio entorno aislado**,
-conservar `dist/` y publicarlo como sitio estático. No ejecutes Vite directamente en el host.
+ejecutar `npm run build`, conservar `dist/` y publicarlo como sitio estático. Netlify ejecuta
+este comando directamente en su runner Node, sin Docker.
 
 `vite.config.js` fija **`base: "./"`**, así que el
 build usa rutas relativas y funciona en cualquier subruta o dominio (incluidos los enlaces ya
