@@ -1,4 +1,4 @@
-# 💌 Invitación Digital — Karina & Gerardo
+# 💌 Invitación Digital — Naomi y Andrés
 
 Invitación de boda web construida con **React + Vite**. El build genera un sitio **estático**
 en `dist/`, listo para servir en cualquier subruta. No hay panel: todo el contenido de la boda vive

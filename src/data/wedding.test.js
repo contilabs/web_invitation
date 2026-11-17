@@ -26,7 +26,7 @@ import { visibleSections } from "../utils/sections.js";
 import { registryWarnings, registryErrors } from "../utils/validation.js";
 
 // Instante con offset explícito: el formato esperado no depende de la zona de la máquina.
-const EVENT_INSTANT = new Date("2027-11-01T16:00:00-06:00").getTime();
+const EVENT_INSTANT = new Date("2027-03-13T16:00:00-06:00").getTime();
 
 test("el registro de ejemplo es coherente (RF-20)", () => {
   assert.deepEqual(registryErrors(wedding), []);
@@ -39,22 +39,26 @@ test("la plantilla del registro es la clásica (RF-15)", () => {
 
 test("conserva los nombres de la pareja (RF-2, RF-22)", () => {
   assert.deepEqual(coupleNames(wedding.pareja), {
-    first: "Karina",
-    second: "Gerardo",
-    display: "Karina y Gerardo",
+    first: "Naomi Muñoz Macías",
+    second: "Andrés Calzada Asencio",
+    display: "Naomi y Andrés",
   });
 });
 
 test("conserva la fecha, la hora y la zona del evento (RF-3, RF-22)", () => {
-  assert.equal(wedding.evento.fechaInicio, "2027-11-01T16:00:00");
+  assert.equal(wedding.evento.fechaInicio, "2027-03-13T16:00:00-06:00");
   assert.equal(eventTimeZone(wedding.evento), "America/Mexico_City");
-  assert.equal(wedding.evento.lugar, "Guadalajara");
+  assert.equal(wedding.evento.lugar, "San Juan de los Lagos, Jalisco, México");
   assert.ok(
     Number.isFinite(eventInstant(wedding.evento)),
     "la fecha del registro no da un instante válido",
   );
-  assert.equal(formatDate(EVENT_INSTANT, "America/Mexico_City"), "01 de noviembre de 2027");
+  assert.equal(formatDate(EVENT_INSTANT, "America/Mexico_City"), "13 de marzo de 2027");
   assert.equal(formatTime(EVENT_INSTANT, "America/Mexico_City"), "16:00 h");
+  assert.equal(eventInstant(wedding.evento), EVENT_INSTANT);
+  assert.equal(wedding.evento.titulo, `Boda de ${coupleNames(wedding.pareja).display}`);
+  assert.equal(formatDate(eventInstant(wedding.evento), eventTimeZone(wedding.evento)), wedding.portada.fecha);
+  assert.equal(formatDate(eventInstant(wedding.cuentaRegresiva), eventTimeZone(wedding.cuentaRegresiva)), wedding.portada.fecha);
 });
 
 test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
@@ -178,7 +182,7 @@ test("conserva todos los nombres de padres y padrinos, en el orden proporcionado
 });
 
 test("el título que React toma del registro es Naomi y Andrés", () => {
-  assert.equal(wedding.marca.nombre, "Naomi & Andrés");
+  assert.equal(wedding.marca.nombre, "Naomi y Andrés");
 });
 
 test("el contador apunta a medianoche del 13 de marzo de 2027 en México, independiente del dispositivo", () => {

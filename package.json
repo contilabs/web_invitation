@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Invitación digital de boda de Karina & Gerardo (React + Vite).",
+  "description": "Invitación digital de boda de Naomi y Andrés (React + Vite).",
   "scripts": {
     "dev": "node scripts/safe-dev.mjs dev",
     "build": "node scripts/safe-check.mjs build",
