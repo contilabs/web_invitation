@@ -4,8 +4,8 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 ## Estado actual
 - Rama objetivo: `boda_nahomi_andres`. Integrados el rediseño de `WI-1-Project-Setup` y el
   panel privado de respuestas de `codex/panel-respuestas`.
-- En integración: `codex/seccion-padres-padrinos`, con la sección de padres/padrinos y sesión
-  administrativa efímera de 15 minutos.
+- Integradas `codex/panel-respuestas` y `codex/seccion-padres-padrinos`, con la sección de
+  padres/padrinos y sesión administrativa efímera de 15 minutos.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Contrato público `1.4.0` y Apps Script.
 - Spec 005: T1–T20, T22/T23 hechas; T21 manual pendiente. RSVP con lookup privado por teléfono,
   rechazo con mensaje, saludo personalizado y consulta tolerante.
@@ -28,5 +28,5 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - Paridad visual: servir el build y medir por DevTools Protocol, no con `--dump-dom`.
 
 ## Pendiente
-- Finalizar este merge y ejecutar `npm run check` en Docker.
+- `npm run check` queda pendiente porque Docker no está instalado/activo en este entorno.
 - Verificaciones manuales de specs 003/004/005/006 contra servicio real, móvil y Watercolor Reveal.
