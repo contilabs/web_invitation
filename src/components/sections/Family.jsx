@@ -1,7 +1,9 @@
 // Reconocimiento familiar: todos los títulos, grupos y nombres proceden del registro.
 import { SectionDivider } from "../ui/SectionDivider.jsx";
+import { useTemplate } from "../../hooks/useTemplate.js";
 
 export function Family({ family }) {
+  const { icons } = useTemplate();
   const groups = family?.grupos ?? [];
 
   return (
@@ -17,7 +19,11 @@ export function Family({ family }) {
               {group.categorias.map((category, categoryIndex) => (
                 <div className="family-category" key={category.titulo}>
                   {categoryIndex > 0 && <SectionDivider className="section-divider--family-category" />}
-                  <h4>{category.titulo}</h4>
+                  <div className="family-category-heading">
+                    <img className="family-leaves" src={icons.familyLeaves.left} alt="" aria-hidden="true" loading="lazy" decoding="async" />
+                    <h4>{category.titulo}</h4>
+                    <img className="family-leaves" src={icons.familyLeaves.right} alt="" aria-hidden="true" loading="lazy" decoding="async" />
+                  </div>
                   <ul>
                     {category.nombres.map((name) => <li key={name}>{name}</li>)}
                   </ul>

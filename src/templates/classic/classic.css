@@ -619,6 +619,26 @@ p:last-child {
   color: inherit;
 }
 .family-category ul { list-style: none; padding: 0; margin: 0; }
+.family-category-heading {
+  display: grid;
+  grid-template-columns: clamp(1.25rem, 4vw, 3rem) minmax(0, auto) clamp(1.25rem, 4vw, 3rem);
+  justify-content: center;
+  align-items: center;
+  gap: clamp(.375rem, 1vw, .75rem);
+  margin: 0 auto .6rem;
+}
+.family-category-heading h4 { margin: 0; }
+.family-leaves {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 600px) {
+  .family-category-heading {
+    grid-template-columns: 1.875rem minmax(0, auto) 1.875rem;
+  }
+}
 .family-category li {
   font-family: var(--fuente-texto);
   font-size: clamp(1rem, 3.9vw, 1.1rem);
