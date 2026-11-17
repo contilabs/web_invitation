@@ -49,6 +49,11 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - El hover/foco del botón de música conserva la superficie nocturna; el valor seleccionado del
   combo de boletos queda en oliva y su opción activa también.
 - El hover del combo usa un verde olivo más claro mediante `--ember-suave`.
+- RSVP genérico/público: después de un `lookup` válido, el teléfono queda bloqueado en el formulario
+  y el envío conserva esa llave, incluso cuando no había respuesta previa.
+- Los controles flotantes de tema/música aparecen cuando aproximadamente el 30% superior de padres
+  y padrinos (`#familia`) ya entró en la ventana, con el hero como respaldo si se omite; el umbral se
+  recalcula al redimensionar.
 
 ## Errores a evitar
 - `PUBLIC` con `limit = "n"` en `generic` es `MALFORMED_GUEST`: corregir el libro, no la app.

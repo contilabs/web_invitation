@@ -13,7 +13,8 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
   real (escritorio y móvil): los puntos de la 004 (tres tipos con envío real y su fila; misma
   respuesta con el mismo teléfono que actualiza; boda inactiva/código desconocido/sin `slug`/modo
   demo; teléfono corto, cupo 0, plazo vencido y servicio caído; `viewed` sin sobrescribir) y los de
-  la 005 (§12 puntos 1–11: estados del RSVP, `lookup` con y sin fila, copy y mensaje del rechazo, el
+  la 005 (§12 puntos 1–11: estados del RSVP, `lookup` con y sin fila, teléfono bloqueado tras un
+  `lookup` válido, copy y mensaje del rechazo, el
   saludo de la personalizada y la consulta tolerante sin `guest_name`/`status`). Usa un **código
   genérico real** (`4236_GEN`), **no** `PUBLIC` (ver «Casos límite» y `gas/README.md`). **Único
   control de que el redespliegue se hizo.** Anotar veredicto en «Verificación» de `AGENTS.md`.
