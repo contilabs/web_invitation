@@ -1,6 +1,10 @@
 # MEMORY.md — Invitación digital
 Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y pendientes en `PENDING_TASKS.md`.
 ## Estado actual
+- Footer: contacto original recuperado de Git («Diseño de Invitación Digital» / «Más información
+  aquí»), con URL de crédito intacta del registro, bajo nombres/fecha. Tokens día/noche y ancho
+  adaptable. Contacto compacto sin línea, margen 0.65rem y textos 0.65/0.6rem por petición;
+  `npm run check` bloqueado por Docker no disponible, revisión visual pendiente.
 - PR #3: registro oficial Naomi Muñoz Macías y Andrés Calzada Asencio; nombre público Naomi y Andrés.
   Evento 13/03/2027 16:00 -06:00, San Juan de los Lagos, Jalisco, México; recepción 19:30 intacta.
   SEO/OG corregidos, JPEG actual existente; sin Twitter previo. URL absoluta pendiente: aún no hay dominio.

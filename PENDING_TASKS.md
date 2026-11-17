@@ -23,6 +23,9 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Casos límite por cubrir
 
+- **Contacto restaurado del footer.** Con Docker disponible, ejecutar `npm run check` y revisar
+  móvil/escritorio, ambos temas y apertura del enlace original de WhatsApp.
+
 - **Watercolor Reveal de Ubicaciones.** Revisar la expansión de manchas en escritorio/móvil,
   entrada independiente por scroll, no repetición al volver y movimiento reducido. Pruebas y
   build correctos en Docker; no se ha realizado la comprobación visual en navegador.

@@ -1,7 +1,7 @@
 // Firma discreta: nombres y fecha proceden del registro de la portada.
 import { coupleNames } from "../../utils/couple.js";
 
-export function Footer({ couple, dateText }) {
+export function Footer({ couple, dateText, credit }) {
   const names = coupleNames(couple);
 
   return (
@@ -12,6 +12,14 @@ export function Footer({ couple, dateText }) {
       <p className="footer-date">
         {dateText}
       </p>
+      {credit && (
+        <div className="footer-contact">
+          <p className="footer-credit">Diseño de Invitación Digital</p>
+          <a className="footer-contact-link" href={credit} target="_blank" rel="noopener noreferrer">
+            Más información aquí
+          </a>
+        </div>
+      )}
     </footer>
   );
 }
