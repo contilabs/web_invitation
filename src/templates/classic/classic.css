@@ -12,6 +12,22 @@
    Fuentes personalizadas
    ============================================================ */
 @font-face {
+  font-family: "Relyna";
+  src: url("../../../fonts/RelynaRegular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Romantica Serif";
+  src: url("../../../fonts/RomanticaSerif.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Erstoria";
   src: url("../../../fonts/Erstoria.woff2") format("woff2");
   font-weight: normal;
@@ -34,10 +50,11 @@
 :root {
   /* Referencia de papelería: marfil, oliva musgo, salvia y oro envejecido.
      El oliva profundo se reserva para texto y controles con contraste. */
-  --paper: #f3efe4;
-  --paper-2: #e5e3d5;
+  --paper: var(--family-paper);
+  --paper-2: var(--paper);
   --superficie: #faf7ef;
-  --papel-velo: rgba(243, 239, 228, 0.94);
+  --button-hover-paper: var(--superficie);
+  --papel-velo: var(--paper);
   --ink: #30362a;
   --ink-2: #4c5242;
   --smoke: #646958;
@@ -57,16 +74,20 @@
   --banda-texto: #faf7ef;
   --sombra-foto: 20 25 17;
   --radio-boton: 50px;
+  --family-paper: #ede7db;
+  --family-ink: #6a6a53;
+  --family-line: #9b9879;
+  --adults-paper: #6a6a53;
+  --adults-ink: #ffffff;
+  --adults-ornament: #e7ddc9;
   --radio-foto: 0.75rem;
-  /* Tipografías: la Erstoria (display) se conserva; el texto pasa a una serif
-     editorial y la sans se reserva para etiquetas, botones y números. La
-     caligrafía sigue cargada y disponible: para volver a ella basta
-     --fuente-nombres: var(--fuente-script). */
-  --fuente-titulo: "Erstoria", "Iowan Old Style", Georgia, serif;
+  /* Romantica para títulos, Relyna para nombres, Erstoria para cifras y Kalista para caligrafía. */
+  --fuente-titulo: "Romantica Serif", "Iowan Old Style", Georgia, serif;
+  --fuente-display: "Erstoria", "Iowan Old Style", Georgia, serif;
   --fuente-script: "Kalista", "Segoe Script", cursive;
   --fuente-texto: "Source Serif 4", Georgia, "Times New Roman", serif;
   --fuente-etiqueta: "Montserrat", system-ui, sans-serif;
-  --fuente-nombres: var(--fuente-script);
+  --fuente-nombres: "Relyna", "Erstoria", Georgia, serif;
 
   /* Escala tipográfica */
   --fs-xs: 0.72rem;
@@ -210,17 +231,30 @@ h3 {
 h2 {
   font-size: var(--fs-h2);
 }
+h4,
+h5,
+h6 {
+  font-family: var(--fuente-titulo);
+}
 
-/* Cabecera de sección editorial (T24): un filete corto en vino abre cada
-   título, alineado a la izquierda. Se retiran el rombo y el filete centrados
-   del diseño anterior. */
-h2::before {
-  content: "";
+/* El SVG desborda su caja de un píxel para conservar los espacios del filete anterior. */
+.section-divider {
+  position: relative;
   display: block;
-  width: 4rem;
+  width: min(100%, clamp(8rem, 36vw, 16rem));
   height: 1px;
   margin: 0 0 1.15rem;
-  background-color: var(--vino);
+  color: var(--family-ink);
+  pointer-events: none;
+}
+.section-divider svg {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: auto;
+  transform: translateY(-50%);
+  overflow: visible;
 }
 
 h3 {
@@ -549,10 +583,7 @@ p:last-child {
 .hero:has(+ .family) { margin-bottom: 0; }
 .family {
   margin-block: 0;
-  --family-paper: #ede7db;
-  --family-ink: #6a6a53;
-  --family-line: #9b9879;
-  background: var(--family-paper);
+  background: var(--paper);
   color: var(--family-ink);
   padding: clamp(2.5rem, 6vw, 4rem) max(1rem, env(safe-area-inset-right))
     clamp(2.5rem, 6vw, 4rem) max(1rem, env(safe-area-inset-left));
@@ -581,9 +612,9 @@ p:last-child {
 .family-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.3rem; }
 .family-category h4 {
   margin: 0 0 .6rem;
-  font-family: var(--fuente-texto);
+  font-family: var(--fuente-titulo);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.4;
   color: inherit;
 }
@@ -593,20 +624,16 @@ p:last-child {
   font-size: clamp(1rem, 3.9vw, 1.1rem);
   line-height: 1.8;
 }
-.family-category + .family-category::before,
-.family-group + .family-group::before {
-  content: "";
-  display: block;
-  width: 3rem;
-  height: 1px;
+.section-divider--family-category,
+.section-divider--family-group {
+  width: min(100%, 8rem);
   margin: 0 auto 1.3rem;
-  background: var(--family-line);
 }
 .family-group + .family-group { margin-top: 1.65rem; }
-.family-group + .family-group::before { width: 5rem; margin-bottom: 1.65rem; }
+.section-divider--family-group { margin-bottom: 1.65rem; }
 @media (min-width: 700px) {
   .family-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
-  .family-category + .family-category::before { display: none; }
+  .section-divider--family-category { display: none; }
 }
 .hero {
   --hero-paper: #ede7db;
@@ -659,7 +686,7 @@ p:last-child {
   margin: 0 auto;
   max-width: 22ch;
   text-align: center;
-  font-family: var(--fuente-titulo);
+  font-family: var(--fuente-nombres);
   font-size: clamp(1.95rem, 8vw, 4.8rem);
   font-weight: 400;
   line-height: 1.15;
@@ -688,7 +715,7 @@ p:last-child {
   width: min(100%, 38rem);
   margin: 1.5rem auto 0;
   font-family: var(--fuente-script);
-  font-size: clamp(1.45rem, 5.8vw, 1.8rem);
+  font-size: clamp(1.85rem, 2.8vw, 2rem);
   font-weight: 400;
   line-height: 1.45;
   text-align: center;
@@ -697,8 +724,22 @@ p:last-child {
   text-shadow: 0 1px 3px var(--hero-paper);
 }
 
+@media (max-width: 600px) {
+  .hero-phrase {
+    font-size: clamp(2rem, 8.5vw, 2.35rem);
+    line-height: 1.35;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-phrase[data-handwriting] {
+    mask-image: var(--handwriting-mask, linear-gradient(transparent, transparent));
+    mask-repeat: no-repeat;
+  }
+}
+
 @media (max-height: 500px) {
-  .hero-phrase { margin-top: .75rem; font-size: 1.2rem; line-height: 1.35; }
+  .hero-phrase { margin-top: .75rem; font-size: clamp(1.6rem, 6.5vw, 1.85rem); line-height: 1.35; }
 }
 @media (max-height: 500px) and (min-aspect-ratio: 1/1) {
   .hero-img { object-position: 50% 55%; }
@@ -719,7 +760,7 @@ p:last-child {
 .quote blockquote::before {
   content: "“";
   display: block;
-  font-family: var(--fuente-titulo);
+  font-family: var(--fuente-display);
   font-size: 4.5rem;
   line-height: 0.45;
   color: var(--ember);
@@ -734,15 +775,41 @@ p:last-child {
 }
 
 /* ============================================================
-   11. Cuenta regresiva: el único bloque oscuro de la invitación
+   11. Cuenta regresiva: oliva y beige de la papelería
    ============================================================ */
 .countdown-date {
-  padding: clamp(2.75rem, 7vw, 5rem) 1rem;
+  --banda-1: var(--family-ink);
+  --banda-texto: var(--family-paper);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 2.5rem);
   margin-top: 0;
   text-align: center;
   color: var(--banda-texto);
   background-color: var(--banda-1);
-  border-block: 4px double var(--glow);
+  position: relative;
+}
+.countdown-frame {
+  --countdown-branch-width: clamp(4.5rem, 15vw, 6.5rem);
+  position: relative;
+  width: min(100%, 45rem);
+  margin-inline: auto;
+  padding: clamp(1.8rem, 5vw, 3rem) clamp(1rem, 4vw, 4rem);
+  border: 0.8px solid currentColor;
+  color: var(--banda-texto);
+}
+.countdown-branch {
+  position: absolute;
+  width: var(--countdown-branch-width);
+  height: auto;
+  pointer-events: none;
+}
+.countdown-branch--top {
+  top: calc(var(--countdown-branch-width) * -0.2963);
+  left: calc(var(--countdown-branch-width) * -0.24815);
+}
+.countdown-branch--bottom {
+  bottom: calc(var(--countdown-branch-width) * -0.2963);
+  right: calc(var(--countdown-branch-width) * -0.24815);
+  transform: rotate(180deg);
 }
 
 .band-content {
@@ -781,7 +848,7 @@ p:last-child {
 
 .box-number {
   display: block;
-  font-family: var(--fuente-titulo);
+  font-family: var(--fuente-display);
   font-size: clamp(1.65rem, 6.5vw, 4.4rem);
   font-weight: 400;
   line-height: 1;
@@ -797,12 +864,12 @@ p:last-child {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--banda-texto) 80%, transparent);
+  color: var(--banda-texto);
 }
 
 .post-message {
   grid-column: 1 / -1;
-  font-family: var(--fuente-titulo);
+  font-family: var(--fuente-display);
   font-size: clamp(1.7rem, 4.6vw, 2.5rem);
   line-height: 1.3;
   color: var(--banda-texto);
@@ -840,6 +907,95 @@ p:last-child {
   margin: 1.1rem 0 0.35rem;
 }
 
+/* Ceremonia integrada en la misma papelería de padres y padrinos, sin tarjeta. */
+.locations:has(.ceremony-place) {
+  --location-paper: var(--paper);
+  --location-ink: var(--ember);
+  background: var(--location-paper);
+  color: var(--location-ink);
+}
+.locations h2 { color: var(--location-ink); }
+.ceremony-place {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  color: var(--location-ink);
+  text-align: center;
+}
+.ceremony-image {
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  height: auto;
+  object-fit: contain;
+}
+.ceremony-place h3 { margin: 0.4rem 0 0; }
+/* Manchas superpuestas: solo cambia la máscara, nunca los píxeles de la acuarela. */
+@media (prefers-reduced-motion: no-preference) {
+  #lugares .ceremony-image[data-watercolor] {
+    mask-image:
+      radial-gradient(ellipse, #000 34%, #0009 48%, #0003 60%, transparent 73%),
+      radial-gradient(ellipse, #000 30%, #000a 46%, #0002 62%, transparent 74%),
+      radial-gradient(ellipse, #000 36%, #0008 50%, #0002 61%, transparent 72%),
+      radial-gradient(ellipse, #000 31%, #000a 47%, #0003 59%, transparent 74%),
+      radial-gradient(ellipse, #000 35%, #0009 51%, #0002 63%, transparent 73%),
+      radial-gradient(ellipse, #000 32%, #000a 46%, #0003 62%, transparent 75%),
+      radial-gradient(ellipse, #000 34%, #0008 49%, #0002 61%, transparent 73%),
+      radial-gradient(ellipse, #000 30%, #0009 48%, #0003 60%, transparent 74%),
+      radial-gradient(ellipse, #000 36%, #000a 50%, #0002 62%, transparent 73%);
+    mask-position: 24% 38%, 63% 62%, 78% 25%, 36% 76%, 48% 19%, 14% 65%, 85% 73%, 58% 43%, 30% 21%;
+    mask-repeat: no-repeat;
+    mask-size: 0% 0%;
+  }
+  #lugares .ceremony-image[data-watercolor="painting"] {
+    animation: watercolor-bloom 2.3s cubic-bezier(0.22, 0.55, 0.3, 1) both;
+  }
+}
+
+@keyframes watercolor-bloom {
+  0% { mask-size: 0% 0%; }
+  20% { mask-size: 32% 39%, 12% 18%, 0% 0%, 8% 12%, 0% 0%, 0% 0%, 0% 0%, 18% 12%, 0% 0%; }
+  45% { mask-size: 65% 78%, 52% 44%, 38% 54%, 47% 36%, 30% 40%, 25% 42%, 18% 25%, 58% 38%, 28% 22%; }
+  72% { mask-size: 110% 125%, 95% 83%, 78% 110%, 90% 75%, 75% 92%, 68% 100%, 74% 68%, 105% 88%, 80% 72%; }
+  100% { mask-size: 300% 300%, 300% 300%, 300% 300%, 300% 300%, 300% 300%, 300% 300%, 300% 300%, 300% 300%, 300% 300%; }
+}
+
+.ceremony-name { margin: 0; font-size: var(--fs-lead); }
+.ceremony-time {
+  margin: -0.25rem 0 0;
+  font-family: var(--fuente-etiqueta);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ember);
+}
+.ceremony-place .place-detail { max-width: 32rem; font-size: 1rem; color: inherit; }
+.ceremony-place .button {
+  margin-top: 0.45rem;
+  background-color: var(--ember);
+  border-color: var(--ember);
+  color: var(--sobre-ember);
+}
+.hotels .hotel-link {
+  background-color: var(--ember);
+  border-color: var(--ember);
+  color: var(--sobre-ember);
+}
+.hotels .hotel-link:hover {
+  background-color: var(--ember-2);
+  border-color: var(--ember-2);
+}
+.ceremony-place .button:hover {
+  background-color: var(--ember-2);
+  border-color: var(--ember-2);
+}
+.location-icon { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+
 .place-card .button {
   margin-top: 1.6rem;
 }
@@ -870,16 +1026,20 @@ p:last-child {
    14. Itinerario
    ============================================================ */
 .timeline-section {
-  --riel-y: 2.375rem;
-  --ico-circulo: 4.75rem;
+  --timeline-icon: clamp(4.25rem, 14vw, 6rem);
+  --timeline-gap: clamp(1.25rem, 5vw, 2.5rem);
+  background: var(--paper);
+  color: var(--ember);
 }
 
 .timeline {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
+  width: fit-content;
+  max-width: 100%;
   gap: 1rem;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   list-style: none;
 }
@@ -889,11 +1049,11 @@ p:last-child {
 .timeline::after {
   content: "";
   position: absolute;
-  top: var(--riel-y);
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  transform-origin: left center;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--timeline-icon) + var(--timeline-gap));
+  width: 1px;
+  transform-origin: top center;
 }
 
 .timeline::before {
@@ -901,20 +1061,24 @@ p:last-child {
 }
 
 .timeline::after {
-  background: linear-gradient(90deg, var(--vino), var(--ember) 55%, var(--glow));
-  transform: scaleX(0);
+  background: var(--ember);
+  transform: scaleY(0);
   transition: transform 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s;
 }
 
 .timeline-section.visible .timeline::after {
-  transform: scaleX(1);
+  transform: scaleY(1);
 }
 
 .event {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--timeline-icon) minmax(0, 1fr);
+  column-gap: calc(2 * var(--timeline-gap));
   align-items: center;
-  text-align: center;
+  min-height: 8rem;
+  padding-block: 0.75rem;
+  text-align: left;
   opacity: 0;
   transform: translateY(14px);
   transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -941,64 +1105,282 @@ p:last-child {
   transition-delay: 1.22s;
 }
 
-.event-icon {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: var(--ico-circulo);
-  height: var(--ico-circulo);
-  border-radius: 50%;
-  background-color: var(--superficie);
-  border: 1px solid var(--linea);
-  /* El anillo de papel hace que el riel pase por detrás del icono */
-  box-shadow: 0 0 0 0.5rem var(--paper);
+/* Iconos sobre el papel, sin marcos ni superficies propias. */
+.timeline-section h2 { color: inherit; text-align: center; }
+.timeline-section h2 .section-divider { margin-inline: auto; }
+.event::before {
+  content: "♥";
+  position: absolute;
+  left: calc(var(--timeline-icon) + var(--timeline-gap));
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--ember);
+  font-size: 0.9rem;
+  line-height: 1;
 }
-
-.event-icon .icon {
-  --ico-tam: 2.25rem;
-}
-
-.time {
-  margin: 1.15rem 0 0.2rem;
-  font-family: var(--fuente-etiqueta);
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+.event-icon.icon { --ico-tam: var(--timeline-icon); }
+.event-detail { min-width: 0; text-align: center; }
+.timeline-section .time {
+  margin: 0 0 0.4rem;
+  font-family: var(--fuente-texto);
+  font-size: clamp(1.1rem, 4vw, 1.35rem);
+  font-style: italic;
   font-variant-numeric: tabular-nums;
-  color: var(--ink);
+  color: inherit;
+}
+.timeline-section .label {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  line-height: 1.35;
+  color: inherit;
 }
 
-.label {
-  margin: 0;
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  color: var(--ink-2);
+/* Postal clásica: las esquinas SVG mantienen su proporción al variar el ancho. */
+.adults-only {
+  background: var(--paper);
+  color: var(--adults-ink);
+  padding: clamp(1rem, 3vw, 2.25rem);
 }
+.adults-postcard {
+  position: relative;
+  isolation: isolate;
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: clamp(4.75rem, 10vw, 5.5rem) clamp(2rem, 7vw, 4.75rem);
+  text-align: center;
+}
+/* El relleno sigue las curvas cóncavas; fuera del marco queda el papel general. */
+.adults-postcard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--adults-paper);
+  mask-image:
+    radial-gradient(circle at top left, transparent 2.45rem, black 2.5rem),
+    radial-gradient(circle at top right, transparent 2.45rem, black 2.5rem),
+    radial-gradient(circle at bottom left, transparent 2.45rem, black 2.5rem),
+    radial-gradient(circle at bottom right, transparent 2.45rem, black 2.5rem);
+  mask-composite: intersect;
+}
+.adults-frame {
+  --corner-size: 2.5rem;
+  position: absolute;
+  inset: 0;
+  color: var(--adults-ornament);
+  pointer-events: none;
+}
+.adults-frame-inner { inset: 0.45rem; --corner-size: 2.2rem; }
+.adults-frame::before,
+.adults-frame::after {
+  content: "";
+  position: absolute;
+  border: 0 solid currentColor;
+}
+.adults-frame::before { inset: 0 var(--corner-size); border-block-width: 1px; }
+.adults-frame::after { inset: var(--corner-size) 0; border-inline-width: 1px; }
+.adults-corner { position: absolute; width: var(--corner-size); height: var(--corner-size); }
+.adults-corner-top-left { top: 0; left: 0; }
+.adults-corner-top-right { top: 0; right: 0; transform: scaleX(-1); }
+.adults-corner-bottom-left { bottom: 0; left: 0; transform: scaleY(-1); }
+.adults-corner-bottom-right { bottom: 0; right: 0; transform: scale(-1); }
+.adults-copy { position: relative; z-index: 1; }
+.adults-greeting {
+  font-family: var(--fuente-script);
+  font-size: clamp(1.6rem, 7vw, 3.2rem);
+  line-height: 1.25;
+  margin: 0 0 1.2rem;
+  text-wrap: balance;
+}
+.adults-only h2 {
+  color: inherit;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.425rem, 6.75vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  text-align: center;
+  margin: 0;
+}
+.adults-only h2::before { content: none; }
+.adults-only .adults-copy .adults-divider {
+  width: min(70%, 14rem);
+  height: 1.25rem;
+  margin: 1.1rem auto;
+  color: var(--adults-ornament);
+}
+.adults-message {
+  max-width: 31rem;
+  margin-inline: auto;
+  font-family: var(--fuente-texto);
+  font-size: clamp(1rem, 3.2vw, 1.15rem);
+  font-weight: 400;
+  line-height: 1.6;
+}
+.adults-message p { margin: 0 0 1rem; }
+.adults-message p:last-child { margin-bottom: 0; }
 
 /* ============================================================
    15. Confirmación
    ============================================================ */
-.rsvp-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-  align-items: center;
-  margin-top: 2.5rem;
-}
-
-.rsvp-photo {
-  margin: 0;
-  border-radius: var(--radio);
-  overflow: hidden;
-}
-
-.rsvp-photo img {
-  display: block;
+.rsvp {
+  --ink: var(--banda-texto);
+  --ink-2: var(--banda-texto);
+  position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: 50% 40%;
+  min-height: max(50rem, 90svh);
+  padding: clamp(5rem, 10vh, 8rem) 1.5rem;
+  color: var(--banda-texto);
+  background-image:
+    linear-gradient(180deg, rgb(var(--sombra-foto) / 0.55), rgb(var(--sombra-foto) / 0.42) 40%, rgb(var(--sombra-foto) / 0.08) 75%),
+    url("../../../assets/photos/opt/future/DSC01036.jpg");
+  background-size: cover;
+  background-position: 50% 40%;
+  background-repeat: no-repeat;
+}
+.rsvp-content {
+  position: relative;
+  top: -20px;
+  width: min(100%, 40rem);
+  margin-inline: auto;
+  text-align: center;
+}
+.rsvp-invitation-message {
+  margin: 0 auto 1.5rem;
+  font-family: var(--fuente-texto);
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  line-height: 1.65;
+  text-wrap: balance;
+}
+.rsvp-invitation-link {
+  display: inline-block;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--fuente-script);
+  font-size: clamp(3rem, 7vw, 5rem);
+  line-height: 1.35;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+  transition: opacity 0.25s ease;
+}
+.rsvp-invitation-link:not(:disabled):hover { opacity: 0.75; }
+.rsvp-invitation-link:disabled { cursor: default; }
+/* Diálogo nativo: la ilustración mantiene su proporción y el formulario desplaza dentro. */
+.rsvp-modal {
+  --button-hover-paper: var(--family-ink);
+  --ink: var(--family-ink);
+  --ink-2: var(--family-ink);
+  --ember: var(--family-ink);
+  --ember-2: var(--family-ink);
+  --sobre-ember: var(--family-paper);
+  --smoke: var(--family-ink);
+  --linea-fuerte: var(--family-line);
+  --linea: var(--family-line);
+  --radio: 14px;
+  width: min(96vw, 44rem, calc(90dvh * 1410 / 2048));
+  height: auto;
+  aspect-ratio: 1410 / 2048;
+  max-width: none;
+  max-height: 90dvh;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  color: var(--family-ink);
+  background: var(--family-ink) url("../../../assets/icons/rsvp.png") center / contain no-repeat;
+  overflow: hidden;
+  color-scheme: light;
+}
+.rsvp-modal[open] { animation: rsvpModalEnter 0.25s ease-out both; }
+.rsvp-modal::backdrop {
+  background: rgb(var(--sombra-foto) / 0.65);
+  animation: rsvpBackdropEnter 0.25s ease-out both;
+}
+.rsvp-modal-content {
+  position: absolute;
+  inset: 14% 20% 16%;
+  padding: 0.25rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--family-line) transparent;
+  scroll-padding-block: 1rem;
+}
+.rsvp-modal h2 {
+  margin: 0 0 1.25rem;
+  color: inherit;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  line-height: 1.3;
+  text-align: center;
+}
+.rsvp-modal h2::before { content: none; }
+.rsvp-modal-close {
+  position: absolute;
+  z-index: 1;
+  top: 1%;
+  right: 2%;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio-boton);
+  background: transparent;
+  color: var(--family-paper);
+  font-family: var(--fuente-texto);
+  font-size: 1.75rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.rsvp-modal-close:hover { opacity: 0.7; }
+.rsvp-modal .rsvp-panel { text-align: left; }
+.rsvp-modal .rsvp-lead { font-size: 1.1rem; line-height: 1.55; text-align: center; }
+.rsvp-modal .field input,
+.rsvp-modal .field textarea,
+.rsvp-modal .form-control {
+  min-height: 46px;
+  border: 1px solid var(--family-line);
+  border-radius: 14px;
+  background: var(--family-paper);
+  color: var(--family-ink);
+  font-family: var(--fuente-texto);
+  scroll-margin-block: 1rem;
+}
+.rsvp-modal :is(input, textarea)::placeholder { opacity: 0.75; }
+.rsvp-modal :is(input, textarea, select):focus-visible {
+  outline: 1px solid var(--adults-ornament);
+  outline-offset: 2px;
+  border-color: var(--family-line);
+}
+.rsvp-modal .attendance-options { grid-template-columns: minmax(0, 1fr); }
+.rsvp-modal .attendance-option { border-radius: 14px; }
+.rsvp-modal .response-summary { padding: 0; border: 0; }
+.rsvp-modal .button { width: 100%; padding-inline: 0.75rem; border-radius: var(--radio-boton); }
+.rsvp-modal .button:active { transform: translateY(1px); }
+.rsvp-modal button[type="submit"] { position: sticky; bottom: 0; z-index: 1; }
+@keyframes rsvpModalEnter {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes rsvpBackdropEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.rsvp .rsvp-panel {
+  text-align: center;
+}
+.rsvp .rsvp-panel > .rsvp-lead { text-align: center; }
+.rsvp .field input,
+.rsvp .field textarea,
+.rsvp .field select {
+  background-color: var(--family-paper);
+  color: var(--family-ink);
 }
 
 .rsvp-panel {
@@ -1006,7 +1388,7 @@ p:last-child {
 }
 
 .rsvp-lead {
-  font-family: var(--fuente-titulo);
+  font-family: var(--fuente-display);
   font-size: clamp(1.3rem, 3vw, 1.7rem);
   line-height: 1.35;
   color: var(--ink);
@@ -1214,11 +1596,24 @@ p:last-child {
   gap: 0.65rem;
   padding: clamp(1.4rem, 4vw, 2.5rem);
   text-align: center;
-  background-color: var(--superficie);
-  border: 1px solid var(--linea);
-  border-radius: var(--radio-foto);
-  box-shadow: var(--sombra-suave);
+  background-color: transparent;
 }
+
+.gift-store-link {
+  display: block;
+  grid-column: 1 / -1;
+  width: min(100%, 64rem);
+  margin-inline: auto;
+  border-radius: var(--radio-foto);
+  cursor: pointer;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+.gift-store-link:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 5px 5px rgb(var(--sombra-foto) / 0.12));
+}
+.gift-store-image { display: block; width: 100%; height: auto; object-fit: contain; }
+.gift-store-image-night { display: none; }
 
 .gift-logo {
   display: block;
@@ -1254,45 +1649,58 @@ p:last-child {
 /* ============================================================
    17. Hospedaje
    ============================================================ */
-.hotel-card {
-  text-decoration: none;
+.hotel-list { max-width: 48rem; margin-inline: auto; }
+.hotels .hotel-card {
   color: inherit;
-  transition: border-color 0.25s ease;
+  padding: 0;
+  gap: 1.25rem;
+  background: transparent;
+  border: 0;
 }
-
-a.hotel-card:hover {
-  border-color: var(--ember);
+.hotels .hotel-image {
+  display: block;
+  width: min(45.5%, 14rem);
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radio-foto);
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+.hotels .hotel-image:hover {
+  transform: translateY(-3px);
+  filter: var(--filtro-ico) drop-shadow(0 5px 5px rgb(var(--sombra-foto) / 0.12));
 }
 .hotel-name {
   font-family: var(--fuente-titulo);
   font-size: 1.5rem;
   line-height: 1.2;
   color: var(--ink);
+  text-align: center;
 }
-
-.hotel-link {
-  margin-top: auto;
-}
-
-.hotel-card:is(:hover, :focus-visible) .hotel-link {
-  border-color: var(--ember);
-  color: var(--ember);
+.hotels .hotel-name { margin: 0; }
+.hotel-note {
+  max-width: 39rem;
+  margin: 0;
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+  text-align: center;
 }
 /* ============================================================
    18. Galería
    ============================================================ */
 .gallery {
-  background-color: var(--paper-2);
-  padding-block: var(--espacio-seccion);
+  background-color: var(--paper);
+  padding-block: clamp(1.5rem, 4vw, 3rem);
 }
 
 .gallery-strip {
   position: relative;
   display: grid;
   width: min(100% - 2rem, 58rem);
-  margin: 1.5rem auto 0;
+  margin: 0 auto;
   border-radius: var(--radio-foto);
-  background-color: var(--superficie);
+  background-color: transparent;
   isolation: isolate;
 }
 
@@ -1327,7 +1735,7 @@ a.hotel-card:hover {
   height: clamp(16rem, 108vw, 40rem);
   padding: 0;
   border: 0;
-  border-radius: var(--radio-boton);
+  border-radius: var(--radio-foto);
   background: none;
   cursor: zoom-in;
   touch-action: pan-y pinch-zoom;
@@ -1386,26 +1794,6 @@ a.hotel-card:hover {
   background-color: var(--ember);
   color: var(--sobre-ember);
 }
-.gallery-counter {
-  position: absolute;
-  left: 50%;
-  bottom: 0.9rem;
-  transform: translateX(-50%);
-  z-index: 2;
-  margin: 0;
-  padding: 0.3rem 0.85rem;
-  border-radius: var(--radio-boton);
-  background-color: rgb(var(--sombra-foto) / 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  color: color-mix(in srgb, var(--banda-texto) 92%, transparent);
-  font-family: var(--fuente-etiqueta);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
 .lightbox {
   width: min(100% - 2rem, 1000px);
   max-width: none;
@@ -1440,15 +1828,6 @@ a.hotel-card:hover {
     opacity: 1;
     transform: none;
   }
-}
-
-.lightbox-counter {
-  margin: 0.9rem 0 0;
-  text-align: center;
-  color: color-mix(in srgb, var(--banda-texto) 75%, transparent);
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
 }
 
 .lightbox-close,
@@ -1500,12 +1879,12 @@ a.hotel-card:hover {
    19. Pie
    ============================================================ */
 footer {
+  --footer-ink: var(--family-ink);
   width: 100%;
-  padding: clamp(3.5rem, 8vw, 5.5rem) 1.25rem clamp(2.5rem, 5vw, 3.5rem);
-  margin-top: var(--espacio-seccion);
+  padding: clamp(1.5rem, 4vw, 2.5rem) 1.25rem;
+  margin-top: calc(-1 * var(--espacio-seccion));
   text-align: center;
-  border-top: 4px double var(--vino);
-  background-color: var(--paper-2);
+  background-color: var(--paper);
 }
 
 .footer-names {
@@ -1513,34 +1892,18 @@ footer {
   font-family: var(--fuente-nombres);
   font-size: clamp(1.75rem, 5vw, 2.4rem);
   line-height: 1;
-  color: var(--ink);
+  color: var(--footer-ink);
+  white-space: nowrap;
 }
+.footer-names .amp { font-family: var(--fuente-script); }
 
 .footer-date {
-  margin: 1rem 0 0;
+  margin: 0.75rem 0 0;
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: var(--tracking-dato);
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
-.footer-credit {
-  margin: 2.5rem 0 0;
-  font-size: var(--fs-sm);
-  color: var(--smoke);
-}
-
-footer a {
-  color: var(--ember);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.25s ease;
-}
-
-footer a:hover {
-  border-color: currentColor;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--footer-ink);
 }
 
 /* ============================================================
@@ -1609,12 +1972,40 @@ footer a:hover {
 }
 
 .story {
-  margin-block: clamp(2.25rem, 6vw, 4rem);
+  position: relative;
+  isolation: isolate;
+  margin-block: 0;
+  background: var(--paper) url("../../../assets/photos/opt/story-painting-1113.jpg") center bottom / 100% auto no-repeat;
+  padding: 0;
+  aspect-ratio: 1113 / 960;
   text-align: center;
+}
+.story::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: none;
+}
+.story-content { max-width: 46rem; }
+.story-quote { margin: 0; }
+.story-quote blockquote { margin: 0; }
+.story-quote p {
+  font-family: var(--fuente-texto);
+  font-size: clamp(1.3rem, 2.5vw, 2rem);
+  font-style: italic;
+  text-wrap: pretty;
+}
+.story-quote figcaption {
+  margin-top: 1.25rem;
+  font-family: var(--fuente-etiqueta);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  letter-spacing: 0.08em;
 }
 
 .story h2 {
-  font-family: var(--fuente-script);
+  font-family: var(--fuente-titulo);
   font-size: clamp(2.25rem, 7vw, 4rem);
   line-height: 1.15;
   margin-bottom: 0.85rem;
@@ -1640,11 +2031,9 @@ footer a:hover {
   text-align: center;
 }
 
-.story h2::before,
-.locations h2::before,
-.gifts h2::before,
-.hotels h2::before,
-.gallery h2::before {
+.locations h2 .section-divider,
+.gifts h2 .section-divider,
+.hotels h2 .section-divider {
   margin: 0 auto 0.85rem;
 }
 
@@ -1677,16 +2066,62 @@ footer a:hover {
   }
 }
 
-.restrictions-list {
-  margin: 0;
-  padding-left: 1.1rem;
+.restrictions {
+  --dress-paper: var(--family-ink);
+  --dress-ink: var(--adults-ornament);
+  margin-block: 0;
+  padding: clamp(1.05rem, 2.8vw, 2.1rem) 1rem;
+  background: var(--paper);
+  color: var(--dress-ink);
+}
+.dress-code-frame {
+  position: relative;
   display: grid;
-  gap: 0.5rem;
+  place-items: center;
+  width: min(100%, 21rem);
+  aspect-ratio: 5 / 8;
+  margin-inline: auto;
 }
-
-.restrictions-list li {
-  text-wrap: pretty;
+.dress-code-outline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--dress-ink);
+  pointer-events: none;
 }
+.dress-code-content {
+  position: relative;
+  width: 72%;
+  padding-block: 12%;
+  text-align: center;
+  font-family: var(--fuente-texto);
+}
+.dress-code-logo {
+  width: clamp(3.3rem, 14.4vw, 4.2rem);
+  margin: 0 auto 0.65rem;
+}
+.dress-code-logo img { display: block; width: 100%; height: auto; transform: scale(1.5); }
+.dress-code-logo .dress-code-logo--night { display: none; }
+.dress-code-content h2 {
+  margin: 0 0 clamp(0.75rem, 2vw, 1rem);
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.65rem, 5.5vw, 2.05rem);
+  line-height: 1.15;
+  color: inherit;
+  text-align: center;
+}
+.dress-code-content h2::before { content: none; }
+.dress-code-content p {
+  margin: 0 0 clamp(0.65rem, 1.8vw, 0.85rem);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+.dress-code-content p:last-child { margin-bottom: 0; }
+.dress-code-rule { font-size: clamp(0.95rem, 3.2vw, 1.05rem); }
+.dress-code-note { font-size: clamp(0.95rem, 2.8vw, 1rem); }
+.dress-code-rule strong { font-weight: 600; }
+.dress-code-color { font-weight: 600; }
 
 /* Mesa de regalos: los datos van como texto y un único botón copia la cuenta. */
 .gift-details {
@@ -1806,61 +2241,8 @@ footer a:hover {
 /* ============================================================
    23. Responsive
    ============================================================ */
-@media (max-width: 900px) {
-  .timeline {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  /* El riel se vuelve vertical y baja por el centro de la sección, así que
-     cada parada se apila igual que en escritorio (icono arriba, hora y
-     nombre debajo), todo centrado. */
-  .timeline::before,
-  .timeline::after {
-    top: 0;
-    bottom: 0;
-    left: calc(50% - 0.5px);
-    right: auto;
-    width: 1px;
-    height: auto;
-    transform-origin: top center;
-  }
-
-  .timeline::after {
-    /* El degradado gira con el riel: el vino se abre a la brasa. */
-    background: linear-gradient(180deg, var(--vino), var(--ember) 55%, var(--glow));
-    transform: scaleY(0);
-  }
-
-  .timeline-section.visible .timeline::after {
-    transform: scaleY(1);
-  }
-
-  .event {
-    padding: 0.9rem 0;
-  }
-
-  /* El riel pasa por detrás del icono (lo tapa su anillo de papel), pero la
-     hora y el nombre se pintan sobre papel para que la línea no los cruce. */
-  .time,
-  .label {
-    position: relative;
-    z-index: 1;
-    padding-inline: 0.6rem;
-    background-color: var(--paper);
-  }
-}
-
 @media (max-width: 860px) {
-  .rsvp-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .rsvp-photo img {
-    aspect-ratio: 16 / 10;
-    object-position: 50% 32%;
-  }
+  .rsvp { background-position: 45% 50%; }
 
   .rsvp-panel {
     text-align: center;

@@ -1,9 +1,10 @@
 // Portada de bienvenida (T23, RF-1). Mientras está abierta, App marca el resto como
 // inerte; aquí se dibuja, se enfoca «Ingresar» al aparecer y se cierra con Escape o con un
 // clic fuera del contenido, además del propio botón. El contenido sale del registro.
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import { coupleNames } from "../../utils/couple.js";
+import { SectionDivider } from "../ui/SectionDivider.jsx";
 
 // Estilos acotados a la portada: la invitación conserva los tokens de su plantilla.
 const coverStyles = `
@@ -30,7 +31,7 @@ const coverStyles = `
     pointer-events: none; z-index: -1;
   }
   #portada h1 {
-    font-family: var(--fuente-titulo); font-size: clamp(2.35rem, 10.5vw, 3.8rem);
+    font-family: var(--fuente-nombres); font-size: clamp(2.35rem, 10.5vw, 3.8rem);
     font-weight: 400; line-height: 1.12; letter-spacing: .025em;
     color: var(--welcome-ink); margin: 0; max-width: 100%;
   }
@@ -41,28 +42,28 @@ const coverStyles = `
   }
   #portada .welcome-text {
     order: -1; font-family: var(--fuente-texto); color: var(--welcome-ink);
-    font-size: clamp(.62rem, 2.5vw, .75rem); line-height: 1.8;
+    font-size: clamp(.72rem, 2.8vw, .85rem); line-height: 1.8;
     text-transform: uppercase; letter-spacing: .13em; margin: 0 0 1.8rem;
   }
   #portada .welcome-date {
     font-family: var(--fuente-texto); color: var(--welcome-ink);
-    font-size: clamp(.7rem, 2.8vw, .85rem); font-weight: 400;
+    font-size: clamp(.8rem, 3.1vw, .95rem); font-weight: 400;
     letter-spacing: .13em; line-height: 1.7; margin: 1.75rem 0 0;
   }
-  #portada .rule {
-    width: 3.25rem; height: 1px; flex-shrink: 0;
-    background: var(--welcome-line); margin: 1.4rem auto 0;
+  #portada .welcome-divider {
+    width: min(70%, 12rem); height: 1px; flex-shrink: 0;
+    color: var(--welcome-line); margin: 1.4rem auto 0;
   }
   #portada #btn-ingresar {
     width: min(100%, 11rem); min-height: 48px; padding: .85rem 1rem;
-    border: 1px solid var(--welcome-ink); border-radius: .35rem;
+    border: 1px solid transparent; border-radius: .35rem; outline: none;
     margin-top: 1.4rem; background: var(--welcome-ink); color: var(--welcome-paper);
     letter-spacing: .2em; transition: background-color .25s ease, border-color .25s ease;
   }
   #portada #btn-ingresar:hover, #portada #btn-ingresar:active {
-    background: var(--welcome-active); border-color: var(--welcome-active);
+    background: var(--welcome-active);
   }
-  #portada #btn-ingresar:focus-visible {
+  #portada[data-keyboard="true"] #btn-ingresar:focus-visible {
     outline: 2px solid var(--welcome-active); outline-offset: 4px;
   }
   @media (max-height: 600px) {
@@ -70,14 +71,14 @@ const coverStyles = `
     #portada h1 { font-size: clamp(2.2rem, 8dvh, 2.8rem); }
     #portada .welcome-text { margin-bottom: 1.15rem; }
     #portada .welcome-date { margin-top: 1.1rem; }
-    #portada .rule { margin-top: .9rem; }
+    #portada .welcome-divider { margin-top: .9rem; }
     #portada #btn-ingresar { margin-top: 1rem; }
   }
   @media (max-height: 450px) {
     #portada .welcome-modal-body { min-height: 22rem; padding-top: 2rem; padding-bottom: 2rem; }
     #portada .welcome-text { margin-bottom: .65rem; }
     #portada .welcome-date { margin-top: .75rem; }
-    #portada .rule { margin-top: .6rem; }
+    #portada .welcome-divider { margin-top: .6rem; }
     #portada #btn-ingresar { margin-top: .75rem; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -89,6 +90,7 @@ const coverStyles = `
 export function Cover({ cover, couple, dateText, onEnter }) {
   const buttonRef = useRef(null);
   const bodyRef = useRef(null);
+  const [keyboardFocus, setKeyboardFocus] = useState(false);
 
   const names = coupleNames(cover?.pareja ?? couple);
   const lines = String(cover?.texto ?? "").split("\n");
@@ -120,6 +122,9 @@ export function Cover({ cover, couple, dateText, onEnter }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="titulo-portada"
+      data-keyboard={keyboardFocus}
+      onKeyDownCapture={() => setKeyboardFocus(true)}
+      onPointerDownCapture={() => setKeyboardFocus(false)}
       onClick={onBackdropClick}
     >
       <style>{coverStyles}</style>
@@ -136,7 +141,7 @@ export function Cover({ cover, couple, dateText, onEnter }) {
 
         <p className="welcome-date">{cover?.fecha ?? dateText}</p>
 
-        <span className="rule" aria-hidden="true"></span>
+        <SectionDivider className="welcome-divider" />
 
         <p className="welcome-text">
           {lines.map((line, i) => (

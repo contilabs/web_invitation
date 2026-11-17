@@ -4,6 +4,7 @@
 // datos entran por parámetros (el registro, el texto de la fecha y el instante del evento), no
 // se leen desde aquí.
 import { Countdown } from "../components/sections/Countdown.jsx";
+import { AdultsOnly } from "../components/sections/AdultsOnly.jsx";
 import { Family } from "../components/sections/Family.jsx";
 import { Gallery } from "../components/sections/Gallery.jsx";
 import { Gifts } from "../components/sections/Gifts.jsx";
@@ -26,6 +27,7 @@ const RENDERERS = {
   historia: ({ data }) => <Story key="historia" story={data} />,
   ubicaciones: ({ data }) => <Locations key="ubicaciones" locations={data} />,
   itinerario: ({ data }) => <Timeline key="itinerario" timeline={data} />,
+  soloAdultos: ({ data }) => <AdultsOnly key="soloAdultos" notice={data} />,
   galeria: ({ data }) => <Gallery key="galeria" gallery={data} />,
   regalos: ({ data }) => <Gifts key="regalos" gifts={data} />,
   hoteles: ({ data }) => <Hotels key="hoteles" hotels={data} />,

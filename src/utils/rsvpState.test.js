@@ -184,6 +184,27 @@ test("el doble clic no mueve nada: una segunda pulsación se ignora (RF-5, M10)"
   assert.equal(nextBlockState(BLOCK_STATES.DEGRADED, BLOCK_EVENTS.EDIT), null);
 });
 
+test("tras cargar o reintentar se puede revelar una sola vez sin alterar respuestas previas", () => {
+  for (const status of ["loading", "error", "demo"]) {
+    const waiting = initialBlockState({ status, open: true });
+    assert.equal(nextBlockState(waiting, BLOCK_EVENTS.REVEAL), null);
+  }
+  for (const personalized of [true, false]) {
+    const invitation = { type: personalized ? "personal" : "generic" };
+    const ready = initialBlockState({ status: "ready", invitation, open: true });
+    assert.equal(ready, BLOCK_STATES.NOT_ANSWERED);
+    const revealed = nextBlockState(ready, BLOCK_EVENTS.REVEAL, { personalized });
+    assert.equal(revealed, personalized ? BLOCK_STATES.EDITING : BLOCK_STATES.PHONE);
+    assert.equal(nextBlockState(revealed, BLOCK_EVENTS.REVEAL, { personalized }), null);
+  }
+  const answered = initialBlockState({
+    status: "ready", open: true,
+    invitation: { type: "personal", previousResponse: { state: "accepted" } },
+  });
+  assert.equal(answered, BLOCK_STATES.ANSWERED);
+  assert.equal(nextBlockState(answered, BLOCK_EVENTS.REVEAL, { personalized: true }), null);
+});
+
 test("un estado o un acontecimiento desconocidos no producen transición (RF-1)", () => {
   assert.equal(nextBlockState("sin-estado", BLOCK_EVENTS.REVEAL), null);
   assert.equal(nextBlockState(BLOCK_STATES.NOT_ANSWERED, "sin-acontecimiento"), null);

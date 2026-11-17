@@ -18,9 +18,10 @@ export function Gallery({ gallery }) {
   const [focused, setFocused] = useState(false);
   const [touching, setTouching] = useState(false);
   const [preload, setPreload] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(null);
   const { index, next, previous } = useGallery(total, {
-    suspended: focused || touching || viewerIndex !== null,
+    suspended: !visible || focused || touching || viewerIndex !== null,
   });
   const containerRef = useRef(null);
   const activeButton = useRef(null);
@@ -41,7 +42,12 @@ export function Gallery({ gallery }) {
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || typeof IntersectionObserver === "undefined") return;
+    if (!container) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setPreload(true);
+      setVisible(true);
+      return;
+    }
     const observer = new IntersectionObserver(
       ([entry], self) => {
         if (!entry.isIntersecting) return;
@@ -51,7 +57,12 @@ export function Gallery({ gallery }) {
       { rootMargin: "300px 0px" },
     );
     observer.observe(container);
-    return () => observer.disconnect();
+    const visibilityObserver = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    visibilityObserver.observe(container);
+    return () => {
+      observer.disconnect();
+      visibilityObserver.disconnect();
+    };
   }, []);
 
   function navigate(step) {
@@ -88,7 +99,6 @@ export function Gallery({ gallery }) {
 
   return (
     <section className="gallery reveal" id="galeria-seccion">
-      <div className="wrap">{gallery?.titulo && <h2 id="gallery-title">{gallery.titulo}</h2>}</div>
 
       {total > 0 && (
         <div
@@ -96,8 +106,7 @@ export function Gallery({ gallery }) {
           id="galeria"
           ref={containerRef}
           role="group"
-          aria-labelledby={gallery?.titulo ? "gallery-title" : undefined}
-          aria-label={gallery?.titulo ? undefined : "Galería de fotos"}
+          aria-label="Galería de fotos"
           onFocus={() => setFocused(true)}
           onBlur={(event) => {
             if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
@@ -130,7 +139,7 @@ export function Gallery({ gallery }) {
                   aria-label={`Ampliar: ${photo.alt}`}
                   onClick={() => setViewerIndex(position)}
                 >
-                  {nearby && <img {...photo} loading={preload ? "eager" : "lazy"} decoding="async" />}
+                  {nearby && <img {...photo} loading={preload ? "eager" : "lazy"} fetchPriority={active ? "auto" : "low"} decoding="async" />}
                 </button>
               </div>
             );
@@ -149,21 +158,12 @@ export function Gallery({ gallery }) {
             </>
           )}
 
-          <p className="gallery-counter" aria-live={focused ? "polite" : "off"}>
-            <span className="visually-hidden">Foto </span>
-            <span id="galeria-actual">{index + 1}</span>
-            <span aria-hidden="true"> / </span>
-            <span className="visually-hidden"> de </span>
-            <span id="galeria-total">{total}</span>
-          </p>
         </div>
       )}
 
       {viewerIndex !== null && (
         <GalleryViewer
           photo={photos[viewerIndex]}
-          current={viewerIndex + 1}
-          total={total}
           onClose={() => setViewerIndex(null)}
           onPrevious={() => moveViewer(-1)}
           onNext={() => moveViewer(1)}
