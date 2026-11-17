@@ -1249,7 +1249,7 @@ p:last-child {
 .adults-only h2 {
   color: inherit;
   font-family: var(--fuente-titulo);
-  font-size: clamp(1.425rem, 6.75vw, 3rem);
+  font-size: clamp(1.21125rem, 5.7375vw, 2.55rem);
   line-height: 1.15;
   letter-spacing: 0.06em;
   text-align: center;
@@ -1984,30 +1984,25 @@ p:last-child {
 footer {
   --footer-ink: var(--family-ink);
   width: 100%;
-  padding: clamp(1.5rem, 4vw, 2.5rem) 1.25rem;
+  padding: clamp(0.75rem, 2.5vw, 1.5rem) clamp(0.75rem, 4vw, 1.25rem);
   margin-top: calc(-1 * var(--espacio-seccion));
   text-align: center;
   background-color: var(--paper);
 }
 
 .footer-contact {
-  width: min(100%, 24rem);
-  margin: 0.65rem auto 0;
+  margin: 0.25rem 0 0;
   color: var(--footer-ink);
-}
-
-.footer-credit {
-  margin: 0;
   font-family: var(--fuente-texto);
-  font-size: 0.65rem;
+  font-size: 0.625rem;
   line-height: 1.4;
+  white-space: nowrap;
 }
 
 .footer-contact-link {
   display: inline-flex;
   align-items: center;
   min-height: 24px;
-  padding: 0.15rem 0.5rem;
   font-family: var(--fuente-etiqueta);
   font-size: 0.6rem;
   line-height: 1.6;
@@ -2021,7 +2016,7 @@ footer {
 .footer-names {
   margin: 0;
   font-family: var(--fuente-nombres);
-  font-size: clamp(1.75rem, 5vw, 2.4rem);
+  font-size: clamp(1.625rem, 4.75vw, 2.25rem);
   line-height: 1;
   color: var(--footer-ink);
   white-space: nowrap;
@@ -2029,7 +2024,7 @@ footer {
 .footer-names .amp { font-family: var(--fuente-script); }
 
 .footer-date {
-  margin: 0.75rem 0 0;
+  margin: 0.375rem 0 0;
   font-family: var(--fuente-etiqueta);
   font-size: var(--fs-xs);
   font-weight: 400;

@@ -13,12 +13,12 @@ export function Footer({ couple, dateText, credit }) {
         {dateText}
       </p>
       {credit && (
-        <div className="footer-contact">
-          <p className="footer-credit">Diseño de Invitación Digital</p>
+        <p className="footer-contact">
+          Diseño de invitación y{" "}
           <a className="footer-contact-link" href={credit} target="_blank" rel="noopener noreferrer">
-            Más información aquí
+            más info aquí
           </a>
-        </div>
+        </p>
       )}
     </footer>
   );

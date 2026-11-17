@@ -2,6 +2,21 @@
 Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AGENTS.md`.
 
 ## Estado actual
+- Itinerario: Cóctel y Cena muestran «hrs» con sus horarios actuales. El tamaño
+  adaptable del título «No niños» se redujo un 15 %.
+- Bienvenida: entrada CSS de 4,7 s. Fondo suave y máscara de hojas y marco; acuarela
+  secuencial en mensaje, fecha, nombres, línea y botón. Movimiento reducido muestra todo de inmediato.
+  La máscara de acuarela se retira al terminar para dejar completos los trazos caligráficos.
+  Navegador: tiempos comprobados, «Ingresar» cierra, Escape funciona durante la entrada
+  y el teclado puede mostrar el botón antes de que termine la secuencia.
+- Bienvenida: hojas ampliadas en esquinas opuestas, recortadas por el panel con
+  `overflow: hidden`. Marco SVG sobre las hojas. Verificado en móvil, horizontal y escritorio,
+  con el texto libre y el botón «Ingresar» operativo.
+- Footer más compacto: crédito en una línea, tipografía ligeramente menor y menos
+  separación vertical; se conserva el enlace de contacto.
+  `npm run check` en Docker: 263 de 267 pruebas pasaron; los fallos impidieron llegar al build.
+- Favicon de Naomi y Andrés sustituido con el ICO facilitado (16–256 px); ruta existente
+  `assets/icons/wax-seal.ico`. Copia verificada por SHA-256.
 - Rama objetivo: `boda_nahomi_andres`. Integrados el rediseño de `WI-1-Project-Setup` y el
   panel privado de respuestas de `codex/panel-respuestas`.
 - Integradas `codex/panel-respuestas` y `codex/seccion-padres-padrinos`, con la sección de

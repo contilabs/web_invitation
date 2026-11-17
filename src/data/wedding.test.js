@@ -69,7 +69,7 @@ test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
   const ceremony = wedding.itinerario.momentos.find((moment) => moment.icono === "iglesia");
   assert.equal(ceremony.hora, ceremonia.hora);
   assert.deepEqual(wedding.itinerario.momentos.slice(1).map((moment) => moment.hora), [
-    "19:30 hrs", "19:30 h", "", "20:00 h",
+    "19:30 hrs", "19:30 hrs", "", "20:00 hrs",
   ]);
   assert.match(ceremonia.mapaUrl, /^https:\/\//);
   assert.equal(recepcion.nombre, "Recepción");

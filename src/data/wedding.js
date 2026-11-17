@@ -101,9 +101,9 @@ export const wedding = {
     momentos: [
       { hora: ceremonyTimeLabel, titulo: "Ceremonia religiosa", descripcion: "Inicio de la ceremonia", icono: "iglesia" },
       { hora: "19:30 hrs", titulo: "Recepción", descripcion: "Cena y celebración", icono: "mansion" },
-      { hora: "19:30 h", titulo: "Cóctel", descripcion: "Copas y brindis", icono: "copas" },
+      { hora: "19:30 hrs", titulo: "Cóctel", descripcion: "Copas y brindis", icono: "copas" },
       { hora: "", titulo: "Boda civil", descripcion: "", icono: "anillos" },
-      { hora: "20:00 h", titulo: "Cena", descripcion: "Banquete", icono: "comida" },
+      { hora: "20:00 hrs", titulo: "Cena", descripcion: "Banquete", icono: "comida" },
     ],
   },
 
