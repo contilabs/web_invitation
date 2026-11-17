@@ -18,7 +18,7 @@ export function allowsChildren(wedding) {
   return value === undefined ? true : value;
 }
 
-export function restrictionMessages(restrictions) {
+export function restrictionMessages(restrictions, { includeAdultsOnlyNotice = true } = {}) {
   const messages = [];
   if (!restrictions || typeof restrictions !== "object") return messages;
   const dressCode = restrictions.codigoVestimenta ?? restrictions.vestimenta;
@@ -26,7 +26,7 @@ export function restrictionMessages(restrictions) {
     messages.push(`Código de vestimenta: ${dressCode.trim()}`);
   }
   const allows = readChildrenPermission(restrictions);
-  if (allows === false) {
+  if (allows === false && includeAdultsOnlyNotice) {
     messages.push("Evento solo para adultos");
   } else if (allows === true) {
     messages.push("Los niños son bienvenidos");

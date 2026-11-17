@@ -2,6 +2,7 @@
 Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AGENTS.md`.
 
 ## Estado actual
+- Vestimenta formal omite el aviso de exclusividad para adultos; se conserva la sección «No niños».
 - Bienvenida: ambos nombres y el signo «&» aparecen juntos con un fundido de 0,9 s
   sin máscara para conservar completos los adornos caligráficos.
 - Historia sirve WebP de 480/768/1113 px desde `pintura2.png`, sin recorte y con carga diferida.

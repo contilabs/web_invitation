@@ -15,7 +15,10 @@ const FRAME_OUTLINE = "M300 16C360 16 390 52 418 52C430 90 458 122 500 130C505 1
 export function Restrictions({ restrictions }) {
   const { icons } = useTemplate();
   const dressCode = restrictions?.codigoVestimenta ?? restrictions?.vestimenta;
-  const messages = restrictionMessages({ ...restrictions, codigoVestimenta: null, vestimenta: null });
+  const messages = restrictionMessages(
+    { ...restrictions, codigoVestimenta: null, vestimenta: null },
+    { includeAdultsOnlyNotice: false },
+  );
   if (!dressCode && messages.length === 0) return null;
 
   return (
