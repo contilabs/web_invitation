@@ -487,7 +487,7 @@ p:last-child {
 .floating-panel {
   position: fixed;
   right: 1.25rem;
-  bottom: 1.25rem;
+  bottom: 4.5rem;
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -618,6 +618,26 @@ p:last-child {
   line-height: 1.4;
   color: inherit;
 }
+.family-category-heading {
+  display: grid;
+  grid-template-columns: clamp(1.25rem, 4vw, 3rem) minmax(0, auto) clamp(1.25rem, 4vw, 3rem);
+  justify-content: center;
+  align-items: center;
+  gap: clamp(.375rem, 1vw, .75rem);
+  margin: 0 auto .6rem;
+}
+.family-category-heading h4 { margin: 0; }
+.family-leaves {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 600px) {
+  .family-category-heading {
+    grid-template-columns: 1.875rem minmax(0, auto) 1.875rem;
+  }
+}
 .family-category ul { list-style: none; padding: 0; margin: 0; }
 .family-category li {
   font-family: var(--fuente-texto);
@@ -722,6 +742,27 @@ p:last-child {
   text-wrap: balance;
   color: var(--hero-ink);
   text-shadow: 0 1px 3px var(--hero-paper);
+}
+
+@media (min-width: 601px) {
+  .hero-text {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-phrase {
+    position: absolute;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+    left: max(1rem, env(safe-area-inset-left));
+    width: min(100% - 2rem, 38rem);
+    margin: 0 auto;
+    font-size: clamp(2rem, 3vw, 2.55rem);
+    line-height: 1.35;
+    -webkit-text-stroke: .35px var(--hero-paper);
+    paint-order: stroke fill;
+    text-shadow: none;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1303,17 +1344,18 @@ p:last-child {
 }
 .rsvp-modal-content {
   position: absolute;
-  inset: 14% 20% 16%;
-  padding: 0.25rem;
+  inset: 15% 22% 17%;
+  padding: 0.35rem clamp(0.35rem, 1vw, 0.75rem) 0.75rem;
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--family-line) transparent;
   scroll-padding-block: 1rem;
 }
 .rsvp-modal h2 {
-  margin: 0 0 1.25rem;
+  margin: 0 0 1.35rem;
   color: inherit;
   font-family: var(--fuente-titulo);
   font-size: clamp(1.6rem, 5vw, 2.4rem);
@@ -1324,8 +1366,8 @@ p:last-child {
 .rsvp-modal-close {
   position: absolute;
   z-index: 1;
-  top: 1%;
-  right: 2%;
+  top: 2%;
+  right: 4%;
   width: 44px;
   height: 44px;
   padding: 0;
@@ -1335,22 +1377,29 @@ p:last-child {
   color: var(--family-paper);
   font-family: var(--fuente-texto);
   font-size: 1.75rem;
+  line-height: 1;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 .rsvp-modal-close:hover { opacity: 0.7; }
 .rsvp-modal .rsvp-panel { text-align: left; }
 .rsvp-modal .rsvp-lead { font-size: 1.1rem; line-height: 1.55; text-align: center; }
+.rsvp-modal .help-text { margin: 0; font-size: 0.9rem; line-height: 1.45; }
+.rsvp-modal .field { gap: 0.38rem; }
 .rsvp-modal .field input,
 .rsvp-modal .field textarea,
 .rsvp-modal .form-control {
   min-height: 46px;
   border: 1px solid var(--family-line);
   border-radius: 14px;
-  background: var(--family-paper);
+  background-color: var(--family-paper);
   color: var(--family-ink);
   font-family: var(--fuente-texto);
   scroll-margin-block: 1rem;
+}
+.rsvp-modal .form-control {
+  color: var(--ember);
+  font-weight: 600;
 }
 .rsvp-modal :is(input, textarea)::placeholder { opacity: 0.75; }
 .rsvp-modal :is(input, textarea, select):focus-visible {
@@ -1364,6 +1413,13 @@ p:last-child {
 .rsvp-modal .button { width: 100%; padding-inline: 0.75rem; border-radius: var(--radio-boton); }
 .rsvp-modal .button:active { transform: translateY(1px); }
 .rsvp-modal button[type="submit"] { position: sticky; bottom: 0; z-index: 1; }
+.rsvp-modal form { gap: 0.95rem; }
+.rsvp-modal .attendance { gap: 0.55rem; }
+.rsvp-modal .attendance-title { margin: 0; }
+.rsvp-modal .rsvp-phone-form { width: min(100%, 22rem); margin-inline: auto; text-align: center; }
+.rsvp-modal .rsvp-phone-form .field { text-align: center; }
+.rsvp-modal .rsvp-phone-form :is(input, .help-text) { text-align: center; }
+.rsvp-modal .rsvp-phone-form .button { justify-self: center; }
 @keyframes rsvpModalEnter {
   from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
@@ -1381,6 +1437,10 @@ p:last-child {
 .rsvp .field select {
   background-color: var(--family-paper);
   color: var(--family-ink);
+}
+.rsvp .field select {
+  color: var(--ember);
+  font-weight: 600;
 }
 
 .rsvp-panel {
@@ -1474,14 +1534,44 @@ p:last-child {
 
 .form-control {
   width: 100%;
-  padding: 0.8rem 1rem;
+  padding: 0.8rem 2.5rem 0.8rem 1rem;
   font-family: var(--fuente-texto);
   font-size: 1rem;
-  color: var(--ink);
-  background-color: transparent;
+  color: var(--ember);
+  font-weight: 600;
+  background-color: var(--family-paper);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ember) 50%),
+    linear-gradient(135deg, var(--ember) 50%, transparent 50%);
+  background-position: calc(100% - 1.15rem) 50%, calc(100% - 0.8rem) 50%;
+  background-repeat: no-repeat;
+  background-size: 0.4rem 0.4rem, 0.4rem 0.4rem;
   border: 1px solid var(--linea-fuerte);
   border-radius: var(--radio);
+  appearance: none;
+  color-scheme: light;
+  cursor: pointer;
   transition: border-color 0.2s ease;
+}
+
+.form-control option {
+  color: var(--family-ink);
+  background-color: var(--family-paper);
+}
+
+.form-control option:checked {
+  color: var(--sobre-ember);
+  background-color: var(--ember);
+}
+
+.form-control:hover {
+  border-color: var(--ember);
+  background-color: var(--ember-suave);
+}
+
+.form-control option:hover {
+  color: var(--family-ink);
+  background-color: var(--ember-suave);
 }
 
 .form-control:focus {
@@ -1888,6 +1978,34 @@ footer {
   background-color: var(--paper);
 }
 
+.footer-contact {
+  width: min(100%, 24rem);
+  margin: 0.65rem auto 0;
+  color: var(--footer-ink);
+}
+
+.footer-credit {
+  margin: 0;
+  font-family: var(--fuente-texto);
+  font-size: 0.65rem;
+  line-height: 1.4;
+}
+
+.footer-contact-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0.15rem 0.5rem;
+  font-family: var(--fuente-etiqueta);
+  font-size: 0.6rem;
+  line-height: 1.6;
+  color: var(--ember);
+  text-underline-offset: 0.3em;
+  text-decoration-thickness: 1px;
+}
+
+.footer-contact-link:hover { color: var(--ember-2); }
+
 .footer-names {
   margin: 0;
   font-family: var(--fuente-nombres);
@@ -2266,8 +2384,50 @@ footer {
 
   .floating-panel {
     right: 1rem;
-    bottom: 1rem;
+    bottom: 4.25rem;
   }
+}
+
+@media (max-width: 600px) {
+  .rsvp-modal {
+    width: min(96vw, calc((100dvh - 1rem) * 1410 / 2048));
+    max-height: calc(100dvh - 1rem);
+  }
+
+  .rsvp-modal-content {
+    inset: 14% 21% 16%;
+    padding: 0.25rem 0.25rem 0.7rem;
+  }
+
+  .rsvp-modal h2 {
+    margin-bottom: 0.9rem;
+    font-size: clamp(1.35rem, 6vw, 1.8rem);
+  }
+
+  .rsvp-modal .rsvp-lead {
+    margin-bottom: 1rem;
+    font-size: clamp(1rem, 4vw, 1.15rem);
+  }
+
+  .rsvp-modal .field input,
+  .rsvp-modal .field textarea,
+  .rsvp-modal .form-control {
+    min-height: 44px;
+    padding: 0.68rem 2.5rem 0.68rem 0.75rem;
+    border-radius: 10px;
+  }
+
+  .rsvp-modal .attendance-options { gap: 0.45rem; }
+  .rsvp-modal .attendance-option { min-height: 46px; padding: 0.65rem 0.7rem; border-radius: 10px; }
+  .rsvp-modal .button { min-height: 46px; padding-block: 0.7rem; }
+  .rsvp-modal button[type="submit"] { margin-top: 0.2rem; padding-bottom: max(0.7rem, env(safe-area-inset-bottom)); }
+  .rsvp-modal-close { top: 1.5%; right: 3%; width: 40px; height: 40px; font-size: 1.6rem; }
+}
+
+@media (max-width: 600px) and (max-height: 650px) {
+  .rsvp-modal-content { inset-block: 14% 16%; }
+  .rsvp-modal h2 { margin-bottom: 0.65rem; }
+  .rsvp-modal form { gap: 0.7rem; }
 }
 
 @media (max-width: 620px) {

@@ -26,7 +26,8 @@ test("el tema conserva la clave, los valores y el intercambio de atributos", () 
   assert.match(theme, /THEME_NIGHT = "noche"/, "cambió el valor de noche");
 
   const html = read("../index.html");
-  assert.match(html, /localStorage\.getItem\("kg-tema"\)/, "el shell no lee kg-tema");
+  assert.match(html, /new Date\(\)\.getHours\(\)/, "el shell no usa la hora local");
+  assert.doesNotMatch(html, /localStorage\.(getItem|setItem)\(/, "el tema no debe persistirse");
   assert.match(html, /classList\.add\("dark-mode"\)/, "el shell no aplica dark-mode");
   assert.match(html, /dataset\.tema/, "el shell no publica data-tema");
 

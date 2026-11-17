@@ -153,6 +153,7 @@ useEffect(() => {
           <Footer
             couple={wedding.portada?.pareja ?? wedding.pareja}
             dateText={wedding.portada?.fecha ?? DATE_TEXT}
+            credit={wedding.marca?.enlaces?.credito}
           />
         )}
       </main>

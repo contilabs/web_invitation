@@ -664,7 +664,7 @@ export function Rsvp({ wedding }) {
 
                   {/* telefono / consultando (solo genérica y pública, RF-5). */}
                   {(block === BLOCK_STATES.PHONE || looking) && (
-                    <form onSubmit={handleContinue}>
+                    <form className="rsvp-phone-form" onSubmit={handleContinue}>
                       <div className="field">
                         <label htmlFor="telefono">Tu teléfono</label>
                         <input

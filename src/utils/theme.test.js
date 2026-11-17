@@ -1,8 +1,8 @@
 // Pruebas de `theme` (T9, RF-4). La resolución es pura: la preferencia guardada y
-// la del sistema entran como parámetros; la persistencia vive en el hook (T12).
+// la hora entran como parámetros; el cambio manual solo vive durante la visita.
 import { strict as assert } from "node:assert";
 import test from "node:test";
-import { resolveTheme } from "./theme.js";
+import { isNightHour, resolveTheme } from "./theme.js";
 import { THEME_STORAGE_KEY } from "../constants/theme.js";
 
 test("una preferencia guardada válida manda sobre el sistema", () => {
@@ -13,6 +13,15 @@ test("una preferencia guardada válida manda sobre el sistema", () => {
 test("sin preferencia guardada, se sigue el sistema", () => {
   assert.equal(resolveTheme(null, true), "noche");
   assert.equal(resolveTheme(null, false), "dia");
+});
+
+test("sin preferencia guardada, la hora local distingue día y noche", () => {
+  assert.equal(resolveTheme(null, true, 7), "dia");
+  assert.equal(resolveTheme(null, false, 18), "dia");
+  assert.equal(resolveTheme(null, false, 6), "noche");
+  assert.equal(resolveTheme(null, true, 19), "noche");
+  assert.equal(isNightHour(12), false);
+  assert.equal(isNightHour(23), true);
 });
 
 test("una preferencia guardada inválida se ignora", () => {

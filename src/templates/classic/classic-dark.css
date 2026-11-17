@@ -35,6 +35,7 @@ html.dark-mode {
   color-scheme: dark;
 }
 html.dark-mode .section-divider { color: var(--ink); }
+html.dark-mode .form-control { color-scheme: dark; }
 
 /* Transición suave al cambiar de tema (solo en superficies planas,
    para no pisar las transiciones de hover de las tarjetas) */
@@ -75,8 +76,6 @@ html.dark-mode .dress-code-logo .dress-code-logo--night { display: block; }
 /* Solo el hover cambia: los estados normales conservan sus colores y geometría. */
 html.dark-mode .button:not(:disabled):hover,
 html.dark-mode #btn-ingresar:hover,
-html.dark-mode .music-toggle:hover,
-html.dark-mode .theme-toggle:hover,
 html.dark-mode .lightbox-close:hover,
 html.dark-mode .lightbox-nav:hover,
 html.dark-mode .gallery-arrow:hover .gallery-arrow-icon {
@@ -84,8 +83,14 @@ html.dark-mode .gallery-arrow:hover .gallery-arrow-icon {
   color: var(--sobre-ember);
   border-color: var(--button-hover-paper);
 }
-html.dark-mode .music-toggle:hover :is(.icon-muted, .icon-playing) { filter: brightness(0); }
-html.dark-mode .theme-toggle:hover .theme-toggle-icons svg { color: var(--sobre-ember); }
+html.dark-mode .music-toggle:hover,
+html.dark-mode .theme-toggle:hover {
+  background-color: var(--superficie);
+  color: var(--ink);
+  border-color: var(--ember);
+}
+html.dark-mode .music-toggle:hover :is(.icon-muted, .icon-playing) { filter: var(--filtro-ico); }
+html.dark-mode .theme-toggle:hover .theme-toggle-icons svg { color: var(--ink); }
 html.dark-mode .ceremony-place .chip { color: var(--ink); }
 
 body,

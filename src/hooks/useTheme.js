@@ -1,9 +1,9 @@
 // Tema día/noche con estado (T12, RF-4). Reutiliza lo que el script del <head> ya
 // aplicó (`data-tema` en <html>) para no volver a resolverlo ni provocar parpadeo
-// (contrato de T4). Solo aquí vive la persistencia en `localStorage`.
+// (contrato de T4). El cambio manual solo vive durante la visita actual.
 import { useCallback, useEffect, useState } from "react";
 
-import { THEME_DAY, THEME_NIGHT, THEME_STORAGE_KEY } from "../constants/theme.js";
+import { THEME_DAY, THEME_NIGHT } from "../constants/theme.js";
 
 const BAR_COLOR = { [THEME_DAY]: "#f3efe4", [THEME_NIGHT]: "#20261d" };
 
@@ -15,26 +15,10 @@ function initialTheme() {
     : THEME_DAY;
 }
 
-function readStored() {
-  try {
-    const value = localStorage.getItem(THEME_STORAGE_KEY);
-    return value === THEME_DAY || value === THEME_NIGHT ? value : null;
-  } catch {
-    return null;
-  }
-}
-
-// El color de la barra del navegador debe seguir la elección del invitado. Las metas
-// del <head> traen el valor del sistema; si hay elección guardada, manda una meta sin
-// `media` que siempre coincide.
+// El color de la barra del navegador debe seguir el tema actual. La meta sin `media`
+// prevalece sobre las metas del <head> que solo sirven como respaldo inicial.
 function applyBarColor(theme) {
   let meta = document.querySelector('meta[name="theme-color"]:not([media])');
-
-  if (readStored() === null) {
-    if (meta) meta.remove();
-    return;
-  }
-
   if (!meta) {
     meta = document.createElement("meta");
     meta.setAttribute("name", "theme-color");
@@ -57,24 +41,8 @@ export function useTheme() {
   const toggle = useCallback(() => {
     setTheme((current) => {
       const next = current === THEME_NIGHT ? THEME_DAY : THEME_NIGHT;
-      try {
-        localStorage.setItem(THEME_STORAGE_KEY, next);
-      } catch {
-        /* sin almacenamiento disponible: se aplica igual, no se recuerda */
-      }
       return next;
     });
-  }, []);
-
-  // Mientras el invitado no haya elegido manualmente, seguir el tema del sistema.
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (event) => {
-      if (readStored() !== null) return;
-      setTheme(event.matches ? THEME_NIGHT : THEME_DAY);
-    };
-    query.addEventListener("change", onChange);
-    return () => query.removeEventListener("change", onChange);
   }, []);
 
   return { theme, dark: theme === THEME_NIGHT, toggle };

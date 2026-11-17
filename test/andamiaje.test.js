@@ -40,10 +40,11 @@ test("el tema se resuelve en el <head> antes de cualquier estilo", () => {
   const html = read("../index.html");
   const head = html.slice(html.indexOf("<head>"), html.indexOf("</head>"));
 
-  assert.match(head, /localStorage\.getItem\("kg-tema"\)/, "el script no lee kg-tema");
+  assert.match(head, /new Date\(\)\.getHours\(\)/, "el script no usa la hora local");
+  assert.doesNotMatch(head, /localStorage\.(getItem|setItem)\(/, "el tema no debe persistirse");
   assert.match(head, /classList\.add\("dark-mode"\)/, "el script no aplica dark-mode");
 
-  const script = head.indexOf("kg-tema");
+  const script = head.indexOf("new Date().getHours()");
   const firstStylesheet = head.indexOf("<link rel=\"stylesheet\"");
   assert.ok(firstStylesheet > -1, "no hay hojas de estilo en el <head>");
   assert.ok(

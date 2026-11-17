@@ -7,18 +7,12 @@
 
     <!-- Tema (día / noche) antes de pintar y antes que cualquier estilo, para que no parpadee.
          Es la única resolución inicial del tema: React (T9/T12) reutiliza lo que se deja aquí
-         en `data-tema` / `localStorage["kg-tema"]`, no vuelve a resolverlo. -->
+         en `data-tema`, no vuelve a resolverlo. Cada visita se decide por la hora local:
+         el día va de 07:00 a 18:59 y la noche cubre el resto. -->
     <script>
       (function () {
-        var tema = null;
-        try {
-          tema = localStorage.getItem("kg-tema");
-        } catch (e) {}
-        if (tema !== "dia" && tema !== "noche") {
-          tema = window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "noche"
-            : "dia";
-        }
+        var hour = new Date().getHours();
+        var tema = hour >= 7 && hour < 19 ? "dia" : "noche";
         if (tema === "noche") document.documentElement.classList.add("dark-mode");
         document.documentElement.dataset.tema = tema;
       })();
