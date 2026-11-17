@@ -66,19 +66,28 @@ export function App() {
     enabled: MUSIC_ENABLED,
   });
   const [coverOpen, setCoverOpen] = useState(COVER_VISIBLE);
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const [hasReachedFamily, setHasReachedFamily] = useState(false);
   const contentRef = useRef(null);
 
-useEffect(() => {
-  if (coverOpen || hasScrolled) return;
+  useEffect(() => {
+    if (coverOpen || hasReachedFamily) return;
 
-  const revealControls = () => {
-    if (window.scrollY > 0) setHasScrolled(true);
-  };
+    const revealControls = () => {
+      const family = document.getElementById("familia");
+      const hero = document.getElementById("inicio");
+      const threshold = family ?? hero;
+      const thresholdTop = threshold?.getBoundingClientRect().top ?? window.innerHeight;
+      if (thresholdTop <= window.innerHeight * 0.7) setHasReachedFamily(true);
+    };
 
-  window.addEventListener("scroll", revealControls, { passive: true });
-  return () => window.removeEventListener("scroll", revealControls);
-}, [coverOpen, hasScrolled]);
+    revealControls();
+    window.addEventListener("scroll", revealControls, { passive: true });
+    window.addEventListener("resize", revealControls, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", revealControls);
+      window.removeEventListener("resize", revealControls);
+    };
+  }, [coverOpen, hasReachedFamily]);
 
 
   useReveal();
@@ -125,7 +134,7 @@ useEffect(() => {
         />
       )}
 
-      {PANEL_VISIBLE && !coverOpen && hasScrolled && (
+      {PANEL_VISIBLE && !coverOpen && hasReachedFamily && (
         <ControlsPanel
           inert={coverOpen}
           withMusic={MUSIC_ENABLED}

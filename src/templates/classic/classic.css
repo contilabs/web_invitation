@@ -493,6 +493,18 @@ p:last-child {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  animation: floatingPanelEnter 0.45s ease-out both;
+}
+
+@keyframes floatingPanelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Botón flotante de música: superficie de papel con el glifo en brasa,
@@ -2474,5 +2486,9 @@ footer {
   .cover-backdrop {
     animation: none !important;
     transform: none !important;
+  }
+
+  .floating-panel {
+    animation: none !important;
   }
 }
