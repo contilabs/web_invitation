@@ -52,9 +52,7 @@ import { useConfirmation } from "../../hooks/useConfirmation.js";
 import { useGuestLookup } from "../../hooks/useGuestLookup.js";
 import { useInvitation } from "../../hooks/useInvitation.js";
 import { useRsvp } from "../../hooks/useRsvp.js";
-import { useTemplate } from "../../hooks/useTemplate.js";
 import { readServiceConfig } from "../../services/config.js";
-import { photoFor } from "../../services/photos.js";
 import { confirmationFields, deadlineMs } from "../../utils/confirmation.js";
 import { eventTimeZone, formatDate } from "../../utils/event.js";
 import { attendeeLimits, guestLimit, INVITATION_TYPES } from "../../utils/invitation.js";
@@ -221,7 +219,36 @@ function AttendeeField({ id, label, limit, field = "adults", value, helpText, on
 }
 
 export function Rsvp({ wedding }) {
-  const template = useTemplate();
+  const dialogRef = useRef(null);
+  const triggerRef = useRef(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // El diálogo nativo mantiene el foco dentro; al cerrar recuperamos scroll y disparador.
+  useEffect(() => {
+    if (!modalOpen) return;
+    const root = document.documentElement;
+    const body = document.body;
+    const position = { left: window.scrollX, top: window.scrollY };
+    const previousRootOverflow = root.style.overflow;
+    const previousBody = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+    root.style.overflow = "hidden";
+    Object.assign(body.style, {
+      position: "fixed", top: `${-position.top}px`, left: `${-position.left}px`,
+      width: "100%", overflow: "hidden",
+    });
+    return () => {
+      root.style.overflow = previousRootOverflow;
+      Object.assign(body.style, previousBody);
+      window.scrollTo({ ...position, behavior: "instant" });
+      triggerRef.current?.focus({ preventScroll: true });
+    };
+  }, [modalOpen]);
   // La configuración del despliegue se resuelve una vez al montar (004 RF-15): no es un dato
   // del invitado ni cambia en caliente.
   const config = useMemo(() => readServiceConfig(), []);
@@ -435,10 +462,11 @@ export function Rsvp({ wedding }) {
   // RNF-1: al revelar un paso el foco va a su primer campo (el teléfono o el formulario) y,
   // al pasar a `respondido`, al panel de datos.
   useEffect(() => {
+    if (!modalOpen) return;
     if (block === BLOCK_STATES.PHONE) phoneRef.current?.focus();
     else if (block === BLOCK_STATES.EDITING) focusFirstField(formRef.current);
     else if (block === BLOCK_STATES.ANSWERED) summaryRef.current?.focus();
-  }, [block]);
+  }, [block, modalOpen]);
 
   // El foco queda en el aviso del envío fallido: es lo que hay que leer (004 RNF-6).
   useEffect(() => {
@@ -473,6 +501,8 @@ export function Rsvp({ wedding }) {
   }
 
   function handleReveal() {
+    // Abrir durante la carga o un fallo no consume el paso: «Continuar» lo ofrece al resolver.
+    if (status !== "ready" || !open) return;
     const next = nextBlockState(block, BLOCK_EVENTS.REVEAL, { personalized });
     if (next === null) return;
     setLookupNotice(null);
@@ -537,22 +567,60 @@ export function Rsvp({ wedding }) {
 
   return (
     <section className="rsvp reveal" id="confirmar">
-      <div className="wrap">
-        {confirmation.titulo && <h2>{confirmation.titulo}</h2>}
-
-        <div className="rsvp-grid">
-          <figure className="rsvp-photo">
-            <img
-              {...photoFor(
-                template.structuralPhotos.confirmation,
-                "",
-                template.photoSizes.confirmation,
-              )}
-              loading="lazy"
-              decoding="async"
-            />
-          </figure>
-
+      <div className="rsvp-content">
+        <p className="rsvp-invitation-message">{confirmation.descripcion}</p>
+        <button
+          type="button"
+          className="rsvp-invitation-link"
+          ref={triggerRef}
+          aria-haspopup="dialog"
+          aria-expanded={modalOpen}
+          aria-controls="rsvp-dialog"
+          onClick={() => {
+            dialogRef.current?.showModal();
+            setModalOpen(true);
+            handleReveal();
+          }}
+        >
+          Confirma aquí
+        </button>
+      </div>
+      <dialog
+        id="rsvp-dialog"
+        className="rsvp-modal"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rsvp-modal-title"
+        onClose={() => setModalOpen(false)}
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const dialog = event.currentTarget;
+          const controls = [...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])')]
+            .filter((control) => control.getClientRects().length > 0 && control.tabIndex >= 0);
+          const first = controls[0];
+          const last = controls[controls.length - 1];
+          if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first?.focus();
+          }
+        }}
+        onClick={(event) => {
+          if (event.target !== dialogRef.current) return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) {
+            dialogRef.current.close();
+          }
+        }}
+      >
+        <button type="button" className="rsvp-modal-close" aria-label="Cerrar confirmación" onClick={() => dialogRef.current?.close()}>
+          ×
+        </button>
+        <div className="rsvp-modal-content">
+          <h2 id="rsvp-modal-title">{confirmation.titulo}</h2>
           <div className="rsvp-panel" aria-busy={waitingForService}>
             {status === "loading" ? (
               /* La carga no bloquea el resto de la página (004 RNF-5). */
@@ -561,26 +629,10 @@ export function Rsvp({ wedding }) {
               </ServiceWait>
             ) : (
               <>
-                {/* Vista colapsada: solo «Responder invitación», con su estado anunciado
-                    (RF-3, D15, RNF-1). En `degradado` se ofrece deshabilitado (RF-7). */}
-                {(block === BLOCK_STATES.NOT_ANSWERED || block === BLOCK_STATES.DEGRADED) && (
-                  <>
-                    {block === BLOCK_STATES.NOT_ANSWERED && !personalized && invitation?.seatsText && (
+                {block === BLOCK_STATES.NOT_ANSWERED && !personalized && invitation?.seatsText && (
                       <p className="rsvp-lead">
                         Hemos reservado <span id="numero">{invitation.seatsText}</span> en tu honor
                       </p>
-                    )}
-                  <button
-                    type="button"
-                    className="button button-solid"
-                    aria-expanded={false}
-                    aria-controls={PANEL_ID}
-                    disabled={block === BLOCK_STATES.DEGRADED}
-                    onClick={handleReveal}
-                  >
-                    Responder invitación
-                  </button>
-                  </>
                 )}
 
                 {/* degradado: el motivo, «Reintentar» cuando la causa lo permite y sin
@@ -604,6 +656,12 @@ export function Rsvp({ wedding }) {
 
                 {/* Contenido revelado: vive dentro del panel asociado al botón (RNF-1). */}
                 <div id={PANEL_ID}>
+                  {status === "ready" && open && block === BLOCK_STATES.NOT_ANSWERED && (
+                    <button type="button" className="button button-solid" onClick={handleReveal}>
+                      Continuar
+                    </button>
+                  )}
+
                   {/* telefono / consultando (solo genérica y pública, RF-5). */}
                   {(block === BLOCK_STATES.PHONE || looking) && (
                     <form onSubmit={handleContinue}>
@@ -904,7 +962,7 @@ export function Rsvp({ wedding }) {
             )}
           </div>
         </div>
-      </div>
+      </dialog>
     </section>
   );
 }

@@ -7,6 +7,10 @@
    pintar y no haya parpadeo (ver el script en el <head>).
    ============================================================ */
 html.dark-mode {
+  --button-hover-paper: #faf7ef;
+  --adults-paper: #e7ddc9;
+  --adults-ink: #6a6a53;
+  --adults-ornament: #6a6a53;
   --paper: #20261d;
   --paper-2: #2a3225;
   --superficie: #30392a;
@@ -30,9 +34,60 @@ html.dark-mode {
   --banda-texto: #faf7ef;
   color-scheme: dark;
 }
+html.dark-mode .section-divider { color: var(--ink); }
 
 /* Transición suave al cambiar de tema (solo en superficies planas,
    para no pisar las transiciones de hover de las tarjetas) */
+html.dark-mode .timeline-section {
+  background: var(--paper);
+  color: var(--ink);
+}
+html.dark-mode .countdown-date {
+  --banda-1: var(--family-paper);
+  --banda-texto: var(--family-ink);
+}
+html.dark-mode .locations {
+  --location-paper: var(--paper);
+  --location-ink: var(--ink);
+}
+html.dark-mode .ceremony-place .button,
+html.dark-mode .hotels .hotel-link {
+  background-color: var(--paper);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+html.dark-mode .ceremony-place .button:hover,
+html.dark-mode .hotels .hotel-link:hover {
+  background-color: var(--button-hover-paper);
+  color: var(--sobre-ember);
+}
+html.dark-mode .family { color: var(--ink); }
+html.dark-mode .gallery,
+html.dark-mode footer { background-color: var(--paper); }
+html.dark-mode footer { --footer-ink: var(--ink); }
+html.dark-mode .restrictions {
+  --dress-paper: var(--adults-paper);
+  --dress-ink: var(--family-ink);
+}
+html.dark-mode .dress-code-logo .dress-code-logo--day { display: none; }
+html.dark-mode .dress-code-logo .dress-code-logo--night { display: block; }
+
+/* Solo el hover cambia: los estados normales conservan sus colores y geometría. */
+html.dark-mode .button:not(:disabled):hover,
+html.dark-mode #btn-ingresar:hover,
+html.dark-mode .music-toggle:hover,
+html.dark-mode .theme-toggle:hover,
+html.dark-mode .lightbox-close:hover,
+html.dark-mode .lightbox-nav:hover,
+html.dark-mode .gallery-arrow:hover .gallery-arrow-icon {
+  background-color: var(--button-hover-paper);
+  color: var(--sobre-ember);
+  border-color: var(--button-hover-paper);
+}
+html.dark-mode .music-toggle:hover :is(.icon-muted, .icon-playing) { filter: brightness(0); }
+html.dark-mode .theme-toggle:hover .theme-toggle-icons svg { color: var(--sobre-ember); }
+html.dark-mode .ceremony-place .chip { color: var(--ink); }
+
 body,
 footer {
   transition: background-color 0.35s ease, color 0.35s ease;
@@ -43,6 +98,8 @@ footer {
 html.dark-mode .gift-logo {
   filter: brightness(0) invert(90%);
 }
+html.dark-mode .gift-store-image-day { display: none; }
+html.dark-mode .gift-store-image-night { display: block; }
 
 /* ============================================================
    Interruptor de tema

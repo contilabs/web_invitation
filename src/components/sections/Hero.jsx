@@ -4,10 +4,12 @@
 import { useTemplate } from "../../hooks/useTemplate.js";
 import { photoFor } from "../../services/photos.js";
 import { coupleNames } from "../../utils/couple.js";
+import { useHandwritingReveal } from "../../hooks/useReveal.js";
 
 export function Hero({ couple, dateText, phrase }) {
   const { structuralPhotos, photoSizes } = useTemplate();
   const names = coupleNames(couple);
+  const phraseRef = useHandwritingReveal(phrase);
 
   return (
     <section className="hero" id="inicio" tabIndex={-1}>
@@ -25,7 +27,7 @@ export function Hero({ couple, dateText, phrase }) {
           {names.first} <span className="amp">&amp;</span> {names.second}
         </h1>
         <p className="hero-date">{dateText}</p>
-        {phrase && <p className="hero-phrase">{phrase}</p>}
+        {phrase && <p ref={phraseRef} className="hero-phrase">{phrase}</p>}
       </div>
     </section>
   );

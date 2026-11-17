@@ -1,30 +1,45 @@
 // Mesa de regalos (T25, RF-10): pinta las opciones del registro según su tipo; las que
 // traen datos copiables (transferencia, efectivo) los muestran como texto y llevan un
 // **único** botón «Copiar» con el dato que el registro marca como copiable (la cuenta). Los
-// logos son presentación y se eligen aquí por tipo.
+// La tarjeta de Liverpool llega desde la plantilla y es el enlace a la mesa.
 import { giftOptions } from "../../utils/gifts.js";
+import { useTemplate } from "../../hooks/useTemplate.js";
 import { CopyButton } from "../ui/CopyButton.jsx";
+import { SectionDivider } from "../ui/SectionDivider.jsx";
 
 import icoBbva from "../../../assets/icons/bbva.png";
-import icoLiverpool from "../../../assets/icons/liverpool.png";
 
 const LOGOS = {
-  tienda: icoLiverpool,
   transferencia: icoBbva,
   efectivo: null,
 };
 
 export function Gifts({ gifts }) {
   const options = giftOptions(gifts);
+  const { icons } = useTemplate();
 
   return (
     <section className="gifts reveal" id="regalos">
       <div className="wrap">
-        {gifts?.titulo && <h2>{gifts.titulo}</h2>}
-        {gifts?.mensaje && <p className="section-note">{gifts.mensaje}</p>}
+        {gifts?.titulo && <h2><SectionDivider />{gifts.titulo}</h2>}
 
         <div className="grid-2">
           {options.map((option, i) => {
+            if (option.type === "tienda" && option.url) {
+              return (
+                <a
+                  className="gift-store-link"
+                  href={option.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Abrir mesa de regalos de ${option.label} (en una nueva pestaña)`}
+                  key={`${option.type}-${i}`}
+                >
+                  <img className="gift-store-image gift-store-image-day" src={icons.liverpool.light} alt="" loading="lazy" decoding="async" />
+                  <img className="gift-store-image gift-store-image-night" src={icons.liverpool.dark} alt="" loading="lazy" decoding="async" />
+                </a>
+              );
+            }
             const logo = LOGOS[option.type] ?? null;
             const copyables = Array.isArray(option.copyableFields)
               ? option.copyableFields

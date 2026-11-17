@@ -4,6 +4,11 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Verificación manual pendiente (specs 004 y 005)
 
+- **Modal RSVP tras carga/reintento.** Pruebas/build correctos con `npm run check`; falta
+  probar apertura durante carga, error→Reintentar→éxito→Continuar sin reabrir, apertura ya resuelta,
+  personalizada con respuesta previa y envío. El botón interior usa la transición existente;
+  la verificación de estos recorridos en navegador sigue pendiente.
+
 - **Spec 004 · T10 y spec 005 · T10/T21.** Con el Apps Script **redesplegado**, contra un despliegue
   real (escritorio y móvil): los puntos de la 004 (tres tipos con envío real y su fila; misma
   respuesta con el mismo teléfono que actualiza; boda inactiva/código desconocido/sin `slug`/modo
@@ -13,9 +18,14 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
   genérico real** (`4236_GEN`), **no** `PUBLIC` (ver «Casos límite» y `gas/README.md`). **Único
   control de que el redespliegue se hizo.** Anotar veredicto en «Verificación» de `AGENTS.md`.
 - **Spec 003 · T27.** Reutilizar la app con otro registro, copiar datos por portapapeles, audio tras
-  «Ingresar» y una vuelta en un **móvil físico**, incluido el gesto horizontal de la galería y el desplazamiento vertical. Se puede cubrir en la misma pasada.
+  «Ingresar» y una vuelta en un **móvil físico**, incluido el swipe de la galería y el teclado,
+  desplazamiento y recuperación de posición del modal RSVP. Se puede cubrir en la misma pasada.
 
 ## Casos límite por cubrir
+
+- **Watercolor Reveal de Ubicaciones.** Revisar la expansión de manchas en escritorio/móvil,
+  entrada independiente por scroll, no repetición al volver y movimiento reducido. Pruebas y
+  build correctos en Docker; no se ha realizado la comprobación visual en navegador.
 
 1. Audio: si `play()` falla (o falta `assets/audio.mp3`, que rompe el **build**), `useMusic`
    registra en consola y deja el botón en pausa, pero **no hay aviso al invitado**. Falta decidir
@@ -40,6 +50,10 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 
 ## Trabajo diferido
+
+- **Regalos Naomi y Andrés.** Validar Liverpool `51688096` (enlace heredado de la boda anterior)
+  antes de publicar. Mantener BBVA deshabilitada hasta recibir y verificar los datos correctos;
+  la opción está comentada en `src/data/wedding.js`, con código y recursos conservados.
 
 - **Tope global de asistentes.** Fuera de alcance en la spec 002 y también en la 004 (§16 del
   plan): definir si el máximo de una boda cuenta la suma de todas las respuestas y qué ocurre

@@ -1,27 +1,17 @@
-// Pie de la invitación (T15, RF-14). Compone la firma final: los nombres, la fecha, el lugar
-// y el crédito salen del registro único.
+// Firma discreta: nombres y fecha proceden del registro de la portada.
 import { coupleNames } from "../../utils/couple.js";
 
-export function Footer({ couple, dateText, place, credit }) {
+export function Footer({ couple, dateText }) {
   const names = coupleNames(couple);
 
   return (
-    <footer>
+    <footer aria-label={`${names.first.charAt(0)} & ${names.second.charAt(0)}`}>
       <p className="footer-names">
         {names.first} <span className="amp">&amp;</span> {names.second}
       </p>
       <p className="footer-date">
         {dateText}
-        {place ? ` · ${place}` : ""}
       </p>
-      {credit && (
-        <p className="footer-credit">
-          Diseño de Invitación Digital ·{" "}
-          <a href={credit} target="_blank" rel="noopener noreferrer">
-            Más información aquí
-          </a>
-        </p>
-      )}
     </footer>
   );
 }

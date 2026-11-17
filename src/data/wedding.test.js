@@ -8,6 +8,7 @@
 // bajo Vite; la resolución de las claves se comprueba con `registryErrors` (RF-20).
 import { strict as assert } from "node:assert";
 import test from "node:test";
+import { readdirSync } from "node:fs";
 
 import { wedding } from "./wedding.js";
 import { confirmationFields } from "../utils/confirmation.js";
@@ -18,14 +19,14 @@ import {
   eventTimeZone,
 } from "../utils/event.js";
 import { coupleNames } from "../utils/couple.js";
-import { copyableField } from "../utils/gifts.js";
+import { giftOptions } from "../utils/gifts.js";
 import { allowsChildren } from "../utils/restrictions.js";
 import { remainingParts } from "../utils/countdown.js";
 import { visibleSections } from "../utils/sections.js";
 import { registryWarnings, registryErrors } from "../utils/validation.js";
 
 // Instante con offset explícito: el formato esperado no depende de la zona de la máquina.
-const EVENT_INSTANT = new Date("2027-11-01T16:30:00-06:00").getTime();
+const EVENT_INSTANT = new Date("2027-11-01T16:00:00-06:00").getTime();
 
 test("el registro de ejemplo es coherente (RF-20)", () => {
   assert.deepEqual(registryErrors(wedding), []);
@@ -45,7 +46,7 @@ test("conserva los nombres de la pareja (RF-2, RF-22)", () => {
 });
 
 test("conserva la fecha, la hora y la zona del evento (RF-3, RF-22)", () => {
-  assert.equal(wedding.evento.fechaInicio, "2027-11-01T16:30:00");
+  assert.equal(wedding.evento.fechaInicio, "2027-11-01T16:00:00");
   assert.equal(eventTimeZone(wedding.evento), "America/Mexico_City");
   assert.equal(wedding.evento.lugar, "Guadalajara");
   assert.ok(
@@ -53,45 +54,31 @@ test("conserva la fecha, la hora y la zona del evento (RF-3, RF-22)", () => {
     "la fecha del registro no da un instante válido",
   );
   assert.equal(formatDate(EVENT_INSTANT, "America/Mexico_City"), "01 de noviembre de 2027");
-  assert.equal(formatTime(EVENT_INSTANT, "America/Mexico_City"), "16:30 h");
+  assert.equal(formatTime(EVENT_INSTANT, "America/Mexico_City"), "16:00 h");
 });
 
 test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
   const { ceremonia, recepcion } = wedding.ubicaciones;
   assert.equal(ceremonia.nombre, "Ceremonia religiosa");
-  assert.equal(ceremonia.lugar, "Parroquia Santa María de Guadalupe");
-  assert.equal(ceremonia.hora, "16:30 h");
+  assert.equal(ceremonia.lugar, "La Santísima Trinidad");
+  assert.equal(ceremonia.hora, "16:00 hrs");
+  const ceremony = wedding.itinerario.momentos.find((moment) => moment.icono === "iglesia");
+  assert.equal(ceremony.hora, ceremonia.hora);
+  assert.deepEqual(wedding.itinerario.momentos.slice(1).map((moment) => moment.hora), [
+    "19:30 hrs", "19:30 h", "", "20:00 h",
+  ]);
   assert.match(ceremonia.mapaUrl, /^https:\/\//);
   assert.equal(recepcion.nombre, "Recepción");
-  assert.equal(recepcion.lugar, "Los Agaves Eventos");
+  assert.equal(recepcion.lugar, "Monte Piedra");
+  assert.equal(recepcion.hora, "19:30 hrs");
   assert.match(recepcion.mapaUrl, /^https:\/\//);
 });
 
-test("conserva la mesa de regalos con su cuenta copiable (RF-10, RF-22)", () => {
-  const transfer = wedding.regalos.opciones.find((option) => option.tipo === "transferencia");
-  assert.ok(transfer, "falta la opción de transferencia");
-
-  const labels = transfer.datosCopiables.map((item) => item.etiqueta);
-  assert.ok(labels.some((label) => /Banco/i.test(label)));
-  assert.ok(labels.some((label) => /Titular/i.test(label)));
-  assert.ok(labels.some((label) => /Cuenta|CLABE/i.test(label)));
-
-  const bank = transfer.datosCopiables.find((item) => /Banco/i.test(item.etiqueta));
-  assert.equal(bank.valor, "BBVA");
-  for (const item of transfer.datosCopiables) {
-    assert.ok(String(item.valor ?? "").trim(), `dato copiable vacío: ${item.etiqueta}`);
-  }
-});
-
-test("la transferencia expone un único dato copiable: la cuenta (RF-10)", () => {
-  const transfer = wedding.regalos.opciones.find((option) => option.tipo === "transferencia");
-  const copyable = copyableField(transfer);
-  assert.ok(copyable, "la transferencia no expone ningún dato copiable");
-  assert.equal(copyable.label, "Cuenta");
-  assert.equal(copyable.value, "012320015636927951");
-
-  const marked = transfer.datosCopiables.filter((item) => item.copiar === true);
-  assert.equal(marked.length, 1, "debe haber exactamente un dato marcado como copiable");
+test("la mesa de regalos conserva Liverpool y mantiene deshabilitada la transferencia pendiente de verificar", () => {
+  assert.deepEqual(wedding.regalos.opciones.map((option) => option.tipo), ["tienda"]);
+  assert.deepEqual(giftOptions(wedding.regalos).map((option) => ({ type: option.type, url: option.url })), [
+    { type: "tienda", url: "https://mesaderegalos.liverpool.com.mx/milistaderegalos/51688096" },
+  ]);
 });
 
 test("conserva todos los enlaces de la boda en https (RF-5, RF-16)", () => {
@@ -121,21 +108,32 @@ test("el catálogo de secciones sale en orden y omite las vacías (RF-4)", () =>
       "pareja",
       "familia",
       "cuentaRegresiva",
-      "cita",
-      "historia",
       "ubicaciones",
+      "historia",
       "itinerario",
+      "soloAdultos",
       "regalos",
       "hoteles",
       "confirmacion",
+      "restricciones",
       "galeria",
     ],
   );
 });
 
 test("conserva la galería y la portada del registro (RF-9, RF-22)", () => {
-  assert.equal(wedding.galeria.destacadas, 7);
-  assert.equal(wedding.galeria.imagenes.length, 13);
+  const optimizedNames = readdirSync(new URL("../../assets/photos/opt/gallery/", import.meta.url)).sort();
+  assert.deepEqual(optimizedNames, wedding.galeria.imagenes.flatMap(({ clave }) =>
+    [480, 768, 1200].map((width) => `${clave}-${width}.webp`),
+  ).sort(), "cada foto debe tener sus tres variantes WebP, sin copias ni omisiones");
+  const dscKeys = readdirSync(new URL("../../assets/photos/opt/", import.meta.url), { recursive: true })
+    .map((path) => path.split(/[\\/]/).pop())
+    .filter((name) => /^DSC.*\.(jpg|jpeg|png)$/i.test(name) && !/copy/i.test(name))
+    .map((name) => name.replace(/\.[^.]+$/, ""))
+    .sort();
+  assert.equal(wedding.galeria.destacadas, dscKeys.length);
+  assert.deepEqual(wedding.galeria.imagenes.map(({ clave }) => clave).sort(), dscKeys);
+  assert.equal(new Set(wedding.galeria.imagenes.map(({ clave }) => clave)).size, dscKeys.length);
   for (const [i, image] of wedding.galeria.imagenes.entries()) {
     assert.ok(String(image.clave ?? "").trim(), `la imagen ${i + 1} de la galería no tiene clave`);
     assert.ok(String(image.alt ?? "").trim(), `la imagen ${i + 1} de la galería no tiene alt`);

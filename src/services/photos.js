@@ -8,7 +8,10 @@
 // (`foto5-900.jpg`). Nunca se usa el original de cámara.
 import { wedding } from "../data/wedding.js";
 
-const modules = import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", {
+const modules = import.meta.glob([
+  "../../assets/photos/opt/*.{jpg,jpeg,png}",
+  "../../assets/photos/opt/gallery/*.webp",
+], {
   eager: true,
   query: "?url",
   import: "default",
@@ -18,7 +21,7 @@ const modules = import.meta.glob("../../assets/photos/opt/*.{jpg,jpeg,png}", {
 const variantsByKey = new Map();
 for (const [modulePath, url] of Object.entries(modules)) {
   const file = modulePath.split("/").pop() ?? "";
-  const parts = file.match(/^(.+)-(\d+)\.(?:jpg|jpeg|png)$/i);
+  const parts = file.match(/^(.+)-(\d+)\.(?:jpg|jpeg|png|webp)$/i);
   if (!parts) continue;
 
   const [, key, width] = parts;
