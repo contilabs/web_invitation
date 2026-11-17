@@ -350,10 +350,8 @@ export function Rsvp({ wedding }) {
   // alergias solo con «Sí, asistiré»; el mensaje también con «No podré asistir».
   const showsAttendance = showsAttendanceFields(form.response);
   const showsMessage = showsMessageField(form.response);
-  // Cuando `lookup` encontró una respuesta, el teléfono ya es la llave de esa fila:
-  // al editar se conserva y no se puede convertir la edición en una alta nueva.
-  // En el primer registro `lookupPhone` sigue siendo `null`, así que el campo permanece
-  // editable.
+  // Tras una consulta válida, el teléfono queda fijado para toda la respuesta: es la llave
+  // con la que se validó el formulario, aunque todavía no hubiera una fila previa.
   const phoneLocked = !personalized && lookupPhone.current !== null;
   const waitingForService = status === "loading" || looking || sendStatus === "sending";
 
@@ -394,10 +392,13 @@ export function Rsvp({ wedding }) {
     if (lookupStatus === "ok") {
       const previous = lookupResult?.previousResponse ?? null;
       setLookupNotice(null);
+      // La consulta validó el teléfono, tanto si encontró una respuesta como si es una
+      // primera respuesta. Mantenerlo fijo evita que el envío termine asociado a otro
+      // número distinto del que se consultó.
+      lookupPhone.current = phone;
       if (previous) {
         // Fila con respuesta → `respondido`; el teléfono aportado se muestra en el panel
         // (M9) y no se persiste en ninguna parte (RNF-2).
-        lookupPhone.current = phone;
         setAnswered({ ...previous, phone: phoneDigits(phone) });
         setBlock(
           (current) =>
