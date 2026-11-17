@@ -5,6 +5,7 @@
 import { giftOptions } from "../../utils/gifts.js";
 import { useTemplate } from "../../hooks/useTemplate.js";
 import { CopyButton } from "../ui/CopyButton.jsx";
+import { SectionDivider } from "../ui/SectionDivider.jsx";
 
 import icoBbva from "../../../assets/icons/bbva.png";
 
@@ -20,7 +21,7 @@ export function Gifts({ gifts }) {
   return (
     <section className="gifts reveal" id="regalos">
       <div className="wrap">
-        {gifts?.titulo && <h2>{gifts.titulo}</h2>}
+        {gifts?.titulo && <h2><SectionDivider />{gifts.titulo}</h2>}
 
         <div className="grid-2">
           {options.map((option, i) => {

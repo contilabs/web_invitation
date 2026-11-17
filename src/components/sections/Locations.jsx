@@ -1,6 +1,8 @@
 // Ubicaciones (ceremonia y recepción) con su enlace de mapa (T15, RF-5, RF-6). Los datos y
 // el título salen del registro; aquí viven los rótulos de los enlaces.
 import { useTemplate } from "../../hooks/useTemplate.js";
+import { useWatercolorReveal } from "../../hooks/useReveal.js";
+import { SectionDivider } from "../ui/SectionDivider.jsx";
 
 function mapLink(location) {
   if (location?.mapaUrl) return location.mapaUrl;
@@ -14,9 +16,9 @@ function LocationCard({ icon, location }) {
       {icon && <img className="ceremony-image" src={icon} alt="" loading="lazy" decoding="async" />}
       <h3>{location?.nombre}</h3>
       {location?.lugar && <p className="ceremony-name">{location.lugar}</p>}
+      {location?.hora && <p className="ceremony-time">{location.hora}</p>}
       <p className="place-detail">
         {location?.direccion}
-        {location?.hora && <span className="chip">{location.hora}</span>}
       </p>
       <a
         className="button button-outline"
@@ -36,14 +38,15 @@ function LocationCard({ icon, location }) {
 
 export function Locations({ locations }) {
   const { icons } = useTemplate();
+  const revealRef = useWatercolorReveal();
   const places = ["ceremonia", "recepcion"]
     .map((key) => ({ key, ...(locations?.[key] ?? {}) }))
     .filter((place) => place.nombre || place.lugar || place.direccion);
 
   return (
-    <section className="locations reveal" id="lugares">
+    <section ref={revealRef} className="locations" id="lugares">
       <div className="wrap">
-        {locations?.titulo && <h2>{locations.titulo}</h2>}
+        {locations?.titulo && <h2><SectionDivider />{locations.titulo}</h2>}
 
         <div className="grid-2">
           {places.map((place) => (

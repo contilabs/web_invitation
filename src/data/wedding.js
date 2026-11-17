@@ -185,7 +185,7 @@ export const wedding = {
 
   restricciones: {
     titulo: "Para tomar en cuenta",
-    codigoVestimenta: "Formal.",
+    codigoVestimenta: "Vestimenta Formal",
     // El permiso de niños no se indica: por defecto son permitidos (RF-12).
     otrasIndicaciones: [
       "Mujer: Vestido largo.",

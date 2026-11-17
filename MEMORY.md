@@ -1,69 +1,66 @@
 # MEMORY.md — Invitación digital
 Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y pendientes en `PENDING_TASKS.md`.
 ## Estado actual
-- Restricciones: tras Confirmación; Formal y texto exacto del registro dentro de silueta SVG 5:8,
-  curvas simétricas y borde de rombos, sin título exterior. Oliva/champagne invertidos en noche.
-  Reveal conservado; móvil 320, tablet y escritorio revisados, 262 pruebas/build correctos.
-- Footer: Naomi & Andrés/13-mar-2027 desde portada; N & A accesible, Kalista, sin créditos/borde, compacto.
+- Familia: cuatro categorías con peso 600. Música desde 00:00 sin fragmento temporal;
+  pausa conserva posición, repetición desde cero. Navegador confirmado; 263 pruebas/build Docker correctos.
+- Nombres: Relyna WOFF local, `--fuente-nombres` + preload en portada/Hero/footer; & en Kalista. Revisado móvil/desktop.
+- Títulos: Romantica Serif TTF local, `--fuente-titulo` + preload; `--fuente-display` conserva
+  Erstoria en cifras/avisos. RSVP/vestimenta ajustados, móvil/desktop revisados; check Docker correcto.
+- Bienvenida: textos secundarios mayores, separador SVG; botón sin contorno salvo foco de teclado 2px.
+- Separadores: `SectionDivider` SVG, línea fina, puntas simétricas/tres puntos; títulos y familia,
+  espacios intactos y oliva/contraste por tema. Escritorio/móvil revisados; check Docker correcto.
+- Hero: Kalista 32–37.6px móvil, 29.6–32px tablet/desktop, ajuste para poca altura; escritura SVG
+  3.2 s tras portada, dos líneas móvil 320/390. Movimiento reducido/resize completan; check correcto.
+- Ubicaciones: Watercolor Reveal 2.3 s individual tras carga, nueve manchas, una vez; originales
+  intactos, sin fade/slide. Máscara retirada al finalizar, movimiento reducido directo; revisión visual pendiente.
+- Restricciones: silueta SVG 5:8 intacta, doble línea fina interior según referencia (sin rombos).
+  Logo de navegación por tema (base +20 % y escala visual 1.5, sin mover el resto) → título → indicaciones;
+  cinco colores en seminegrita. Marco 21rem (antes 30), móvil legible; reveal/paleta intactos.
+  Escritorio y móvil 320 en ambos temas revisados; 262 pruebas/build Docker correctos.
+- Footer: nombres/fecha desde portada; footer/galería con `--paper` continuo en ambos temas.
 - Confirmación: DSC01036.jpg intacta de fondo cover, mensaje del registro y enlace Kalista 20px arriba.
   Confirma aquí abre dialog nativo con rsvp.png original autorizado sobre oliva #6A6A53; campos 14px,
   botones 50px, scroll interior, foco circular, fondo bloqueado y restauración exacta de scroll/foco.
   Escape/X/exterior cierran; conserva datos al reabrir. Móvil/escritorio y ambos temas revisados.
   Modal en carga/error: al resolver o reintentar ofrece «Continuar» en NOT_ANSWERED; handleReveal
   exige ready y plazo abierto. Consultas/envíos intactos; npm run check correcto en Docker.
-- Galería: originales DSC intactos (SHA-256); 57 WebP en opt/gallery a 480/768/1200 px.
-  Pillow/Lanczos, EXIF orientado, calidad 80/método 6, sin recorte; photoFor/visor con srcSet/sizes.
-  Activa±1, carga diferida y pausa fuera de pantalla. Chrome 375 px 1x/2x: tres fotos 79/160 KB
-  vs 11,46 MB JPG; escritorio 364 KB. 19 decodificadas, marco estable, visor/flechas correctos.
-  262 pruebas/build Docker correctos; imágenes y diseño originales conservados.
-- Hoteles: Hotel El Refugio, hotel.png reducido otro 30% a 45.5%/14rem; Reservar igual que Ubicación.
-  Sugerencia exacta en notas con prefijo en negrita; Reservar abre Reservatio con NAOMIYANDRES.
+- Galería: originales intactos, 57 WebP 480/768/1200; srcSet/sizes, activa±1 y pausa fuera de pantalla.
+- Hoteles: El Refugio, imagen 45.5%/14rem; Reservar como Ubicación, Reservatio con NAOMIYANDRES.
 - Regalos: Liverpool con originales verde/blanco vía plantilla según tema, enlace original en
   imagen accesible, grande y centrada. BBVA comentada en el registro (código/recursos intactos):
   restaurar solo con datos correctos verificados. Liverpool 51688096 heredado de la boda anterior,
   sin modificar; titular actual no verificable por web.
-- Solo adultos: postal compacta autorizada tras Itinerario; wedding.soloAdultos, Kalista, marco
-  cóncavo y flores SVG, mensaje abreviado. Oliva/blanco y noche beige/oliva; RSVP intacto.
-- Itinerario: composición vertical de referencia, fondo uniforme como Ubicaciones, sin tarjetas.
-  Ceremonia religiosa 16:00 hrs; Recepción 19:30 hrs; Cóctel 19:30 h; Boda civil sin hora
-  (confirmado); Cena 20:00 h. Anillos originales autorizados vía plantilla, tamaños coherentes.
-  Bloque centrado. Hover oscuro #FAF7EF con texto oscuro; normales, radios 50px y transiciones intactos.
-- Ubicaciones: acuarelas originales sin filtro ni tarjetas; Santísima Trinidad y Monte Piedra.
-  Recepción 19:30 hrs; ceremonia 16:00 hrs igual en Ubicaciones e Itinerario. Botones con pin.
-  `ceremonyTime` en wedding.js centraliza hora de inicio y rótulo; demás horas/fecha intactas.
-  Búsqueda estática sin hora anterior en registro/componentes; pruebas/build correctos en Docker.
-- Contador: Faltan, cuatro valores hasta cero; fecha propia 2027-03-13T00:00:00-06:00/Mexico_City.
-- Spec 004: T1–T16 hechas; T17 manual pendiente. Apps Script (`gas/Code.gs`), contrato **1.4.0**,
-  hoja `public`, caída `generic`→`public`, `MALFORMED_GUEST` y celdas vacías como cero.
-- Spec 005: T1–T20, T22 y T23 hechas; T21 manual pendiente. RSVP con siete estados, consulta por
-  teléfono, respuesta previa, mensaje del rechazo, saludo personalizado y consulta tolerante.
-- **Seguridad Docker (2026-10-26):** adaptados los commits `104fb2f` y `ce2206d` de
-  `Jose-QB/wedding_invitation`, incluidos sus lanzadores previos. Archivos nuevos autorizados.
-  `dev`/`preview` usan `scripts/safe-dev.mjs`; `test`/`build`/`check`, `scripts/safe-check.mjs`.
-  No se añadieron dependencias. Uso y límites en `docs/local-security.md`; reglas en `AGENTS.md`.
+- Solo adultos: título reducido 25 %, sin hojas/flores; centro con `SectionDivider` compartido.
+  Marco cóncavo, mensajes y temas intactos; escritorio/móvil 320 y ambos temas revisados.
+  Contenido desde `wedding.soloAdultos`; RSVP intacto.
+- Itinerario vertical centrado, sin tarjetas; ceremonia 16:00, recepción/cóctel 19:30,
+  civil sin hora (confirmado), cena 20:00. Anillos originales vía plantilla, hover oscuro #FAF7EF.
+- Ubicaciones: nombre → hora → dirección → botón. Hora Montserrat/ember 0.95rem (antes 0.85),
+  dirección 1rem (antes 1.0625), espacio nombre/hora ajustado; imágenes/animaciones intactas.
+  Ceremonia 16:00 hrs (`ceremonyTime` del registro); recepción 19:30 hrs. Botones con pin.
+  Ajuste compartido móvil/escritorio; 262 pruebas/build Docker correctos.
+- Contador: marco fino horizontal; ramas SVG solo arriba-izquierda/abajo-derecha, según referencia.
+  Sin separadores ni fondo añadido; colores/cálculos intactos (2027-03-13T00:00:00-06:00).
+  Móvil 320 y escritorio revisados en ambos temas; 262 pruebas/build Docker correctos.
+- Spec 004: T1–T16 hechas, T17 manual pendiente; contrato 1.4.0. Servicio detallado en `AGENTS.md`.
+- Spec 005: T1–T20, T22/T23 hechas; T21 manual pendiente. RSVP y consulta tolerante implementados.
+- Seguridad Docker: `dev`/`preview` → `scripts/safe-dev.mjs`; `test`/`build`/`check` →
+  `scripts/safe-check.mjs`. Uso/límites en `docs/local-security.md`; reglas en `AGENTS.md`.
 ## Decisiones y motivos
-- Docker instala desde los dos manifiestos en una fase con red, sin fuentes ni scripts npm;
-  ejecuta el proyecto en otra fase sin red, privilegios ni montajes del host. Relay únicamente
-  en `127.0.0.1:5173`; desarrollo y preview se ejecutan por separado. No hay alternativa en host.
-- Se copian fotos optimizadas, iconos, audio y fuentes; no originales ni libros de invitados.
-  Las comprobaciones incluyen solo `gas/Code.gs` para los guardarraíles del servicio.
+- Docker instala desde manifiestos sin fuentes/scripts npm; ejecuta sin red, privilegios
+  ni montajes del host. Relay `127.0.0.1:5173`; dev/preview separados, sin alternativa en host.
+- Se copian derivados, iconos, audio/fuentes y `gas/Code.gs`; no originales ni libros reales.
 - Solo se transmiten `VITE_SERVICE_URL` y `VITE_WEDDING_SLUG` del entorno del proceso; son públicas.
   No se leen ni copian `.env*`. Los builds locales son desechables, sin `dist/` exportado;
   publicar requiere conservarlo desde un entorno aislado de CI/hosting (README).
-- Spec 005: `lookup` exige diez dígitos, solo genérica/pública, no escribe `guests`, no devuelve
-  teléfono ni datos ajenos y no persiste teléfono en navegador/URL. Riesgo aceptado documentado.
-- Después de enviar genérica/pública, `Rsvp` copia el teléfono de `submitted.current` a
-  `lookupPhone`; «Editar» conserva la llave aunque no hubiera consulta. Campo bloqueado al enviar.
-- Combos por campo: adultos `1..cupo`, niños `0..cupo`; `attendeeValue` normaliza adultos 0 a 1.
-  `validateRsvp` exige elegir asistencia. Con «Sí» hay cuatro campos; con «No», solo mensaje.
-  El rechazo envía mensaje sin asistentes/restricciones; `responseSummaryData` conserva mensaje
-  y estado para editar. Copy del rechazo local; saludo desde `invitation.guestName`, solo al revelar.
-- `lookupResponse_` exige solo `phone`; tolera ausencia de `guest_name`/`status`.
+- RSVP: lookup privado por diez dígitos, solo genérica/pública, sin escritura ni persistencia.
+  Tras enviar, `lookupPhone` conserva la llave de `submitted.current` para «Editar».
+  Adultos 1..cupo (0 heredado → 1); niños 0..cupo. Rechazo conserva solo mensaje; saludo personal
+  desde `invitation.guestName`, solo al revelar. Detalles permanentes en `AGENTS.md`.
 - Contrato: `src/constants/contract.js` fuente única; `docs/servicio-invitados.md` derivado;
   `test/serviceContract.test.js` vigila sincronía. Literales del servicio en inglés por excepción.
-- Servicio: cadenas escapadas como texto antes de escribir, sin fórmulas; números y vacíos conservan
-  su forma. Resolución personalizada y escritura bajo el mismo `ScriptLock`; `flush()` antes de
-  liberarlo, con `releaseLock()` en un `finally` interno.
+- Servicio: texto escapado sin fórmulas; números/vacíos intactos. `ScriptLock` compartido,
+  `flush()` antes de liberar y `releaseLock()` en `finally`.
 - Invitado y cupos del servicio, parámetro `guest` sin alias. Teléfono como llave de genérica/pública:
   segunda respuesta actualiza, no duplica. Plazo del maestro; config por publicación; POST
   `text/plain` + JSON, espera de 10 s. Libros reales gitignorados.

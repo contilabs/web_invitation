@@ -34,12 +34,17 @@ html.dark-mode {
   --banda-texto: #faf7ef;
   color-scheme: dark;
 }
+html.dark-mode .section-divider { color: var(--ink); }
 
 /* Transición suave al cambiar de tema (solo en superficies planas,
    para no pisar las transiciones de hover de las tarjetas) */
 html.dark-mode .timeline-section {
   background: var(--paper);
   color: var(--ink);
+}
+html.dark-mode .countdown-date {
+  --banda-1: var(--family-paper);
+  --banda-texto: var(--family-ink);
 }
 html.dark-mode .locations {
   --location-paper: var(--paper);
@@ -64,6 +69,8 @@ html.dark-mode .restrictions {
   --dress-paper: var(--adults-paper);
   --dress-ink: var(--family-ink);
 }
+html.dark-mode .dress-code-logo .dress-code-logo--day { display: none; }
+html.dark-mode .dress-code-logo .dress-code-logo--night { display: block; }
 
 /* Solo el hover cambia: los estados normales conservan sus colores y geometría. */
 html.dark-mode .button:not(:disabled):hover,

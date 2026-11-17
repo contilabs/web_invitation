@@ -1,6 +1,7 @@
 // Itinerario del día (T15, RF-8). Cada momento trae su icono desde la plantilla; el título
 // y las horas salen del registro.
 import { useTemplate } from "../../hooks/useTemplate.js";
+import { SectionDivider } from "../ui/SectionDivider.jsx";
 
 export function Timeline({ timeline }) {
   const { icons } = useTemplate();
@@ -9,7 +10,7 @@ export function Timeline({ timeline }) {
   return (
     <section className="timeline-section reveal" id="itinerario">
       <div className="wrap">
-        {timeline?.titulo && <h2>{timeline.titulo}</h2>}
+        {timeline?.titulo && <h2><SectionDivider />{timeline.titulo}</h2>}
 
         <ul className="timeline">
           {moments.map((moment, i) => (

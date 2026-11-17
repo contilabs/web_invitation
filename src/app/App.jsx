@@ -3,7 +3,7 @@
 // con sus datos (el mapa clave → componente vive en `app/sectionRenderers.jsx`). No contiene
 // datos ni textos de contenido incrustados. Mientras la portada está abierta, el contenido
 // (dentro de <main>) y el panel quedan inertes (RF-1); al cerrarla, el foco pasa al inicio y
-// arranca la música (RF-5). Solo se precargan metadatos para preparar el inicio en 00:06.
+// arranca la música (RF-5). Solo se precargan metadatos para preparar el inicio en 00:00.
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import audioUrl from "../../assets/audio.mp3";
@@ -125,7 +125,7 @@ export function App() {
 
       {MUSIC_ENABLED && (
         <audio ref={audioRef} preload="metadata" onLoadedMetadata={initialize} onEnded={restart}>
-          <source src={`${audioUrl}#t=6`} type="audio/mpeg" />
+          <source src={audioUrl} type="audio/mpeg" />
         </audio>
       )}
 

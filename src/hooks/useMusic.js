@@ -1,8 +1,8 @@
 // Música de fondo: la solicitud de reproducción permanece dentro del gesto del invitado.
-// Los metadatos preparan el inicio; la pausa conserva la posición y el final reinicia en 00:06.
+// Los metadatos preparan el inicio; la pausa conserva la posición y el final reinicia en 00:00.
 import { useCallback, useRef, useState } from "react";
 
-const MUSIC_START_SECONDS = 6;
+const MUSIC_START_SECONDS = 0;
 
 export function useMusic({ source = null, enabled = true } = {}) {
   const audioRef = useRef(null);
@@ -26,8 +26,7 @@ export function useMusic({ source = null, enabled = true } = {}) {
     setPlaying(true);
     const request = ++playbackRequest.current;
     // En una entrada rápida play() solicita permiso dentro del gesto, pero no suena
-    // hasta cargar datos. loadedmetadata fija 00:06 antes de comenzar; el fragmento
-    // del source también declara el inicio para evitar reproducir el segundo cero.
+    // hasta cargar datos. loadedmetadata prepara el inicio desde el segundo cero.
     audio.play().catch((error) => {
       if (request !== playbackRequest.current) return;
       console.log("No se pudo reproducir la música automáticamente:", error);

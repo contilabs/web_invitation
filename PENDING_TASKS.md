@@ -23,6 +23,10 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Casos límite por cubrir
 
+- **Watercolor Reveal de Ubicaciones.** Revisar la expansión de manchas en escritorio/móvil,
+  entrada independiente por scroll, no repetición al volver y movimiento reducido. Pruebas y
+  build correctos en Docker; no se ha realizado la comprobación visual en navegador.
+
 1. Audio: si `play()` falla (o falta `assets/audio.mp3`, que rompe el **build**), `useMusic`
    registra en consola y deja el botón en pausa, pero **no hay aviso al invitado**. Falta decidir
    el aviso visible.

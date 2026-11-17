@@ -42,7 +42,7 @@ function createAudio(readyState = 1) {
   };
 }
 
-test("la música prepara 00:06 solo después de cargar metadatos y no reinicia al reanudar", () => {
+test("la música prepara 00:00 solo después de cargar metadatos y no reinicia al reanudar", () => {
   const music = useMusic();
   const audio = createAudio(0);
   music.audioRef.current = audio;
@@ -50,22 +50,22 @@ test("la música prepara 00:06 solo después de cargar metadatos y no reinicia a
   assert.equal(audio.currentTime, 0);
   audio.readyState = 1;
   music.initialize();
-  assert.equal(audio.currentTime, 6);
+  assert.equal(audio.currentTime, 0);
   music.play();
   audio.currentTime = 37.5;
   music.pause();
   music.initialize();
   music.play();
-  assert.deepEqual(audio.starts, [6, 37.5]);
+  assert.deepEqual(audio.starts, [0, 37.5]);
   assert.equal(audio.pauses, 1);
 });
 
-test("un clic con metadatos listos fija 00:06 antes de solicitar reproducción", () => {
+test("un clic con metadatos listos fija 00:00 antes de solicitar reproducción", () => {
   const music = useMusic();
   const audio = createAudio();
   music.audioRef.current = audio;
   music.play();
-  assert.deepEqual(audio.starts, [6]);
+  assert.deepEqual(audio.starts, [0]);
 });
 
 test("una entrada rápida conserva la solicitud del gesto y se posiciona al llegar metadatos", () => {
@@ -76,22 +76,28 @@ test("una entrada rápida conserva la solicitud del gesto y se posiciona al lleg
   assert.equal(audio.starts.length, 1);
   audio.readyState = 1;
   music.initialize();
-  assert.equal(audio.currentTime, 6);
+  assert.equal(audio.currentTime, 0);
 });
 
-test("al terminar vuelve a 00:06 y una nueva invitación vuelve a preparar ese inicio", () => {
+test("al terminar vuelve a 00:00 y una nueva invitación vuelve a preparar ese inicio", () => {
   const music = useMusic();
   const audio = createAudio();
   music.audioRef.current = audio;
   music.play();
   audio.currentTime = 200;
   music.restart();
-  assert.deepEqual(audio.starts, [6, 6]);
+  assert.deepEqual(audio.starts, [0, 0]);
   const reopened = useMusic();
   reopened.audioRef.current = audio;
   audio.currentTime = 52;
   reopened.play();
-  assert.equal(audio.currentTime, 6);
+  assert.equal(audio.currentTime, 0);
+});
+
+test("el recurso de audio conserva la canción completa sin fragmento temporal", () => {
+  const app = readFileSync(new URL("../app/App.jsx", import.meta.url), "utf8");
+  assert.match(app, /<source src=\{audioUrl\}/);
+  assert.doesNotMatch(app, /#t=/);
 });
 
 test("un rechazo antiguo de play no cambia el estado de una reanudación posterior", async () => {

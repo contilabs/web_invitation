@@ -1,5 +1,6 @@
 // Hospedaje (T15, RF-11): información del registro y enlace exclusivo de reservación.
 import { useTemplate } from "../../hooks/useTemplate.js";
+import { SectionDivider } from "../ui/SectionDivider.jsx";
 
 export function Hotels({ hotels }) {
   const { icons } = useTemplate();
@@ -8,7 +9,7 @@ export function Hotels({ hotels }) {
   return (
     <section className="hotels reveal" id="hospedaje">
       <div className="wrap">
-        {hotels?.titulo && <h2>{hotels.titulo}</h2>}
+        {hotels?.titulo && <h2><SectionDivider />{hotels.titulo}</h2>}
 
         <div className="hotel-list">
           {list.map((hotel, i) => {
