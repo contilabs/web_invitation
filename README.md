@@ -215,5 +215,6 @@ conservar `dist/` y publicarlo como sitio estático. No ejecutes Vite directamen
 build usa rutas relativas y funciona en cualquier subruta o dominio (incluidos los enlaces ya
 repartidos del tipo `…/index.html?guest=…`). Para que la confirmación hable con el servicio,
 publica con las variables de entorno descritas arriba (`VITE_SERVICE_URL` y
-`VITE_WEDDING_SLUG`); sin ellas el sitio se publica en modo demo. No hay URL de publicación
+`VITE_WEDDING_SLUG`); el panel usa la misma `VITE_SERVICE_URL`. Sin las variables públicas
+el sitio se publica en modo demo. No hay URL de publicación
 confirmada todavía.

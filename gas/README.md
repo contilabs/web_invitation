@@ -327,3 +327,59 @@ despliegue nuevo:
 - **Zona horaria.** El `deadline` y los `datetime` se interpretan en la zona de la hoja de
   cálculo correspondiente: fija la zona del maestro (y la de cada libro) en la zona de la boda
   antes de repartir códigos.
+
+## Paso 8 — Panel privado de respuestas (spec 006)
+
+Este panel es **independiente** del contrato público 1.4.0. Usa el contrato administrativo `1.2.0` (`src/constants/contract.js`).
+
+### Permisos y autorización (server-side)
+- **Autenticación:** token de 5 dígitos enviado por `MailApp` a `admin_email`.
+- **Control:** cada solicitud de correo genera y guarda un token nuevo; `counter` cuenta intentos
+  fallidos del token vigente y al cuarto se genera y envía otro token.
+- **Boda:** el panel resuelve la fila por `admin_email`; no recibe ni acepta un `slug`.
+- **Sesión:** el token permanece solo en memoria de `admin.html` y se pierde al cerrar la página.
+- **Errores claros:** correo no configurado → `INVALID_ADMIN_EMAIL`, token incorrecto → `INVALID_TOKEN`, cuatro intentos → `TOKEN_RESET`, columnas ausentes → `NOT_CONFIGURED`.
+- **Autorización inicial:** ejecutar una vez `authorizeAdminMail` desde el editor de Apps Script
+  con la cuenta propietaria del deployment y aceptar el permiso de envío. Si el envío falla,
+  el servicio devuelve `EMAIL_UNAVAILABLE`.
+
+### Privacidad
+- **Teléfono enmascarado:** siempre se devuelve `phoneMasked` (`****1234`). No se expone el teléfono completo por defecto (D3).
+- **Sin PII en logs:** los `console.info/error` del panel no incluyen nombres, teléfonos, mensajes ni restricciones.
+- **Sin datos sensibles en cliente:** el frontend no envía secretos, no usa `localStorage` para credenciales ni persiste el teléfono revelado.
+
+### Despliegue del panel
+
+El panel es una entrada React estática (`admin.html`) y usa `VITE_SERVICE_URL` para llamar el
+Web App mediante `fetch` sin credenciales. El acceso se controla con token y no
+depende de sesión Google ni de cookies CORS.
+
+1. Añadir el correo autorizado en `admin_email` de la fila correspondiente de `files` y
+   dejar `token` vacío y `counter` en `0`.
+2. Configurar `VITE_SERVICE_URL`; el panel y la invitación usan el mismo deployment. La
+   autorización se hace con `admin_email` + token.
+3. Al cambiar `Code.gs`, crear una nueva versión del deployment.
+
+### Revocación de acceso
+- **Revocar acceso:** borrar `admin_email` o `token` de la fila y crear una **nueva versión** de la implementación.
+- **Desactivar boda:** poner `is_active` en `FALSE` en el maestro → `INACTIVE_WEDDING`.
+- **Quitar permisos del libro/maestro:** si el script pierde acceso, responde `GUEST_SHEET_UNAVAILABLE`/errores de configuración.
+
+### Redespliegue
+- Cualquier cambio en la lógica del panel exige **nueva versión** de la implementación web. La misma URL sirve la nueva versión.
+- Mantener sincronía con `src/constants/contract.js` (contrato administrativo `1.2.0`).
+
+### Libro de prueba sintético (sin datos personales)
+Ver `docs/panel-respuestas-pruebas.md`. Usar ese libro sintético para verificar:
+- Autorización válida / no autorizada / sin sesión
+- Estados `viewed`/`accepted`/`declined`, totales (adultos/niños excluyen `declined`), `pending` = `viewed`
+- Celdas vacías de asistentes como 0, filas con datos ausentes
+- Servicio caído / errores claros
+- Sin exposición de PII
+
+### Casos límite
+- **Sin `admin_email`, `token` o `counter`:** `NOT_CONFIGURED`.
+- **Fila incompleta / sin cabeceras mínimas:** `INVALID_DATA` sin colapsar con error de auth.
+- **Filas vacías:** se omiten sin romper el listado.
+- **Estado inválido:** se ignora esa fila de forma segura (sin romper auth/listado).
+- **Consulta única sin paginación:** se devuelve todo el listado de la hoja `guests` (D4).

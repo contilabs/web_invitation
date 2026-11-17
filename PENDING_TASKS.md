@@ -21,6 +21,12 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
   «Ingresar» y una vuelta en un **móvil físico**, incluido el swipe de la galería y el teclado,
   desplazamiento y recuperación de posición del modal RSVP. Se puede cubrir en la misma pasada.
 
+## Spec 006 · panel privado de respuestas
+
+- Verificación manual pendiente: con el Apps Script redesplegado y el libro sintético, comprobar
+  autorización válida/no autorizada/sesión expirada, privacidad y revelación temporal del teléfono,
+  filtros, orden, totales, actualización sin doble solicitud, datos vacíos, servicio caído y móvil.
+
 ## Casos límite por cubrir
 
 - **Watercolor Reveal de Ubicaciones.** Revisar la expansión de manchas en escritorio/móvil,
