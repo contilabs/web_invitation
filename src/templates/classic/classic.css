@@ -20,14 +20,6 @@
 }
 
 @font-face {
-  font-family: "Romantica Serif";
-  src: url("../../../fonts/RomanticaSerif.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "Erstoria";
   src: url("../../../fonts/Erstoria.woff2") format("woff2");
   font-weight: normal;
@@ -81,8 +73,8 @@
   --adults-ink: #ffffff;
   --adults-ornament: #e7ddc9;
   --radio-foto: 0.75rem;
-  /* Romantica para títulos, Relyna para nombres, Erstoria para cifras y Kalista para caligrafía. */
-  --fuente-titulo: "Romantica Serif", "Iowan Old Style", Georgia, serif;
+  /* Erstoria para títulos y cifras, Relyna para nombres y Kalista para caligrafía. */
+  --fuente-titulo: "Erstoria", "Iowan Old Style", Georgia, serif;
   --fuente-display: "Erstoria", "Iowan Old Style", Georgia, serif;
   --fuente-script: "Kalista", "Segoe Script", cursive;
   --fuente-texto: "Source Serif 4", Georgia, "Times New Roman", serif;
@@ -2061,6 +2053,31 @@ footer {
   transform: none;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .soft-mask-reveal {
+    animation: soft-mask-fade var(--soft-mask-duration, 1.1s) ease-out var(--soft-mask-delay, 0s) both;
+  }
+
+  @supports (mask-image: radial-gradient(black, transparent)) {
+    .soft-mask-reveal {
+      mask-image: radial-gradient(ellipse closest-side, black 58%, transparent);
+      mask-repeat: no-repeat;
+      mask-position: var(--soft-mask-origin, center);
+      animation-name: soft-mask-reveal;
+    }
+  }
+}
+
+@keyframes soft-mask-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes soft-mask-reveal {
+  from { opacity: 0; mask-size: 18% 20%; }
+  to { opacity: 1; mask-size: 400% 400%; mask-position: center; }
+}
+
 /* ============================================================
    22. Aviso (copiar cuenta)
    ============================================================ */
@@ -2101,17 +2118,30 @@ footer {
   position: relative;
   isolation: isolate;
   margin-block: 0;
-  background: var(--paper) url("../../../assets/photos/opt/story-painting-1113.jpg") center bottom / 100% auto no-repeat;
+  background: var(--paper);
   padding: 0;
   aspect-ratio: 1113 / 960;
   text-align: center;
 }
-.story::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: none;
+.story.reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+.story-painting {
+  --soft-mask-duration: 2.2s;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1113 / 960;
+  object-fit: contain;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .story.reveal:not(.visible) .story-painting,
+  .story[data-painting-ready="false"] .story-painting {
+    opacity: 0;
+    animation: none;
+  }
 }
 
 .story-content { max-width: 46rem; }

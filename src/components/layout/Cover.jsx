@@ -3,8 +3,10 @@
 // clic fuera del contenido, además del propio botón. El contenido sale del registro.
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import welcomeLeavesTop from "../../../assets/icons/welcome-leaves-top.png";
-import welcomeLeavesBottom from "../../../assets/icons/welcome-leaves-bottom.png";
+import welcomeLeavesTop360 from "../../../assets/icons/welcome-leaves-top-360.webp";
+import welcomeLeavesTop720 from "../../../assets/icons/welcome-leaves-top-720.webp";
+import welcomeLeavesBottom360 from "../../../assets/icons/welcome-leaves-bottom-360.webp";
+import welcomeLeavesBottom720 from "../../../assets/icons/welcome-leaves-bottom-720.webp";
 import { coupleNames } from "../../utils/couple.js";
 import { SectionDivider } from "../ui/SectionDivider.jsx";
 
@@ -106,9 +108,9 @@ const coverStyles = `
       animation: welcome-fade .5s ease-out both;
     }
     #portada :is(.welcome-leaves, .welcome-border) {
-      animation: welcome-fade 1.1s ease-out .5s both;
+      --soft-mask-delay: .5s;
     }
-    #portada :is(.welcome-text, .welcome-date, h1, .welcome-divider) {
+    #portada :is(.welcome-text, .welcome-date, .welcome-divider) {
       animation: var(--welcome-reveal, welcome-fade) var(--welcome-duration)
         ease-out var(--welcome-start) backwards;
     }
@@ -121,8 +123,7 @@ const coverStyles = `
       --welcome-start: 2.4s;
     }
     #portada h1 {
-      --welcome-duration: .9s;
-      --welcome-start: 2.9s;
+      animation: welcome-fade .9s ease-out 2.9s backwards;
     }
     #portada .welcome-divider {
       --welcome-duration: .35s;
@@ -140,15 +141,9 @@ const coverStyles = `
     }
 
     @supports (mask-image: radial-gradient(black, transparent)) {
-      #portada :is(.welcome-leaves, .welcome-border) {
-        mask-image: radial-gradient(ellipse closest-side, black 58%, transparent);
-        mask-repeat: no-repeat;
-        mask-position: var(--welcome-mask-origin, center);
-        animation-name: welcome-soft-mask;
-      }
-      #portada .welcome-leaves-top { --welcome-mask-origin: left top; }
-      #portada .welcome-leaves-bottom { --welcome-mask-origin: right bottom; }
-      #portada :is(.welcome-text, .welcome-date, h1, .welcome-divider, #btn-ingresar) {
+      #portada .welcome-leaves-top { --soft-mask-origin: left top; }
+      #portada .welcome-leaves-bottom { --soft-mask-origin: right bottom; }
+      #portada :is(.welcome-text, .welcome-date, .welcome-divider, #btn-ingresar) {
         --welcome-reveal: welcome-watercolor;
         --welcome-watercolor-mask: radial-gradient(ellipse closest-side, black 52%, transparent),
           radial-gradient(ellipse closest-side, black 45%, transparent),
@@ -162,10 +157,6 @@ const coverStyles = `
   @keyframes welcome-fade {
     from { opacity: 0; }
     to { opacity: 1; }
-  }
-  @keyframes welcome-soft-mask {
-    from { opacity: 0; mask-size: 18% 20%; }
-    to { opacity: 1; mask-size: 400% 400%; mask-position: center; }
   }
   @keyframes welcome-watercolor {
     from, to { mask-image: var(--welcome-watercolor-mask); }
@@ -230,9 +221,25 @@ export function Cover({ cover, couple, dateText, onEnter }) {
     >
       <style>{coverStyles}</style>
       <div className="welcome-modal-body" ref={bodyRef}>
-        <img className="welcome-leaves welcome-leaves-top" src={welcomeLeavesTop} width={1086} height={662} alt="" />
-        <img className="welcome-leaves welcome-leaves-bottom" src={welcomeLeavesBottom} width={1086} height={729} alt="" />
-        <svg className="welcome-border" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <img
+          className="welcome-leaves welcome-leaves-top soft-mask-reveal"
+          src={welcomeLeavesTop360}
+          srcSet={`${welcomeLeavesTop360} 360w, ${welcomeLeavesTop720} 720w`}
+          sizes="(max-width: 480px) clamp(13rem, 69vw, 18rem), 21rem"
+          width={1086}
+          height={662}
+          alt=""
+        />
+        <img
+          className="welcome-leaves welcome-leaves-bottom soft-mask-reveal"
+          src={welcomeLeavesBottom360}
+          srcSet={`${welcomeLeavesBottom360} 360w, ${welcomeLeavesBottom720} 720w`}
+          sizes="(max-width: 480px) clamp(12rem, 65vw, 17rem), 20rem"
+          width={1086}
+          height={729}
+          alt=""
+        />
+        <svg className="welcome-border soft-mask-reveal" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
           <path d="M0 0H91A9 6 0 0 0 100 6V100H9A9 6 0 0 0 0 94Z" strokeWidth=".65" vectorEffect="non-scaling-stroke" />
           <path d="M1 .65H90A9 6 0 0 0 99 6.65V99.35H10A9 6 0 0 0 1 93.35Z" strokeWidth=".35" vectorEffect="non-scaling-stroke" />
         </svg>

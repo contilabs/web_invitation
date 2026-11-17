@@ -2,6 +2,12 @@
 Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AGENTS.md`.
 
 ## Estado actual
+- Bienvenida: ambos nombres y el signo «&» aparecen juntos con un fundido de 0,9 s
+  sin máscara para conservar completos los adornos caligráficos.
+- Historia sirve WebP de 480/768/1113 px desde `pintura2.png`, sin recorte y con carga diferida.
+  Su Soft Mask Reveal dura 2,2 s y espera a que la imagen cargue y entre en pantalla.
+- Las hojas del modal sirven WebP de 360/720 px, con transparencia conservada. Los PNG se guardan.
+- Los títulos de la invitación vuelven a Erstoria, con precarga de su WOFF2 en el HTML.
 - Itinerario: Cóctel y Cena muestran «hrs» con sus horarios actuales. El tamaño
   adaptable del título «No niños» se redujo un 15 %.
 - Bienvenida: entrada CSS de 4,7 s. Fondo suave y máscara de hojas y marco; acuarela
