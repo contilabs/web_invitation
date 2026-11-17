@@ -126,8 +126,13 @@ test("los recursos publicados siguen en su ruta", () => {
 
 test("el título del documento y el de compartir muestran Naomi y Andrés", () => {
   const html = read("../index.html");
-  assert.match(html, /<title>Naomi &amp; Andrés<\/title>/);
-  assert.match(html, /property="og:title" content="Naomi &amp; Andrés"/);
+  assert.match(html, /<title>Naomi y Andrés<\/title>/);
+  assert.match(html, /property="og:title" content="Naomi y Andrés"/);
+  assert.doesNotMatch(html, /Karina|Gerardo|Guadalajara|noviembre|2027-11-01/i);
+  assert.match(html, /13 de marzo de 2027 en San Juan de los Lagos, Jalisco, México/);
+  assert.match(html, /property="og:image" content="assets\/photos\/opt\/hero-naomi-andres-1800.jpg"/);
+  const preview = readFileSync(new URL("../assets/photos/opt/hero-naomi-andres-1800.jpg", import.meta.url));
+  assert.equal(preview.readUInt16BE(0), 0xffd8, "la vista previa debe ser un JPEG existente");
   assert.equal((html.match(/rel="icon"/g) ?? []).length, 1);
   const icon = readFileSync(new URL("../assets/icons/wax-seal.ico", import.meta.url));
   assert.equal(icon.readUInt16LE(0), 0);

@@ -1,6 +1,10 @@
 # MEMORY.md — Invitación digital
 Memoria entre sesiones. Máximo ~80 líneas; reglas permanentes en `AGENTS.md` y pendientes en `PENDING_TASKS.md`.
 ## Estado actual
+- PR #3: registro oficial Naomi Muñoz Macías y Andrés Calzada Asencio; nombre público Naomi y Andrés.
+  Evento 13/03/2027 16:00 -06:00, San Juan de los Lagos, Jalisco, México; recepción 19:30 intacta.
+  SEO/OG corregidos, JPEG actual existente; sin Twitter previo. URL absoluta pendiente: aún no hay dominio.
+  Tests ajustados; `npm run check` bloqueado antes de pruebas/build por Docker no disponible (sin alternativa host).
 - Familia: cuatro categorías con peso 600. Música desde 00:00 sin fragmento temporal;
   pausa conserva posición, repetición desde cero. Navegador confirmado; 263 pruebas/build Docker correctos.
 - Nombres: Relyna WOFF local, `--fuente-nombres` + preload en portada/Hero/footer; & en Kalista. Revisado móvil/desktop.

@@ -12,17 +12,17 @@ export const wedding = {
   plantilla: "clasica",
 
   pareja: {
-    nombre1: "Karina",
-    nombre2: "Gerardo",
+    nombre1: "Naomi Muñoz Macías",
+    nombre2: "Andrés Calzada Asencio",
     // Usar coupleNames para componer el nombre para mostrar si no se define.
-    nombreParaMostrar: null,
+    nombreParaMostrar: "Naomi y Andrés",
   },
 
   evento: {
-    titulo: "Boda de Karina y Gerardo",
-    fechaInicio: `2027-11-01T${ceremonyTime}:00`,
+    titulo: "Boda de Naomi y Andrés",
+    fechaInicio: `2027-03-13T${ceremonyTime}:00-06:00`,
     zonaHoraria: "America/Mexico_City",
-    lugar: "Guadalajara",
+    lugar: "San Juan de los Lagos, Jalisco, México",
     descripcion: "Ceremonia religiosa y recepción",
   },
 
@@ -34,7 +34,7 @@ export const wedding = {
     texto: "Tenemos el placer de invitarlos\na nuestra boda",
     imagenes: [
       { clave: "backgrond3", alt: "" },
-      { clave: "foto20", alt: "Karina y Gerardo" },
+      { clave: "foto20", alt: "Naomi y Andrés" },
     ],
   },
 
@@ -227,7 +227,7 @@ export const wedding = {
   },
 
   marca: {
-    nombre: "Naomi & Andrés",
+    nombre: "Naomi y Andrés",
     dominio: null,
     // El destino de la confirmación ya no vive aquí: el envío va al servicio de registro
     // (RF-14). Solo queda el enlace de crédito.

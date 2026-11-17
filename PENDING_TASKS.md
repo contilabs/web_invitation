@@ -35,9 +35,10 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 3. Entrada por enlace con ancla/hash (`#seccion`): los anclajes internos sí funcionan, pero
    `app/main.jsx` fija `scrollRestoration = "manual"`, así que recargar con hash no
    restaura la posición.
-4. Vista previa al compartir el enlace (WhatsApp/redes): el build emite `og:image` con **ruta
-   relativa y con hash** (`./assets/foto2-1800-<hash>.jpg`), y los rastreadores necesitan una URL
-   **absoluta**. Hace falta el host real (o un absoluto fijo) al confirmar la publicación.
+4. Vista previa al compartir el enlace (WhatsApp/redes): `og:image` apunta al JPEG existente
+   `assets/photos/opt/hero-naomi-andres-1800.jpg` de Naomi y Andrés. Falta confirmar el dominio
+   (el usuario aún no lo tiene), poner la URL **absoluta** de la imagen emitida y comprobar su
+   respuesta pública y la vista previa real. Build y pruebas de esta corrección bloqueados por Docker.
 5. Publicación: no hay ninguna confirmada (sin CNAME, sin workflows, Pages devuelve 404). El build
    usa `base: "./"` para no adivinar; cuando exista host, revisar si sigue siendo lo adecuado y
    desplegar (el despliegue no está en `tasks.md`). El build de publicación además debe llevar
