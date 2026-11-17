@@ -38,9 +38,11 @@ export function hasContent(key, data) {
     return Array.isArray(data?.parrafos) && data.parrafos.length > 0;
   }
   if (key === "familia") {
-    return isNonEmptyText(data.texto) || (Array.isArray(data.grupos) && data.grupos.some((group) =>
-      Array.isArray(group.categorias) && group.categorias.some((category) =>
-        Array.isArray(category.nombres) && category.nombres.some(isNonEmptyText))));
+    return Array.isArray(data?.grupos)
+      && data.grupos.some((group) =>
+        (Array.isArray(group?.nombres) && group.nombres.some(isNonEmptyText))
+        || (Array.isArray(group?.categorias) && group.categorias.some((category) =>
+          Array.isArray(category?.nombres) && category.nombres.some(isNonEmptyText))));
   }
   if (key === "cita") {
     return isNonEmptyText(data?.texto);

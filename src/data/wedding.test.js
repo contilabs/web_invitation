@@ -159,8 +159,9 @@ test("la confirmación conserva título, descripción y campos, sin plazo ni env
   assert.equal(wedding.marca.enlaces.rsvp, undefined);
 });
 
-test("los niños están permitidos cuando la boda no lo indica (RF-12)", () => {
-  assert.equal(allowsChildren(wedding), true);
+test("la boda indica que no se permiten niños (RF-12)", () => {
+  assert.equal(wedding.restricciones.permiteNinos, false);
+  assert.equal(allowsChildren(wedding), false);
 });
 
 test("conserva todos los nombres de padres y padrinos, en el orden proporcionado", () => {

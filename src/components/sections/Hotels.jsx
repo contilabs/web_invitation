@@ -10,6 +10,9 @@ export function Hotels({ hotels }) {
     <section className="hotels reveal" id="hospedaje">
       <div className="wrap">
         {hotels?.titulo && <h2><SectionDivider />{hotels.titulo}</h2>}
+        {typeof hotels?.nota === "string" && hotels.nota.trim() && (
+          <p className="hotels-note">{hotels.nota}</p>
+        )}
 
         <div className="hotel-list">
           {list.map((hotel, i) => {

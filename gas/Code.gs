@@ -183,7 +183,8 @@ const ADMIN_SERVICE_ACTIONS = {
 };
 
 // Contrato administrativo.
-const ADMIN_CONTRACT_VERSION = '1.2.0';
+const ADMIN_CONTRACT_VERSION = '1.3.0';
+const ADMIN_SESSION_TTL_SECONDS = 900;
 
 // Errores administrativos (no reemplazan los del contrato público).
 const ADMIN_ERROR_CODES = {
@@ -1568,7 +1569,12 @@ function verifyAdminToken_(email, token) {
     } finally {
       if (lock.hasLock()) lock.releaseLock();
     }
-    return { ok: true, code: ERROR_CODES.OK, contract: ADMIN_CONTRACT_VERSION };
+    return {
+      ok: true,
+      code: ERROR_CODES.OK,
+      contract: ADMIN_CONTRACT_VERSION,
+      session: createAdminSession_(record.email, record.wedding.slug),
+    };
   }
 
   let nextToken = null;
@@ -1599,15 +1605,31 @@ function verifyAdminToken_(email, token) {
   return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN, contract: ADMIN_CONTRACT_VERSION };
 }
 
-// Autoriza con correo + token. El estado de sesión vive solo en la página; cada lectura
-// vuelve a comprobar ambos valores.
-function authorizeAdmin_(email, token) {
-  const record = findAdminRecord_(email);
-  if (!record.ok) return { ok: false, code: record.code };
-  if (text_(token) === null || text_(token) !== record.token) {
+// La verificación del código de correo emite una credencial efímera. Las acciones de
+// lectura nunca vuelven a aceptar el código de correo como credencial de sesión.
+function createAdminSession_(email, slug) {
+  const session = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
+  CacheService.getScriptCache().put('admin-session:' + session, JSON.stringify({ email: email, slug: slug }), ADMIN_SESSION_TTL_SECONDS);
+  return session;
+}
+
+function authorizeAdmin_(session) {
+  const value = text_(session);
+  if (value === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
+  const cached = CacheService.getScriptCache().get('admin-session:' + value);
+  if (cached === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
+  let identity = null;
+  try {
+    identity = JSON.parse(cached);
+  } catch (error) {
     return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
   }
-  return { ok: true, email: record.email, wedding: record.wedding };
+  if (!identity || text_(identity.email) === null || text_(identity.slug) === null) {
+    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
+  }
+  const wedding = findWedding_(identity.slug);
+  if (!wedding.ok) return wedding;
+  return { ok: true, email: identity.email, wedding: wedding };
 }
 
 // Lista respuestas para el panel administrativo. Solo lee, no escribe. Resuelve la boda
@@ -1616,7 +1638,7 @@ function authorizeAdmin_(email, token) {
 // vacíos como 0. Sin paginación (D4). Sin PII en logs.
 function listResponsesAdmin_(payload) {
   // Acción conocida; sin campos extra obligatorios (autorización resuelve en servidor).
-  const auth = authorizeAdmin_(payload && payload.email, payload && payload.token);
+  const auth = authorizeAdmin_(payload && payload.session);
   if (!auth.ok) {
     // Log seguro: sin email completo en detalle sensible, sin nombres/teléfonos.
     console.info('admin: auth_failed code=' + auth.code);
@@ -1710,8 +1732,12 @@ function listResponsesAdmin_(payload) {
     // Asistentes vacíos como 0; valores incoherentes se omiten en conteo seguro (no romper listado).
     const adultsAtt = parseAttendees_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_ATTENDEES));
     const childAtt = parseAttendees_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_ATTENDEES));
-    const adultsAttCount = adultsAtt === null ? 0 : adultsAtt;
-    const childAttCount = childAtt === null ? 0 : childAtt;
+    if (adultsAtt === null || childAtt === null) {
+      console.info('admin: row_invalid_attendees');
+      return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA, contract: ADMIN_CONTRACT_VERSION };
+    }
+    const adultsAttCount = adultsAtt;
+    const childAttCount = childAtt;
     const adultsGuest = parseGuestCount_(cellOf_(row, headerMap, GUEST_COLUMNS.ADULTS_GUESTS), false);
     const childGuest = isPersonal
       ? parseGuestCount_(cellOf_(row, headerMap, GUEST_COLUMNS.CHILD_GUESTS), true)
@@ -1785,7 +1811,7 @@ function listResponsesAdmin_(payload) {
 // Lista los códigos de enlace de la hoja que corresponde al tipo de boda. Solo devuelve
 // identificadores y cupos; la autorización y la boda se resuelven server-side.
 function listCodesAdmin_(payload) {
-  const auth = authorizeAdmin_(payload && payload.email, payload && payload.token);
+  const auth = authorizeAdmin_(payload && payload.session);
   if (!auth.ok) return { ok: false, code: auth.code, contract: ADMIN_CONTRACT_VERSION };
   const wedding = auth.wedding;
   if (!wedding.ok) return { ok: false, code: wedding.code, contract: ADMIN_CONTRACT_VERSION };
@@ -1816,7 +1842,7 @@ function listCodesAdmin_(payload) {
 // Revelación puntual y efímera del teléfono. Requiere la misma autorización server-side y
 // el guest_id de una fila ya recibida; nunca acepta una posición ni devuelve otra fila.
 function revealPhoneAdmin_(payload) {
-  const auth = authorizeAdmin_(payload && payload.email, payload && payload.token);
+  const auth = authorizeAdmin_(payload && payload.session);
   if (!auth.ok) return { ok: false, code: auth.code, contract: ADMIN_CONTRACT_VERSION };
   const wedding = auth.wedding;
   if (!wedding.ok) return { ok: false, code: wedding.code, contract: ADMIN_CONTRACT_VERSION };

@@ -289,7 +289,7 @@ export const SERVICE_ERRORS = [
 
 // Contrato administrativo independiente (spec 006: panel privado de respuestas RSVP).
 // Versión separada del contrato público 1.4.0; no cambia el comportamiento del RSVP público.
-export const ADMIN_CONTRACT_VERSION = "1.2.0";
+export const ADMIN_CONTRACT_VERSION = "1.3.0";
 
 // Acción administrativa para obtener el listado de respuestas.
 export const ADMIN_SERVICE_ACTIONS = {
@@ -304,6 +304,7 @@ export const ADMIN_SERVICE_ACTIONS = {
 export const ADMIN_REQUEST_FIELDS = {
   ACTION: "action",
   GUEST_ID: "guestId",
+  SESSION: "session",
 };
 
 // Campos del sobre administrativo (respuesta).
@@ -315,6 +316,7 @@ export const ADMIN_RESPONSE_FIELDS = {
   RESPONSES: "responses",
   PHONE: "phone",
   CODES: "codes",
+  SESSION: "session",
 };
 
 // Campos de cada código disponible en el panel.

@@ -171,6 +171,8 @@ export const wedding = {
 
   hoteles: {
     titulo: "Sugerencias de hospedaje",
+    // Nota general para las sugerencias de hospedaje.
+    nota: "Te recomendamos reservar tu hospedaje con anticipación.",
     lista: [
       {
         nombre: "Hotel El Refugio",
@@ -186,7 +188,7 @@ export const wedding = {
   restricciones: {
     titulo: "Para tomar en cuenta",
     codigoVestimenta: "Vestimenta Formal",
-    // El permiso de niños no se indica: por defecto son permitidos (RF-12).
+    permiteNinos: false,
     otrasIndicaciones: [
       "Mujer: Vestido largo.",
       "Agradecemos evitar colores blanco, beige, marfil, Champagne.",
@@ -216,6 +218,7 @@ export const wedding = {
       parejaVisible: true,
       citaVisible: false,
       historiaVisible: true,
+      familiaVisible: true,
       ubicacionesVisible: true,
       itinerarioVisible: true,
       galeriaVisible: true,
