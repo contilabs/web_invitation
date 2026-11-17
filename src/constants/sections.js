@@ -10,7 +10,6 @@ export const SECTION_ORDER = [
   "familia",
   "cuentaRegresiva",
   "cita",
-  "historia",
   "ubicaciones",
   "historia",
   "itinerario",

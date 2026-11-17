@@ -171,8 +171,6 @@ export const wedding = {
 
   hoteles: {
     titulo: "Sugerencias de hospedaje",
-    // Nota general para las sugerencias de hospedaje.
-    nota: "Te recomendamos reservar tu hospedaje con anticipación.",
     lista: [
       {
         nombre: "Hotel El Refugio",

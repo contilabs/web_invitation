@@ -22,6 +22,8 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - Adultos `1..cupo`; niños `0..cupo`; un rechazo conserva únicamente el mensaje.
 - `src/constants/contract.js` es fuente del contrato y `docs/servicio-invitados.md` su derivado.
 - Plantilla por `useTemplate`, fotos por clave y variantes optimizadas; `base: "./"` se conserva.
+- La maquetación pública se mantiene alineada con `WI-1-Project-Setup`: familia clásica,
+  orden único de secciones y estilos sin tarjetas añadidas posteriormente.
 - Tema inicial en el shell, `kg-tema`, colores por variables CSS y audio solo tras gesto.
 
 ## Errores a evitar
