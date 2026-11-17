@@ -13,6 +13,8 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   revelación temporal del teléfono; la sesión efímera sustituye al token en lecturas.
 - Seguridad: `dev`, `preview`, `test`, `build` y `check` usan lanzadores Docker; no ejecutar
   herramientas del proyecto directamente en el host.
+- Configuración real: existe `.env.local` gitignorado con `VITE_SERVICE_URL` y
+  `VITE_WEDDING_SLUG`; los lanzadores leen solo esas dos variables y no copian el archivo.
 
 ## Decisiones importantes
 - `src/data/wedding.js` es el único registro de contenido; el invitado y RSVP vienen del servicio.

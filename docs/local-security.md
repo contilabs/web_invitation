@@ -65,8 +65,8 @@ remotos se rechazan en desarrollo y comprobaciones.
 
 ## Configuración del servicio y publicación
 
-Los archivos `.env.local` y `.env` **no se leen ni se copian** por los lanzadores. Para
-probar el RSVP, exporta exclusivamente sus dos valores públicos antes de arrancar (ejemplo
+El archivo `.env.local` no se copia al contenedor ni se versiona. Los lanzadores leen de él
+únicamente sus dos valores públicos. También puedes exportarlos antes de arrancar (ejemplo
 para bash/zsh; en PowerShell usa `$env:VITE_SERVICE_URL` y `$env:VITE_WEDDING_SLUG`):
 
 ```bash
@@ -79,9 +79,8 @@ Estas dos variables se transmiten de forma explícita al contenedor, también pa
 build y check. Son configuración visible en el navegador, **no secretos**. Ninguna otra
 variable del entorno del host se transmite al runtime del proyecto. Sin URL se conserva
 el modo demo; sin slug se conserva el aviso de configuración incompleta. Reiniciar para
-aplicar cambios en estos valores. La configuración anterior mediante `.env.local` sigue
-siendo una posibilidad de Vite en un entorno de publicación separado, pero no se usa en
-estos lanzadores locales.
+aplicar cambios en estos valores. Las variables exportadas tienen prioridad sobre
+`.env.local`.
 
 El navegador sí puede consultar Apps Script y cargar Google Fonts; el aislamiento cubre
 las herramientas del proyecto, no el código ejecutado en el navegador. Los proxies Vite
