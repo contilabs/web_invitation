@@ -66,7 +66,20 @@ export function App() {
     enabled: MUSIC_ENABLED,
   });
   const [coverOpen, setCoverOpen] = useState(COVER_VISIBLE);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const contentRef = useRef(null);
+
+useEffect(() => {
+  if (coverOpen || hasScrolled) return;
+
+  const revealControls = () => {
+    if (window.scrollY > 0) setHasScrolled(true);
+  };
+
+  window.addEventListener("scroll", revealControls, { passive: true });
+  return () => window.removeEventListener("scroll", revealControls);
+}, [coverOpen, hasScrolled]);
+
 
   useReveal();
 
@@ -112,7 +125,7 @@ export function App() {
         />
       )}
 
-      {PANEL_VISIBLE && (
+      {PANEL_VISIBLE && !coverOpen && hasScrolled && (
         <ControlsPanel
           inert={coverOpen}
           withMusic={MUSIC_ENABLED}
