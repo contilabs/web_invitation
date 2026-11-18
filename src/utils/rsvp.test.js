@@ -25,6 +25,8 @@ import {
   responseSummaryData,
   rsvpPayload,
   validateRsvp,
+  whatsappMessage,
+  whatsappUrl,
 } from "./rsvp.js";
 
 // Invitaciones de ejemplo, resueltas con la misma función que usa la interfaz (datos ficticios).
@@ -767,6 +769,57 @@ test("attendanceForm: el teléfono no forma parte de la precarga (RF-5, M8)", ()
     "phone" in attendanceForm(generic(3), { ...REGISTERED_ROW, phone: "5512345678" }),
     false,
   );
+});
+
+test("whatsappMessage arma un resumen sin incluir el teléfono del invitado", () => {
+  const message = whatsappMessage({
+    coupleName: "Karina y Gerardo",
+    name: "Invitada Ficticia",
+    response: RESPONSE_STATES.ACCEPTED,
+    adults: 2,
+    children: 1,
+    restrictions: "Sin gluten",
+  });
+
+  assert.match(message, /Karina y Gerardo/);
+  assert.match(message, /Adultos: 2/);
+  assert.match(message, /Niños: 1/);
+  assert.match(message, /Sin gluten/);
+  assert.doesNotMatch(message, /Mensaje|Qué emoción/);
+  assert.doesNotMatch(message, /5512345678/);
+});
+
+test("whatsappMessage omite asistentes y restricciones al rechazar", () => {
+  const message = whatsappMessage({
+    name: "Invitada Ficticia",
+    response: RESPONSE_STATES.DECLINED,
+    adults: 2,
+    children: 1,
+    restrictions: "Sin gluten",
+  });
+
+  assert.match(message, /No podré asistir/);
+  assert.doesNotMatch(message, /Adultos|Niños|Restricciones/);
+});
+
+test("whatsappMessage no agrega niños en una invitación sin ese campo y conserva alergias", () => {
+  const message = whatsappMessage({
+    name: "Invitado Ficticio",
+    response: RESPONSE_STATES.ACCEPTED,
+    adults: 2,
+    restrictions: "Alergia al cacahuate",
+  });
+
+  assert.doesNotMatch(message, /Niños/);
+  assert.match(message, /Alergia al cacahuate/);
+});
+
+test("whatsappUrl usa el número de destino y codifica el texto", () => {
+  assert.equal(
+    whatsappUrl("+52 449 414 4122", "Hola\nSí, asistiré."),
+    "https://wa.me/524494144122?text=Hola%0AS%C3%AD%2C%20asistir%C3%A9.",
+  );
+  assert.equal(whatsappUrl("", "Hola"), "");
 });
 
 test("el módulo es puro: sin DOM, sin reloj y sin red (RNF-9)", () => {

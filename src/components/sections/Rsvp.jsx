@@ -52,7 +52,7 @@ import { useConfirmation } from "../../hooks/useConfirmation.js";
 import { useGuestLookup } from "../../hooks/useGuestLookup.js";
 import { useInvitation } from "../../hooks/useInvitation.js";
 import { useRsvp } from "../../hooks/useRsvp.js";
-import { readServiceConfig } from "../../services/config.js";
+import { readServiceConfig, readWhatsAppPhone } from "../../services/config.js";
 import { confirmationFields, deadlineMs } from "../../utils/confirmation.js";
 import { eventTimeZone, formatDate } from "../../utils/event.js";
 import { attendeeLimits, guestLimit, INVITATION_TYPES } from "../../utils/invitation.js";
@@ -63,7 +63,10 @@ import {
   isPhoneComplete,
   phoneDigits,
   responseSummaryData,
+  whatsappMessage,
+  whatsappUrl,
 } from "../../utils/rsvp.js";
+import { coupleNames } from "../../utils/couple.js";
 import {
   BLOCK_EVENTS,
   BLOCK_STATES,
@@ -252,6 +255,7 @@ export function Rsvp({ wedding }) {
   // La configuración del despliegue se resuelve una vez al montar (004 RF-15): no es un dato
   // del invitado ni cambia en caliente.
   const config = useMemo(() => readServiceConfig(), []);
+  const whatsappPhone = useMemo(() => readWhatsAppPhone(), []);
   const [retryToken, setRetryToken] = useState(0);
 
   const { status, invitation, errorCode } = useInvitation({ config, retryToken });
@@ -320,6 +324,19 @@ export function Rsvp({ wedding }) {
       ? { ...invitation.previousResponse, name: invitation.guestName, phone: null }
       : null);
   const answeredData = responseSummaryData(answer, personalized);
+  const whatsappHref = answeredData
+    ? whatsappUrl(
+        whatsappPhone,
+        whatsappMessage({
+          coupleName: coupleNames(wedding?.pareja).display,
+          name: answeredData.name,
+          response: answeredData.state,
+          adults: answeredData.adultsAttendees,
+          children: answeredData.childAttendees,
+          restrictions: answeredData.restrictions,
+        }),
+      )
+    : "";
 
   // El aviso de `respondido` y del envío aceptado (RF-12, D20): la copy del rechazo cuando la
   // respuesta registrada es un rechazo y la copy `OK` del contrato en cualquier otra. La fecha
@@ -728,6 +745,16 @@ export function Rsvp({ wedding }) {
                       <button type="button" className="button button-solid" onClick={handleEdit}>
                         Editar
                       </button>
+                      {whatsappHref && (
+                        <a
+                          className="button button-outline"
+                          href={whatsappHref}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Enviar respuesta por WhatsApp
+                        </a>
+                      )}
                     </>
                   )}
 
