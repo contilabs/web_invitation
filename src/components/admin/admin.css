@@ -77,6 +77,9 @@ tbody tr:hover { background: rgba(155, 133, 85, 0.08); }
 .admin-tabs button.is-active { border-bottom-color: var(--admin-ember); color: var(--admin-ember); background: rgba(85, 95, 62, 0.1); }
 .admin-codes { margin: 1.5rem 0; }
 .admin-codes .admin-table-wrap { margin-top: 1rem; }
+.admin-link-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+.admin-button-secondary { color: var(--admin-ember); background: transparent; box-shadow: none; }
+.admin-button-secondary:hover:not(:disabled) { color: var(--admin-surface); }
 .admin-codes ~ .admin-filters, .admin-codes ~ .admin-filters ~ .admin-table-wrap { display: none; }
 .admin-notice { max-width: 38rem; margin: 12vh auto 0; padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--admin-line-strong); border-radius: var(--admin-radius); background: rgba(250, 247, 239, 0.88); box-shadow: var(--admin-shadow); }
 .admin-notice h1 { margin-bottom: 1.5rem; }

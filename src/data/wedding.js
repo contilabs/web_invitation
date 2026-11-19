@@ -229,6 +229,8 @@ export const wedding = {
 
   marca: {
     nombre: "Naomi y Andrés",
+    mensajeEnlace:
+      "¡Hola! Somos {pareja} y queremos invitarte a nuestra boda. Tu invitación cuenta con {lugares}. Confirma tu asistencia aquí: {enlace}",
     dominio: null,
     // El destino de la confirmación ya no vive aquí: el envío va al servicio de registro
     // (RF-14). Solo queda el enlace de crédito.
