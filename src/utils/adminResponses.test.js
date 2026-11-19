@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
-import { filterAdminResponses, normalizeAdminResponse, sortAdminResponses } from "./adminResponses.js";
+import { filterAdminResponses, invitationMessage, normalizeAdminResponse, sortAdminResponses } from "./adminResponses.js";
 
 const response = (overrides = {}) => ({
   guestId: "1", guestType: "generic", guestName: "Ana", phoneMasked: "****1234",
@@ -30,4 +30,11 @@ test("combina filtros y conserva el orden solicitado", () => {
   const rows = [response(), response({ guestId: "2", guestName: "Bea", status: "viewed", dietaryRestrictions: "nueces", datetime: "2027-01-02T10:00:00.000Z" })];
   assert.equal(filterAdminResponses(rows, { restrictions: "yes" }).length, 1);
   assert.equal(sortAdminResponses(rows)[0].guestId, "2");
+});
+
+test("compone el mensaje del enlace con el cupo y pluraliza los lugares", () => {
+  const template = "{pareja} · {lugares} · {enlace}";
+  assert.equal(invitationMessage(template, { couple: "Naomi y Andrés", limit: 1, link: "https://ejemplo.test" }), "Naomi y Andrés · 1 lugar disponible · https://ejemplo.test");
+  assert.equal(invitationMessage(template, { couple: "Naomi y Andrés", limit: 3, link: "https://ejemplo.test" }), "Naomi y Andrés · 3 lugares disponibles · https://ejemplo.test");
+  assert.equal(invitationMessage(template, { couple: "Naomi y Andrés", limit: "n", link: "https://ejemplo.test" }), "Naomi y Andrés · lugares sin límite · https://ejemplo.test");
 });

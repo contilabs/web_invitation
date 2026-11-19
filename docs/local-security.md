@@ -66,16 +66,17 @@ remotos se rechazan en desarrollo y comprobaciones.
 ## Configuración del servicio y publicación
 
 El archivo `.env.local` no se copia al contenedor ni se versiona. Los lanzadores leen de él
-únicamente sus dos valores públicos. También puedes exportarlos antes de arrancar (ejemplo
-para bash/zsh; en PowerShell usa `$env:VITE_SERVICE_URL` y `$env:VITE_WEDDING_SLUG`):
+únicamente sus tres valores públicos. También puedes exportarlos antes de arrancar (ejemplo
+para bash/zsh; en PowerShell usa las variables equivalentes):
 
 ```bash
 export VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"
 export VITE_WEDDING_SLUG="mi-boda"
+export VITE_WHATSAPP_PHONE="521234567890"
 npm run dev
 ```
 
-Estas dos variables se transmiten de forma explícita al contenedor, también para preview,
+Estas tres variables se transmiten de forma explícita al contenedor, también para preview,
 build y check. Son configuración visible en el navegador, **no secretos**. Ninguna otra
 variable del entorno del host se transmite al runtime del proyecto. Sin URL se conserva
 el modo demo; sin slug se conserva el aviso de configuración incompleta. Reiniciar para

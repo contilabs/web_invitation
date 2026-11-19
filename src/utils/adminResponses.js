@@ -127,3 +127,14 @@ export function sortAdminResponses(responses, sort = "datetime") {
       (Date.parse(left.datetime ?? "") || Number.NEGATIVE_INFINITY);
   });
 }
+
+// Sustituye los datos variables del mensaje que se copia desde el panel de enlaces.
+export function invitationMessage(template, { couple, limit, link } = {}) {
+  const places = limit === "n"
+    ? "lugares sin límite"
+    : `${Number(limit)} ${Number(limit) === 1 ? "lugar disponible" : "lugares disponibles"}`;
+  return String(template ?? "")
+    .replaceAll("{pareja}", String(couple ?? ""))
+    .replaceAll("{lugares}", places)
+    .replaceAll("{enlace}", String(link ?? ""));
+}

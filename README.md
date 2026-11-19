@@ -167,14 +167,19 @@ vigila que no se desincronicen). La puesta en marcha del servicio (maestro, libr
 publicación) está explicada en `gas/README.md`.
 
 La configuración del despliegue **no** está en el repo: son valores por publicación, que se
-fijan con variables públicas de Vite. Los lanzadores Docker solo transmiten estas dos
+fijan con variables públicas de Vite. Los lanzadores Docker solo transmiten estas tres
 variables del entorno del proceso; no leen ni copian `.env.local` ni otros archivos `.env`:
 
 ```bash
 export VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"
 export VITE_WEDDING_SLUG="mi-boda"
+export VITE_WHATSAPP_PHONE="521234567890"
 npm run dev  # también se aplican a preview, build y check
 ```
+
+Después de registrar una respuesta, la invitación puede abrir WhatsApp con un mensaje
+prellenado para la pareja. `VITE_WHATSAPP_PHONE` es el número de destino en formato
+internacional, solo con dígitos; el mensaje no incluye el teléfono del invitado.
 
 - **Sin URL** → **modo demo**: la invitación se ve completa y sin personalizar, y la
   confirmación queda deshabilitada con su aviso (no se llama a nadie).
@@ -216,6 +221,6 @@ este comando directamente en su runner Node, sin Docker.
 build usa rutas relativas y funciona en cualquier subruta o dominio (incluidos los enlaces ya
 repartidos del tipo `…/index.html?guest=…`). Para que la confirmación hable con el servicio,
 publica con las variables de entorno descritas arriba (`VITE_SERVICE_URL` y
-`VITE_WEDDING_SLUG`); el panel usa la misma `VITE_SERVICE_URL`. Sin las variables públicas
+`VITE_WEDDING_SLUG` y `VITE_WHATSAPP_PHONE`); el panel usa la misma `VITE_SERVICE_URL`. Sin las variables públicas
 el sitio se publica en modo demo. No hay URL de publicación
 confirmada todavía.
