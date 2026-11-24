@@ -148,13 +148,13 @@ export function commandFor(mode) {
 }
 
 // Solo estos valores públicos de Vite cruzan al contenedor. `.env.local` se lee únicamente
-// para obtener estas dos variables y nunca se copia al contenedor ni se versiona.
+// para obtener estas variables y nunca se copia al contenedor ni se versiona.
 function localServiceEnvironment() {
   const path = join(root, '.env.local')
   if (!existsSync(path)) return {}
   const values = {}
   for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
-    const match = line.match(/^\s*(VITE_SERVICE_URL|VITE_WEDDING_SLUG)\s*=\s*(.*?)\s*$/)
+    const match = line.match(/^\s*(VITE_SERVICE_URL|VITE_WEDDING_SLUG|VITE_WHATSAPP_PHONE)\s*=\s*(.*?)\s*$/)
     if (!match) continue
     values[match[1]] = match[2].replace(/^(["'])(.*)\1$/, '$2')
   }
@@ -163,7 +163,7 @@ function localServiceEnvironment() {
 
 export function serviceEnvironmentArguments(env) {
   const source = env === undefined ? { ...localServiceEnvironment(), ...process.env } : env
-  return ['VITE_SERVICE_URL', 'VITE_WEDDING_SLUG'].flatMap((name) =>
+  return ['VITE_SERVICE_URL', 'VITE_WEDDING_SLUG', 'VITE_WHATSAPP_PHONE'].flatMap((name) =>
     Object.hasOwn(source, name) ? ['--env', `${name}=${source[name]}`] : [],
   )
 }
