@@ -231,7 +231,7 @@ export function useHandwritingReveal(text) {
 }
 
 // Cada imagen espera tanto su carga como su entrada; al terminar se retira la máscara.
-export function useWatercolorReveal() {
+export function useWatercolorReveal(selector = ".ceremony-image") {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -240,13 +240,15 @@ export function useWatercolorReveal() {
     if (!root || motion.matches || typeof IntersectionObserver === "undefined" ||
       !CSS.supports("mask-image", "radial-gradient(black, transparent)")) return;
 
-    const images = [...root.querySelectorAll(".ceremony-image")];
+    const images = [...root.querySelectorAll(selector)];
     const entered = new WeakSet();
     const finish = (event) => {
       if (event.type === "animationend" && event.animationName !== "watercolor-bloom") return;
       event.target.removeAttribute("data-watercolor");
     };
     const start = (image) => {
+      // Cambiar la fuente puede disparar otra carga después de la primera entrada.
+      if (image.dataset.watercolor !== "waiting") return;
       if (!entered.has(image) || !image.complete || !image.naturalWidth) return;
       image.dataset.watercolor = "painting";
       observer.unobserve(image);
@@ -281,7 +283,7 @@ export function useWatercolorReveal() {
       clear();
       motion.removeEventListener("change", motionChanged);
     };
-  }, []);
+  }, [selector]);
 
   return ref;
 }

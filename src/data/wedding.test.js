@@ -68,8 +68,12 @@ test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
   assert.equal(ceremonia.hora, "16:00 hrs");
   const ceremony = wedding.itinerario.momentos.find((moment) => moment.icono === "iglesia");
   assert.equal(ceremony.hora, ceremonia.hora);
-  assert.deepEqual(wedding.itinerario.momentos.slice(1).map((moment) => moment.hora), [
-    "19:30 hrs", "19:30 hrs", "", "20:00 hrs",
+  assert.deepEqual(wedding.itinerario.momentos.map(({ hora, titulo }) => [hora, titulo]), [
+    ["16:00 hrs", "Ceremonia religiosa"],
+    ["18:00 hrs", "Civil"],
+    ["18:30 hrs", "Cóctel"],
+    ["19:30 hrs", "Recepción"],
+    ["20:00 hrs", "Cena"],
   ]);
   assert.match(ceremonia.mapaUrl, /^https:\/\//);
   assert.equal(recepcion.nombre, "Recepción");
@@ -78,11 +82,15 @@ test("conserva las ubicaciones con su enlace de mapa (RF-5, RF-22)", () => {
   assert.match(recepcion.mapaUrl, /^https:\/\//);
 });
 
-test("la mesa de regalos conserva Liverpool y mantiene deshabilitada la transferencia pendiente de verificar", () => {
-  assert.deepEqual(wedding.regalos.opciones.map((option) => option.tipo), ["tienda"]);
-  assert.deepEqual(giftOptions(wedding.regalos).map((option) => ({ type: option.type, url: option.url })), [
-    { type: "tienda", url: "https://mesaderegalos.liverpool.com.mx/milistaderegalos/51688096" },
-  ]);
+test("la mesa de regalos conserva Liverpool y copia únicamente la CLABE de Santander", () => {
+  const [liverpool, santander] = giftOptions(wedding.regalos);
+  assert.equal(liverpool.type, "tienda");
+  assert.equal(liverpool.url, "https://mesaderegalos.liverpool.com.mx/milistaderegalos/60040482");
+  assert.equal(santander.type, "transferencia");
+  assert.equal(santander.imageKey, "santander");
+  assert.equal(santander.copyableField.label, "CLABE");
+  assert.match(santander.copyableField.value, /^0\d{17}$/);
+  assert.equal(santander.copyableField.value, wedding.regalos.opciones[1].datosCopiables[1].valor);
 });
 
 test("conserva todos los enlaces de la boda en https (RF-5, RF-16)", () => {
@@ -172,11 +180,11 @@ test("conserva todos los nombres de padres y padrinos, en el orden proporcionado
   assert.deepEqual(wedding.familia.grupos.map((group) => group.categorias.map((category) => category.nombres)), [
     [
       ["Blanca Delia Macías Rocha", "Raúl Muñoz Márquez"],
-      ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"],
+      ["María Elena Asencio Villamil", "Ernesto Calzada Castillo"],
     ],
     [
-      ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"],
-      ["Maria de Lourdes Gomez Rocha", "Mauricio Gomez Rocha"],
+      ["María Elena Asencio Villamil", "Ernesto Calzada Castillo"],
+      ["María de Lourdes Gómez Rocha", "Mauricio Gómez Rocha"],
     ],
   ]);
 });

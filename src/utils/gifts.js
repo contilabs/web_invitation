@@ -72,6 +72,9 @@ export function giftOptions(gifts) {
       option.copyableFields = copyableFields(item);
       option.copyableField = copyableField(item);
     }
+    if (type === GIFT_TYPES.TRANSFER && item?.imagen) {
+      option.imageKey = item.imagen;
+    }
     return option;
   });
 }

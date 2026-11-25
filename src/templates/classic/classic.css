@@ -583,81 +583,19 @@ p:last-child {
    ============================================================ */
 .site-header .site-header-logo--night { display: none; }
 
-/* Reconocimiento familiar: papelería beige y oliva, independiente del tema de las otras secciones. */
+/* Carta familiar sobre el fondo general de la invitación. */
 .hero:has(+ .family) { margin-bottom: 0; }
 .family {
   margin-block: 0;
   background: var(--paper);
-  color: var(--family-ink);
-  padding: clamp(2.5rem, 6vw, 4rem) max(1rem, env(safe-area-inset-right))
-    clamp(2.5rem, 6vw, 4rem) max(1rem, env(safe-area-inset-left));
-  text-align: center;
 }
 
-.family-content { max-width: 48rem; margin-inline: auto; }
-.family-intro {
-  max-width: 36rem;
-  margin: 0 auto 2rem;
-  font-family: var(--fuente-script);
-  font-size: clamp(1.65rem, 6vw, 2.2rem);
-  font-weight: 400;
-  line-height: 1.5;
-  text-wrap: balance;
-}
-.family-group h3 {
-  text-align: center;
-  margin: 0 0 1.25rem;
-  font-family: var(--fuente-titulo);
-  font-size: clamp(1.7rem, 6.5vw, 2.1rem);
-  font-weight: 400;
-  line-height: 1.25;
-  color: inherit;
-}
-.family-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.3rem; }
-.family-category h4 {
-  margin: 0 0 .6rem;
-  font-family: var(--fuente-titulo);
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.4;
-  color: inherit;
-}
-.family-category-heading {
-  display: grid;
-  grid-template-columns: clamp(1.25rem, 4vw, 3rem) minmax(0, auto) clamp(1.25rem, 4vw, 3rem);
-  justify-content: center;
-  align-items: center;
-  gap: clamp(.375rem, 1vw, .75rem);
-  margin: 0 auto .6rem;
-}
-.family-category-heading h4 { margin: 0; }
-.family-leaves {
+.family-letter {
   display: block;
-  width: 100%;
+  width: min(100%, 42rem);
   height: auto;
-  object-fit: contain;
-}
-@media (max-width: 600px) {
-  .family-category-heading {
-    grid-template-columns: 1.875rem minmax(0, auto) 1.875rem;
-  }
-}
-.family-category ul { list-style: none; padding: 0; margin: 0; }
-.family-category li {
-  font-family: var(--fuente-texto);
-  font-size: clamp(1rem, 3.9vw, 1.1rem);
-  line-height: 1.8;
-}
-.section-divider--family-category,
-.section-divider--family-group {
-  width: min(100%, 8rem);
-  margin: 0 auto 1.3rem;
-}
-.family-group + .family-group { margin-top: 1.65rem; }
-.section-divider--family-group { margin-bottom: 1.65rem; }
-@media (min-width: 700px) {
-  .family-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
-  .section-divider--family-category { display: none; }
+  margin-inline: auto;
+  filter: drop-shadow(0 4px 6px rgb(var(--sombra-foto) / 0.26));
 }
 .hero {
   --hero-paper: #ede7db;
@@ -980,7 +918,8 @@ p:last-child {
 .ceremony-place h3 { margin: 0.4rem 0 0; }
 /* Manchas superpuestas: solo cambia la máscara, nunca los píxeles de la acuarela. */
 @media (prefers-reduced-motion: no-preference) {
-  #lugares .ceremony-image[data-watercolor] {
+  #lugares .ceremony-image[data-watercolor],
+  .family-letter[data-watercolor] {
     mask-image:
       radial-gradient(ellipse, #000 34%, #0009 48%, #0003 60%, transparent 73%),
       radial-gradient(ellipse, #000 30%, #000a 46%, #0002 62%, transparent 74%),
@@ -995,7 +934,8 @@ p:last-child {
     mask-repeat: no-repeat;
     mask-size: 0% 0%;
   }
-  #lugares .ceremony-image[data-watercolor="painting"] {
+  #lugares .ceremony-image[data-watercolor="painting"],
+  .family-letter[data-watercolor="painting"] {
     animation: watercolor-bloom 2.3s cubic-bezier(0.22, 0.55, 0.3, 1) both;
   }
 }
@@ -1291,26 +1231,27 @@ p:last-child {
   text-align: center;
 }
 .rsvp-invitation-message {
+  display: grid;
+  gap: clamp(0.55rem, 2vw, 0.9rem);
   margin: 0 auto 1.5rem;
   font-family: var(--fuente-texto);
   font-size: clamp(1.15rem, 2vw, 1.5rem);
   line-height: 1.65;
   text-wrap: balance;
 }
+.rsvp-invitation-message p { margin: 0; }
 .rsvp-invitation-link {
   display: inline-block;
   margin: 0;
-  padding: 0.25rem 0.5rem;
-  border: 0;
-  border-radius: 0;
+  padding: 0.65rem 1.8rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radio-boton);
   background: none;
   color: inherit;
-  font-family: var(--fuente-script);
-  font-size: clamp(3rem, 7vw, 5rem);
+  font-family: var(--fuente-texto);
+  font-style: normal;
+  font-size: clamp(1.15rem, 3vw, 1.6rem);
   line-height: 1.35;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.15em;
   cursor: pointer;
   transition: opacity 0.25s ease;
 }
@@ -1708,6 +1649,102 @@ p:last-child {
 }
 .gift-store-image { display: block; width: 100%; height: auto; object-fit: contain; }
 .gift-store-image-night { display: none; }
+
+.gift-transfer {
+  /* El PNG conserva sus márgenes transparentes. Las medidas siguen el borde de la tarjeta. */
+  --transfer-inset: 11% 16.4% 10.5%;
+  --transfer-radius: 5% / 8%;
+  --transfer-paper: #55543d;
+  --transfer-ink: #ead7bc;
+  position: relative;
+  container-type: inline-size;
+  width: min(96%, 61.44rem);
+}
+
+.gift-transfer-trigger,
+.gift-transfer-overlay {
+  position: absolute;
+  inset: var(--transfer-inset);
+  border-radius: var(--transfer-radius);
+}
+
+.gift-transfer-trigger {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.gift-transfer-overlay:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.125rem, 1cqi, 0.7rem);
+  padding: 0.2rem 0.35rem;
+  background: var(--transfer-paper);
+  color: var(--transfer-ink);
+  font-family: var(--fuente-texto);
+  font-size: clamp(0.75rem, 2.7cqi, 1.55rem);
+  line-height: 1.12;
+  text-align: center;
+  cursor: default;
+  animation: giftTransferEnter 0.24s ease-out both;
+}
+
+@keyframes giftTransferEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.gift-transfer-overlay :is(dl, dd) { margin: 0; }
+.gift-transfer-overlay dl {
+  display: grid;
+  gap: clamp(0.125rem, 0.85cqi, 0.6rem);
+  font-size: clamp(0.8125rem, 5.1cqi, 1.75rem);
+}
+.gift-transfer-overlay dt { font-size: 0.8em; font-weight: 600; }
+.gift-transfer-overlay dd { font-variant-numeric: tabular-nums; }
+
+.gift-transfer-close,
+.gift-transfer-overlay .copy-button {
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.gift-transfer-close {
+  position: absolute;
+  inset: 0.2rem 0.25rem auto auto;
+  width: clamp(1.5rem, 6cqi, 2.5rem);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  font-size: clamp(1rem, 4cqi, 1.65rem);
+}
+
+.gift-transfer-overlay .copy-button {
+  min-height: clamp(1.5rem, 5.25cqi, 2.75rem);
+  padding: 0.125rem clamp(0.65rem, 2.25cqi, 1.25rem);
+  border: 1px solid currentColor;
+  border-radius: var(--radio-boton);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.gift-transfer-overlay :is(.gift-transfer-close, .copy-button):hover {
+  background: var(--transfer-ink);
+  color: var(--transfer-paper);
+}
+.gift-transfer-overlay :is(.gift-transfer-close, .copy-button):focus-visible {
+  outline: 2px solid var(--transfer-ink);
+  outline-offset: 2px;
+}
+.gift-transfer-overlay :is(.gift-transfer-close, .copy-button):active { transform: translateY(1px); }
+.gift-transfer-overlay .copy-inline-notice:empty { position: absolute; }
+.gift-transfer-overlay .copy-inline-notice { font-size: 0.9em; }
 
 .gift-logo {
   display: block;

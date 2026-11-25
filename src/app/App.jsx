@@ -156,7 +156,7 @@ export function App() {
 
         {HEADER_VISIBLE && <Header couple={wedding.portada?.pareja ?? wedding.pareja} />}
 
-        {SECTIONS.filter(KEYS_WITH_COVER).map((section) => renderSection(section, SECTION_CONTEXT))}
+        {SECTIONS.filter(KEYS_WITH_COVER).map((section) => renderSection(section, { ...SECTION_CONTEXT, dark }))}
 
         {FOOTER_VISIBLE && (
           <Footer

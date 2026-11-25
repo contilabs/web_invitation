@@ -586,7 +586,11 @@ export function Rsvp({ wedding }) {
   return (
     <section className="rsvp reveal" id="confirmar">
       <div className="rsvp-content">
-        <p className="rsvp-invitation-message">{confirmation.descripcion}</p>
+        <div className="rsvp-invitation-message">
+          {confirmation.descripcion?.split(/(?<=[.!?])\s+/).map((sentence, i) => (
+            <p key={i}>{sentence}</p>
+          ))}
+        </div>
         <button
           type="button"
           className="rsvp-invitation-link"

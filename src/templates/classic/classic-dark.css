@@ -62,7 +62,6 @@ html.dark-mode .hotels .hotel-link:hover {
   background-color: var(--button-hover-paper);
   color: var(--sobre-ember);
 }
-html.dark-mode .family { color: var(--ink); }
 html.dark-mode .gallery,
 html.dark-mode footer { background-color: var(--paper); }
 html.dark-mode footer { --footer-ink: var(--ink); }
@@ -105,6 +104,12 @@ html.dark-mode .gift-logo {
 }
 html.dark-mode .gift-store-image-day { display: none; }
 html.dark-mode .gift-store-image-night { display: block; }
+html.dark-mode .gift-transfer {
+  --transfer-inset: 9.8% 13.3% 8.7%;
+  --transfer-paper: #e9e0d3;
+  --transfer-ink: #4d4f25;
+  width: min(88%, 56.32rem);
+}
 
 /* ============================================================
    Interruptor de tema

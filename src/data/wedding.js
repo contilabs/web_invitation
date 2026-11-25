@@ -45,20 +45,21 @@ export const wedding = {
 
   familia: {
     titulo: "Nuestros padres y padrinos",
-    texto: "El amor que hoy celebramos también es fruto de quienes nos han acompañado, guiado y enseñado a amar.",
+    imagenAlt: "Sobre abierto con una carta y el sello de Naomi y Andrés",
+    texto: "El amor que hoy celebramos también florece gracias a quienes nos guiaron y enseñaron a amar.",
     grupos: [
       {
         titulo: "Nuestros Padres",
         categorias: [
           { titulo: "Padres de la novia", nombres: ["Blanca Delia Macías Rocha", "Raúl Muñoz Márquez"] },
-          { titulo: "Padres del novio", nombres: ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"] },
+          { titulo: "Padres del novio", nombres: ["María Elena Asencio Villamil", "Ernesto Calzada Castillo"] },
         ],
       },
       {
         titulo: "Nuestros Padrinos",
         categorias: [
-          { titulo: "Padrinos de Velación", nombres: ["Maria Elena Ascencio Villamil", "Ernesto Calzada Castillo"] },
-          { titulo: "Padrinos de Anillos", nombres: ["Maria de Lourdes Gomez Rocha", "Mauricio Gomez Rocha"] },
+          { titulo: "Padrinos de Velación", nombres: ["María Elena Asencio Villamil", "Ernesto Calzada Castillo"] },
+          { titulo: "Padrinos de Anillos", nombres: ["María de Lourdes Gómez Rocha", "Mauricio Gómez Rocha"] },
         ],
       },
     ],
@@ -100,9 +101,9 @@ export const wedding = {
     // `icono` es una clave de presentación: la interfaz elige el archivo del build.
     momentos: [
       { hora: ceremonyTimeLabel, titulo: "Ceremonia religiosa", descripcion: "Inicio de la ceremonia", icono: "iglesia" },
+      { hora: "18:00 hrs", titulo: "Civil", descripcion: "", icono: "anillos" },
+      { hora: "18:30 hrs", titulo: "Cóctel", descripcion: "Copas y brindis", icono: "copas" },
       { hora: "19:30 hrs", titulo: "Recepción", descripcion: "Cena y celebración", icono: "mansion" },
-      { hora: "19:30 hrs", titulo: "Cóctel", descripcion: "Copas y brindis", icono: "copas" },
-      { hora: "", titulo: "Boda civil", descripcion: "", icono: "anillos" },
       { hora: "20:00 hrs", titulo: "Cena", descripcion: "Banquete", icono: "comida" },
     ],
   },
@@ -151,21 +152,17 @@ export const wedding = {
         tipo: "tienda",
         etiqueta: "Liverpool",
         descripcion: "Mesa de regalos en Liverpool",
-        url: "https://mesaderegalos.liverpool.com.mx/milistaderegalos/51688096",
+        url: "https://mesaderegalos.liverpool.com.mx/milistaderegalos/60040482",
       },
-      // Deshabilitada hasta recibir y verificar los datos bancarios de Naomi y Andrés.
-      // Conservar esta opción y sus recursos para restaurarla solo después de la verificación.
-      /* {
+      {
         tipo: "transferencia",
-        etiqueta: "Transferencia bancaria (BBVA)",
-        descripcion: "Datos para transferencia bancaria",
-        url: null,
+        etiqueta: "Santander",
+        imagen: "santander",
         datosCopiables: [
-          { etiqueta: "Banco", valor: "BBVA" },
-          { etiqueta: "Titular", valor: "Karina Lizeth Delgado Benítez" },
-          { etiqueta: "Cuenta", valor: "012320015636927951", copiar: true },
+          { etiqueta: "Titular", valor: "Naomi Muñoz Macías" },
+          { etiqueta: "CLABE", valor: "014320260192857460", copiar: true },
         ],
-      }, */
+      },
     ],
   },
 
@@ -178,7 +175,7 @@ export const wedding = {
         precio: null,
         mapaUrl: null,
         bookingUrl: "https://app.reservatio.com.mx/hotel-refugio/book?promocode=NAOMIYANDRES",
-        notas: "Sugerencia: No reservar a través de plataformas (Booking, Expedia, etc.), usar link anterior o directamente con el hotel para obtener el descuento proporcionado.",
+        notas: "Sugerencia: No reservar a través de plataformas (Booking, Expedia, etc.), usar el link siguiente o directamente con el hotel para obtener el descuento proporcionado.",
       },
     ],
   },

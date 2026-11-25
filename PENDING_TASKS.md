@@ -59,9 +59,10 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Trabajo diferido
 
-- **Regalos Naomi y Andrés.** Validar Liverpool `51688096` (enlace heredado de la boda anterior)
-  antes de publicar. Mantener BBVA deshabilitada hasta recibir y verificar los datos correctos;
-  la opción está comentada en `src/data/wedding.js`, con código y recursos conservados.
+- **Regalos Naomi y Andrés.** Confirmar el contenido del portapapeles al copiar la CLABE de
+  Santander y el mensaje al denegar la copia.
+- **Formulario Naomi y Andrés.** Validar la configuración de WhatsApp del despliegue con el número
+  indicado en el formulario y confirmar la grabación local de «Quando Quando Quando».
 
 - **Tope global de asistentes.** Fuera de alcance en la spec 002 y también en la 004 (§16 del
   plan): definir si el máximo de una boda cuenta la suma de todas las respuestas y qué ocurre

@@ -20,14 +20,18 @@ function copyToClipboard(text) {
     area.style.top = "-100vh";
     document.body.appendChild(area);
     area.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(area);
-    ok ? resolve() : reject(new Error("No se pudo copiar"));
+    try {
+      const ok = document.execCommand("copy");
+      ok ? resolve() : reject(new Error("No se pudo copiar"));
+    } finally {
+      area.remove();
+    }
   });
 }
 
-export function CopyButton({ value, label = "", buttonText = "Copiar" }) {
+export function CopyButton({ value, label = "", buttonText = "Copiar", inline = false }) {
   const [message, setMessage] = useState("");
+  const [copied, setCopied] = useState(false);
   const [phase, setPhase] = useState("hidden");
   const fadeTimer = useRef(null);
   const hideTimer = useRef(null);
@@ -57,12 +61,14 @@ export function CopyButton({ value, label = "", buttonText = "Copiar" }) {
     const text = String(value ?? "");
     try {
       await copyToClipboard(text);
+      setCopied(true);
       notify(label ? `Copiado: ${label}` : "Copiado");
     } catch (error) {
       console.error("Error al copiar al portapapeles: ", error);
-      notify(`No se pudo copiar. El dato es: ${text}`);
+      setCopied(false);
+      notify(inline ? "No se pudo copiar." : `No se pudo copiar. El dato es: ${text}`);
     }
-  }, [value, label, notify]);
+  }, [value, label, inline, notify]);
 
   const onScreen = phase !== "hidden";
   const opaque = phase === "visible";
@@ -73,17 +79,23 @@ export function CopyButton({ value, label = "", buttonText = "Copiar" }) {
   return (
     <>
       <button type="button" className="button button-outline copy-button" onClick={copy}>
-        {buttonText}
+        {inline && copied && opaque ? "¡Copiado!" : buttonText}
         {label && !labelAlreadyVisible && <span className="visually-hidden"> {label}</span>}
       </button>
 
-      <div
-        className="copy-notice"
-        role="status"
-        style={{ display: onScreen ? "block" : "none", opacity: opaque ? 1 : 0 }}
-      >
-        {message}
-      </div>
+      {inline ? (
+        <span className="copy-inline-notice" role="status">
+          {opaque && <span className={copied ? "visually-hidden" : undefined}>{message}</span>}
+        </span>
+      ) : (
+        <div
+          className="copy-notice"
+          role="status"
+          style={{ display: onScreen ? "block" : "none", opacity: opaque ? 1 : 0 }}
+        >
+          {message}
+        </div>
+      )}
     </>
   );
 }

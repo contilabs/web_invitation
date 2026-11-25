@@ -1,7 +1,9 @@
 // Descriptor de la plantilla clásica (T11, RF-2): la única implementada hoy. Reúne lo que
 // la interfaz necesita de una plantilla: identidad, iconos, tamaños de imagen y las **claves
 // de las fotos estructurales** (las que no nombra el registro: hero, retrato y confirmación).
-import { FAMILY_LEAVES, HEADER_LOGO, HEADER_LOGO_LIGHT, HOTEL_ICON, LOCATION_ICONS, TIMELINE_ICONS, LIVERPOOL_CARD } from "./icons.js";
+import familyLetter from "../../../assets/icons/family-letter.png";
+import familyLetterDark from "../../../assets/icons/family-letter-dark.png";
+import { HEADER_LOGO, HEADER_LOGO_LIGHT, HOTEL_ICON, LOCATION_ICONS, TIMELINE_ICONS, LIVERPOOL_CARD, TRANSFER_CARDS } from "./icons.js";
 import {
   SIZES_CONFIRMATION,
   SIZES_COVER_CARD,
@@ -12,12 +14,13 @@ import {
 
 const template = {
   id: "clasica",
+  familyLetter: { light: familyLetter, dark: familyLetterDark },
   icons: {
-    familyLeaves: FAMILY_LEAVES,
     timeline: TIMELINE_ICONS,
     locations: LOCATION_ICONS,
     hotel: HOTEL_ICON,
     liverpool: LIVERPOOL_CARD,
+    transfers: TRANSFER_CARDS,
     header: { light: HEADER_LOGO_LIGHT, dark: HEADER_LOGO },
   },
   photoSizes: {

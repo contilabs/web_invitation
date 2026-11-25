@@ -24,7 +24,7 @@ const RENDERERS = {
   cuentaRegresiva: ({ countdownInstant, eventInstant }) => <Countdown key="cuentaRegresiva" instantMs={countdownInstant ?? eventInstant} />,
   cita: ({ data }) => <Quote key="cita" quote={data} />,
   historia: ({ data }) => <Story key="historia" story={data} />,
-  familia: ({ data }) => <Family key="familia" family={data} />,
+  familia: ({ data, dark }) => <Family key="familia" family={data} dark={dark} />,
   ubicaciones: ({ data }) => <Locations key="ubicaciones" locations={data} />,
   itinerario: ({ data }) => <Timeline key="itinerario" timeline={data} />,
   soloAdultos: ({ data }) => <AdultsOnly key="soloAdultos" notice={data} />,

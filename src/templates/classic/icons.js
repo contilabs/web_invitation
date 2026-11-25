@@ -1,10 +1,10 @@
 // Iconos de la plantilla clásica (T10, RF-2). Los iconos son **presentación**: el registro
 // solo guarda una clave (p. ej. `momento.icono: "copas"`) y aquí se elige el archivo.
 import iconFood from "../../../assets/icons/comida.png";
-import familyLeavesLeft from "../../../assets/icons/family-leaves-left.png";
-import familyLeavesRight from "../../../assets/icons/family-leaves-right.png";
 import liverpoolLight from "../../../assets/icons/liverpool_verde.png";
 import liverpoolDark from "../../../assets/icons/liverpool_blanca.png";
+import santanderBeige from "../../../assets/icons/santander-clara.png";
+import santanderOlive from "../../../assets/icons/santander-oliva.png";
 import iconRings from "../../../assets/icons/anillos.png";
 import iconGlasses from "../../../assets/icons/copas.png";
 import iconDisco from "../../../assets/icons/disco.png";
@@ -29,8 +29,8 @@ export const LOCATION_ICONS = { ceremonia: ceremonyChurch, recepcion: receptionV
 
 // Icono de cada hotel (la plantilla clásica usa el mismo para todos).
 export const HOTEL_ICON = iconHotel;
-export const FAMILY_LEAVES = { left: familyLeavesLeft, right: familyLeavesRight };
 export const LIVERPOOL_CARD = { light: liverpoolLight, dark: liverpoolDark };
+export const TRANSFER_CARDS = { santander: { light: santanderOlive, dark: santanderBeige } };
 
 // Monograma original de la barra de navegación, sin filtros ni modificaciones.
 export { default as HEADER_LOGO } from "../../../assets/icons/Simbolo_beige.png";
