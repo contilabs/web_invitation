@@ -5,8 +5,8 @@ Este documento define los datos sintéticos para verificar el panel privado (spe
 
 ## 1. Contraseña de prueba
 
-Usar una contraseña ficticia para `VITE_PASSWORD`. Configurar `VITE_WEDDING_SLUG=boda-pruebas`
-en el frontend y `ADMIN_WEDDING_SLUG=boda-pruebas` en Apps Script.
+Usar una contraseña ficticia para `VITE_PASSWORD` y configurar `VITE_WEDDING_SLUG=boda-pruebas`
+en el frontend. El slug debe existir en el maestro sintético.
 La contraseña queda en el JavaScript del panel de prueba.
 
 ## 2. Boda de prueba (maestro sintético)

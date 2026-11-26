@@ -466,8 +466,8 @@ distintos, con su propia versión de contrato.
   (`ADMIN_SERVICE_ACTIONS.REVEAL_PHONE`). `listCodes` devuelve los códigos y límites de la
   caché `generic_json_cache` o `public_json_cache`, según el tipo de boda.
 - **Acceso.** El formulario compara `VITE_PASSWORD` en el navegador. `adminLogin` recibe el
-  `slug` y devuelve `{ ok, code, contract, session }` si coincide con `ADMIN_WEDDING_SLUG`
-  en Apps Script y la boda está activa. La contraseña queda en el JavaScript publicado.
+  `slug` de `VITE_WEDDING_SLUG` y devuelve `{ ok, code, contract, session }` si
+  la boda existe en el maestro y está activa. La contraseña queda en el JavaScript publicado.
 - **Alcance.** La sesión da acceso a una boda, vive en memoria y caduca como máximo a los 45 minutos desde el inicio de sesión.
 - **Teléfono:** enmascarado siempre por defecto, con revelación temporal tras acción
   adicional, sin persistirlo (D3).
@@ -483,7 +483,7 @@ distintos, con su propia versión de contrato.
 | `action` | `listResponses` |
 | `session` | Credencial efímera devuelta por `adminLogin`. |
 
-Para las lecturas, el servidor comprueba la sesión y que la boda siga habilitada.
+Para las lecturas, el servidor comprueba la sesión y que la boda siga activa.
 
 La acción `revealPhone` recibe `guestId`, vuelve a comprobar la sesión y
 devuelve el teléfono de esa fila durante la sesión de la página. La interfaz lo oculta al

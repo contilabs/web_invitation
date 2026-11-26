@@ -1446,18 +1446,10 @@ function maskPhone_(value) {
   return '****' + lastFour;
 }
 
-function adminWeddingSlug_() {
-  return text_(PropertiesService.getScriptProperties().getProperty('ADMIN_WEDDING_SLUG'));
-}
-
-// Apps Script limita la sesión a la boda habilitada. El formulario valida la contraseña.
+// La sesión queda asociada a la boda que envía el panel. El formulario valida la contraseña.
 function loginAdmin_(payload) {
   const slug = typeof payload.slug === 'string' ? text_(payload.slug) : null;
-  const configuredSlug = adminWeddingSlug_();
-  if (configuredSlug === null) {
-    return { ok: false, code: ADMIN_ERROR_CODES.NOT_CONFIGURED, contract: ADMIN_CONTRACT_VERSION };
-  }
-  if (slug !== configuredSlug) {
+  if (slug === null) {
     return { ok: false, code: ADMIN_ERROR_CODES.UNKNOWN_WEDDING, contract: ADMIN_CONTRACT_VERSION };
   }
   const wedding = findWedding_(slug);
@@ -1473,7 +1465,7 @@ function authorizeAdmin_(session) {
     return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
   }
   const slug = CacheService.getScriptCache().get(ADMIN_SESSION_CACHE_PREFIX + session);
-  if (slug === null || slug !== adminWeddingSlug_()) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
+  if (slug === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
   const wedding = findWedding_(slug);
   if (!wedding.ok) return wedding;
   return { ok: true, wedding: wedding };

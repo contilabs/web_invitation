@@ -27,8 +27,8 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   `overflow: hidden`. Marco SVG sobre las hojas. Verificado en móvil, horizontal y escritorio,
   con el texto libre y el botón «Ingresar» operativo.
 - Footer compacto con crédito en una línea y enlace de contacto. Favicon original verificado por SHA-256.
-- El panel compara `VITE_PASSWORD` del build de Netlify en el navegador. Apps Script usa
-  `ADMIN_WEDDING_SLUG` para limitar lecturas a una boda y la sesión dura hasta 45 minutos.
+- El panel compara `VITE_PASSWORD` del build de Netlify en el navegador. Apps Script valida
+  el slug que envía el panel contra el maestro y la sesión dura hasta 45 minutos.
   Contrato admin `3.0.0`. La barrera provisional queda anotada como deuda técnica.
 - Docker: build correcto y 272/275 pruebas. Persisten los fallos del contrato del lanzador,
   del orden de Familia y de los metadatos.

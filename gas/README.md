@@ -334,29 +334,28 @@ Este panel es **independiente** del contrato público 1.4.0. Usa el contrato adm
 
 ### Acceso
 
-El formulario comprueba `VITE_PASSWORD` en el navegador. Apps Script emite una sesión de
-hasta 45 minutos para la boda indicada en `ADMIN_WEDDING_SLUG`. La sesión vive en memoria de
-`admin.html`. Si la propiedad está ausente o vacía, la apertura devuelve `NOT_CONFIGURED`.
+El formulario comprueba `VITE_PASSWORD` en el navegador. Apps Script busca en el maestro
+el slug que envía el panel y emite una sesión de hasta 45 minutos si la boda está activa.
+La sesión vive en memoria de `admin.html`.
 
 ### Privacidad
 - **Teléfono enmascarado:** siempre se devuelve `phoneMasked` (`****1234`). No se expone el teléfono completo por defecto (D3).
 - **Sin PII en logs:** los `console.info/error` del panel no incluyen nombres, teléfonos, mensajes ni restricciones.
 - La sesión y el teléfono revelado se mantienen en memoria. `VITE_PASSWORD` queda en texto
   plano en el JavaScript publicado y solo sirve como barrera provisional de acceso casual.
-  El servicio puede emitir sesiones para la boda habilitada a través de llamadas directas.
+  El servicio puede emitir sesiones a través de llamadas directas. Este despliegue atiende
+  una sola boda.
 
 ### Despliegue del panel
 
 El panel es una entrada React estática (`admin.html`) y usa `VITE_SERVICE_URL` para llamar el
 Web App mediante `fetch`. La apertura de sesión envía el slug.
 
-1. Añadir la propiedad de script `ADMIN_WEDDING_SLUG` con el valor público de `VITE_WEDDING_SLUG`.
-2. Configurar `VITE_PASSWORD` en Netlify y compilar el frontend con la URL y el slug.
-3. Crear una nueva versión del despliegue web con el `Code.gs` actualizado y publicar el frontend.
+1. Configurar `VITE_PASSWORD` en Netlify y compilar el frontend con la URL y el slug.
+2. Crear una nueva versión del despliegue web con el `Code.gs` actualizado.
 
 ### Revocación de acceso
-- Para deshabilitar las lecturas del panel, borrar `ADMIN_WEDDING_SLUG`. Para cambiar la
-  contraseña del formulario, actualizar `VITE_PASSWORD` en Netlify y recompilar.
+- Para cambiar la contraseña del formulario, actualizar `VITE_PASSWORD` en Netlify y recompilar.
 - **Desactivar boda:** poner `is_active` en `FALSE` en el maestro → `INACTIVE_WEDDING`.
 - **Quitar permisos del libro/maestro:** si el script pierde acceso, responde `GUEST_SHEET_UNAVAILABLE`/errores de configuración.
 
@@ -373,7 +372,7 @@ Ver `docs/panel-respuestas-pruebas.md`. Usar ese libro sintético para verificar
 - Sin exposición de PII
 
 ### Casos límite
-- **Sin el slug administrativo:** `NOT_CONFIGURED`.
+- **Slug ausente o desconocido:** `UNKNOWN_WEDDING`.
 - **Fila incompleta / sin cabeceras mínimas:** `INVALID_DATA` sin colapsar con error de auth.
 - **Filas vacías:** se omiten sin romper el listado.
 - **Estado inválido:** se ignora esa fila de forma segura (sin romper auth/listado).

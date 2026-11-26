@@ -51,11 +51,11 @@ caso de uso y un control de permisos explícitos.
 1. Los novios comparten la contraseña con quien necesita consultar el panel.
 2. La contraseña provisional `VITE_PASSWORD` queda en el JavaScript del panel y limita el
    acceso casual. Sustituirla por autenticación en servidor queda como deuda técnica.
-3. Las acciones administrativas de lectura exigen una sesión en Apps Script para la boda
-   habilitada en `ADMIN_WEDDING_SLUG`. Apps Script puede emitir la sesión para una llamada
-   directa y el formulario comprueba la contraseña en el navegador.
-4. El servicio devolverá únicamente la boda autorizada y las columnas necesarias para el
-   panel. Nunca aceptará un `slug` arbitrario como única autorización.
+3. Las acciones administrativas de lectura exigen una sesión en Apps Script asociada a la
+   boda activa que identifica `VITE_WEDDING_SLUG`. Apps Script puede emitir una sesión para
+   una llamada directa y el formulario comprueba la contraseña en el navegador.
+4. Este despliegue atiende una sola boda. El servicio devuelve las columnas necesarias
+   para el panel de la boda asociada a la sesión.
 5. El teléfono se mostrará enmascarado por defecto. El panel no necesita mostrarlo
    completo para cumplir su objetivo.
 6. Toda respuesta del servicio se validará antes de pintarse. Un error de una fila no
@@ -183,7 +183,7 @@ actualización, datos vacíos y servicio caído.
 ## 9. Riesgos
 
 - La contraseña en el build es recuperable y una llamada directa al servicio puede abrir una
-  sesión para la boda habilitada. La migración a autenticación de servidor se registra en
+  sesión para una boda activa del maestro. La migración a autenticación de servidor se registra en
   `PENDING_TASKS.md`.
 - Un endpoint que devuelva todo el libro aumenta el impacto de una sesión comprometida;
   limitar columnas, boda y autorización es obligatorio.
