@@ -26,6 +26,7 @@ export function AdminApp() {
   const [session, setSession] = useState("");
   const [loginMessage, setLoginMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [filters, setFilters] = useState({ status: "", restrictions: "", query: "" });
   const [sort, setSort] = useState("datetime");
   const [tab, setTab] = useState("responses");
@@ -131,8 +132,26 @@ export function AdminApp() {
       <section className="admin-notice">
         <p className="admin-kicker">{copy.panel}</p>
         <h1>{copy.title}</h1>
-        <form method="post" onSubmit={enterPassword}>
-          <label>Contraseña<input name="password" type="password" autoComplete="current-password" required /></label>
+        <form method="post" onSubmit={enterPassword} onReset={() => setIsPasswordVisible(false)}>
+          <div className="admin-password">
+            <label htmlFor="admin-password">Contraseña</label>
+            <div className="admin-password-field">
+              <input id="admin-password" name="password" type={isPasswordVisible ? "text" : "password"} autoComplete="current-password" required />
+              <button
+                className="admin-password-toggle"
+                type="button"
+                aria-label={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-controls="admin-password"
+                onClick={() => setIsPasswordVisible((visible) => !visible)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                  <circle cx="12" cy="12" r="2.5" />
+                  {isPasswordVisible && <path d="m3 3 18 18" />}
+                </svg>
+              </button>
+            </div>
+          </div>
           <p role="status">{loginMessage}</p>
           <button type="submit" disabled={isLoggingIn}>{isLoggingIn ? "Validando…" : "Entrar"}</button>
         </form>

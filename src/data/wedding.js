@@ -113,7 +113,7 @@ export const wedding = {
     titulo: "NO NIÑOS",
     parrafos: [
       "Queremos que disfruten al máximo esta noche tan especial. Por ello, nuestra celebración será solo para adultos.",
-      "¡Gracias por su cariño y comprensión!",
+      "¡Gracias por su comprensión!",
     ],
   },
 
@@ -186,8 +186,8 @@ export const wedding = {
     permiteNinos: false,
     otrasIndicaciones: [
       "Mujer: Vestido largo.",
-      "Agradecemos evitar colores blanco, beige, marfil, Champagne.",
-      "Así mismo, el color verde olivo está reservado para las damas.",
+      "Agradecemos evitar colores blanco, beige, marfil o champagne.",
+      "Asimismo, el color verde olivo está reservado para las damas.",
       "Hombre: Traje.",
     ],
   },
@@ -234,8 +234,9 @@ export const wedding = {
     // El destino de la confirmación ya no vive aquí: el envío va al servicio de registro
     // (RF-14). Solo queda el enlace de crédito.
     enlaces: {
-      credito:
-        "https://wa.me/524494144122?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20invitaci%C3%B3n%20digital",
+      credito: `https://wa.me/524494144122?${new URLSearchParams({
+        text: "¡Hola! Soy parte de los invitados a la boda de Naomi y Andrés. Me gustaría conocer sus servicios de invitaciones digitales y aprovechar el 10% de descuento especial.",
+      })}`,
     },
   },
 };

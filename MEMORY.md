@@ -2,7 +2,7 @@
 Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AGENTS.md`.
 
 ## Estado actual
-- Vestimenta formal omite el aviso de exclusividad para adultos; se conserva la sección «No niños».
+- Vestimenta formal usa «o champagne» y «Asimismo,» y sus descripciones crecen un 10 %.
 - Bienvenida: ambos nombres y el signo «&» aparecen juntos con un fundido de 0,9 s
   sin máscara. La frase del hero termina en «diremos sí», sin comillas ni punto en el sitio.
 - Historia sirve WebP de 480/768/1113 px desde `pintura2.png`, sin recorte y con carga diferida.
@@ -14,7 +14,7 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - Padres y padrinos: carta original de día y versión transparente de `Artboard 2.png` de noche.
   Watercolor Reveal en la primera entrada, sin repetirse al cambiar de tema. Sombra y transcripción accesible.
 - RSVP: tres párrafos y «Confirma aquí» recto con borde de 50 px. Hotel indica «usar el link siguiente».
-- «No niños»: el tamaño adaptable del título se redujo un 15 %.
+- «No niños» cierra con «¡Gracias por su comprensión!». El título conserva su tamaño adaptable.
 - RSVP: «Notificar por WhatsApp» aparece tras un envío exitoso en la sesión con
   un número válido. El build admite `VITE_WHATSAPP_PHONE` cuando `VITE_WHATSAPP_NUMBER` falta o está vacía.
   Docker confirmó el build y las pruebas de WhatsApp. Sigue pendiente la prueba visual.
@@ -26,7 +26,8 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - Bienvenida: hojas ampliadas en esquinas opuestas, recortadas por el panel con
   `overflow: hidden`. Marco SVG sobre las hojas. Verificado en móvil, horizontal y escritorio,
   con el texto libre y el botón «Ingresar» operativo.
-- Footer compacto con crédito en una línea y enlace de contacto. Favicon original verificado por SHA-256.
+- Footer con el mismo destinatario de WhatsApp y el mensaje de Naomi y Andrés con el 10 % de descuento. Codificación verificada.
+- El acceso al panel tiene un botón de ojo que alterna la visibilidad del valor escrito, oculto al inicio y al restablecer el formulario.
 - El panel compara `VITE_PASSWORD` del build de Netlify en el navegador. Apps Script valida
   el slug que envía el panel contra el maestro y la sesión dura hasta 45 minutos.
   Contrato admin `3.0.0`. La barrera provisional queda anotada como deuda técnica.

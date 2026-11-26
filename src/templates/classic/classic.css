@@ -2330,8 +2330,8 @@ footer {
   text-wrap: balance;
 }
 .dress-code-content p:last-child { margin-bottom: 0; }
-.dress-code-rule { font-size: clamp(0.95rem, 3.2vw, 1.05rem); }
-.dress-code-note { font-size: clamp(0.95rem, 2.8vw, 1rem); }
+.dress-code-rule { font-size: clamp(1.045rem, 3.52vw, 1.155rem); }
+.dress-code-note { font-size: clamp(1.045rem, 3.08vw, 1.1rem); }
 .dress-code-rule strong { font-weight: 600; }
 .dress-code-color { font-weight: 600; }
 
