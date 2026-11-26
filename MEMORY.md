@@ -2,6 +2,8 @@
 Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AGENTS.md`.
 
 ## Estado actual
+- Cotejo con el formulario y las correcciones posteriores: fecha, horarios, foto principal y carta
+  familiar en ambos temas confirmados. Recepción enlaza a la ficha de Maps del formulario.
 - Vestimenta formal usa «o champagne» y «Asimismo,» y sus descripciones crecen un 10 %.
 - Bienvenida: ambos nombres y el signo «&» aparecen juntos con un fundido de 0,9 s
   sin máscara. La frase del hero termina en «diremos sí», sin comillas ni punto en el sitio.

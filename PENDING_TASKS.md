@@ -68,9 +68,9 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 - **Regalos Naomi y Andrés.** Confirmar el contenido del portapapeles al copiar la CLABE de
   Santander y el mensaje al denegar la copia.
-- **Formulario Naomi y Andrés.** Tras publicar la compatibilidad con la variable de WhatsApp, comprobar
-  en escritorio y móvil el enlace de WhatsApp después de un guardado, tanto al aceptar como
-  al rechazar. Confirmar también la grabación local de «Quando Quando Quando».
+- **Formulario Naomi y Andrés.** Cotejar el destinatario de `VITE_WHATSAPP_NUMBER` en la publicación
+  con el teléfono para confirmaciones del formulario. Probar el enlace en escritorio y móvil después
+  de guardar una aceptación y un rechazo. Confirmar también la grabación local de «Quando Quando Quando».
 
 - **Tope global de asistentes.** Fuera de alcance en la spec 002 y también en la 004 (§16 del
   plan): definir si el máximo de una boda cuenta la suma de todas las respuestas y qué ocurre

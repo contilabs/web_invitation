@@ -92,7 +92,7 @@ export const wedding = {
       lugar: "Monte Piedra",
       direccion: "Lázaro Cárdenas 425, C.P. 47095, San Juan de los Lagos, Jal.",
       hora: "19:30 hrs",
-      mapaUrl: "https://www.google.com/maps/search/?api=1&query=Monte+Piedra+Eventos%2C+L%C3%A1zaro+C%C3%A1rdenas+425%2C+San+Juan+de+los+Lagos%2C+Jalisco",
+      mapaUrl: "https://www.google.com/maps/place/Monte+Piedra+Eventos/@21.2336495,-102.3178853,901m/data=!3m2!1e3!4b1!4m6!3m5!1s0x842971754b064f27:0xa57615373c673107!8m2!3d21.2336495!4d-102.3153104!16s%2Fg%2F11rvg5lf6z",
     },
   },
 
