@@ -7,8 +7,8 @@
 }
 
 @font-face {
-  font-family: "Romantica Serif";
-  src: url("../../../fonts/RomanticaSerif.ttf") format("truetype");
+  font-family: "Erstoria";
+  src: url("../../../fonts/Erstoria.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -18,7 +18,7 @@
   color-scheme: light;
   --admin-paper: #ede7db;
   --admin-surface: #faf7ef;
-  --admin-surface-strong: #fffdf8;
+  --admin-surface-strong: #faf7ef;
   --admin-ink: #30362a;
   --admin-text: #4c5242;
   --admin-muted: #646958;
@@ -27,30 +27,32 @@
   --admin-gold: #9b8555;
   --admin-line: rgba(85, 95, 62, 0.22);
   --admin-line-strong: rgba(85, 95, 62, 0.5);
-  --admin-shadow: 0 18px 48px -30px rgba(48, 54, 42, 0.55);
-  --admin-radius: 1.1rem;
+  --admin-shadow: none;
+  --admin-radius: 0;
   --admin-label: "Montserrat", system-ui, sans-serif;
   --admin-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --admin-title: "Romantica Serif", Georgia, serif;
-  --admin-name: "Relyna", "Romantica Serif", Georgia, serif;
+  --admin-title: "Erstoria", "Iowan Old Style", Georgia, serif;
+  --admin-name: "Relyna", "Erstoria", Georgia, serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { min-height: 100%; background: var(--admin-paper); }
-body { min-width: 320px; min-height: 100vh; margin: 0; color: var(--admin-text); background: radial-gradient(circle at 8% 0%, rgba(155, 133, 85, 0.16), transparent 26rem), linear-gradient(135deg, rgba(255, 253, 248, 0.28), transparent 42%), var(--admin-paper); font-family: var(--admin-serif); font-size: 1.05rem; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+body { min-width: 320px; min-height: 100vh; margin: 0; color: var(--admin-text); background: var(--admin-paper); font-family: var(--admin-serif); font-size: 1.05rem; line-height: 1.72; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 button, input, select { font: inherit; }
-button { border: 1px solid var(--admin-ember); border-radius: 999px; padding: 0.72rem 1.15rem; color: var(--admin-surface); background: var(--admin-ember); box-shadow: 0 5px 14px -9px rgba(48, 54, 42, 0.8); cursor: pointer; font-family: var(--admin-label); font-size: 0.73rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; }
-button:hover:not(:disabled) { border-color: var(--admin-ember-dark); background: var(--admin-ember-dark); box-shadow: 0 8px 18px -10px rgba(48, 54, 42, 0.9); transform: translateY(-1px); }
+button { min-height: 44px; border: 1px solid transparent; border-radius: 50px; padding: 0.78rem 1.35rem; color: var(--admin-surface); background: var(--admin-ember); box-shadow: none; cursor: pointer; font-family: var(--admin-label); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
+button:hover:not(:disabled) { border-color: var(--admin-ember-dark); background: var(--admin-ember-dark); box-shadow: none; transform: none; }
 button:disabled { opacity: 0.6; cursor: wait; }
-.admin-shell { width: min(100% - 2rem, 1240px); margin: 0 auto; padding: clamp(1.25rem, 4vw, 3.5rem) 0 4rem; }
+.admin-shell { width: min(100% - 2rem, 1180px); margin: 0 auto; padding: clamp(1.25rem, 4vw, 3.5rem) 0 4rem; }
+.admin-demo-banner { display: flex; flex-wrap: wrap; gap: 0.2rem 0.75rem; align-items: baseline; margin-bottom: 1.3rem; padding: 0.75rem 1rem; border: 1px solid var(--admin-line-strong); border-radius: 0; color: var(--admin-ink); background: var(--admin-surface); font-family: var(--admin-label); font-size: 0.78rem; }
+.admin-demo-banner strong { color: var(--admin-ember-dark); text-transform: uppercase; letter-spacing: 0.08em; }
 .admin-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--admin-line-strong); }
 .admin-kicker { margin: 0 0 0.25rem; color: var(--admin-gold); font-family: var(--admin-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; }
 h1, h2 { margin: 0; color: var(--admin-ink); font-family: var(--admin-title); font-weight: 400; }
-h1 { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.05; }
+h1 { font-size: clamp(2.5rem, 7vw, 5rem); line-height: 1.05; }
 h2 { font-size: 1.65rem; }
 .admin-header h1::after { display: block; width: 3.6rem; height: 2px; margin-top: 0.8rem; background: var(--admin-gold); content: ""; }
 .admin-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.85rem; margin: 1.8rem 0 1rem; }
-.admin-metric { min-height: 7.2rem; padding: 1.1rem 1.2rem; border: 1px solid var(--admin-line); border-radius: var(--admin-radius); background: rgba(250, 247, 239, 0.72); box-shadow: var(--admin-shadow); }
+.admin-metric { min-height: 7.2rem; padding: 1.1rem 1.2rem; border: 1px solid var(--admin-line); border-radius: var(--admin-radius); background: var(--admin-surface); box-shadow: none; }
 .admin-metric strong, .admin-metric span { display: block; }
 .admin-metric strong { color: var(--admin-ember); font-family: var(--admin-name); font-size: 2rem; font-weight: 400; line-height: 1; }
 .admin-metric span { margin-top: 0.65rem; color: var(--admin-muted); font-family: var(--admin-label); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -58,9 +60,9 @@ h2 { font-size: 1.65rem; }
 .admin-updated { margin: 1.2rem 0 0.65rem; font-size: 0.95rem; }
 .admin-filters { display: flex; align-items: end; justify-content: flex-start; flex-wrap: wrap; gap: 0.85rem; margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--admin-line); border-radius: var(--admin-radius); background: rgba(250, 247, 239, 0.82); box-shadow: var(--admin-shadow); }
 .admin-filters label { display: grid; gap: 0.35rem; color: var(--admin-muted); font-family: var(--admin-label); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-input, select { min-width: 9rem; padding: 0.62rem 0.7rem; border: 1px solid var(--admin-line-strong); border-radius: 0.5rem; color: var(--admin-ink); background: var(--admin-surface-strong); outline: none; }
+input, select { min-width: 9rem; padding: 0.62rem 0.7rem; border: 1px solid var(--admin-line-strong); border-radius: 0; color: var(--admin-ink); background: var(--admin-surface); outline: none; }
 input:focus, select:focus { border-color: var(--admin-ember); box-shadow: 0 0 0 3px rgba(85, 95, 62, 0.14); }
-.admin-table-wrap { overflow-x: auto; border: 1px solid var(--admin-line); border-radius: var(--admin-radius); background: var(--admin-surface-strong); box-shadow: var(--admin-shadow); }
+.admin-table-wrap { overflow-x: auto; border: 1px solid var(--admin-line); border-radius: var(--admin-radius); background: var(--admin-surface); box-shadow: none; }
 table { width: 100%; min-width: 850px; border-collapse: collapse; }
 th, td { padding: 0.9rem 1rem; border-bottom: 1px solid rgba(85, 95, 62, 0.12); text-align: left; vertical-align: top; }
 th { color: var(--admin-muted); background: rgba(237, 231, 219, 0.46); font-family: var(--admin-label); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -81,7 +83,7 @@ tbody tr:hover { background: rgba(155, 133, 85, 0.08); }
 .admin-button-secondary { color: var(--admin-ember); background: transparent; box-shadow: none; }
 .admin-button-secondary:hover:not(:disabled) { color: var(--admin-surface); }
 .admin-codes ~ .admin-filters, .admin-codes ~ .admin-filters ~ .admin-table-wrap { display: none; }
-.admin-notice { max-width: 38rem; margin: 12vh auto 0; padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--admin-line-strong); border-radius: var(--admin-radius); background: rgba(250, 247, 239, 0.88); box-shadow: var(--admin-shadow); }
+.admin-notice { max-width: 38rem; margin: 12vh auto 0; padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--admin-line-strong); border-radius: var(--admin-radius); background: var(--admin-surface); box-shadow: none; }
 .admin-notice h1 { margin-bottom: 1.5rem; }
 .admin-notice h2 { margin-bottom: 1rem; font-size: 1.3rem; }
 .admin-notice form { display: grid; gap: 1rem; }
@@ -89,7 +91,7 @@ tbody tr:hover { background: rgba(155, 133, 85, 0.08); }
 .admin-notice input { width: 100%; min-width: 0; padding: 0.8rem 0.85rem; font-size: 1rem; letter-spacing: normal; text-transform: none; }
 .admin-notice p[role="status"] { min-height: 1.5rem; margin: 0; color: var(--admin-ember); }
 .admin-dialog-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 1rem; background: rgba(48, 54, 42, 0.66); }
-.admin-dialog { width: min(34rem, 100%); max-height: 90vh; overflow: auto; padding: 1.8rem; border: 1px solid var(--admin-line-strong); border-radius: var(--admin-radius); background: var(--admin-surface-strong); box-shadow: 0 24px 70px -25px rgba(0, 0, 0, 0.55); }
+.admin-dialog { width: min(34rem, 100%); max-height: 90vh; overflow: auto; padding: 1.8rem; border: 1px solid var(--admin-line-strong); border-radius: var(--admin-radius); background: var(--admin-surface); box-shadow: 0 24px 70px -25px rgba(0, 0, 0, 0.35); }
 .admin-dialog h2 { margin-bottom: 1.2rem; }
 .admin-close { float: right; padding: 0.5rem 0.75rem; }
 dt { margin-top: 1rem; color: var(--admin-muted); font-family: var(--admin-label); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
