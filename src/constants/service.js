@@ -8,6 +8,7 @@
 export const SERVICE_URL_VAR = "VITE_SERVICE_URL";
 export const WEDDING_SLUG_VAR = "VITE_WEDDING_SLUG";
 export const WHATSAPP_PHONE_VAR = "VITE_WHATSAPP_NUMBER";
+export const LEGACY_WHATSAPP_PHONE_VAR = "VITE_WHATSAPP_PHONE";
 
 // Valores por defecto: sin URL el sistema entra en **modo demo** (no llama a nadie) y sin
 // `slug` se muestra «esta invitación no está configurada» (RF-15, D15).

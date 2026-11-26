@@ -61,7 +61,7 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 - **Regalos Naomi y Andrés.** Confirmar el contenido del portapapeles al copiar la CLABE de
   Santander y el mensaje al denegar la copia.
-- **Formulario Naomi y Andrés.** Tras configurar `VITE_WHATSAPP_NUMBER` en el build, comprobar
+- **Formulario Naomi y Andrés.** Tras publicar la compatibilidad con la variable de WhatsApp, comprobar
   en escritorio y móvil el enlace de WhatsApp después de un guardado, tanto al aceptar como
   al rechazar. Confirmar también la grabación local de «Quando Quando Quando».
 

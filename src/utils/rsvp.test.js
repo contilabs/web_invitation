@@ -13,6 +13,7 @@ import {
   SERVICE_ACTIONS,
   SERVICE_ERRORS,
 } from "../constants/contract.js";
+import { readWhatsAppPhone } from "../services/config.js";
 import { INVITATION_TYPES, guestLimit, interpretInvitation, interpretLookup } from "./invitation.js";
 import {
   attendeeOptions,
@@ -823,6 +824,14 @@ test("whatsappUrl usa el número de destino y codifica el texto", () => {
   for (const invalid of ["", "123", "0521234567890", "tel:521234567890", "1234567890123456"]) {
     assert.equal(whatsappUrl(invalid, "Hola"), "");
   }
+});
+
+test("el enlace de WhatsApp acepta la variable anterior si falta la nueva", () => {
+  const legacy = { VITE_WHATSAPP_PHONE: "12025550101" };
+  assert.equal(whatsappUrl(readWhatsAppPhone(legacy), "Hola"), "https://wa.me/12025550101?text=Hola");
+  assert.equal(readWhatsAppPhone({ ...legacy, VITE_WHATSAPP_NUMBER: "  " }), "12025550101");
+  assert.equal(readWhatsAppPhone({ ...legacy, VITE_WHATSAPP_NUMBER: "12025550102" }), "12025550102");
+  assert.equal(readWhatsAppPhone({}), "");
 });
 
 test("el módulo es puro: sin DOM, sin reloj y sin red (RNF-9)", () => {

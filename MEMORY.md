@@ -16,7 +16,7 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - RSVP: tres párrafos y «Confirma aquí» recto con borde de 50 px. Hotel indica «usar el link siguiente».
 - «No niños»: el tamaño adaptable del título se redujo un 15 %.
 - RSVP: «Notificar por WhatsApp» aparece tras un envío exitoso en la sesión con
-  `VITE_WHATSAPP_NUMBER` válido. Comparte nombre, asistencia y total si acepta.
+  un número válido. El build admite `VITE_WHATSAPP_PHONE` cuando `VITE_WHATSAPP_NUMBER` falta o está vacía.
   Docker confirmó el build y las pruebas de WhatsApp. Sigue pendiente la prueba visual.
 - Bienvenida: entrada CSS de 4,7 s. Fondo suave y máscara de hojas y marco; acuarela
   secuencial en mensaje, fecha, nombres, línea y botón. Movimiento reducido muestra todo de inmediato.

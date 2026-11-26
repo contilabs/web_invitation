@@ -180,7 +180,8 @@ npm run dev  # también se aplican a preview, build y check
 Tras guardar el RSVP, «Notificar por WhatsApp» abre un mensaje opcional para Naomi con el
 nombre del invitado, su asistencia y el total confirmado cuando corresponda.
 `VITE_WHATSAPP_NUMBER` es el número de Naomi en formato internacional, con código de país y
-solo dígitos. Si falta o tiene un formato inválido, la opción se oculta.
+solo dígitos. Si está ausente o vacía, el build acepta `VITE_WHATSAPP_PHONE` de publicaciones
+anteriores. La opción se oculta si el número resultante está vacío o tiene un formato inválido.
 
 - **Sin URL** → **modo demo**: la invitación se ve completa y sin personalizar, y la
   confirmación queda deshabilitada con su aviso (no se llama a nadie).
