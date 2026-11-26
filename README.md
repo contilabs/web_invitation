@@ -184,11 +184,11 @@ nombre del invitado, su asistencia y el total confirmado cuando corresponda.
 solo dígitos. Si está ausente o vacía, el build acepta `VITE_WHATSAPP_PHONE` de publicaciones
 anteriores. La opción se oculta si el número resultante está vacío o tiene un formato inválido.
 
-Para habilitar `admin.html`, configura `VITE_PASSWORD` al compilar y el mismo valor en la
-propiedad de Apps Script `ADMIN_PASSWORD_<slug>`, donde `<slug>` coincide con
-`VITE_WEDDING_SLUG`. Publica el frontend y una nueva versión del Apps Script. Vite incluye
-la contraseña en texto plano en el JavaScript publicado. Esta barrera provisional
-queda registrada como deuda técnica en [PENDING_TASKS.md](PENDING_TASKS.md).
+Para habilitar `admin.html`, configura `VITE_PASSWORD` en el build de Netlify. En Apps Script,
+`ADMIN_WEDDING_SLUG` debe coincidir con `VITE_WEDDING_SLUG` para limitar el panel a esa boda.
+Vite incluye la contraseña en texto plano en el JavaScript publicado y el formulario la
+comprueba en el navegador. La barrera provisional queda registrada como deuda técnica
+en [PENDING_TASKS.md](PENDING_TASKS.md).
 
 - **Sin URL** → **modo demo**: la invitación se ve completa y sin personalizar, y la
   confirmación queda deshabilitada con su aviso (no se llama a nadie).

@@ -460,14 +460,14 @@ cambiarlas. Ver [seguridad local](local-security.md) para desarrollo, preview y 
 El panel privado es **independiente** del contrato público 1.4.0. Usa un sobre y una acción
 distintos, con su propia versión de contrato.
 
-- **Versión del contrato administrativo** `2.0.0` (`ADMIN_CONTRACT_VERSION`).
+- **Versión del contrato administrativo** `3.0.0` (`ADMIN_CONTRACT_VERSION`).
 - **Acciones** `adminLogin` (`ADMIN_SERVICE_ACTIONS.LOGIN`), `listResponses` (`ADMIN_SERVICE_ACTIONS.LIST_RESPONSES`),
   `listCodes` (`ADMIN_SERVICE_ACTIONS.LIST_CODES`) y `revealPhone`
   (`ADMIN_SERVICE_ACTIONS.REVEAL_PHONE`). `listCodes` devuelve los códigos y límites de la
   caché `generic_json_cache` o `public_json_cache`, según el tipo de boda.
-- **Autorización.** `adminLogin` recibe `slug` y `password`. Verifica la contraseña en la propiedad
-  de Apps Script `ADMIN_PASSWORD_<slug>` y devuelve `{ ok, code, contract, session }` si es válida.
-  La contraseña que usa el formulario proviene de `VITE_PASSWORD` y queda en el JavaScript publicado.
+- **Acceso.** El formulario compara `VITE_PASSWORD` en el navegador. `adminLogin` recibe el
+  `slug` y devuelve `{ ok, code, contract, session }` si coincide con `ADMIN_WEDDING_SLUG`
+  en Apps Script y la boda está activa. La contraseña queda en el JavaScript publicado.
 - **Alcance.** La sesión da acceso a una boda, vive en memoria y caduca como máximo a los 45 minutos desde el inicio de sesión.
 - **Teléfono:** enmascarado siempre por defecto, con revelación temporal tras acción
   adicional, sin persistirlo (D3).
@@ -483,7 +483,7 @@ distintos, con su propia versión de contrato.
 | `action` | `listResponses` |
 | `session` | Credencial efímera devuelta por `adminLogin`. |
 
-Para las lecturas, el servidor identifica la boda mediante la sesión emitida tras verificar la contraseña.
+Para las lecturas, el servidor comprueba la sesión y que la boda siga habilitada.
 
 La acción `revealPhone` recibe `guestId`, vuelve a comprobar la sesión y
 devuelve el teléfono de esa fila durante la sesión de la página. La interfaz lo oculta al
@@ -495,7 +495,7 @@ logs.
 ```text
 {
   ok: true,
-  contract: "2.0.0",
+  contract: "3.0.0",
   wedding: { slug, name, isActive, deadline, updatedAt, guestType, language },
   summary: { total, viewed, accepted, declined, pending, adults, children,
     seatsIssued, seatsOccupied, seatsUnoccupied },
@@ -523,7 +523,6 @@ las invitaciones genéricas y públicas solo aportan boletos conforme aparecen s
 | `INVALID_DATA` | Datos incompletos o inválidos. | «Los datos del panel están incompletos o son inválidos.» |
 | `SERVICE_UNAVAILABLE` | Red o fallo del servidor. | «No pudimos conectar. Inténtalo de nuevo.» |
 | `INVALID_RESPONSE` | Respuesta que no respeta el contrato. | «La respuesta del servidor no es válida.» |
-| `INVALID_PASSWORD` | La contraseña no coincide. | «La contraseña es incorrecta.» |
 | `INVALID_TOKEN` | La sesión falta, es inválida o caducó. | «La sesión venció. Vuelve a ingresar la contraseña.» |
 
 Los códigos `retryable` se definen en el módulo `src/constants/contract.js` (ADMIN_SERVICE_ERRORS).

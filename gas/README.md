@@ -330,40 +330,39 @@ despliegue nuevo:
 
 ## Paso 8 — Panel privado de respuestas (spec 006)
 
-Este panel es **independiente** del contrato público 1.4.0. Usa el contrato administrativo `2.0.0` (`src/constants/contract.js`).
+Este panel es **independiente** del contrato público 1.4.0. Usa el contrato administrativo `3.0.0` (`src/constants/contract.js`).
 
 ### Acceso
 
-El formulario pide una contraseña. Apps Script la comprueba en `ADMIN_PASSWORD_<slug>` y
-emite una sesión de hasta 45 minutos para esa boda. La sesión vive en memoria de `admin.html`.
-La propiedad ausente o vacía devuelve `NOT_CONFIGURED` y una contraseña incorrecta devuelve
-`INVALID_PASSWORD`.
+El formulario comprueba `VITE_PASSWORD` en el navegador. Apps Script emite una sesión de
+hasta 45 minutos para la boda indicada en `ADMIN_WEDDING_SLUG`. La sesión vive en memoria de
+`admin.html`. Si la propiedad está ausente o vacía, la apertura devuelve `NOT_CONFIGURED`.
 
 ### Privacidad
 - **Teléfono enmascarado:** siempre se devuelve `phoneMasked` (`****1234`). No se expone el teléfono completo por defecto (D3).
 - **Sin PII en logs:** los `console.info/error` del panel no incluyen nombres, teléfonos, mensajes ni restricciones.
 - La sesión y el teléfono revelado se mantienen en memoria. `VITE_PASSWORD` queda en texto
   plano en el JavaScript publicado y solo sirve como barrera provisional de acceso casual.
+  El servicio puede emitir sesiones para la boda habilitada a través de llamadas directas.
 
 ### Despliegue del panel
 
 El panel es una entrada React estática (`admin.html`) y usa `VITE_SERVICE_URL` para llamar el
-Web App mediante `fetch`. La contraseña solo viaja al iniciar sesión.
+Web App mediante `fetch`. La apertura de sesión envía el slug.
 
-1. Añadir la propiedad de script `ADMIN_PASSWORD_<slug>` en la configuración de Apps Script.
-   Para `VITE_WEDDING_SLUG=mi-boda`, la propiedad se llama `ADMIN_PASSWORD_mi-boda`.
-2. Configurar `VITE_PASSWORD` con el mismo valor y compilar el frontend con la URL y el slug.
+1. Añadir la propiedad de script `ADMIN_WEDDING_SLUG` con el valor público de `VITE_WEDDING_SLUG`.
+2. Configurar `VITE_PASSWORD` en Netlify y compilar el frontend con la URL y el slug.
 3. Crear una nueva versión del despliegue web con el `Code.gs` actualizado y publicar el frontend.
 
 ### Revocación de acceso
-- Para impedir nuevos accesos, borrar o cambiar `ADMIN_PASSWORD_<slug>`. Las sesiones emitidas
-  caducan en un máximo de 45 minutos. Para publicar otro valor, actualizar `VITE_PASSWORD` y recompilar.
+- Para deshabilitar las lecturas del panel, borrar `ADMIN_WEDDING_SLUG`. Para cambiar la
+  contraseña del formulario, actualizar `VITE_PASSWORD` en Netlify y recompilar.
 - **Desactivar boda:** poner `is_active` en `FALSE` en el maestro → `INACTIVE_WEDDING`.
 - **Quitar permisos del libro/maestro:** si el script pierde acceso, responde `GUEST_SHEET_UNAVAILABLE`/errores de configuración.
 
 ### Redespliegue
 - Cualquier cambio en la lógica del panel exige **nueva versión** de la implementación web. La misma URL sirve la nueva versión.
-- Mantener sincronía con `src/constants/contract.js` (contrato administrativo `2.0.0`).
+- Mantener sincronía con `src/constants/contract.js` (contrato administrativo `3.0.0`).
 
 ### Libro de prueba sintético (sin datos personales)
 Ver `docs/panel-respuestas-pruebas.md`. Usar ese libro sintético para verificar:
@@ -374,7 +373,7 @@ Ver `docs/panel-respuestas-pruebas.md`. Usar ese libro sintético para verificar
 - Sin exposición de PII
 
 ### Casos límite
-- **Sin la propiedad de contraseña:** `NOT_CONFIGURED`.
+- **Sin el slug administrativo:** `NOT_CONFIGURED`.
 - **Fila incompleta / sin cabeceras mínimas:** `INVALID_DATA` sin colapsar con error de auth.
 - **Filas vacías:** se omiten sin romper el listado.
 - **Estado inválido:** se ignora esa fila de forma segura (sin romper auth/listado).

@@ -27,11 +27,11 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   `overflow: hidden`. Marco SVG sobre las hojas. Verificado en móvil, horizontal y escritorio,
   con el texto libre y el botón «Ingresar» operativo.
 - Footer compacto con crédito en una línea y enlace de contacto. Favicon original verificado por SHA-256.
-- Rama `boda_nahomi_andres`: el panel usa solo `VITE_PASSWORD`, validada en Apps Script contra
-  `ADMIN_PASSWORD_<slug>`, con sesión de hasta 45 minutos por boda. Contrato admin `2.0.0`.
-  El valor público se acepta como barrera provisional y queda anotado como deuda técnica.
-- Docker: build con contraseña ficticia correcto. En la corrida del panel, 271/274 pruebas pasan.
-  Persisten los fallos del contrato del lanzador, del orden de Familia y de los metadatos.
+- El panel compara `VITE_PASSWORD` del build de Netlify en el navegador. Apps Script usa
+  `ADMIN_WEDDING_SLUG` para limitar lecturas a una boda y la sesión dura hasta 45 minutos.
+  Contrato admin `3.0.0`. La barrera provisional queda anotada como deuda técnica.
+- Docker: build correcto y 272/275 pruebas. Persisten los fallos del contrato del lanzador,
+  del orden de Familia y de los metadatos.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Contrato público `1.4.0` y Apps Script.
 - Spec 005: T1–T20, T22/T23 hechas; T21 manual pendiente. RSVP con lookup privado por teléfono,
   rechazo con mensaje, saludo personalizado y consulta tolerante.

@@ -70,12 +70,12 @@ export function AdminApp() {
     const form = event.currentTarget;
     const password = new FormData(form).get("password");
     if (password !== adminPassword) {
-      setLoginMessage(errorLabel("INVALID_PASSWORD", "spanish"));
+      setLoginMessage("La contraseña es incorrecta.");
       return;
     }
     setIsLoggingIn(true);
     setLoginMessage("");
-    const result = await loginAdmin(serviceUrl, weddingSlug, password);
+    const result = await loginAdmin(serviceUrl, weddingSlug);
     setIsLoggingIn(false);
     form.reset();
     if (result.data?.contract !== ADMIN_CONTRACT_VERSION && result.data) {

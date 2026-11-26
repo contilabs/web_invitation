@@ -179,8 +179,9 @@ const ADMIN_SERVICE_ACTIONS = {
 };
 
 // Contrato administrativo.
-const ADMIN_CONTRACT_VERSION = '2.0.0';
+const ADMIN_CONTRACT_VERSION = '3.0.0';
 const ADMIN_SESSION_TTL_SECONDS = 45 * 60;
+const ADMIN_SESSION_CACHE_PREFIX = 'admin-panel-session:';
 
 // Errores administrativos (no reemplazan los del contrato público).
 const ADMIN_ERROR_CODES = {
@@ -192,7 +193,6 @@ const ADMIN_ERROR_CODES = {
   INVALID_DATA: 'INVALID_DATA',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
   INVALID_RESPONSE: 'INVALID_RESPONSE',
-  INVALID_PASSWORD: 'INVALID_PASSWORD',
   INVALID_TOKEN: 'INVALID_TOKEN',
 };
 
@@ -1446,21 +1446,25 @@ function maskPhone_(value) {
   return '****' + lastFour;
 }
 
-// La contraseña se configura en las propiedades del script por slug, sin escribir el libro.
+function adminWeddingSlug_() {
+  return text_(PropertiesService.getScriptProperties().getProperty('ADMIN_WEDDING_SLUG'));
+}
+
+// Apps Script limita la sesión a la boda habilitada. El formulario valida la contraseña.
 function loginAdmin_(payload) {
   const slug = typeof payload.slug === 'string' ? text_(payload.slug) : null;
-  const password = slug === null ? null : PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD_' + slug);
-  if (password === null || password.trim() === '') {
+  const configuredSlug = adminWeddingSlug_();
+  if (configuredSlug === null) {
     return { ok: false, code: ADMIN_ERROR_CODES.NOT_CONFIGURED, contract: ADMIN_CONTRACT_VERSION };
   }
-  if (payload.password !== password) {
-    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_PASSWORD, contract: ADMIN_CONTRACT_VERSION };
+  if (slug !== configuredSlug) {
+    return { ok: false, code: ADMIN_ERROR_CODES.UNKNOWN_WEDDING, contract: ADMIN_CONTRACT_VERSION };
   }
   const wedding = findWedding_(slug);
   if (!wedding.ok) return { ok: false, code: wedding.code, contract: ADMIN_CONTRACT_VERSION };
 
   const session = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
-  CacheService.getScriptCache().put('admin-password-session:' + session, wedding.slug, ADMIN_SESSION_TTL_SECONDS);
+  CacheService.getScriptCache().put(ADMIN_SESSION_CACHE_PREFIX + session, wedding.slug, ADMIN_SESSION_TTL_SECONDS);
   return { ok: true, code: ADMIN_ERROR_CODES.OK, contract: ADMIN_CONTRACT_VERSION, session: session };
 }
 
@@ -1468,8 +1472,8 @@ function authorizeAdmin_(session) {
   if (typeof session !== 'string' || !/^[a-f0-9]{64}$/i.test(session)) {
     return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
   }
-  const slug = CacheService.getScriptCache().get('admin-password-session:' + session);
-  if (slug === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
+  const slug = CacheService.getScriptCache().get(ADMIN_SESSION_CACHE_PREFIX + session);
+  if (slug === null || slug !== adminWeddingSlug_()) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
   const wedding = findWedding_(slug);
   if (!wedding.ok) return wedding;
   return { ok: true, wedding: wedding };

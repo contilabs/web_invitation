@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert";
 import test from "node:test";
 import { ADMIN_CONTRACT_VERSION } from "../constants/contract.js";
 import { wedding } from "../data/wedding.js";
+import { loginAdmin } from "../services/admin.js";
 import { filterAdminResponses, invitationLink, invitationMessage, normalizeAdminResponse, sortAdminResponses } from "./adminResponses.js";
 
 const response = (overrides = {}) => ({
@@ -13,6 +14,18 @@ const response = (overrides = {}) => ({
 function envelope(responses) {
   return { ok: true, contract: ADMIN_CONTRACT_VERSION, wedding: { slug: "boda", isActive: true, updatedAt: "2027-01-01T10:00:00.000Z" }, responses };
 }
+
+test("solicita la sesión administrativa solo con el slug", async () => {
+  const url = "https://ejemplo.invalid/exec";
+  const result = await loginAdmin(url, "boda-pruebas", {
+    fetchImpl: async (requestUrl, request) => {
+      assert.equal(requestUrl, url);
+      assert.deepEqual(JSON.parse(request.body), { action: "adminLogin", slug: "boda-pruebas" });
+      return Response.json({ ok: true, contract: ADMIN_CONTRACT_VERSION, session: "sesion-ficticia" });
+    },
+  });
+  assert.equal(result.ok, true);
+});
 
 test("normaliza filas y deriva el resumen excluyendo declined", () => {
   const result = normalizeAdminResponse(envelope([

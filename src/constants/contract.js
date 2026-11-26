@@ -289,7 +289,7 @@ export const SERVICE_ERRORS = [
 
 // Contrato administrativo independiente (spec 006: panel privado de respuestas RSVP).
 // Versión separada del contrato público 1.4.0; no cambia el comportamiento del RSVP público.
-export const ADMIN_CONTRACT_VERSION = "2.0.0";
+export const ADMIN_CONTRACT_VERSION = "3.0.0";
 
 // Acciones de acceso y lectura del panel.
 export const ADMIN_SERVICE_ACTIONS = {
@@ -303,7 +303,6 @@ export const ADMIN_SERVICE_ACTIONS = {
 export const ADMIN_REQUEST_FIELDS = {
   ACTION: "action",
   SLUG: "slug",
-  PASSWORD: "password",
   GUEST_ID: "guestId",
   SESSION: "session",
 };
@@ -409,11 +408,6 @@ export const ADMIN_SERVICE_ERRORS = [
   {
     code: "INVALID_RESPONSE",
     message: "La respuesta del servidor no es válida.",
-    retryable: true,
-  },
-  {
-    code: "INVALID_PASSWORD",
-    message: "La contraseña es incorrecta.",
     retryable: true,
   },
   {

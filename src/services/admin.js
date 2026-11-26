@@ -1,10 +1,10 @@
 // Cliente del endpoint administrativo. Reutiliza el transporte público para conservar
-// el POST text/plain y el timeout. La contraseña solo se envía al iniciar sesión.
+// el POST text/plain y el timeout. La apertura de sesión recibe el slug de la boda.
 import { callService } from "./registration.js";
 import { ADMIN_SERVICE_ACTIONS } from "../constants/contract.js";
 
-export function loginAdmin(url, slug, password, options = {}) {
-  return callService(url, { action: ADMIN_SERVICE_ACTIONS.LOGIN, slug, password }, options);
+export function loginAdmin(url, slug, options = {}) {
+  return callService(url, { action: ADMIN_SERVICE_ACTIONS.LOGIN, slug }, options);
 }
 
 export function listAdminResponses(url, options = {}) {
