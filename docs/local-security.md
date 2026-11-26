@@ -72,7 +72,7 @@ para bash/zsh; en PowerShell usa las variables equivalentes):
 ```bash
 export VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"
 export VITE_WEDDING_SLUG="mi-boda"
-export VITE_WHATSAPP_PHONE="521234567890"
+export VITE_WHATSAPP_NUMBER="521234567890"
 npm run dev
 ```
 

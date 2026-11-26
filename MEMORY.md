@@ -15,6 +15,9 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   Watercolor Reveal en la primera entrada, sin repetirse al cambiar de tema. Sombra y transcripción accesible.
 - RSVP: tres párrafos y «Confirma aquí» recto con borde de 50 px. Hotel indica «usar el link siguiente».
 - «No niños»: el tamaño adaptable del título se redujo un 15 %.
+- RSVP: «Notificar por WhatsApp» aparece tras un envío exitoso en la sesión con
+  `VITE_WHATSAPP_NUMBER` válido. Comparte nombre, asistencia y total si acepta.
+  Docker confirmó el build y las pruebas de WhatsApp. Sigue pendiente la prueba visual.
 - Bienvenida: entrada CSS de 4,7 s. Fondo suave y máscara de hojas y marco; acuarela
   secuencial en mensaje, fecha, nombres, línea y botón. Movimiento reducido muestra todo de inmediato.
   La máscara de acuarela se retira al terminar para dejar completos los trazos caligráficos.
@@ -24,9 +27,10 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   `overflow: hidden`. Marco SVG sobre las hojas. Verificado en móvil, horizontal y escritorio,
   con el texto libre y el botón «Ingresar» operativo.
 - Footer compacto con crédito en una línea y enlace de contacto. Favicon original verificado por SHA-256.
-- Rama objetivo `boda_nahomi_andres`: rediseño, padres y padrinos, y panel privado con sesión de 15 minutos.
-- Restaurados los ajustes locales desde el stash y revisados en la vista previa. Docker: 268/272
-  pruebas. Los fallos previos de lanzadores, admin, familia y metadatos impiden el build.
+- Rama `boda_nahomi_andres`: el panel vuelve al acceso por correo y código de cinco dígitos,
+  con sesión de 15 minutos. La reversión es local y no se publicó.
+- Docker: build correcto y 268/272 pruebas. Fallos conocidos de lanzador, admin, familia y metadatos.
+- Se retiró `family-background.png`, una imagen sin referencias en la invitación.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Contrato público `1.4.0` y Apps Script.
 - Spec 005: T1–T20, T22/T23 hechas; T21 manual pendiente. RSVP con lookup privado por teléfono,
   rechazo con mensaje, saludo personalizado y consulta tolerante.
@@ -45,8 +49,8 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   se quitó la sombra al finalizar la animación para evitar el brillo posterior.
 - Seguridad: `dev`, `preview`, `test` y `check` usan lanzadores Docker; `build` ejecuta Vite
   directamente para que CI/Netlify pueda publicar sin Docker.
-- Configuración real: existe `.env.local` gitignorado con `VITE_SERVICE_URL` y
-  `VITE_WEDDING_SLUG`; los lanzadores leen solo esas dos variables y no copian el archivo.
+- Configuración local: los lanzadores admiten `VITE_SERVICE_URL`, `VITE_WEDDING_SLUG`
+  y `VITE_WHATSAPP_NUMBER` de `.env.local` gitignorado o del entorno.
 
 ## Decisiones importantes
 - `src/data/wedding.js` es el único registro de contenido; el invitado y RSVP vienen del servicio.

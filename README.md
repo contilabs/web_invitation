@@ -173,13 +173,14 @@ variables del entorno del proceso; no leen ni copian `.env.local` ni otros archi
 ```bash
 export VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"
 export VITE_WEDDING_SLUG="mi-boda"
-export VITE_WHATSAPP_PHONE="521234567890"
+export VITE_WHATSAPP_NUMBER="521234567890"
 npm run dev  # también se aplican a preview, build y check
 ```
 
-Después de registrar una respuesta, la invitación puede abrir WhatsApp con un mensaje
-prellenado para la pareja. `VITE_WHATSAPP_PHONE` es el número de destino en formato
-internacional, solo con dígitos; el mensaje no incluye el teléfono del invitado.
+Tras guardar el RSVP, «Notificar por WhatsApp» abre un mensaje opcional para Naomi con el
+nombre del invitado, su asistencia y el total confirmado cuando corresponda.
+`VITE_WHATSAPP_NUMBER` es el número de Naomi en formato internacional, con código de país y
+solo dígitos. Si falta o tiene un formato inválido, la opción se oculta.
 
 - **Sin URL** → **modo demo**: la invitación se ve completa y sin personalizar, y la
   confirmación queda deshabilitada con su aviso (no se llama a nadie).
@@ -220,7 +221,8 @@ este comando directamente en su runner Node, sin Docker.
 `vite.config.js` fija **`base: "./"`**, así que el
 build usa rutas relativas y funciona en cualquier subruta o dominio (incluidos los enlaces ya
 repartidos del tipo `…/index.html?guest=…`). Para que la confirmación hable con el servicio,
-publica con las variables de entorno descritas arriba (`VITE_SERVICE_URL` y
-`VITE_WEDDING_SLUG` y `VITE_WHATSAPP_PHONE`); el panel usa la misma `VITE_SERVICE_URL`. Sin las variables públicas
-el sitio se publica en modo demo. No hay URL de publicación
+configura `VITE_SERVICE_URL` y `VITE_WEDDING_SLUG` para el build. El panel usa la misma
+`VITE_SERVICE_URL`. Para habilitar WhatsApp, añade `VITE_WHATSAPP_NUMBER` a las variables de
+entorno del build en Netlify y vuelve a desplegar.
+Sin URL del servicio, el sitio se publica en modo demo. No hay URL de publicación
 confirmada todavía.

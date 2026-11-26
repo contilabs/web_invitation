@@ -1357,6 +1357,24 @@ p:last-child {
 .rsvp-modal .response-summary { padding: 0; border: 0; }
 .rsvp-modal .button { width: 100%; padding-inline: 0.75rem; border-radius: var(--radio-boton); }
 .rsvp-modal .button:active { transform: translateY(1px); }
+.rsvp-whatsapp {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+.rsvp-modal .rsvp-whatsapp .button {
+  background-color: var(--family-paper);
+  border-color: var(--family-ink);
+  color: var(--family-ink);
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+.rsvp-modal .rsvp-whatsapp .button:hover {
+  background-color: var(--family-ink);
+  color: var(--family-paper);
+}
+.rsvp-whatsapp svg { flex-shrink: 0; }
 .rsvp-modal button[type="submit"] { position: sticky; bottom: 0; z-index: 1; }
 .rsvp-modal form { gap: 0.95rem; }
 .rsvp-modal .attendance { gap: 0.55rem; }

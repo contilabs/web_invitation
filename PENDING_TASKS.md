@@ -24,8 +24,8 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Spec 006 · panel privado de respuestas
 
-- Verificación manual pendiente: con el Apps Script redesplegado y el libro sintético, comprobar
-  autorización válida/no autorizada/sesión expirada, privacidad y revelación temporal del teléfono,
+- Verificación manual pendiente con un Apps Script y libro sintéticos: comprobar envío del código
+  por correo, autorización válida/no autorizada/sesión expirada, privacidad y revelación del teléfono,
   filtros, orden, totales, actualización sin doble solicitud, datos vacíos, servicio caído y móvil.
 
 ## Casos límite por cubrir
@@ -61,8 +61,9 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 - **Regalos Naomi y Andrés.** Confirmar el contenido del portapapeles al copiar la CLABE de
   Santander y el mensaje al denegar la copia.
-- **Formulario Naomi y Andrés.** Validar la configuración de WhatsApp del despliegue con el número
-  indicado en el formulario y confirmar la grabación local de «Quando Quando Quando».
+- **Formulario Naomi y Andrés.** Tras configurar `VITE_WHATSAPP_NUMBER` en el build, comprobar
+  en escritorio y móvil el enlace de WhatsApp después de un guardado, tanto al aceptar como
+  al rechazar. Confirmar también la grabación local de «Quando Quando Quando».
 
 - **Tope global de asistentes.** Fuera de alcance en la spec 002 y también en la 004 (§16 del
   plan): definir si el máximo de una boda cuenta la suma de todas las respuestas y qué ocurre

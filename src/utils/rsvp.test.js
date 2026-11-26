@@ -771,22 +771,25 @@ test("attendanceForm: el teléfono no forma parte de la precarga (RF-5, M8)", ()
   );
 });
 
-test("whatsappMessage arma un resumen sin incluir el teléfono del invitado", () => {
+test("whatsappMessage suma adultos y niños y comparte solo los datos de asistencia", () => {
   const message = whatsappMessage({
-    coupleName: "Karina y Gerardo",
+    recipientName: "Naomi",
     name: "Invitada Ficticia",
     response: RESPONSE_STATES.ACCEPTED,
     adults: 2,
     children: 1,
     restrictions: "Sin gluten",
+    phone: "5512345678",
+    message: "Qué emoción",
   });
 
-  assert.match(message, /Karina y Gerardo/);
-  assert.match(message, /Adultos: 2/);
-  assert.match(message, /Niños: 1/);
-  assert.match(message, /Sin gluten/);
-  assert.doesNotMatch(message, /Mensaje|Qué emoción/);
-  assert.doesNotMatch(message, /5512345678/);
+  assert.equal(message, [
+    "¡Hola, Naomi! Acabo de registrar mi respuesta para su boda.",
+    "",
+    "Nombre: Invitada Ficticia",
+    "Asistencia: Sí, asistiré",
+    "Número de asistentes: 3",
+  ].join("\n"));
 });
 
 test("whatsappMessage omite asistentes y restricciones al rechazar", () => {
@@ -798,28 +801,28 @@ test("whatsappMessage omite asistentes y restricciones al rechazar", () => {
     restrictions: "Sin gluten",
   });
 
-  assert.match(message, /No podré asistir/);
-  assert.doesNotMatch(message, /Adultos|Niños|Restricciones/);
+  assert.match(message, /Asistencia: No podré asistir/);
+  assert.doesNotMatch(message, /asistentes:|Sin gluten/);
 });
 
-test("whatsappMessage no agrega niños en una invitación sin ese campo y conserva alergias", () => {
+test("whatsappMessage cuenta solo adultos en una invitación sin campo de niños", () => {
   const message = whatsappMessage({
     name: "Invitado Ficticio",
     response: RESPONSE_STATES.ACCEPTED,
     adults: 2,
-    restrictions: "Alergia al cacahuate",
   });
 
-  assert.doesNotMatch(message, /Niños/);
-  assert.match(message, /Alergia al cacahuate/);
+  assert.match(message, /Número de asistentes: 2$/);
 });
 
 test("whatsappUrl usa el número de destino y codifica el texto", () => {
   assert.equal(
-    whatsappUrl("+52 449 414 4122", "Hola\nSí, asistiré."),
-    "https://wa.me/524494144122?text=Hola%0AS%C3%AD%2C%20asistir%C3%A9.",
+    whatsappUrl("+1 202 555 0101", "Hola\nSí, asistiré."),
+    "https://wa.me/12025550101?text=Hola%0AS%C3%AD%2C%20asistir%C3%A9.",
   );
-  assert.equal(whatsappUrl("", "Hola"), "");
+  for (const invalid of ["", "123", "0521234567890", "tel:521234567890", "1234567890123456"]) {
+    assert.equal(whatsappUrl(invalid, "Hola"), "");
+  }
 });
 
 test("el módulo es puro: sin DOM, sin reloj y sin red (RNF-9)", () => {

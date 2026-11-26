@@ -66,7 +66,6 @@ import {
   whatsappMessage,
   whatsappUrl,
 } from "../../utils/rsvp.js";
-import { coupleNames } from "../../utils/couple.js";
 import {
   BLOCK_EVENTS,
   BLOCK_STATES,
@@ -324,16 +323,15 @@ export function Rsvp({ wedding }) {
       ? { ...invitation.previousResponse, name: invitation.guestName, phone: null }
       : null);
   const answeredData = responseSummaryData(answer, personalized);
-  const whatsappHref = answeredData
+  const whatsappHref = sendStatus === "ok" && answered && answeredData
     ? whatsappUrl(
         whatsappPhone,
         whatsappMessage({
-          coupleName: coupleNames(wedding?.pareja).display,
+          recipientName: wedding?.portada?.pareja?.nombre1 ?? wedding?.pareja?.nombre1,
           name: answeredData.name,
           response: answeredData.state,
           adults: answeredData.adultsAttendees,
           children: answeredData.childAttendees,
-          restrictions: answeredData.restrictions,
         }),
       )
     : "";
@@ -750,14 +748,35 @@ export function Rsvp({ wedding }) {
                         Editar
                       </button>
                       {whatsappHref && (
-                        <a
-                          className="button button-outline"
-                          href={whatsappHref}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Enviar respuesta por WhatsApp
-                        </a>
+                        <div className="rsvp-whatsapp">
+                          <p className="help-text" id="rsvp-whatsapp-help">
+                            Si lo deseas, también puedes notificar a los novios por WhatsApp
+                          </p>
+                          <a
+                            className="button button-outline"
+                            href={whatsappHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-describedby="rsvp-whatsapp-help"
+                          >
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                              focusable="false"
+                            >
+                              <path d="M4.5 16.5 3 21l4.7-1.4A9 9 0 1 0 4.5 16.5Z" />
+                              <path d="m9 7.5 1.5 2-1 1a8 8 0 0 0 4 4l1-1 2 1.5-.4 1.2c-.2.6-1 .8-1.6.6A11 11 0 0 1 7.2 9.5c-.2-.6 0-1.4.6-1.6Z" />
+                            </svg>
+                            Notificar por WhatsApp
+                          </a>
+                        </div>
                       )}
                     </>
                   )}

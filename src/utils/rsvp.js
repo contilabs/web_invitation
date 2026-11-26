@@ -301,35 +301,22 @@ export function interpretRsvpResult(result) {
   return { ok: false, errorCode: code ?? CODES.SERVICE_UNAVAILABLE };
 }
 
-// Texto prellenado para que el invitado pueda compartir por WhatsApp la respuesta que
-// acaba de registrar. El teléfono del invitado nunca forma parte de este mensaje: solo se
-// usa como llave del servicio y el destino sale de la configuración del despliegue.
+// El aviso de WhatsApp solo comparte el nombre, la respuesta y el total confirmado.
 export function whatsappMessage({
-  coupleName,
+  recipientName,
   name,
   response,
   adults,
   children,
-  restrictions,
 } = {}) {
-  const lines = [];
-  const couple = text(coupleName);
+  const recipient = text(recipientName);
   const guest = text(name);
-  if (couple) lines.push(`Hola, ${couple}.`);
-  if (guest) lines.push(`Soy ${guest}.`);
-  lines.push(
-    `Mi respuesta para la boda es: ${isRejection(response) ? "No podré asistir" : "Sí, asistiré"}.`,
-  );
-
-  if (!isRejection(response)) {
-    lines.push(`Adultos: ${count(adults)}.`);
-    // Las invitaciones genéricas y públicas no contemplan niños: `undefined` significa que
-    // ese campo no forma parte de la respuesta, mientras que `0` sí es válido en la
-    // personalizada y debe conservarse en el mensaje.
-    if (children !== undefined && children !== null) lines.push(`Niños: ${count(children)}.`);
-    const diet = text(restrictions);
-    if (diet) lines.push(`Restricciones alimentarias: ${diet}.`);
-  }
+  const rejected = isRejection(response);
+  const greeting = recipient ? `¡Hola, ${recipient}!` : "¡Hola!";
+  const lines = [`${greeting} Acabo de registrar mi respuesta para su boda.`, ""];
+  if (guest) lines.push(`Nombre: ${guest}`);
+  lines.push(`Asistencia: ${rejected ? "No podré asistir" : "Sí, asistiré"}`);
+  if (!rejected) lines.push(`Número de asistentes: ${count(adults) + count(children)}`);
 
   return lines.join("\n");
 }
@@ -337,7 +324,9 @@ export function whatsappMessage({
 // Enlace oficial de WhatsApp con el texto precargado. El número debe venir en formato
 // internacional, solo con dígitos, como requiere `wa.me`.
 export function whatsappUrl(phone, message) {
-  const digits = phoneDigits(phone);
-  if (!digits) return "";
+  const number = String(phone ?? "").trim();
+  if (!/^\+?[\d\s()-]+$/.test(number)) return "";
+  const digits = phoneDigits(number);
+  if (!/^[1-9]\d{6,14}$/.test(digits)) return "";
   return `https://wa.me/${digits}?text=${encodeURIComponent(String(message ?? ""))}`;
 }
