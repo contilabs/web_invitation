@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ADMIN_CONTRACT_VERSION, ADMIN_SERVICE_ERRORS } from "../../constants/contract.js";
+import { ADMIN_CONTRACT_VERSION, ADMIN_SERVICE_ERRORS, NO_LIMIT } from "../../constants/contract.js";
 import { wedding } from "../../data/wedding.js";
 import { SERVICE_URL_VAR } from "../../constants/service.js";
 import { listAdminCodes, listAdminResponses, requestAdminToken, revealAdminPhone, verifyAdminToken } from "../../services/admin.js";
-import { filterAdminResponses, invitationMessage, normalizeAdminCodes, normalizeAdminResponse, sortAdminResponses } from "../../utils/adminResponses.js";
+import { filterAdminResponses, invitationLink, invitationMessage, normalizeAdminCodes, normalizeAdminResponse, sortAdminResponses } from "../../utils/adminResponses.js";
 
 const configuredUrl = String(import.meta.env[SERVICE_URL_VAR] ?? "").trim();
 const config = { url: configuredUrl, state: configuredUrl ? "ready" : "not-configured" };
@@ -71,9 +71,20 @@ export function AdminApp() {
   };
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }));
   const resetFilters = () => setFilters({ status: "", restrictions: "", query: "" });
-  const invitationLink = (code) => { const url = new URL("./index.html", window.location.href); url.search = ""; url.searchParams.set("guest", code); return url.href; };
-  const copyInvitationLink = async (code) => { await navigator.clipboard.writeText(invitationLink(code)); setCopiedCode(code); window.setTimeout(() => setCopiedCode((current) => current === code ? null : current), 1800); };
-  const copyInvitationMessage = async (code, limit) => { const link = invitationLink(code); const message = invitationMessage(wedding.marca.mensajeEnlace, { couple: wedding.marca.nombre, limit, link }); await navigator.clipboard.writeText(message); setCopiedMessageCode(code); window.setTimeout(() => setCopiedMessageCode((current) => current === code ? null : current), 1800); };
+  const copyInvitationLink = async (code) => {
+    await navigator.clipboard.writeText(invitationLink(code, window.location.href));
+    setCopiedCode(code);
+    window.setTimeout(() => setCopiedCode((current) => current === code ? null : current), 1800);
+  };
+  const copyInvitationMessage = async (code, limit) => {
+    const link = invitationLink(code, window.location.href);
+    const { nombre, mensajeEnlace, mensajeEnlaceSinLimite } = wedding.marca;
+    const template = limit === NO_LIMIT && mensajeEnlaceSinLimite ? mensajeEnlaceSinLimite : mensajeEnlace;
+    const message = invitationMessage(template, { couple: nombre, limit, link });
+    await navigator.clipboard.writeText(message);
+    setCopiedMessageCode(code);
+    window.setTimeout(() => setCopiedMessageCode((current) => current === code ? null : current), 1800);
+  };
   const seats = (value) => value === null || value === undefined ? copy.notAvailable : String(value);
   const assignedText = (row) => isPersonal ? `${row.assignedAdults} ${copy.adults}${row.assignedChildren ? ` · ${row.assignedChildren} ${copy.children}` : ""}` : seats(row.assignedSeats);
   const occupiedText = (row) => isPersonal ? `${row.adultsAttendees} ${copy.adults}${row.childAttendees ? ` · ${row.childAttendees} ${copy.children}` : ""}` : String(row.occupiedSeats);

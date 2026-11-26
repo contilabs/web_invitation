@@ -1,5 +1,5 @@
 // Lógica pura del panel: valida el sobre completo y deriva métricas, filtros y orden.
-import { ADMIN_CONTRACT_VERSION } from "../constants/contract.js";
+import { ADMIN_CONTRACT_VERSION, GUEST_PARAM, NO_LIMIT } from "../constants/contract.js";
 
 const STATUSES = new Set(["viewed", "accepted", "declined"]);
 const TYPES = new Set(["personal", "generic", "public"]);
@@ -128,11 +128,17 @@ export function sortAdminResponses(responses, sort = "datetime") {
   });
 }
 
+export function invitationLink(code, adminUrl) {
+  const url = new URL("./", adminUrl);
+  url.searchParams.set(GUEST_PARAM, code);
+  return url.href;
+}
+
 // Sustituye los datos variables del mensaje que se copia desde el panel de enlaces.
 export function invitationMessage(template, { couple, limit, link } = {}) {
-  const places = limit === "n"
+  const places = limit === NO_LIMIT
     ? "lugares sin límite"
-    : `${Number(limit)} ${Number(limit) === 1 ? "lugar disponible" : "lugares disponibles"}`;
+    : `${Number(limit)} ${Number(limit) === 1 ? "lugar" : "lugares"}`;
   return String(template ?? "")
     .replaceAll("{pareja}", String(couple ?? ""))
     .replaceAll("{lugares}", places)

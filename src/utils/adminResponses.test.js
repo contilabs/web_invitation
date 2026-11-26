@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
-import { filterAdminResponses, invitationMessage, normalizeAdminResponse, sortAdminResponses } from "./adminResponses.js";
+import { wedding } from "../data/wedding.js";
+import { filterAdminResponses, invitationLink, invitationMessage, normalizeAdminResponse, sortAdminResponses } from "./adminResponses.js";
 
 const response = (overrides = {}) => ({
   guestId: "1", guestType: "generic", guestName: "Ana", phoneMasked: "****1234",
@@ -33,8 +34,17 @@ test("combina filtros y conserva el orden solicitado", () => {
 });
 
 test("compone el mensaje del enlace con el cupo y pluraliza los lugares", () => {
-  const template = "{pareja} · {lugares} · {enlace}";
-  assert.equal(invitationMessage(template, { couple: "Naomi y Andrés", limit: 1, link: "https://ejemplo.test" }), "Naomi y Andrés · 1 lugar disponible · https://ejemplo.test");
-  assert.equal(invitationMessage(template, { couple: "Naomi y Andrés", limit: 3, link: "https://ejemplo.test" }), "Naomi y Andrés · 3 lugares disponibles · https://ejemplo.test");
-  assert.equal(invitationMessage(template, { couple: "Naomi y Andrés", limit: "n", link: "https://ejemplo.test" }), "Naomi y Andrés · lugares sin límite · https://ejemplo.test");
+  const { nombre: couple, mensajeEnlace, mensajeEnlaceSinLimite } = wedding.marca;
+  const link = invitationLink("4236_GEN", "https://ejemplo.test/admin.html");
+  assert.equal(
+    invitationMessage(mensajeEnlace, { couple, limit: 2, link }),
+    "¡Hola! Somos Naomi y Andrés y nos hace mucha ilusión compartir nuestra boda contigo. Hemos reservado 2 lugares para ti.\nAquí encontrarás los detalles y podrás confirmar tu asistencia:\nhttps://ejemplo.test/?guest=4236_GEN",
+  );
+  assert.match(invitationMessage(mensajeEnlace, { couple, limit: 1, link }), /Hemos reservado 1 lugar para ti\./);
+  assert.match(invitationMessage(mensajeEnlaceSinLimite, { couple, limit: "n", link }), /Puedes venir con tus acompañantes\./);
+});
+
+test("genera enlaces sin index.html y conserva la subruta de publicación", () => {
+  assert.equal(invitationLink("4236_GEN", "https://ejemplo.test/admin.html"), "https://ejemplo.test/?guest=4236_GEN");
+  assert.equal(invitationLink("a+b", "https://ejemplo.test/boda/admin.html?otro=1#enlaces"), "https://ejemplo.test/boda/?guest=a%2Bb");
 });

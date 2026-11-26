@@ -30,16 +30,12 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
 - Rama `boda_nahomi_andres`: el panel vuelve al acceso por correo y código de cinco dígitos,
   con sesión de 15 minutos. La reversión es local y no se publicó.
 - Docker: build correcto y 268/272 pruebas. Fallos conocidos de lanzador, admin, familia y metadatos.
-- Se retiró `family-background.png`, una imagen sin referencias en la invitación.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Contrato público `1.4.0` y Apps Script.
 - Spec 005: T1–T20, T22/T23 hechas; T21 manual pendiente. RSVP con lookup privado por teléfono,
   rechazo con mensaje, saludo personalizado y consulta tolerante.
-- Spec 006: panel con respuestas, mensajes, enlaces por código, filtros, detalle accesible y
-  revelación temporal del teléfono; la sesión efímera sustituye al token en lecturas.
-- Panel admin: `src/components/admin/admin.css` alineado visualmente con la invitación Ascua
-  (marfil, oliva, salvia, oro y tipografías de la plantilla); solo cambio visual, sin tocar lógica.
-- Panel admin móvil: las tablas de respuestas, mensajes y enlaces se convierten en tarjetas
-  apiladas con `data-label`, filtros a ancho completo y acciones cómodas para tocar.
+- Spec 006: panel con filtros, detalle accesible y teléfono temporal. Las lecturas exigen sesión.
+- Los mensajes del panel usan el cupo del código y enlazan al directorio con `?guest`, sin `index.html`.
+- Panel Ascua con tablas apiladas como tarjetas `data-label`, filtros a ancho completo y acciones táctiles en móvil.
 - Popup RSVP: se amplió el área útil del marco, se ajustaron márgenes/scroll interno y se añadió
   un tratamiento móvil específico con viewport seguro, controles táctiles y botón de envío visible.
 - Portada: en escritorio (`min-width: 601px`) la frase del hero se ancla al fondo de la foto;
