@@ -24,9 +24,12 @@ No es un histórico: **al resolverse o dejar de ser relevante, cada entrada se e
 
 ## Spec 006 · panel privado de respuestas
 
-- Verificación manual pendiente con un Apps Script y libro sintéticos: comprobar envío del código
-  por correo, autorización válida/no autorizada/sesión expirada, privacidad y revelación del teléfono,
+- Verificación manual pendiente con un Apps Script y libro sintéticos: comprobar contraseña
+  correcta/incorrecta, configuración ausente, sesión expirada, privacidad y revelación del teléfono,
   filtros, orden, totales, actualización sin doble solicitud, datos vacíos, servicio caído y móvil.
+- **Deuda técnica del acceso al panel.** `VITE_PASSWORD` se publica en texto plano en el
+  JavaScript y puede recuperarse. La barrera solo limita el acceso casual. Sustituirla por
+  autenticación en servidor con una credencial ausente del build, conservando el alcance por boda.
 
 ## Casos límite por cubrir
 

@@ -449,8 +449,8 @@ variables de entorno que se leen en el build:
 | `VITE_WEDDING_SLUG` | El `slug` de la boda. Con URL y sin `slug`, el sistema muestra `MISSING_SLUG` y **no** reintenta. |
 
 La configuración **no** incluye datos de invitados ni se versiona con ellos. El panel y la
-invitación usan `VITE_SERVICE_URL`. Los lanzadores Docker locales solo transmiten estas tres
-variables públicas del entorno del proceso; no leen ni copian archivos `.env`. Reiniciar tras
+invitación usan `VITE_SERVICE_URL`. Los lanzadores Docker locales transmiten los valores públicos
+permitidos del entorno del proceso o de `.env.local`, sin copiar el archivo. Reiniciar tras
 cambiarlas. Ver [seguridad local](local-security.md) para desarrollo, preview y publicación.
 
 ---
@@ -460,20 +460,15 @@ cambiarlas. Ver [seguridad local](local-security.md) para desarrollo, preview y 
 El panel privado es **independiente** del contrato público 1.4.0. Usa un sobre y una acción
 distintos, con su propia versión de contrato.
 
-- **Versión del contrato administrativo:** `1.3.0` (`ADMIN_CONTRACT_VERSION`).
-- **Despliegues:** el RSVP público y el panel React usan `VITE_SERVICE_URL`; el panel protege
-  los datos con token server-side.
-- **Acciones:** `requestToken` (`ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN`), `verifyToken`
-  (`ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN`), `listResponses` (`ADMIN_SERVICE_ACTIONS.LIST_RESPONSES`),
+- **Versión del contrato administrativo** `2.0.0` (`ADMIN_CONTRACT_VERSION`).
+- **Acciones** `adminLogin` (`ADMIN_SERVICE_ACTIONS.LOGIN`), `listResponses` (`ADMIN_SERVICE_ACTIONS.LIST_RESPONSES`),
   `listCodes` (`ADMIN_SERVICE_ACTIONS.LIST_CODES`) y `revealPhone`
   (`ADMIN_SERVICE_ACTIONS.REVEAL_PHONE`). `listCodes` devuelve los códigos y límites de la
   caché `generic_json_cache` o `public_json_cache`, según el tipo de boda.
-- **Autorización:** Apps Script genera y envía un token nuevo de 5 dígitos al `admin_email` de la
-  fila de la boda en `files` cada vez que se solicita un correo; la validación usa `token` y
-  `counter`, y después emite una sesión efímera de 15 minutos. Las lecturas usan solo esa sesión;
-  el token de correo no se reutiliza como credencial.
-- **Alcance:** **una boda** resuelta por el correo introducido y autorizado en `admin_email`.
-  La sesión solo vive en memoria mientras la página está abierta y caduca en 15 minutos.
+- **Autorización.** `adminLogin` recibe `slug` y `password`. Verifica la contraseña en la propiedad
+  de Apps Script `ADMIN_PASSWORD_<slug>` y devuelve `{ ok, code, contract, session }` si es válida.
+  La contraseña que usa el formulario proviene de `VITE_PASSWORD` y queda en el JavaScript publicado.
+- **Alcance.** La sesión da acceso a una boda, vive en memoria y caduca como máximo a los 45 minutos desde el inicio de sesión.
 - **Teléfono:** enmascarado siempre por defecto, con revelación temporal tras acción
   adicional, sin persistirlo (D3).
 - **Volumen:** consulta única sin paginación en la primera entrega (D4).
@@ -486,10 +481,9 @@ distintos, con su propia versión de contrato.
 | Campo | Contenido |
 | --- | --- |
 | `action` | `listResponses` |
-| `session` | Credencial efímera devuelta por `verifyToken`. |
+| `session` | Credencial efímera devuelta por `adminLogin`. |
 
-La autorización se resuelve en el servidor con la sesión emitida tras verificar el token. No se
-envía un slug ni se usa una sesión de Google.
+Para las lecturas, el servidor identifica la boda mediante la sesión emitida tras verificar la contraseña.
 
 La acción `revealPhone` recibe `guestId`, vuelve a comprobar la sesión y
 devuelve el teléfono de esa fila durante la sesión de la página. La interfaz lo oculta al
@@ -501,7 +495,7 @@ logs.
 ```text
 {
   ok: true,
-  contract: "1.0.0",
+  contract: "2.0.0",
   wedding: { slug, name, isActive, deadline, updatedAt, guestType, language },
   summary: { total, viewed, accepted, declined, pending, adults, children,
     seatsIssued, seatsOccupied, seatsUnoccupied },
@@ -529,12 +523,8 @@ las invitaciones genéricas y públicas solo aportan boletos conforme aparecen s
 | `INVALID_DATA` | Datos incompletos o inválidos. | «Los datos del panel están incompletos o son inválidos.» |
 | `SERVICE_UNAVAILABLE` | Red o fallo del servidor. | «No pudimos conectar. Inténtalo de nuevo.» |
 | `INVALID_RESPONSE` | Respuesta que no respeta el contrato. | «La respuesta del servidor no es válida.» |
-| `INVALID_ADMIN_EMAIL` | El correo no está configurado en `admin_email`. | «No encontramos un panel para ese correo.» |
-| `INVALID_TOKEN` | El token no coincide. | «El código no es válido.» |
-| `TOKEN_SENT` | El token fue enviado por correo. | «Código enviado.» |
-| `TOKEN_RESET` | Se alcanzaron cuatro intentos fallidos. | «Enviamos un código nuevo.» |
-| `EMAIL_UNAVAILABLE` | Apps Script no puede enviar correo. | «No pudimos enviar el código por correo.» |
-| `EMAIL_QUOTA_EXHAUSTED` | Se agotó la cuota diaria de correo. | «Se agotó la cuota diaria de correo del servicio.» |
+| `INVALID_PASSWORD` | La contraseña no coincide. | «La contraseña es incorrecta.» |
+| `INVALID_TOKEN` | La sesión falta, es inválida o caducó. | «La sesión venció. Vuelve a ingresar la contraseña.» |
 
 Los códigos `retryable` se definen en el módulo `src/constants/contract.js` (ADMIN_SERVICE_ERRORS).
 El panel nunca envía `localStorage`, cookies propias, ni datos sensibles en la URL. No se

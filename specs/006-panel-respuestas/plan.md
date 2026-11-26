@@ -6,7 +6,7 @@
 - T2. Diseñar el sobre administrativo, la acción, permisos, paginación (si aplica) y
   errores; actualizar `src/constants/contract.js` y `docs/servicio-invitados.md` sin
   romper el contrato público 1.4.0.
-- T3. Definir un libro de prueba sintético y una allowlist de prueba sin datos personales.
+- T3. Definir un libro de prueba sintético y documentar el acceso de prueba.
 
 ## Fase 1 — Servicio de lectura
 

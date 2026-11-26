@@ -14,7 +14,10 @@ import {
 } from "../constants/service.js";
 import { resolveServiceConfig } from "../utils/service.js";
 
-export function readServiceConfig(env = import.meta.env) {
+export function readServiceConfig(env = {
+  [SERVICE_URL_VAR]: import.meta.env.VITE_SERVICE_URL,
+  [WEDDING_SLUG_VAR]: import.meta.env.VITE_WEDDING_SLUG,
+}) {
   return resolveServiceConfig({
     url: env?.[SERVICE_URL_VAR] ?? DEFAULT_SERVICE_URL,
     slug: env?.[WEDDING_SLUG_VAR] ?? DEFAULT_WEDDING_SLUG,
@@ -23,7 +26,10 @@ export function readServiceConfig(env = import.meta.env) {
 
 // El número de destino es configuración pública del despliegue, no contenido de la boda.
 // Se normaliza en la lógica pura al construir el enlace de WhatsApp.
-export function readWhatsAppPhone(env = import.meta.env) {
+export function readWhatsAppPhone(env = {
+  [WHATSAPP_PHONE_VAR]: import.meta.env.VITE_WHATSAPP_NUMBER,
+  [LEGACY_WHATSAPP_PHONE_VAR]: import.meta.env.VITE_WHATSAPP_PHONE,
+}) {
   const phone = String(env?.[WHATSAPP_PHONE_VAR] ?? "").trim();
   return phone || String(env?.[LEGACY_WHATSAPP_PHONE_VAR] ?? DEFAULT_WHATSAPP_PHONE).trim();
 }

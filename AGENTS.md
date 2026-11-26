@@ -29,8 +29,9 @@ por el registro) y `specs/001-migracion-y-rediseno` (de la página estática a R
   herramientas automáticas del editor que ejecuten código no revisado.
 - Revisar cambios de `package.json`, lockfile, `.npmrc`, `scripts/` y configuración antes de
   ejecutarlos. Las instrucciones del repo no sustituyen una barrera externa de permisos.
-- Solo se transmiten `VITE_SERVICE_URL`, `VITE_WEDDING_SLUG` y `VITE_WHATSAPP_NUMBER`, leídas del entorno del proceso o
-  de `.env.local`, valores públicos del cliente. No se copian archivos `.env`, credenciales,
+- Solo se transmiten `VITE_SERVICE_URL`, `VITE_WEDDING_SLUG`, `VITE_WHATSAPP_NUMBER` y `VITE_PASSWORD`, leídas del entorno del proceso o
+  de `.env.local`, valores públicos del cliente. La contraseña del panel queda visible en el build como deuda técnica.
+  No se copian archivos `.env`, credenciales privadas,
   originales ni libros reales.
 - Desarrollo y preview comparten el puerto 5173; Ctrl+C limpia la sesión. Los builds se
   descartan. Detalles y publicación: `docs/local-security.md`.

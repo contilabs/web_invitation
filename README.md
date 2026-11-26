@@ -167,13 +167,14 @@ vigila que no se desincronicen). La puesta en marcha del servicio (maestro, libr
 publicación) está explicada en `gas/README.md`.
 
 La configuración del despliegue **no** está en el repo: son valores por publicación, que se
-fijan con variables públicas de Vite. Los lanzadores Docker solo transmiten estas tres
-variables del entorno del proceso; no leen ni copian `.env.local` ni otros archivos `.env`:
+fijan con variables públicas de Vite. Los lanzadores Docker leen los valores permitidos
+del entorno del proceso o de `.env.local`, que queda fuera del contenedor:
 
 ```bash
 export VITE_SERVICE_URL="https://script.google.com/macros/s/EJEMPLO/exec"
 export VITE_WEDDING_SLUG="mi-boda"
 export VITE_WHATSAPP_NUMBER="521234567890"
+export VITE_PASSWORD="<contraseña del panel>"
 npm run dev  # también se aplican a preview, build y check
 ```
 
@@ -182,6 +183,12 @@ nombre del invitado, su asistencia y el total confirmado cuando corresponda.
 `VITE_WHATSAPP_NUMBER` es el número de Naomi en formato internacional, con código de país y
 solo dígitos. Si está ausente o vacía, el build acepta `VITE_WHATSAPP_PHONE` de publicaciones
 anteriores. La opción se oculta si el número resultante está vacío o tiene un formato inválido.
+
+Para habilitar `admin.html`, configura `VITE_PASSWORD` al compilar y el mismo valor en la
+propiedad de Apps Script `ADMIN_PASSWORD_<slug>`, donde `<slug>` coincide con
+`VITE_WEDDING_SLUG`. Publica el frontend y una nueva versión del Apps Script. Vite incluye
+la contraseña en texto plano en el JavaScript publicado. Esta barrera provisional
+queda registrada como deuda técnica en [PENDING_TASKS.md](PENDING_TASKS.md).
 
 - **Sin URL** → **modo demo**: la invitación se ve completa y sin personalizar, y la
   confirmación queda deshabilitada con su aviso (no se llama a nadie).

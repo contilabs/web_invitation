@@ -3,18 +3,11 @@
 Este documento define los datos sintéticos para verificar el panel privado (spec 006, T3). 
 **No contiene datos reales**. Los archivos con libros reales se excluyen por `.gitignore` (`gas/*.xlsx`).
 
-## 1. Allowlist de prueba
+## 1. Contraseña de prueba
 
-Solo se autoriza acceso con correos indicados en `admin_email` de la fila del maestro. Para
-pruebas usar correos ficticios (sin cuentas reales) o cuentas controladas por quien despliega:
-
-| Cuenta (ejemplo sintético) | Rol |
-| --- | --- |
-| `pruebas.panel@example.com` | Autorizado |
-| `invitado.pruebas@example.com` | No autorizado (para verificar bloqueo) |
-
-La allowlist se gestiona en la hoja `files` mediante una configuración en servidor (D1).
-Nunca se embebe en el bundle frontend.
+Usar una contraseña ficticia para `VITE_PASSWORD` y para la propiedad de Apps Script
+`ADMIN_PASSWORD_boda-pruebas`. Configurar `VITE_WEDDING_SLUG=boda-pruebas`.
+La contraseña queda en el JavaScript del panel de prueba.
 
 ## 2. Boda de prueba (maestro sintético)
 
@@ -54,7 +47,8 @@ Hoja `generic`:
 
 ## 5. Uso para verificación manual
 
-- **T13:** autorización válida/no autorizada/sesión expirada con este libro sintético.
+- **T13:** comprobar contraseña incorrecta, correcta y configuración ausente. Tras caducar
+  la sesión, pulsar «Actualizar» y verificar que reaparece el formulario.
 - **T14:** filtros, totales, filas `viewed`/`accepted`/`declined`, ceros y campos ausentes.
 - **T15:** servicio caído, doble clic en actualizar, privacidad en escritorio y móvil.
 

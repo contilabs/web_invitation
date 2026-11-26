@@ -143,8 +143,9 @@ test('ejecuta sin red, montajes del host ni privilegios', () => {
 test('solo se transmiten las variables públicas permitidas', () => {
   assert.deepEqual(serviceEnvironmentArguments({
     VITE_SERVICE_URL: 'https://example.test/exec', VITE_WEDDING_SLUG: 'prueba', VITE_WHATSAPP_NUMBER: '521234567890',
-    SECRET: 'privado', NODE_OPTIONS: '--require=malicioso',
-  }), ['--env', 'VITE_SERVICE_URL=https://example.test/exec', '--env', 'VITE_WEDDING_SLUG=prueba', '--env', 'VITE_WHATSAPP_NUMBER=521234567890'])
+    VITE_PASSWORD: 'clave de prueba', SECRET: 'privado', NODE_OPTIONS: '--require=malicioso',
+  }), ['--env', 'VITE_SERVICE_URL=https://example.test/exec', '--env', 'VITE_WEDDING_SLUG=prueba',
+    '--env', 'VITE_WHATSAPP_NUMBER=521234567890', '--env', 'VITE_PASSWORD=clave de prueba'])
   assert.deepEqual(serviceEnvironmentArguments({}), [])
 })
 

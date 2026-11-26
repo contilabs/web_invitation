@@ -154,7 +154,7 @@ function localServiceEnvironment() {
   if (!existsSync(path)) return {}
   const values = {}
   for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
-    const match = line.match(/^\s*(VITE_SERVICE_URL|VITE_WEDDING_SLUG|VITE_WHATSAPP_NUMBER)\s*=\s*(.*?)\s*$/)
+    const match = line.match(/^\s*(VITE_SERVICE_URL|VITE_WEDDING_SLUG|VITE_WHATSAPP_NUMBER|VITE_PASSWORD)\s*=\s*(.*?)\s*$/)
     if (!match) continue
     values[match[1]] = match[2].replace(/^(["'])(.*)\1$/, '$2')
   }
@@ -163,7 +163,7 @@ function localServiceEnvironment() {
 
 export function serviceEnvironmentArguments(env) {
   const source = env === undefined ? { ...localServiceEnvironment(), ...process.env } : env
-  return ['VITE_SERVICE_URL', 'VITE_WEDDING_SLUG', 'VITE_WHATSAPP_NUMBER'].flatMap((name) =>
+  return ['VITE_SERVICE_URL', 'VITE_WEDDING_SLUG', 'VITE_WHATSAPP_NUMBER', 'VITE_PASSWORD'].flatMap((name) =>
     Object.hasOwn(source, name) ? ['--env', `${name}=${source[name]}`] : [],
   )
 }

@@ -27,9 +27,11 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   `overflow: hidden`. Marco SVG sobre las hojas. Verificado en móvil, horizontal y escritorio,
   con el texto libre y el botón «Ingresar» operativo.
 - Footer compacto con crédito en una línea y enlace de contacto. Favicon original verificado por SHA-256.
-- Rama `boda_nahomi_andres`: el panel vuelve al acceso por correo y código de cinco dígitos,
-  con sesión de 15 minutos. La reversión es local y no se publicó.
-- Docker: build correcto y 268/272 pruebas. Fallos conocidos de lanzador, admin, familia y metadatos.
+- Rama `boda_nahomi_andres`: el panel usa solo `VITE_PASSWORD`, validada en Apps Script contra
+  `ADMIN_PASSWORD_<slug>`, con sesión de hasta 45 minutos por boda. Contrato admin `2.0.0`.
+  El valor público se acepta como barrera provisional y queda anotado como deuda técnica.
+- Docker: build con contraseña ficticia correcto. En la corrida del panel, 271/274 pruebas pasan.
+  Persisten los fallos del contrato del lanzador, del orden de Familia y de los metadatos.
 - Spec 004: T1–T16 hechas; T17 manual pendiente. Contrato público `1.4.0` y Apps Script.
 - Spec 005: T1–T20, T22/T23 hechas; T21 manual pendiente. RSVP con lookup privado por teléfono,
   rechazo con mensaje, saludo personalizado y consulta tolerante.
@@ -45,8 +47,8 @@ Memoria entre sesiones. Máximo ~80 líneas; las reglas permanentes viven en `AG
   se quitó la sombra al finalizar la animación para evitar el brillo posterior.
 - Seguridad: `dev`, `preview`, `test` y `check` usan lanzadores Docker; `build` ejecuta Vite
   directamente para que CI/Netlify pueda publicar sin Docker.
-- Configuración local: los lanzadores admiten `VITE_SERVICE_URL`, `VITE_WEDDING_SLUG`
-  y `VITE_WHATSAPP_NUMBER` de `.env.local` gitignorado o del entorno.
+- Configuración local: los lanzadores admiten `VITE_SERVICE_URL`, `VITE_WEDDING_SLUG`,
+  `VITE_WHATSAPP_NUMBER` y `VITE_PASSWORD` de `.env.local` gitignorado o del entorno.
 
 ## Decisiones importantes
 - `src/data/wedding.js` es el único registro de contenido; el invitado y RSVP vienen del servicio.

@@ -1,5 +1,6 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
+import { ADMIN_CONTRACT_VERSION } from "../constants/contract.js";
 import { wedding } from "../data/wedding.js";
 import { filterAdminResponses, invitationLink, invitationMessage, normalizeAdminResponse, sortAdminResponses } from "./adminResponses.js";
 
@@ -10,7 +11,7 @@ const response = (overrides = {}) => ({
 });
 
 function envelope(responses) {
-  return { ok: true, contract: "1.2.0", wedding: { slug: "boda", isActive: true, updatedAt: "2027-01-01T10:00:00.000Z" }, responses };
+  return { ok: true, contract: ADMIN_CONTRACT_VERSION, wedding: { slug: "boda", isActive: true, updatedAt: "2027-01-01T10:00:00.000Z" }, responses };
 }
 
 test("normaliza filas y deriva el resumen excluyendo declined", () => {

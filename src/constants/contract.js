@@ -289,20 +289,21 @@ export const SERVICE_ERRORS = [
 
 // Contrato administrativo independiente (spec 006: panel privado de respuestas RSVP).
 // Versión separada del contrato público 1.4.0; no cambia el comportamiento del RSVP público.
-export const ADMIN_CONTRACT_VERSION = "1.3.0";
+export const ADMIN_CONTRACT_VERSION = "2.0.0";
 
-// Acción administrativa para obtener el listado de respuestas.
+// Acciones de acceso y lectura del panel.
 export const ADMIN_SERVICE_ACTIONS = {
+  LOGIN: "adminLogin",
   LIST_RESPONSES: "listResponses",
   LIST_CODES: "listCodes",
   REVEAL_PHONE: "revealPhone",
-  REQUEST_TOKEN: "requestToken",
-  VERIFY_TOKEN: "verifyToken",
 };
 
 // Campos de la petición administrativa.
 export const ADMIN_REQUEST_FIELDS = {
   ACTION: "action",
+  SLUG: "slug",
+  PASSWORD: "password",
   GUEST_ID: "guestId",
   SESSION: "session",
 };
@@ -411,33 +412,13 @@ export const ADMIN_SERVICE_ERRORS = [
     retryable: true,
   },
   {
-    code: "INVALID_ADMIN_EMAIL",
-    message: "No encontramos un panel para ese correo.",
-    retryable: false,
+    code: "INVALID_PASSWORD",
+    message: "La contraseña es incorrecta.",
+    retryable: true,
   },
   {
     code: "INVALID_TOKEN",
-    message: "El código no es válido.",
+    message: "La sesión venció. Vuelve a ingresar la contraseña.",
     retryable: true,
-  },
-  {
-    code: "TOKEN_SENT",
-    message: "El código fue enviado por correo.",
-    retryable: false,
-  },
-  {
-    code: "TOKEN_RESET",
-    message: "Se alcanzó el límite de intentos; enviamos un código nuevo.",
-    retryable: false,
-  },
-  {
-    code: "EMAIL_UNAVAILABLE",
-    message: "No pudimos enviar el código por correo.",
-    retryable: true,
-  },
-  {
-    code: "EMAIL_QUOTA_EXHAUSTED",
-    message: "Se agotó la cuota diaria de correo del servicio.",
-    retryable: false,
   },
 ];

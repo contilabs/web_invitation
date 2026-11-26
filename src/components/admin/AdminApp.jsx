@@ -1,29 +1,31 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ADMIN_CONTRACT_VERSION, ADMIN_SERVICE_ERRORS, NO_LIMIT } from "../../constants/contract.js";
 import { wedding } from "../../data/wedding.js";
-import { SERVICE_URL_VAR } from "../../constants/service.js";
-import { listAdminCodes, listAdminResponses, requestAdminToken, revealAdminPhone, verifyAdminToken } from "../../services/admin.js";
+import { listAdminCodes, listAdminResponses, loginAdmin, revealAdminPhone } from "../../services/admin.js";
 import { filterAdminResponses, invitationLink, invitationMessage, normalizeAdminCodes, normalizeAdminResponse, sortAdminResponses } from "../../utils/adminResponses.js";
 
-const configuredUrl = String(import.meta.env[SERVICE_URL_VAR] ?? "").trim();
-const config = { url: configuredUrl, state: configuredUrl ? "ready" : "not-configured" };
+const serviceUrl = (import.meta.env.VITE_SERVICE_URL ?? "").trim();
+const weddingSlug = (import.meta.env.VITE_WEDDING_SLUG ?? "").trim();
+// Barrera provisional: Vite incluye este valor en el JavaScript del panel.
+const adminPassword = import.meta.env.VITE_PASSWORD ?? "";
+const isConfigured = Boolean(serviceUrl && weddingSlug && adminPassword.trim());
 const errorCopy = new Map(ADMIN_SERVICE_ERRORS.map(({ code, message }) => [code, message]));
 const COPY = {
-  spanish: { panel: "Panel privado", title: "Respuestas RSVP", email: "Correo electrónico", send: "Enviar código", sending: "Enviando código…", reviewEmail: "Revisa tu correo.", token: "Código de 5 dígitos", enter: "Entrar", validating: "Validando código…", refresh: "Actualizar", refreshing: "Actualizando…", search: "Buscar", all: "Todos", status: "Estado", phone: "Teléfono", allergies: "Alergias", allAllergies: "Todas", withAllergies: "Con alergias", withoutAllergies: "Sin alergias", sort: "Orden", recent: "Más recientes", name: "Nombre", clear: "Limpiar", invitations: "Invitaciones", issued: "Boletos emitidos", occupied: "Boletos ocupados", available: "Boletos sin ocupar", accepted: "Aceptadas", declined: "Rechazadas", pending: "Pendientes", responses: "Respuestas", messages: "Mensajes", codes: "Enlaces", code: "Código", spaces: "Lugares permitidos", copyMessage: "Copiar mensaje", messageCopied: "Mensaje copiado", copyLink: "Copiar link", linkCopied: "Link copiado", noCodes: "No hay enlaces disponibles.", codesError: "No pudimos cargar los enlaces.", acceptedState: "Aceptado", declinedState: "Rechazado", viewedState: "Visto", noResponses: "No hay respuestas que coincidan.", noMessages: "No hay mensajes de invitados.", nameMissing: "Sin nombre", assigned: "Boletos asignados", occupiedShort: "Boletos aceptados", message: "Mensaje", updated: "Actualización", detail: "Ver detalle", close: "Cerrar", hide: "Ocultar", reveal: "Mostrar temporalmente", notAvailable: "—", unlimited: "Sin límite", adults: "adultos", children: "niños", noAllergies: "Ninguna", noMessage: "Sin mensaje" },
-  english: { panel: "Private panel", title: "RSVP responses", email: "Email", send: "Send code", sending: "Sending code…", reviewEmail: "Check your email.", token: "5-digit code", enter: "Sign in", validating: "Checking code…", refresh: "Refresh", refreshing: "Refreshing…", search: "Search", all: "All", status: "Status", phone: "Phone", allergies: "Allergies", allAllergies: "All", withAllergies: "With allergies", withoutAllergies: "Without allergies", sort: "Sort", recent: "Most recent", name: "Name", clear: "Clear", invitations: "Invitations", issued: "Seats issued", occupied: "Seats occupied", available: "Seats unoccupied", accepted: "Accepted", declined: "Declined", pending: "Pending", responses: "Responses", messages: "Messages", codes: "Links", code: "Code", spaces: "Allowed seats", copyMessage: "Copy message", messageCopied: "Message copied", copyLink: "Copy link", linkCopied: "Link copied", noCodes: "No links available.", codesError: "We could not load the links.", acceptedState: "Accepted", declinedState: "Declined", viewedState: "Viewed", noResponses: "No responses match.", noMessages: "No guest messages.", nameMissing: "No name", assigned: "Seats assigned", occupiedShort: "Seats accepted", message: "Message", updated: "Updated", detail: "View details", close: "Close", hide: "Hide", reveal: "Show temporarily", notAvailable: "—", unlimited: "No limit", adults: "adults", children: "children", noAllergies: "None", noMessage: "No message" },
+  spanish: { panel: "Panel privado", title: "Respuestas RSVP", refresh: "Actualizar", refreshing: "Actualizando…", search: "Buscar", all: "Todos", status: "Estado", phone: "Teléfono", allergies: "Alergias", allAllergies: "Todas", withAllergies: "Con alergias", withoutAllergies: "Sin alergias", sort: "Orden", recent: "Más recientes", name: "Nombre", clear: "Limpiar", invitations: "Invitaciones", issued: "Boletos emitidos", occupied: "Boletos ocupados", available: "Boletos sin ocupar", accepted: "Aceptadas", declined: "Rechazadas", pending: "Pendientes", responses: "Respuestas", messages: "Mensajes", codes: "Enlaces", code: "Código", spaces: "Lugares permitidos", copyMessage: "Copiar mensaje", messageCopied: "Mensaje copiado", copyLink: "Copiar link", linkCopied: "Link copiado", noCodes: "No hay enlaces disponibles.", codesError: "No pudimos cargar los enlaces.", acceptedState: "Aceptado", declinedState: "Rechazado", viewedState: "Visto", noResponses: "No hay respuestas que coincidan.", noMessages: "No hay mensajes de invitados.", nameMissing: "Sin nombre", assigned: "Boletos asignados", occupiedShort: "Boletos aceptados", message: "Mensaje", updated: "Actualización", detail: "Ver detalle", close: "Cerrar", hide: "Ocultar", reveal: "Mostrar temporalmente", notAvailable: "—", unlimited: "Sin límite", adults: "adultos", children: "niños", noAllergies: "Ninguna", noMessage: "Sin mensaje" },
+  english: { panel: "Private panel", title: "RSVP responses", refresh: "Refresh", refreshing: "Refreshing…", search: "Search", all: "All", status: "Status", phone: "Phone", allergies: "Allergies", allAllergies: "All", withAllergies: "With allergies", withoutAllergies: "Without allergies", sort: "Sort", recent: "Most recent", name: "Name", clear: "Clear", invitations: "Invitations", issued: "Seats issued", occupied: "Seats occupied", available: "Seats unoccupied", accepted: "Accepted", declined: "Declined", pending: "Pending", responses: "Responses", messages: "Messages", codes: "Links", code: "Code", spaces: "Allowed seats", copyMessage: "Copy message", messageCopied: "Message copied", copyLink: "Copy link", linkCopied: "Link copied", noCodes: "No links available.", codesError: "We could not load the links.", acceptedState: "Accepted", declinedState: "Declined", viewedState: "Viewed", noResponses: "No responses match.", noMessages: "No guest messages.", nameMissing: "No name", assigned: "Seats assigned", occupiedShort: "Seats accepted", message: "Message", updated: "Updated", detail: "View details", close: "Close", hide: "Hide", reveal: "Show temporarily", notAvailable: "—", unlimited: "No limit", adults: "adults", children: "children", noAllergies: "None", noMessage: "No message" },
 };
-const ERROR_COPY = { spanish: { OUTDATED_SERVICE: "El servicio está desactualizado. Hay que redesplegar gas/Code.gs." }, english: { INVALID_ADMIN_EMAIL: "No panel was found for that email.", INVALID_TOKEN: "The code is not valid.", EMAIL_UNAVAILABLE: "We could not send the code by email.", EMAIL_QUOTA_EXHAUSTED: "The service email quota is exhausted.", NOT_CONFIGURED: "The panel is not configured.", SERVICE_UNAVAILABLE: "We could not connect. Try again.", OUTDATED_SERVICE: "The service is outdated. Redeploy gas/Code.gs." } };
+const ERROR_COPY = { spanish: { OUTDATED_SERVICE: "El servicio está desactualizado. Hay que redesplegar gas/Code.gs." }, english: { NOT_CONFIGURED: "The panel is not configured.", SERVICE_UNAVAILABLE: "We could not connect. Try again.", OUTDATED_SERVICE: "The service is outdated. Redeploy gas/Code.gs." } };
 
 function formatDate(value, language) { return value ? new Intl.DateTimeFormat(language === "english" ? "en-US" : "es-MX", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—"; }
 function statusLabel(status, copy) { return status === "accepted" ? copy.acceptedState : status === "declined" ? copy.declinedState : copy.viewedState; }
 function errorLabel(code, language) { return ERROR_COPY[language]?.[code] ?? errorCopy.get(code) ?? (language === "english" ? "We could not complete the request." : "No pudimos completar la solicitud."); }
 
 export function AdminApp() {
-  const [state, setState] = useState({ status: config.state === "ready" ? "login" : "error", data: null, code: config.state === "ready" ? null : "NOT_CONFIGURED" });
+  const [state, setState] = useState({ status: isConfigured ? "login" : "error", data: null, code: isConfigured ? null : "NOT_CONFIGURED" });
   const [codesState, setCodesState] = useState({ status: "idle", codes: [] });
-  const [credentials, setCredentials] = useState({ email: "", token: "", session: "" });
-  const [loginStep, setLoginStep] = useState("email");
+  const [session, setSession] = useState("");
   const [loginMessage, setLoginMessage] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [filters, setFilters] = useState({ status: "", restrictions: "", query: "" });
   const [sort, setSort] = useState("datetime");
   const [tab, setTab] = useState("responses");
@@ -38,21 +40,56 @@ export function AdminApp() {
   const isPersonal = state.data?.wedding?.guestType === "personal";
 
   const load = useCallback(async () => {
-    if (config.state !== "ready" || loadingRef.current || !credentials.session) return;
+    if (loadingRef.current || !session) return;
     loadingRef.current = true;
     setState((current) => ({ ...current, status: "loading", code: null }));
-    const [result, codesResult] = await Promise.all([listAdminResponses(config.url, credentials), listAdminCodes(config.url, credentials)]);
+    const [result, codesResult] = await Promise.all([
+      listAdminResponses(serviceUrl, { session }),
+      listAdminCodes(serviceUrl, { session }),
+    ]);
+    loadingRef.current = false;
+    if (result.errorCode === "INVALID_TOKEN" || codesResult.errorCode === "INVALID_TOKEN") {
+      setSession("");
+      setCodesState({ status: "idle", codes: [] });
+      setSelected(null);
+      setRevealedPhone(null);
+      setLoginMessage(errorLabel("INVALID_TOKEN", "spanish"));
+      setState({ status: "login", data: null, code: null });
+      return;
+    }
     const normalizedCodes = normalizeAdminCodes(codesResult.data);
     setCodesState(normalizedCodes.ok ? { status: "ready", codes: normalizedCodes.codes } : { status: "error", codes: [] });
-    if (!result.ok) { loadingRef.current = false; setState((current) => ({ status: "error", data: current.data, code: result.errorCode })); return; }
+    if (!result.ok) { setState((current) => ({ status: "error", data: current.data, code: result.errorCode })); return; }
     const normalized = normalizeAdminResponse(result.data);
-    loadingRef.current = false;
     const errorCode = !normalized.ok && result.data?.contract && result.data.contract !== ADMIN_CONTRACT_VERSION ? "OUTDATED_SERVICE" : normalized.errorCode;
     setState(normalized.ok ? { status: "ready", data: normalized, code: null } : { status: "error", data: null, code: errorCode });
-  }, [credentials]);
-  const sendToken = async (event) => { event.preventDefault(); const email = String(new FormData(event.currentTarget).get("email") ?? "").trim(); setLoginMessage(COPY.spanish.sending); const result = await requestAdminToken(config.url, email); if (result.ok) { setCredentials({ email, token: "", session: "" }); setLoginStep("token"); setLoginMessage(COPY.spanish.reviewEmail); } else setLoginMessage(errorLabel(result.errorCode, "spanish")); };
-  const enterToken = async (event) => { event.preventDefault(); const token = String(new FormData(event.currentTarget).get("token") ?? "").trim(); setLoginMessage(COPY.spanish.validating); const result = await verifyAdminToken(config.url, credentials.email, token); if (result.ok && typeof result.data?.session === "string") { setCredentials((current) => ({ email: current.email, token: "", session: result.data.session })); setState({ status: "loading", data: null, code: null }); } else setLoginMessage(errorLabel(result.errorCode, "spanish")); };
-  useEffect(() => { if (state.status === "loading" && credentials.session) load(); }, [state.status, credentials.session, load]);
+  }, [session]);
+  const enterPassword = async (event) => {
+    event.preventDefault();
+    if (isLoggingIn) return;
+    const form = event.currentTarget;
+    const password = new FormData(form).get("password");
+    if (password !== adminPassword) {
+      setLoginMessage(errorLabel("INVALID_PASSWORD", "spanish"));
+      return;
+    }
+    setIsLoggingIn(true);
+    setLoginMessage("");
+    const result = await loginAdmin(serviceUrl, weddingSlug, password);
+    setIsLoggingIn(false);
+    form.reset();
+    if (result.data?.contract !== ADMIN_CONTRACT_VERSION && result.data) {
+      setLoginMessage(errorLabel("OUTDATED_SERVICE", "spanish"));
+      return;
+    }
+    if (!result.ok || typeof result.data?.session !== "string" || !result.data.session) {
+      setLoginMessage(errorLabel(result.errorCode ?? "INVALID_RESPONSE", "spanish"));
+      return;
+    }
+    setSession(result.data.session);
+    setState({ status: "loading", data: null, code: null });
+  };
+  useEffect(() => { if (session) load(); }, [session, load]);
   useEffect(() => { if (!selected) return undefined; const onKeyDown = (event) => { if (event.key === "Escape") closeDetail(); }; document.addEventListener("keydown", onKeyDown); return () => document.removeEventListener("keydown", onKeyDown); }, [selected]);
 
   const rows = useMemo(() => state.data ? sortAdminResponses(filterAdminResponses(state.data.responses, filters), sort) : [], [state.data, filters, sort]);
@@ -66,7 +103,7 @@ export function AdminApp() {
     if (!guestId) return;
     const requestId = revealRequestRef.current + 1;
     revealRequestRef.current = requestId;
-    const result = await revealAdminPhone(config.url, guestId, credentials);
+    const result = await revealAdminPhone(serviceUrl, guestId, { session });
     if (revealRequestRef.current === requestId && selected?.guestId === guestId && result.ok && typeof result.data?.phone === "string") setRevealedPhone(result.data.phone);
   };
   const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }));
@@ -89,10 +126,22 @@ export function AdminApp() {
   const assignedText = (row) => isPersonal ? `${row.assignedAdults} ${copy.adults}${row.assignedChildren ? ` · ${row.assignedChildren} ${copy.children}` : ""}` : seats(row.assignedSeats);
   const occupiedText = (row) => isPersonal ? `${row.adultsAttendees} ${copy.adults}${row.childAttendees ? ` · ${row.childAttendees} ${copy.children}` : ""}` : String(row.occupiedSeats);
 
-  if (state.status === "login") return <div className="admin-shell"><section className="admin-notice"><p className="admin-kicker">{COPY.spanish.panel}</p><h1>{COPY.spanish.title}</h1>{loginStep === "email" ? <form onSubmit={sendToken}><label>{COPY.spanish.email}<input name="email" type="email" autoComplete="email" required /></label><p role="status">{loginMessage}</p><button type="submit">{COPY.spanish.send}</button></form> : <form onSubmit={enterToken}><p>{loginMessage}</p><label>{COPY.spanish.token}<input name="token" inputMode="numeric" pattern="[0-9]{5}" maxLength={5} autoComplete="one-time-code" required /></label><button type="submit">{COPY.spanish.enter}</button></form>}</section></div>;
+  if (state.status === "login") return (
+    <div className="admin-shell">
+      <section className="admin-notice">
+        <p className="admin-kicker">{copy.panel}</p>
+        <h1>{copy.title}</h1>
+        <form method="post" onSubmit={enterPassword}>
+          <label>Contraseña<input name="password" type="password" autoComplete="current-password" required /></label>
+          <p role="status">{loginMessage}</p>
+          <button type="submit" disabled={isLoggingIn}>{isLoggingIn ? "Validando…" : "Entrar"}</button>
+        </form>
+      </section>
+    </div>
+  );
 
   return <div className="admin-shell">
-    <header className="admin-header"><div><p className="admin-kicker">{copy.panel}</p><h1>{copy.title}</h1></div><button type="button" onClick={load} disabled={state.status === "loading"}>{state.status === "loading" ? copy.refreshing : copy.refresh}</button></header>
+    <header className="admin-header"><div><p className="admin-kicker">{copy.panel}</p><h1>{copy.title}</h1></div>{session && <button type="button" onClick={load} disabled={state.status === "loading"}>{state.status === "loading" ? copy.refreshing : copy.refresh}</button>}</header>
     {state.status === "error" && <section className="admin-notice" role="alert"><h2>{errorLabel(state.code, language)}</h2>{["SERVICE_UNAVAILABLE", "GUEST_SHEET_UNAVAILABLE", "INVALID_RESPONSE", "INVALID_DATA"].includes(state.code) && <button type="button" onClick={load}>{copy.refresh}</button>}</section>}
     {state.status === "loading" && !state.data && <p className="admin-status" role="status">{copy.refreshing}</p>}
     {state.data && <>

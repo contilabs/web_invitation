@@ -54,9 +54,6 @@ const SHEET_NAMES = {
 const MASTER_COLUMNS = {
   SLUG: 'slug',
   IS_ACTIVE: 'is_active',
-  ADMIN_EMAIL: 'admin_email',
-  ADMIN_TOKEN: 'token',
-  ADMIN_COUNTER: 'counter',
   GUESTS_SHEET_ID: 'guests_sheet_id',
   DEADLINE: 'deadline',
   GUEST_TYPE: 'guest_type',
@@ -175,16 +172,15 @@ const SERVICE_ACTIONS = {
 
 // Acciones administrativas (spec 006: panel privado de respuestas). Independientes del contrato público.
 const ADMIN_SERVICE_ACTIONS = {
+  LOGIN: 'adminLogin',
   LIST_RESPONSES: 'listResponses',
   LIST_CODES: 'listCodes',
   REVEAL_PHONE: 'revealPhone',
-  REQUEST_TOKEN: 'requestToken',
-  VERIFY_TOKEN: 'verifyToken',
 };
 
 // Contrato administrativo.
-const ADMIN_CONTRACT_VERSION = '1.3.0';
-const ADMIN_SESSION_TTL_SECONDS = 900;
+const ADMIN_CONTRACT_VERSION = '2.0.0';
+const ADMIN_SESSION_TTL_SECONDS = 45 * 60;
 
 // Errores administrativos (no reemplazan los del contrato público).
 const ADMIN_ERROR_CODES = {
@@ -196,12 +192,8 @@ const ADMIN_ERROR_CODES = {
   INVALID_DATA: 'INVALID_DATA',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
   INVALID_RESPONSE: 'INVALID_RESPONSE',
-  INVALID_ADMIN_EMAIL: 'INVALID_ADMIN_EMAIL',
+  INVALID_PASSWORD: 'INVALID_PASSWORD',
   INVALID_TOKEN: 'INVALID_TOKEN',
-  TOKEN_SENT: 'TOKEN_SENT',
-  TOKEN_RESET: 'TOKEN_RESET',
-  EMAIL_UNAVAILABLE: 'EMAIL_UNAVAILABLE',
-  EMAIL_QUOTA_EXHAUSTED: 'EMAIL_QUOTA_EXHAUSTED',
 };
 
 // Códigos de error del contrato (§4.1). La app elige el aviso por `code`; el servicio solo
@@ -246,12 +238,6 @@ function doGet(e) {
   return response_({ ok: true, code: ERROR_CODES.OK, contract: CONTRACT_VERSION });
 }
 
-// Ejecutar una vez manualmente desde el editor para conceder el permiso de MailApp al
-// propietario del deployment. No envía ningún correo.
-function authorizeAdminMail() {
-  return MailApp.getRemainingDailyQuota();
-}
-
 // Red de seguridad: el contrato evita el preflight (D27), pero si llega un `OPTIONS` se
 // contesta vacío en vez de devolver la página de error de Apps Script.
 function doOptions(e) {
@@ -274,20 +260,10 @@ function doPost(e) {
   }
 
   try {
-    // Compatibilidad con una copia antigua del panel que enviaba solo `{ email }`.
-    // No se aplica a ninguna acción pública: esas peticiones siempre llevan `action`.
-    if (!payload.action && hasKey_(payload, 'email') && Object.keys(payload).length === 1) {
-      return response_(requestAdminToken_(payload.email));
-    }
     if (payload.action === SERVICE_ACTIONS.RESOLVE) return response_(resolveInvitation_(payload));
     if (payload.action === SERVICE_ACTIONS.RESPOND) return response_(registerResponse_(payload));
     if (payload.action === SERVICE_ACTIONS.LOOKUP) return response_(lookupResponse_(payload));
-    if (payload.action === ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN) {
-      return response_(requestAdminToken_(payload.email));
-    }
-    if (payload.action === ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN) {
-      return response_(verifyAdminToken_(payload.email, payload.token));
-    }
+    if (payload.action === ADMIN_SERVICE_ACTIONS.LOGIN) return response_(loginAdmin_(payload));
     if (payload.action === ADMIN_SERVICE_ACTIONS.LIST_RESPONSES) {
       return response_(listResponsesAdmin_(payload));
     }
@@ -303,10 +279,12 @@ function doPost(e) {
     // Última red: pase lo que pase, la app recibe JSON del contrato y no una página de
     // error de Apps Script (RF-14).
     console.error('doPost error: ' + (error && error.stack ? error.stack : error));
-    const isAdminAction = [ADMIN_SERVICE_ACTIONS.REQUEST_TOKEN, ADMIN_SERVICE_ACTIONS.VERIFY_TOKEN,
+    const isAdminAction = [ADMIN_SERVICE_ACTIONS.LOGIN,
       ADMIN_SERVICE_ACTIONS.LIST_RESPONSES, ADMIN_SERVICE_ACTIONS.LIST_CODES,
       ADMIN_SERVICE_ACTIONS.REVEAL_PHONE].indexOf(payload.action) !== -1;
-    return response_({ ok: false, code: isAdminAction ? ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE : ERROR_CODES.SERVICE_UNAVAILABLE });
+    return response_(isAdminAction
+      ? { ok: false, code: ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION }
+      : { ok: false, code: ERROR_CODES.SERVICE_UNAVAILABLE });
   }
 }
 
@@ -1468,179 +1446,44 @@ function maskPhone_(value) {
   return '****' + lastFour;
 }
 
-// Busca la única boda asignada al correo. El correo se recibe solo para localizar la fila;
-// el token se comprueba después y nunca se devuelve.
-function findAdminRecord_(email) {
-  const master = readMaster_();
-  if (!master.ok) return master;
-  const required = [MASTER_COLUMNS.ADMIN_EMAIL, MASTER_COLUMNS.ADMIN_TOKEN,
-    MASTER_COLUMNS.ADMIN_COUNTER, MASTER_COLUMNS.SLUG];
-  for (let i = 0; i < required.length; i += 1) {
-    if (!hasKey_(master.headerMap, required[i])) return { ok: false, code: ADMIN_ERROR_CODES.NOT_CONFIGURED };
+// La contraseña se configura en las propiedades del script por slug, sin escribir el libro.
+function loginAdmin_(payload) {
+  const slug = typeof payload.slug === 'string' ? text_(payload.slug) : null;
+  const password = slug === null ? null : PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD_' + slug);
+  if (password === null || password.trim() === '') {
+    return { ok: false, code: ADMIN_ERROR_CODES.NOT_CONFIGURED, contract: ADMIN_CONTRACT_VERSION };
   }
-  const normalizedEmail = text_(email);
-  if (normalizedEmail === null) {
-    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_ADMIN_EMAIL };
+  if (payload.password !== password) {
+    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_PASSWORD, contract: ADMIN_CONTRACT_VERSION };
   }
-  const matches = [];
-  for (let r = 0; r < master.rows.length; r += 1) {
-    const adminEmail = text_(cellOf_(master.rows[r], master.headerMap, MASTER_COLUMNS.ADMIN_EMAIL));
-    if (adminEmail !== null && adminEmail.toLowerCase() === normalizedEmail.toLowerCase()) {
-      matches.push({ row: master.rows[r], rowNumber: r + 2, email: adminEmail });
-    }
-  }
-  if (matches.length === 0) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_ADMIN_EMAIL };
-  if (matches.length > 1) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_DATA };
-  const match = matches[0];
-  const slug = text_(cellOf_(match.row, master.headerMap, MASTER_COLUMNS.SLUG));
   const wedding = findWedding_(slug);
-  if (!wedding.ok) return wedding;
-  return {
-    ok: true,
-    master: master,
-    rowNumber: match.rowNumber,
-    email: match.email,
-    token: text_(cellOf_(match.row, master.headerMap, MASTER_COLUMNS.ADMIN_TOKEN)),
-    counter: parseCount_(cellOf_(match.row, master.headerMap, MASTER_COLUMNS.ADMIN_COUNTER)) ?? 0,
-    wedding: wedding,
-  };
-}
+  if (!wedding.ok) return { ok: false, code: wedding.code, contract: ADMIN_CONTRACT_VERSION };
 
-function newAdminToken_() {
-  return String(Math.floor(10000 + Math.random() * 90000));
-}
-
-function saveAdminCredentials_(record, token, counter) {
-  const tokenColumn = record.master.headerMap[MASTER_COLUMNS.ADMIN_TOKEN] + 1;
-  const counterColumn = record.master.headerMap[MASTER_COLUMNS.ADMIN_COUNTER] + 1;
-  record.master.sheet.getRange(record.rowNumber, tokenColumn).setNumberFormat('@').setValue(token);
-  record.master.sheet.getRange(record.rowNumber, counterColumn).setValue(counter);
-  SpreadsheetApp.flush();
-}
-
-function sendAdminToken_(email, token) {
-  if (MailApp.getRemainingDailyQuota() < 1) {
-    const error = new Error('EMAIL_QUOTA_EXHAUSTED');
-    error.code = ADMIN_ERROR_CODES.EMAIL_QUOTA_EXHAUSTED;
-    throw error;
-  }
-  MailApp.sendEmail(
-    email,
-    'Código de acceso al panel RSVP',
-    'Tu código de acceso al panel RSVP es: ' + token + '\n\nEste código no se guarda en el navegador y cambia cada vez que solicitas un correo nuevo.',
-  );
-}
-
-function requestAdminToken_(email) {
-  const record = findAdminRecord_(email);
-  if (!record.ok) return { ok: false, code: record.code, contract: ADMIN_CONTRACT_VERSION };
-  let token = null;
-  let counter = 0;
-  const lock = LockService.getScriptLock();
-  try {
-    lock.waitLock(LOCK_WAIT_MS);
-    token = newAdminToken_();
-    saveAdminCredentials_(record, token, counter);
-  } catch (error) {
-    return { ok: false, code: ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
-  } finally {
-    if (lock.hasLock()) lock.releaseLock();
-  }
-  try {
-    sendAdminToken_(record.email, token);
-  } catch (error) {
-    console.error('admin: mail_send_failed ' + (error && error.message ? error.message : error));
-    return { ok: false, code: error && error.code === ADMIN_ERROR_CODES.EMAIL_QUOTA_EXHAUSTED ? error.code : ADMIN_ERROR_CODES.EMAIL_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
-  }
-  return { ok: true, code: ADMIN_ERROR_CODES.TOKEN_SENT, contract: ADMIN_CONTRACT_VERSION };
-}
-
-function verifyAdminToken_(email, token) {
-  const record = findAdminRecord_(email);
-  if (!record.ok) return { ok: false, code: record.code, contract: ADMIN_CONTRACT_VERSION };
-  const candidate = text_(token);
-  if (candidate !== null && candidate === record.token) {
-    const lock = LockService.getScriptLock();
-    try {
-      lock.waitLock(LOCK_WAIT_MS);
-      saveAdminCredentials_(record, record.token, 0);
-    } catch (error) {
-      return { ok: false, code: ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
-    } finally {
-      if (lock.hasLock()) lock.releaseLock();
-    }
-    return {
-      ok: true,
-      code: ERROR_CODES.OK,
-      contract: ADMIN_CONTRACT_VERSION,
-      session: createAdminSession_(record.email, record.wedding.slug),
-    };
-  }
-
-  let nextToken = null;
-  const nextCounter = record.counter + 1;
-  const lock = LockService.getScriptLock();
-  try {
-    lock.waitLock(LOCK_WAIT_MS);
-    if (nextCounter >= 4) {
-      nextToken = newAdminToken_();
-      saveAdminCredentials_(record, nextToken, 0);
-    } else {
-      saveAdminCredentials_(record, record.token ?? '', nextCounter);
-    }
-  } catch (error) {
-    return { ok: false, code: ADMIN_ERROR_CODES.SERVICE_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
-  } finally {
-    if (lock.hasLock()) lock.releaseLock();
-  }
-  if (nextToken !== null) {
-    try {
-      sendAdminToken_(record.email, nextToken);
-    } catch (error) {
-      console.error('admin: mail_send_failed ' + (error && error.message ? error.message : error));
-      return { ok: false, code: error && error.code === ADMIN_ERROR_CODES.EMAIL_QUOTA_EXHAUSTED ? error.code : ADMIN_ERROR_CODES.EMAIL_UNAVAILABLE, contract: ADMIN_CONTRACT_VERSION };
-    }
-    return { ok: false, code: ADMIN_ERROR_CODES.TOKEN_RESET, contract: ADMIN_CONTRACT_VERSION };
-  }
-  return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN, contract: ADMIN_CONTRACT_VERSION };
-}
-
-// La verificación del código de correo emite una credencial efímera. Las acciones de
-// lectura nunca vuelven a aceptar el código de correo como credencial de sesión.
-function createAdminSession_(email, slug) {
   const session = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
-  CacheService.getScriptCache().put('admin-session:' + session, JSON.stringify({ email: email, slug: slug }), ADMIN_SESSION_TTL_SECONDS);
-  return session;
+  CacheService.getScriptCache().put('admin-password-session:' + session, wedding.slug, ADMIN_SESSION_TTL_SECONDS);
+  return { ok: true, code: ADMIN_ERROR_CODES.OK, contract: ADMIN_CONTRACT_VERSION, session: session };
 }
 
 function authorizeAdmin_(session) {
-  const value = text_(session);
-  if (value === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
-  const cached = CacheService.getScriptCache().get('admin-session:' + value);
-  if (cached === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
-  let identity = null;
-  try {
-    identity = JSON.parse(cached);
-  } catch (error) {
+  if (typeof session !== 'string' || !/^[a-f0-9]{64}$/i.test(session)) {
     return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
   }
-  if (!identity || text_(identity.email) === null || text_(identity.slug) === null) {
-    return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
-  }
-  const wedding = findWedding_(identity.slug);
+  const slug = CacheService.getScriptCache().get('admin-password-session:' + session);
+  if (slug === null) return { ok: false, code: ADMIN_ERROR_CODES.INVALID_TOKEN };
+  const wedding = findWedding_(slug);
   if (!wedding.ok) return wedding;
-  return { ok: true, email: identity.email, wedding: wedding };
+  return { ok: true, wedding: wedding };
 }
 
 // Lista respuestas para el panel administrativo. Solo lee, no escribe. Resuelve la boda
-// por la cuenta autorizada (D2). Devuelve solo columnas mínimas,
+// por la sesión autorizada (D2). Devuelve solo columnas mínimas,
 // teléfonos enmascarados (D3), totales excluyendo declined para adultos/niños, asistentes
 // vacíos como 0. Sin paginación (D4). Sin PII en logs.
 function listResponsesAdmin_(payload) {
   // Acción conocida; sin campos extra obligatorios (autorización resuelve en servidor).
   const auth = authorizeAdmin_(payload && payload.session);
   if (!auth.ok) {
-    // Log seguro: sin email completo en detalle sensible, sin nombres/teléfonos.
+    // El diagnóstico registra únicamente el código del error.
     console.info('admin: auth_failed code=' + auth.code);
     return { ok: false, code: auth.code, contract: ADMIN_CONTRACT_VERSION };
   }

@@ -42,17 +42,18 @@ caso de uso y un control de permisos explícitos.
 - Cambiar el maestro de bodas, códigos, cupos, plazo o estado de la boda.
 - Mostrar el contenido de la invitación pública o resolver enlaces `guest`.
 - Guardar teléfonos, nombres o respuestas en `localStorage`, cookies propias o la URL.
-- Incluir libros reales, credenciales, tokens o datos personales en Git o en el build.
+- Incluir libros reales, sesiones o datos personales en Git o en el build. La contraseña
+  provisional se configura fuera de Git y se incluye en el build.
 - Añadir dependencias de UI, tablas, autenticación o gráficos.
 
 ## 3. Usuarios y seguridad
 
-1. Solo los novios o las personas que ellos autoricen pueden acceder.
-2. El panel no puede depender de un secreto embebido en JavaScript: cualquier variable
-   `VITE_*` llega al navegador y no es una credencial.
-3. El endpoint administrativo será distinto del endpoint público de RSVP y exigirá una
-   sesión/autorización verificable en el servidor. La autorización usa un token enviado a
-   `admin_email`; el panel no recibe un slug en la URL.
+1. Los novios comparten la contraseña con quien necesita consultar el panel.
+2. La contraseña provisional `VITE_PASSWORD` queda en el JavaScript del panel y limita el
+   acceso casual. Sustituirla por autenticación en servidor queda como deuda técnica.
+3. Las acciones administrativas de lectura exigen una sesión verificable en Apps Script.
+   Se emite tras validar la contraseña para `VITE_WEDDING_SLUG` en la propiedad
+   `ADMIN_PASSWORD_<slug>`.
 4. El servicio devolverá únicamente la boda autorizada y las columnas necesarias para el
    panel. Nunca aceptará un `slug` arbitrario como única autorización.
 5. El teléfono se mostrará enmascarado por defecto. El panel no necesita mostrarlo
@@ -153,12 +154,10 @@ una paginación ficticia en la primera versión.
 
 ## 7. Decisiones cerradas
 
-- **D1 — Autenticación:** Se usará **token de 5 dígitos enviado a `admin_email`**, con `counter` persistido en el maestro.
-  - **Alternativas descartadas:** token estático en el frontend (rechazado, llegaría al navegador y no es credencial); proxy del mismo origen con sesión del hosting (descartado por complejidad para esta entrega, se revisará solo si la allowlist resulta insuficiente).
-  - **Justificación:** evita depender de sesiones Google o cookies cross-origin; el token se valida en servidor y solo vive en memoria de la página.
-- **D2 — Alcance de una sesión:** **Una boda resuelta por `admin_email`** para la sesión/autorización.
-  - **Alternativas descartadas:** selector de varias bodas autorizadas (añade complejidad de UI/permiso sin caso de uso confirmado).
-  - **Justificación:** reduce superficie de ataque (el servicio nunca aceptará un `slug` arbitrario como única autorización) y simplifica la primera entrega.
+- **D1 — Acceso provisional.** Un único campo de contraseña reemplaza el acceso por correo.
+  La contraseña de `VITE_PASSWORD` debe coincidir con la propiedad de Apps Script de la boda.
+- **D2 — Alcance de una sesión.** Una boda, identificada al iniciar sesión y conservada en
+  memoria durante un máximo de 45 minutos. Cada lectura comprueba esa sesión.
 - **D3 — Teléfono:** **Enmascarado siempre por defecto**, con **revelación temporal** tras una acción adicional, **sin persistir** el valor revelado.
   - **Alternativas descartadas:** mostrarlo completo por defecto (contrario al objetivo de minimizar exposición).
   - **Justificación:** cumple RF-6/RNF-3 y el principio de menor exposición; la revelación es efímera y no se guarda en `localStorage`, cookies, URL ni se envía a terceros.
@@ -174,16 +173,17 @@ actualizar manualmente sin duplicar solicitudes, y recibir un bloqueo claro sin 
 de datos cuando no tenga autorización o el servicio falle. `npm test` y `npm run build`
 deben estar en verde y la verificación manual debe quedar anotada en esta sección.
 
-**Verificación automática:** `npm test` (234/234) y `npm run build` pasan; el build emite
+**Verificación automática de la entrega original:** `npm test` (234/234) y `npm run build` pasan; el build emite
 `admin.html` como entrada independiente y el bundle administrativo no importa fotos ni audio.
 
-**Verificación manual:** pendiente de ejecutar con el Apps Script redesplegado, allowlist y
+**Verificación manual:** pendiente de ejecutar con el Apps Script redesplegado, contraseña y
 libro sintético de `docs/panel-respuestas-pruebas.md`: autorización, privacidad, filtros,
 actualización, datos vacíos y servicio caído.
 
 ## 9. Riesgos
 
-- Una app estática no puede proteger secretos: la autenticación debe vivir fuera del bundle.
+- La contraseña en el build es recuperable y permite iniciar una sesión. La migración a una
+  credencial que permanezca en el servidor se registra en `PENDING_TASKS.md`.
 - Un endpoint que devuelva todo el libro aumenta el impacto de una sesión comprometida;
   limitar columnas, boda y autorización es obligatorio.
 - La suma de asistentes puede cambiar mientras el panel está abierto; por eso los totales
